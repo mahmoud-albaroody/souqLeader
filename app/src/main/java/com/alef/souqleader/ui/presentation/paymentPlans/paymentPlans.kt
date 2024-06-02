@@ -1,6 +1,7 @@
-package com.alef.souqleader.ui.presentation.rolesPremissions
+package com.alef.souqleader.ui.presentation.paymentPlans
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -22,10 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,11 +35,11 @@ import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.gymScreen.GymViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
+import com.alef.souqleader.ui.theme.Grey
 import com.alef.souqleader.ui.theme.White
 
-
 @Composable
-fun RolesPermissionsScreen(modifier: Modifier) {
+fun PaymentPlansScreen(modifier: Modifier) {
     val viewModel: GymViewModel = viewModel()
 
 //    LaunchedEffect(key1 = true) {
@@ -51,7 +52,7 @@ fun RolesPermissionsScreen(modifier: Modifier) {
             .padding(all = 16.dp)
     ) {
         items(6) {
-            RolesPermissionsItem()
+            PaymentPlansItem()
 //                modifier, listOfGym[it]) { gym ->
 ////                viewModel.toggleFav(gym)
 //                onclick(gym)
@@ -62,81 +63,71 @@ fun RolesPermissionsScreen(modifier: Modifier) {
 
 @Preview
 @Composable
-fun RolesPermissionsItem() {
+fun PaymentPlansItem() {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(screenHeight / 10f)
+            .height(screenHeight / 4.8f)
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(
+        Column(
             Modifier
-                .fillMaxWidth()
-                .weight(7f)
-                .padding(horizontal = 2.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .weight(2f),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painterResource(R.drawable.user_profile_placehoder),
-                contentDescription = "",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .weight(1f)
-                    .size(40.dp)
-            )
-
-            Column(
+            Row(
                 Modifier
-                    .weight(3.5f)
-                    .padding(horizontal = 4.dp)
-            ) {
-                Text(
-                    text = "Mahmoud Ali", style = TextStyle(
-                        fontSize = 15.sp, color = Blue
-                    )
-                )
-                Text(
-                    text = "Admin", style = TextStyle(
-                        fontSize = 13.sp,
-                    )
-                )
-            }
-            Card(
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
                     .fillMaxHeight()
-                    .padding(vertical = 14.dp, horizontal = 8.dp)
-                    .weight(2.5f),
-                colors = CardDefaults.cardColors(containerColor = Blue2),
-                elevation = CardDefaults.cardElevation(4.dp)
+                    .fillMaxWidth()
+                    .weight(2f),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
+                Column(
                     Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                        .weight(1f)
+                        .padding(vertical = 16.dp,
+                            horizontal = 16.dp)
                 ) {
                     Text(
-                        modifier = Modifier.padding(end = 4.dp),
-                        text = "PERMISSION", style = TextStyle(
-                            fontSize = 11.sp,
-                            color = White
+                        text = "499.99 / year", style = TextStyle(
+                            fontSize = 18.sp, color = Blue,
+                            fontWeight = FontWeight.Bold
                         )
                     )
-                    Image(
-                        painterResource(R.drawable.drop_menu_icon),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(20.dp)
+                    Text(
+                        modifier = Modifier.padding(top = 4.dp),
+                        text = "All-Access Pass", style = TextStyle(
+                            fontSize = 13.sp, fontWeight = FontWeight.SemiBold
+                        )
                     )
                 }
+                Image(
+                    painterResource(R.drawable.select_box),
+                    contentDescription = "",
+                )
+            }
+
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = "You will get unlimit access to every module you want, 50-100 user",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = Grey
+                    )
+
+                )
+
             }
         }
     }

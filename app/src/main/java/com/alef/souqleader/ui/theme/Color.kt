@@ -16,3 +16,7 @@ val Blue2 = Color(0xFF0171E3)
 
 val OffWhite = Color(0xFFE7E7E7)
 val White = Color(0xFFFFFFFF)
+val Grey = Color(0xFF727279)
+
+
+
