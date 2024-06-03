@@ -18,5 +18,7 @@ val OffWhite = Color(0xFFE7E7E7)
 val White = Color(0xFFFFFFFF)
 val Grey = Color(0xFF727279)
 
+val LightGrey = Color(0xFFC6C6D0)
+
 
 

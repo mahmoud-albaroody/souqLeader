@@ -13,11 +13,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.alef.souqleader.R
+import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReportScreen
 import com.alef.souqleader.ui.presentation.gymDetailsScreen.DetailsGymScreen
 import com.alef.souqleader.ui.presentation.gymScreen.GymScreen
+import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
+import com.alef.souqleader.ui.presentation.login.LoginScreen
 import com.alef.souqleader.ui.presentation.paymentPlans.PaymentPlansScreen
+import com.alef.souqleader.ui.presentation.profile.ProfileScreen
 import com.alef.souqleader.ui.presentation.rolesPremissions.RolesPermissionsScreen
+import com.alef.souqleader.ui.presentation.simplifyWorkflow.SimplifyScreen
 import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
 import com.google.gson.Gson
 
@@ -37,7 +42,7 @@ fun Navigation(
 //                DetailsGymScreen(
 //                    modifier
 //                )
-                CancellationsReportScreen(
+                LeadUpdateScreen(
                     modifier
                 )
             }
