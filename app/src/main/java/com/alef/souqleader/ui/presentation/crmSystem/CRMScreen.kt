@@ -155,7 +155,7 @@ fun CRMScreenItem() {
             )
         }
 
-        Box(
+        Column(
             Modifier
                 .fillMaxSize(),
         ) {
@@ -167,7 +167,6 @@ fun CRMScreenItem() {
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
             ) {
                 ReminderItem("Add comment", "qwqw")
             }
