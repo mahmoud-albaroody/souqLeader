@@ -1,4 +1,4 @@
-package com.alef.souqleader.ui.presentation.leadUpdate
+package com.alef.souqleader.ui.presentation.addlead
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -57,117 +60,86 @@ import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun LeadUpdateScreen(modifier: Modifier) {
+fun AddLeadScreen(modifier: Modifier) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
-    LeadUpdate()
+    AddLead()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun LeadUpdate() {
+fun AddLead() {
+    val scrollState = rememberScrollState()
 
     Column(
         Modifier
             .fillMaxSize()
             .background(White)
-            .padding(32.dp)
+            .padding(vertical = 16.dp, horizontal = 32.dp)
     ) {
-        DynamicSelectTextField()
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            value = "",
-            placeholder = {
-                Text(text = "Notes")
-            },
-            colors = TextFieldDefaults.textFieldColors(
-                cursorColor = Color.Black,
-                disabledLabelColor = Blue,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            onValueChange = {
-
-            },
-            shape = RoundedCornerShape(8.dp),
-            singleLine = true,
-        )
-
-        Card(
+        Column(
             Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            shape = RoundedCornerShape(8.dp),
+                .verticalScroll(scrollState)
+                .weight(12f)
         ) {
+            TextFiledItem("Name")
             Row(
                 Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-
-                Text(
-                    text = "Date / Time",
-                    style = TextStyle(
-                        fontSize = 16.sp
-                    ),
-                )
-                Image(
-                    painter = painterResource(R.drawable.vuesax_linear_calendar),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop
-                )
+                Box(Modifier.weight(1f)) {
+                    TextFiledItem("+2")
+                }
+                Box(Modifier.weight(3f)) {
+                    TextFiledItem("Mobile")
+                }
             }
+            DynamicSelectTextField()
+            TextFiledItem("E-mail")
+            DynamicSelectTextField()
+            DynamicSelectTextField()
+            TextFiledItem("E-mail")
+            DynamicSelectTextField()
+            TextFiledItem("E-mail")
+            TextFiledItem("E-mail")
+            TextFiledItem("E-mail")
         }
-
-        Text(
-            text = "Reminder", modifier =
-            Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
-        RadioButtonGroup()
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            value = "",
-            placeholder = {
-                Text(
-                    text = "Write another reason", style = TextStyle(
-                        color = Grey
-                    )
-                )
-            },
-            colors = TextFieldDefaults.textFieldColors(
-                cursorColor = Color.Black,
-                disabledLabelColor = Blue,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            onValueChange = {
-
-            },
-            shape = RoundedCornerShape(8.dp),
-            singleLine = true,
-        )
-
-
-        LazyRow(content = {
-            items(5) {
-                ReminderItem()
-            }
-        })
-
         Button(modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
+            .weight(1f)
+            .fillMaxWidth(),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue),
             onClick = { /*TODO*/ }) {
-            Text(text = "UPDATE", Modifier.padding(vertical = 8.dp))
+            Text(text = "ADD LEAD", Modifier.padding(vertical = 8.dp))
         }
     }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TextFiledItem(text: String) {
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        value = "",
+        placeholder = {
+            Text(text = text)
+        },
+        colors = TextFieldDefaults.textFieldColors(
+            cursorColor = Color.Black,
+            disabledLabelColor = Blue,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        onValueChange = {
+
+        },
+        shape = RoundedCornerShape(8.dp),
+        singleLine = true,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -271,17 +243,17 @@ fun RadioButtonGroup() {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
-                   modifier =  Modifier.height(38.dp),
+                    modifier = Modifier.height(38.dp),
                     selected = (option == selectedOption),
                     onClick = { selectedOption = option },
                     colors = RadioButtonDefaults.colors(
-                         Blue
+                        Blue
                     )
                 )
                 Text(
                     text = option,
 
-                )
+                    )
             }
         }
     }
