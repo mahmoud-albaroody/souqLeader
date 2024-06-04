@@ -59,7 +59,7 @@ fun SimplifyItem(navController: NavController) {
         if (stat) {
             skip = ""
             cs = "Stay ahead of the competition one click"
-            image =  R.drawable.walkthrow2
+            image = R.drawable.walkthrow2
         }
         Row(
             Modifier
@@ -98,7 +98,14 @@ fun SimplifyItem(navController: NavController) {
             .padding(horizontal = 38.dp, vertical = 40.dp),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue),
-            onClick = { stat = !stat }) {
+            onClick = {
+                if (stat) {
+                    navController.navigate(Screen.LoginScreen.route)
+                } else {
+                    stat = true
+                }
+
+            }) {
             Text(text = "NEXT", Modifier.padding(vertical = 8.dp))
         }
 

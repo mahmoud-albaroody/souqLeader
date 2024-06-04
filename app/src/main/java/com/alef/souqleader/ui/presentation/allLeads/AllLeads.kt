@@ -1,7 +1,9 @@
 package com.alef.souqleader.ui.presentation.allLeads
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,15 +13,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -29,44 +35,75 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.gymScreen.GymViewModel
+import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.gymScreen.DashboardViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.Grey
-import com.alef.souqleader.ui.theme.LightGrey
-import com.alef.souqleader.ui.theme.White
+
 
 @Composable
-fun AllLeadsScreen(modifier: Modifier) {
-    val viewModel: GymViewModel = viewModel()
+fun AllLeadsScreen(navController: NavController, modifier: Modifier) {
+    val viewModel: DashboardViewModel = viewModel()
 
 //    LaunchedEffect(key1 = true) {
 //        // viewModel.getGym()
 //    }
 
-    LazyColumn(
+
+    screen(navController)
+
+}
+
+
+@Composable
+private fun screen(navController: NavController) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    Box(
         Modifier
+            .background(Color.White)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
             .fillMaxSize()
-            .padding(all = 16.dp)
     ) {
-        items(6) {
-            AllLeadsItem()
+        Column(Modifier.height(screenHeight * 0.88f)) {
+            Search("Search")
+            LazyColumn(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+                items(6) {
+                    AllLeadsItem()
 //                modifier, listOfGym[it]) { gym ->
 ////                viewModel.toggleFav(gym)
 //                onclick(gym)
 //            }
+                }
+            }
+        }
+        Button(modifier = Modifier
+            .fillMaxWidth()
+            .height(screenHeight * 0.07f)
+            .align(Alignment.BottomCenter),
+            shape = RoundedCornerShape(15.dp),
+            colors = ButtonDefaults.buttonColors(Blue2),
+            onClick = {
+                navController.navigate(Screen.LeadUpdateScreen.route)
+            })
+        {
+            Text(text = "ADD ACTION", Modifier.padding(vertical = 8.dp))
         }
     }
 }
 
-@Preview
 @Composable
 fun AllLeadsItem() {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(screenHeight / 3f)
@@ -230,4 +267,57 @@ fun AllLeadsItem() {
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Search(text: String) {
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painterResource(R.drawable.search_icon),
+                modifier = Modifier
+                    .size(30.dp)
+                    .weight(0.5f),
+                contentDescription = "",
+            )
+            TextField(
+                modifier = Modifier.weight(3f),
+                value = "",
+                placeholder = {
+                    Text(text = text)
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    cursorColor = Color.Black,
+                    disabledLabelColor = Blue,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                onValueChange = {
+
+                },
+//                shape = RoundedCornerShape(8.dp),
+                singleLine = true,
+            )
+            Image(
+                painterResource(R.drawable.filter_icon),
+                contentDescription = "",
+                Modifier
+                    .size(30.dp)
+                    .weight(0.5f)
+            )
+        }
+    }
+
 }

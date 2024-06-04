@@ -48,6 +48,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.login.LoginItem
 import com.alef.souqleader.ui.theme.Blue
@@ -57,7 +58,7 @@ import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun LeadUpdateScreen(modifier: Modifier) {
+fun LeadUpdateScreen(navController: NavController,modifier: Modifier) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
     LeadUpdate()
 }

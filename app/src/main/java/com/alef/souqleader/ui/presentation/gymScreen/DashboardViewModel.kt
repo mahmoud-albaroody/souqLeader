@@ -5,19 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.alef.souqleader.data.di.networkModule.IODispatcher
-import com.alef.souqleader.domain.GymUseCase
 import com.alef.souqleader.domain.model.Gym
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class GymViewModel @Inject constructor(
+class DashboardViewModel @Inject constructor(
 //    private val getSymbolsUseCase: GymUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {

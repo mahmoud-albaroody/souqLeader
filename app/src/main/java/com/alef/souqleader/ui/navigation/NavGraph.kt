@@ -21,9 +21,10 @@ import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
 import com.alef.souqleader.ui.presentation.filter.FilterScreen
 import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
 import com.alef.souqleader.ui.presentation.gymDetailsScreen.DetailsGymScreen
-import com.alef.souqleader.ui.presentation.gymScreen.GymScreen
+import com.alef.souqleader.ui.presentation.gymScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
 import com.alef.souqleader.ui.presentation.login.LoginScreen
+import com.alef.souqleader.ui.presentation.mainScreen.MyApp
 import com.alef.souqleader.ui.presentation.paymentPlans.PaymentPlansScreen
 import com.alef.souqleader.ui.presentation.profile.ProfileScreen
 import com.alef.souqleader.ui.presentation.projectDetails.ProjectDetailsScreen
@@ -46,20 +47,48 @@ fun Navigation(
 ////                    val json = Uri.encode(gson.toJson(it))
 ////                    navController.navigate( "${Screen.Gym.route}/$json")
 //                }
-                SimplifyScreen(
+                MyApp()
+//                SimplifyScreen(
+//                    navController, modifier
+//                )
+            }
+        }
+
+
+        composable(Screen.LoginScreen.route) {
+            modifier?.let { it1 ->
+                LoginScreen(
                     navController, modifier
                 )
             }
         }
 
-
-        composable(Screen.Login.route) {
+        composable(Screen.DashboardScreen.route) {
             modifier?.let { it1 ->
-                LoginScreen(
+                DashboardScreen(
+                    navController = navController,
                     modifier
+                ) {
+
+                }
+            }
+        }
+
+        composable(Screen.AllLeadsScreen.route) {
+            modifier?.let { it1 ->
+                AllLeadsScreen(
+                    navController, modifier
                 )
             }
         }
+        composable(Screen.LeadUpdateScreen.route) {
+            modifier?.let { it1 ->
+                LeadUpdateScreen(
+                    navController, modifier
+                )
+            }
+        }
+
 
 //        composable(
 //            Screen.Gym.route.plus("/{gym_id}"), arguments =
@@ -82,7 +111,7 @@ fun Navigation(
 fun navigationTitle(navController: NavController): String {
     return when (currentRoute(navController)) {
         Screen.SimplifyWorkFlowScreen.route -> stringResource(id = R.string.app_name)
-        Screen.Login.route -> stringResource(id = R.string.app_name)
+        Screen.LoginScreen.route -> stringResource(id = R.string.app_name)
         else -> {
             ""
         }

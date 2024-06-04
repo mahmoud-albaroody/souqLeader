@@ -16,8 +16,15 @@ sealed class Screen(
         )
     },
 ) {
-    object SimplifyWorkFlowScreen : Screen("simplify_work_flow_screen")
-    object Login : Screen("login")
+    object SimplifyWorkFlowScreen : Screen("simplifyWorkFlowScreen")
+    object LoginScreen : Screen("login")
+    object DashboardScreen : Screen("dashboard")
+    object AllLeadsScreen : Screen("allLeadsScreen")
+    object LeadUpdateScreen : Screen("leadUpdateScreen")
+    object AddLeadScreen : Screen("addLeadScreen")
+
+    object CancellationsReportScreen : Screen("cancellationsReportScreen")
+
 }
 
 

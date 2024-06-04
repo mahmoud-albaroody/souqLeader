@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -31,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.gymScreen.GymViewModel
+import com.alef.souqleader.ui.presentation.gymScreen.DashboardViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
@@ -39,7 +37,7 @@ import com.alef.souqleader.ui.theme.White
 
 @Composable
 fun RolesPermissionsScreen(modifier: Modifier) {
-    val viewModel: GymViewModel = viewModel()
+    val viewModel: DashboardViewModel = viewModel()
 
 //    LaunchedEffect(key1 = true) {
 //        // viewModel.getGym()

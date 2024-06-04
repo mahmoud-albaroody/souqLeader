@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.gymScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,19 +30,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.domain.model.Gym
+import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.login.SampleNameProvider
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue1
 import com.alef.souqleader.ui.theme.OffWhite
 import com.alef.souqleader.ui.theme.White
 
 @Composable
-fun GymScreen(modifier: Modifier, onclick: (Gym) -> Unit) {
-    val viewModel: GymViewModel = viewModel()
+fun DashboardScreen(navController: NavController,modifier: Modifier, onclick: (Gym) -> Unit) {
+    val viewModel: DashboardViewModel = viewModel()
 
 //    LaunchedEffect(key1 = true) {
 //        // viewModel.getGym()
@@ -54,7 +60,9 @@ fun GymScreen(modifier: Modifier, onclick: (Gym) -> Unit) {
             .padding(all = 16.dp)
     ) {
         items(6) {
-            MyCardItem()
+            MyCardItem(){
+                navController.navigate(Screen.AllLeadsScreen.route)
+            }
 //                modifier, listOfGym[it]) { gym ->
 ////                viewModel.toggleFav(gym)
 //                onclick(gym)
@@ -63,9 +71,14 @@ fun GymScreen(modifier: Modifier, onclick: (Gym) -> Unit) {
     }
 }
 
+class SampleNameProvider(override val values: Sequence<Unit>) :
+    PreviewParameterProvider<Unit> {
+
+}
+
 @Preview
 @Composable
-fun MyCardItem() {
+fun MyCardItem(@PreviewParameter(SampleNameProvider::class) onClick: () -> Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -75,7 +88,8 @@ fun MyCardItem() {
         modifier = Modifier
             .fillMaxWidth()
             .height(screenHeight / 4.6f)
-            .padding(6.dp),
+            .padding(6.dp)
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
