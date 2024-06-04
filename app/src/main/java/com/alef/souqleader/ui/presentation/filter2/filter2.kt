@@ -1,8 +1,7 @@
-package com.alef.souqleader.ui.presentation.addlead
+package com.alef.souqleader.ui.presentation.filter2
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,25 +12,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -42,18 +44,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.login.LoginItem
+import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Grey
 import com.alef.souqleader.ui.theme.LightGrey
@@ -61,87 +58,82 @@ import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun AddLeadScreen(modifier: Modifier) {
+fun Filter2Screen(modifier: Modifier) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
-    AddLead()
+    Filter2()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun AddLead() {
-    val scrollState = rememberScrollState()
-
-    Column(
+fun Filter2() {
+    Box(
         Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 16.dp, horizontal = 32.dp)
+            .padding(horizontal = 24.dp)
     ) {
-        Column(
-            Modifier
-                .verticalScroll(scrollState)
-                .weight(12f)
-        ) {
-            TextFiledItem("Name")
-            Row(
-                Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(Modifier.weight(1f)) {
-                    TextFiledItem("+2")
+
+        Column() {
+            Spacer(modifier = Modifier.height(32.dp))
+            Text(text = "Budget", style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp))
+            Budget()
+            LazyColumn(content = {
+                items(4) {
+                    FilterChoose()
                 }
-                Box(Modifier.weight(3f)) {
-                    TextFiledItem("Mobile")
-                }
-            }
-            DynamicSelectTextField()
-            TextFiledItem("E-mail")
-            DynamicSelectTextField()
-            DynamicSelectTextField()
-            TextFiledItem("E-mail")
-            DynamicSelectTextField()
-            TextFiledItem("E-mail")
-            TextFiledItem("E-mail")
-            TextFiledItem("E-mail")
+            })
         }
-        Button(modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth(),
-            shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(Blue),
-            onClick = { /*TODO*/ }) {
-            Text(text = "ADD LEAD", Modifier.padding(vertical = 8.dp))
+        Row(
+            Modifier
+                .padding(vertical = 16.dp)
+                .align(Alignment.BottomCenter),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            OutlinedButton(modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+                shape = RoundedCornerShape(15.dp),
+                onClick = { /*TODO*/ }) {
+                Text(text = "Reset", Modifier.padding(vertical = 8.dp))
+            }
+            Button(modifier = Modifier
+                .weight(2f)
+                .fillMaxWidth(),
+                shape = RoundedCornerShape(15.dp),
+                colors = ButtonDefaults.buttonColors(Blue),
+                onClick = { /*TODO*/ }) {
+                Text(text = "Show", Modifier.padding(vertical = 8.dp))
+            }
         }
     }
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun TextFiledItem(text: String) {
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        value = "",
-        placeholder = {
-            Text(text = text, style = TextStyle(fontSize = 14.sp,)
+private fun Budget() {
+    Row(
+        Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Box(Modifier.weight(2f)) {
+            TextFiledItem("0")
+        }
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "to", Modifier.align(Alignment.Center),
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
             )
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            cursorColor = Color.Black,
-            disabledLabelColor = Blue,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        ),
-        onValueChange = {
-
-        },
-        shape = RoundedCornerShape(8.dp),
-        singleLine = true,
-    )
+        }
+        Box(Modifier.weight(2f)) {
+            TextFiledItem("Any")
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -201,14 +193,42 @@ fun DynamicSelectTextField(
     }
 }
 
+@Preview
 @Composable
+fun FilterChoose() {
+    Column(Modifier.padding(top = 8.dp)) {
+        Divider(
+            modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth() // Set the thickness of the vertical line
+                .background(Color.LightGray)  // Set the color of the vertical line
+        )
+        Text(
+            text = "Budget", Modifier.padding(top = 10.dp),
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        )
 
-fun ReminderItem() {
+
+        LazyRow(modifier = Modifier.padding(vertical = 16.dp), content = {
+            items(6) {
+                BudgetItem()
+            }
+        })
+
+    }
+
+}
+
+@Preview
+@Composable
+fun BudgetItem() {
     Card(
         Modifier
             .fillMaxWidth()
             .padding(end = 8.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, Grey),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Row(
             Modifier
@@ -218,7 +238,7 @@ fun ReminderItem() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "After Two Hour",
+                text = "Dev. One",
                 style = TextStyle(
                     fontSize = 14.sp, color = Color.Black
                 ),
@@ -227,38 +247,27 @@ fun ReminderItem() {
     }
 }
 
+@Preview
 @Composable
-fun RadioButtonGroup() {
-    var selectedOption by remember { mutableStateOf("Not interested") }
-    val options = listOf(
-        "Not interested",
-        "Low Budget",
-        "Wrong Number",
-        "Another Location",
-        "Another Reasons"
-    )
-
-    Column() {
-
-        options.forEach { option ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RadioButton(
-                    modifier = Modifier.height(38.dp),
-                    selected = (option == selectedOption),
-                    onClick = { selectedOption = option },
-                    colors = RadioButtonDefaults.colors(
-                        Blue
-                    )
-                )
-                Text(
-                    text = option,
-
-                    )
-            }
-        }
+fun RangeSliderExample() {
+    var sliderPosition by remember { mutableStateOf(0f..100f) }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        RangeSlider(
+            value = sliderPosition,
+            steps = 5,
+            onValueChange = { range -> sliderPosition = range },
+            valueRange = 0f..100f,
+            onValueChangeFinished = {
+                // launch some business logic update with the state you hold
+                // viewModel.updateSelectedSliderValue(sliderPosition)
+            },
+            colors = SliderDefaults.colors(
+                thumbColor = Blue,
+                activeTrackColor = Blue,
+                activeTickColor = Blue, inactiveTickColor = LightGrey,
+                inactiveTrackColor = LightGrey
+            )
+        )
+//        Text(text = sliderPosition.toString())
     }
 }
-
-

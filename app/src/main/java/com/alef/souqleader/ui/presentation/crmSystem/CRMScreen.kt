@@ -90,7 +90,8 @@ fun CRMScreenItem() {
                 contentDescription = "",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth().height(screenHeight/4)
+                    .fillMaxWidth()
+                    .height(screenHeight / 4)
                     .padding(top = 8.dp)
                     .clip(RoundedCornerShape(16.dp))
 
@@ -155,21 +156,18 @@ fun CRMScreenItem() {
             )
         }
 
-        Column(
-            Modifier
-                .fillMaxSize(),
-        ) {
-            LazyColumn(content = {
-                items(16) {
-                    CommentItem()
-                }
-            })
-            Row(
-                Modifier
-                    .fillMaxWidth()
-            ) {
-                ReminderItem("Add comment", "qwqw")
+
+        LazyColumn(Modifier.height(screenHeight/3f), content = {
+            items(16) {
+                CommentItem()
             }
+        })
+        Row(
+            Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            ReminderItem("Add comment", "qwqw")
         }
 
 

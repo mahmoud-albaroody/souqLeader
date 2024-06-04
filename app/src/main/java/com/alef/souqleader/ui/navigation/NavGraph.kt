@@ -18,6 +18,8 @@ import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReportScreen
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
+import com.alef.souqleader.ui.presentation.filter.FilterScreen
+import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
 import com.alef.souqleader.ui.presentation.gymDetailsScreen.DetailsGymScreen
 import com.alef.souqleader.ui.presentation.gymScreen.GymScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
@@ -47,7 +49,7 @@ fun Navigation(
 //                DetailsGymScreen(
 //                    modifier
 //                )
-                CRMScreen(
+                Filter2Screen(
                     modifier
                 )
             }
