@@ -37,8 +37,8 @@ import com.google.gson.Gson
 fun Navigation(
     navController: NavHostController, modifier: Modifier? = null
 ) {
-    NavHost(navController, startDestination = Screen.Gym.route) {
-        composable(Screen.Gym.route) {
+    NavHost(navController, startDestination = Screen.SimplifyWorkFlowScreen.route) {
+        composable(Screen.SimplifyWorkFlowScreen.route) {
             modifier?.let { it1 ->
 //                GymScreen(it1) {
 //                    navController.navigate(Screen.Gym.route)
@@ -46,28 +46,34 @@ fun Navigation(
 ////                    val json = Uri.encode(gson.toJson(it))
 ////                    navController.navigate( "${Screen.Gym.route}/$json")
 //                }
+                SimplifyScreen(
+                    navController, modifier
+                )
+            }
+        }
+
+
+        composable(Screen.Login.route) {
+            modifier?.let { it1 ->
+                LoginScreen(
+                    modifier
+                )
+            }
+        }
+
+//        composable(
+//            Screen.Gym.route.plus("/{gym_id}"), arguments =
+//            listOf(navArgument("gym_id") {
+//                type = NavType.StringType
+//            })
+//        ) {
+//            if (modifier != null) {
 //                DetailsGymScreen(
 //                    modifier
 //                )
-                Filter2Screen(
-                    modifier
-                )
-            }
-        }
-
-        composable(
-            Screen.Gym.route.plus("/{gym_id}"), arguments =
-            listOf(navArgument("gym_id") {
-                type = NavType.StringType
-            })
-        ) {
-            if (modifier != null) {
-                DetailsGymScreen(
-                    modifier
-                )
-            }
-
-        }
+//            }
+//
+//        }
 
     }
 }
@@ -75,8 +81,8 @@ fun Navigation(
 @Composable
 fun navigationTitle(navController: NavController): String {
     return when (currentRoute(navController)) {
-        Screen.Gym.route -> stringResource(id = R.string.app_name)
-        Screen.GymDetails.route -> stringResource(id = R.string.app_name)
+        Screen.SimplifyWorkFlowScreen.route -> stringResource(id = R.string.app_name)
+        Screen.Login.route -> stringResource(id = R.string.app_name)
         else -> {
             ""
         }

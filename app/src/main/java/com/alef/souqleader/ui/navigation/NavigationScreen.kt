@@ -16,8 +16,8 @@ sealed class Screen(
         )
     },
 ) {
-    object GymDetails : Screen("gym_details_screen")
-    object Gym : Screen("gym_screen")
+    object SimplifyWorkFlowScreen : Screen("simplify_work_flow_screen")
+    object Login : Screen("login")
 }
 
 

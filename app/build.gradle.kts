@@ -73,6 +73,8 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.25.1")
     implementation("io.coil-kt:coil-compose:2.0.0")
 
+    implementation ("androidx.core:core-splashscreen:1.0.1")
+
 
     // Retrofit Dependencies
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

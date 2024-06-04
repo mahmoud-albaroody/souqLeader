@@ -13,6 +13,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -22,55 +26,65 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.R
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun SimplifyScreen(modifier: Modifier) {
+fun SimplifyScreen(navController: NavController, modifier: Modifier) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
-    SimplifyItem()
+    SimplifyItem(navController)
 }
 
-@Preview
+
 @Composable
-fun SimplifyItem() {
+fun SimplifyItem(navController: NavController) {
+    var stat by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
+    var cs = "Simplify your sales workflow"
+    var skip = "Skip"
+    var image = R.drawable.walkthrow1
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(White),
 
         ) {
+        if (stat) {
+            skip = ""
+            cs = "Stay ahead of the competition one click"
+            image =  R.drawable.walkthrow2
+        }
         Row(
             Modifier
                 .align(Alignment.End)
                 .padding(end = 32.dp, top = 32.dp)
         ) {
             Text(
-                text = "Skip",
+                text = skip,
                 style = androidx.compose.ui.text.TextStyle(
                     fontSize = 15.sp, fontWeight = FontWeight.Bold
                 ),
             )
         }
-
         Text(
-            text = "Simplify your sales workflow", style = androidx.compose.ui.text.TextStyle(
+            text = cs, style = androidx.compose.ui.text.TextStyle(
                 fontSize = 25.sp, color = Blue, fontWeight = FontWeight.Bold
             ), modifier = Modifier.padding(horizontal = 38.dp, vertical = 24.dp)
         )
         Image(
-            painterResource(R.drawable.test_icon),
+            painterResource(image),
             contentDescription = "",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(screenHeight / 2.9f)
-
         )
         Text(
             text = "Effortlessly manage sales leads and streamline your sales process with our powerful Souq Leader.",
@@ -84,7 +98,7 @@ fun SimplifyItem() {
             .padding(horizontal = 38.dp, vertical = 40.dp),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue),
-            onClick = { /*TODO*/ }) {
+            onClick = { stat = !stat }) {
             Text(text = "NEXT", Modifier.padding(vertical = 8.dp))
         }
 

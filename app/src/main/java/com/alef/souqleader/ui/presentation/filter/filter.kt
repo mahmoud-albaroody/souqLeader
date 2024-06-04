@@ -62,7 +62,7 @@ fun Filter() {
         Modifier
             .fillMaxSize()
             .background(White)
-            .padding(horizontal = 32.dp)
+            .padding(horizontal = 24.dp)
     ) {
 
         Column() {
