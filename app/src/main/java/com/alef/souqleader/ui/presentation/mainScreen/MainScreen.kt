@@ -1,92 +1,265 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Icon
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Snackbar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.alef.souqleader.ui.presentation.login.LoginScreen
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.alef.souqleader.R
+import com.alef.souqleader.data.SideMenuItem
+import com.alef.souqleader.ui.navigation.Navigation
+import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.theme.Blue
 import kotlinx.coroutines.launch
 
 @Composable
-fun MyApp() {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+fun MyApp(modifier: Modifier) {
+    val navController = rememberNavController()
+    CustomModalDrawer(modifier, navController)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    ModalNavigationDrawer(
-        drawerState = drawerState,
+    ModalNavigationDrawer(drawerState = drawerState,
+        scrimColor =Transparent,
         drawerContent = {
-            ModalDrawerSheet { DrawerContent() }
-        },
-    ) {
-        Scaffold(
-            floatingActionButton = {
-                ExtendedFloatingActionButton(
-                    text = { Text("Show drawer") },
-                    icon = { Icon(Icons.Filled.Add, contentDescription = "") },
-                    onClick = {
-                        scope.launch {
-                            drawerState.apply {
-                                if (isClosed) open() else close()
-                            }
+            ModalDrawerSheet(
+                drawerShape = RectangleShape,
+                drawerContainerColor = Transparent
+            ) {
+                DrawerContent(navController, modifier) {
+                    scope.launch {
+                        drawerState.close()
+                    }
+                    when (it) {
+                        0 -> {
+                            navController.navigate(Screen.DashboardScreen.route)
+                        }
+
+                        1 -> {
+                            navController.navigate(Screen.Timeline.route)
+                        }
+
+                        2 -> {
+                            navController.navigate(Screen.AddLeadScreen.route)
+                        }
+
+                        3 -> {
+                            navController.navigate(Screen.SalesProfileReportScreen.route)
+                        }
+
+                        4 -> {
+                            navController.navigate(Screen.InventoryScreen.route)
+                        }
+
+                        5 -> {
+                            navController.navigate(Screen.ReportsScreen.route)
+                        }
+
+                        6 -> {
+                            navController.navigate(Screen.PaymentPlansScreen.route)
+                        }
+
+                        7 -> {
+                            navController.navigate(Screen.ProfileScreen.route)
+                        }
+
+                        8 -> {
+                            navController.navigate(Screen.RoleScreen.route)
+                        }
+
+                        9 -> {
+                            navController.navigate(Screen.LoginScreen.route)
                         }
                     }
-                )
-            }
-        ) { contentPadding ->
-            contentPadding
 
-            // Screen content
+                }
+            }
+        },
+        content = {
+            Scaffold(topBar = {
+                TopAppBar(title = {
+                    Text("My App")
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Blue, // Background color
+                    titleContentColor = White, // Title text color
+                    navigationIconContentColor = White // Navigation icon color
+                ), navigationIcon = {
+                    IconButton(onClick = {
+                        // Control drawer state here
+                        if (drawerState.isClosed) {
+                            scope.launch { drawerState.open() }
+                        } else {
+                            // Prevent reducing or closing the drawer
+                        }
+                    }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    }
+                })
+            }) { paddingValues ->
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues)
+                ) {
+                    Navigation(navController = navController, modifier = modifier)
+                }
+
+            }
+        })
+}
+
+@Composable
+fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick: (Int) -> Unit) {
+    val sideMenuItem: ArrayList<SideMenuItem> = arrayListOf()
+    sideMenuItem.add(SideMenuItem(R.drawable.element_1, "Dashboard"))
+    sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, "Timeline"))
+    sideMenuItem.add(SideMenuItem(R.drawable.project_icon, "Leads"))
+    sideMenuItem.add(SideMenuItem(R.drawable.sales_name_icon, "Sales Profile Report"))
+    sideMenuItem.add(SideMenuItem(R.drawable.inventory_menu_icon, "Inventory"))
+    sideMenuItem.add(SideMenuItem(R.drawable.repots_menu_icon, "Reports"))
+    sideMenuItem.add(SideMenuItem(R.drawable.payment_menu_icon, "Payment Plans"))
+    sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, "Profile"))
+    sideMenuItem.add(SideMenuItem(R.drawable.book, "Roles & Premmisions"))
+    sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, "Logout"))
+Column(
+    Modifier
+        .width(260.dp)
+        .background(White)) {
+    Box(
+        Modifier
+            .width(260.dp)
+            .background(Blue)
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp)
+                .padding(vertical = 24.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.user_profile),
+                contentDescription = "",
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                modifier = Modifier.padding(top = 16.dp),
+                text = "Mahmoud Ali",
+                color = White,
+                style = TextStyle(
+                    fontSize = 16.sp, color = Blue,
+                ),
+            )
+            Text(
+                text = "Sales Director",
+                color = White,
+                style = TextStyle(
+                    fontSize = 13.sp
+                ),
+            )
+
+
         }
     }
 
-}
-@Composable
-fun DrawerContent() {
-    Column(
+    Spacer(modifier = Modifier.height(8.dp))
+    LazyColumn(
         modifier = Modifier
-            .width(200.dp)
-            .padding(16.dp)
+            .fillMaxHeight()
+            .width(260.dp)
+            .background(White)
     ) {
-        Text("Home", fontSize = 20.sp)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Profile", fontSize = 20.sp)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Settings", fontSize = 20.sp)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Logout", fontSize = 20.sp)
+        items(sideMenuItem.size) {
+            Item(sideMenuItem[it].image, sideMenuItem[it].title, Modifier) {
+                onItemClick(it)
+            }
+        }
     }
 }
 
+}
+
+
 @Composable
-fun MainContent() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+fun Item(image: Int, text: String, modifier: Modifier, onItemClick: () -> Unit) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(45.dp)
+            .clickable {
+                onItemClick()
+            },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Main Content Area", fontSize = 24.sp)
+        Image(
+            painter = painterResource(image),
+            contentDescription = "",
+            modifier = modifier
+                .weight(1f)
+                .fillMaxWidth()
+        )
+        Text(
+            text, fontSize = 16.sp, style = TextStyle(
+                textAlign = TextAlign.Start,
+            ), modifier = modifier
+                .fillMaxWidth()
+                .weight(3f)
+        )
+        Image(
+            painter = painterResource(R.drawable.next_menu_icon),
+            contentDescription = "",
+            modifier = modifier
+                .weight(1f)
+                .fillMaxWidth()
+
+        )
     }
 }
+

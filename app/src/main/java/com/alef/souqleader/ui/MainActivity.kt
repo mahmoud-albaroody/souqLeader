@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.ui.theme.AndroidCookiesTheme
 import com.alef.souqleader.ui.navigation.Navigation
+import com.alef.souqleader.ui.presentation.mainScreen.MyApp
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity() {
 //                        modifier,
 //                        Gym(1, "3232", Icons.Filled.LocationOn, "ererwe", false)
 //                    )
-                    GymsAroundApp(modifier = modifier)
+                    MyApp(modifier = modifier)
                 }
             }
         }

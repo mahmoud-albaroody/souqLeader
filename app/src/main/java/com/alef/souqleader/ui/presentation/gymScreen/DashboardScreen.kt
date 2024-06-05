@@ -46,7 +46,7 @@ import com.alef.souqleader.ui.theme.OffWhite
 import com.alef.souqleader.ui.theme.White
 
 @Composable
-fun DashboardScreen(navController: NavController,modifier: Modifier, onclick: (Gym) -> Unit) {
+fun DashboardScreen(navController: NavController) {
     val viewModel: DashboardViewModel = viewModel()
 
 //    LaunchedEffect(key1 = true) {

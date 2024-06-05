@@ -25,6 +25,7 @@ import com.alef.souqleader.ui.presentation.gymScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
 import com.alef.souqleader.ui.presentation.login.LoginScreen
 import com.alef.souqleader.ui.presentation.mainScreen.MyApp
+import com.alef.souqleader.ui.presentation.meetingReport.MeetingScreen
 import com.alef.souqleader.ui.presentation.paymentPlans.PaymentPlansScreen
 import com.alef.souqleader.ui.presentation.profile.ProfileScreen
 import com.alef.souqleader.ui.presentation.projectDetails.ProjectDetailsScreen
@@ -47,10 +48,10 @@ fun Navigation(
 ////                    val json = Uri.encode(gson.toJson(it))
 ////                    navController.navigate( "${Screen.Gym.route}/$json")
 //                }
-                MyApp()
-//                SimplifyScreen(
-//                    navController, modifier
-//                )
+
+                DashboardScreen(
+                    navController
+                )
             }
         }
 
@@ -66,11 +67,7 @@ fun Navigation(
         composable(Screen.DashboardScreen.route) {
             modifier?.let { it1 ->
                 DashboardScreen(
-                    navController = navController,
-                    modifier
-                ) {
-
-                }
+                    navController = navController)
             }
         }
 
@@ -89,6 +86,67 @@ fun Navigation(
             }
         }
 
+        composable(Screen.AddLeadScreen.route) {
+            modifier?.let { it1 ->
+                AddLeadScreen(
+                    modifier
+                )
+            }
+        }
+
+
+        composable(Screen.Timeline.route) {
+            modifier?.let { it1 ->
+                TimelineScreen(
+                    modifier
+                )
+            }
+        }
+
+        composable(Screen.SalesProfileReportScreen.route) {
+            modifier?.let { it1 ->
+                SalesProfileReportScreen(
+                    modifier
+                )
+            }
+        }
+        composable(Screen.InventoryScreen.route) {
+            modifier?.let { it1 ->
+                ProfileScreen(
+                    modifier
+                )
+            }
+        }
+        composable(Screen.ReportsScreen.route) {
+            modifier?.let { it1 ->
+                MeetingScreen(
+                    modifier
+                )
+            }
+        }
+
+
+        composable(Screen.PaymentPlansScreen.route) {
+            modifier?.let { it1 ->
+                PaymentPlansScreen(
+                    modifier
+                )
+            }
+        }
+        composable(Screen.ProfileScreen.route) {
+            modifier?.let { it1 ->
+                ProfileScreen(
+                    modifier
+                )
+            }
+        }
+        composable(Screen.RoleScreen.route) {
+            modifier?.let { it1 ->
+                RolesPermissionsScreen(
+                    modifier
+                )
+            }
+        }
 
 //        composable(
 //            Screen.Gym.route.plus("/{gym_id}"), arguments =

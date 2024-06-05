@@ -21,7 +21,19 @@ sealed class Screen(
     object DashboardScreen : Screen("dashboard")
     object AllLeadsScreen : Screen("allLeadsScreen")
     object LeadUpdateScreen : Screen("leadUpdateScreen")
+    object Timeline : Screen("timeline")
+    object SalesProfileReportScreen : Screen("salesProfileReportScreen")
     object AddLeadScreen : Screen("addLeadScreen")
+
+    object InventoryScreen : Screen("inventory")
+
+    object ReportsScreen : Screen("reports")
+
+    object PaymentPlansScreen : Screen("paymentPlans")
+
+    object ProfileScreen : Screen("profile")
+
+    object RoleScreen : Screen("Roles")
 
     object CancellationsReportScreen : Screen("cancellationsReportScreen")
 
