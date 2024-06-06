@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,11 +22,9 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,11 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.LightGrey
@@ -67,12 +66,12 @@ fun Filter() {
 
         Column() {
             Spacer(modifier = Modifier.height(32.dp))
-            TextFiledItem("Name / Phone")
+            TextFiledItem(stringResource(R.string.name_phone))
             DynamicSelectTextField()
             DynamicSelectTextField()
-            TextFiledItem("Channel")
-            TextFiledItem("Communicate Way")
-            Text(text = "Budget", style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp))
+            TextFiledItem(stringResource(R.string.channel))
+            TextFiledItem(stringResource(R.string.communicate_way))
+            Text(text = stringResource(R.string.budget), style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp))
             Row(
                 Modifier
                     .fillMaxWidth(),
@@ -109,7 +108,7 @@ fun Filter() {
                 .fillMaxWidth(),
                 shape = RoundedCornerShape(15.dp),
                 onClick = { /*TODO*/ }) {
-                Text(text = "Reset", Modifier.padding(vertical = 8.dp))
+                Text(text = stringResource(R.string.reset), modifier = Modifier.padding(vertical = 8.dp))
             }
             Button(modifier = Modifier
                 .weight(2f)
@@ -117,7 +116,7 @@ fun Filter() {
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(Blue),
                 onClick = { /*TODO*/ }) {
-                Text(text = "Show", Modifier.padding(vertical = 8.dp))
+                Text(text = stringResource(R.string.show), modifier = Modifier.padding(vertical = 8.dp))
             }
         }
     }

@@ -1,10 +1,10 @@
 package com.alef.souqleader.data.di.networkModule
 
 import android.content.Context
-import com.alef.souqleader.ui.AndroidCookiesApp
+import com.alef.souqleader.ui.SouqLeaderApp
 import com.alef.souqleader.data.remote.APIs
 import com.alef.souqleader.data.remote.ApiRepoImpl
-import com.alef.souqleader.domain.GymUseCase
+import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.ui.constants.Constants
 
 import com.alef.souqleader.ui.constants.Constants.ACCESS_TOKEN
@@ -31,13 +31,13 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideApplication(@ApplicationContext app: Context): AndroidCookiesApp {
-        return app as AndroidCookiesApp
+    fun provideApplication(@ApplicationContext app: Context): SouqLeaderApp {
+        return app as SouqLeaderApp
     }
 
     @Singleton
     @Provides
-    fun provideContext(application: AndroidCookiesApp): Context {
+    fun provideContext(application: SouqLeaderApp): Context {
         return application.applicationContext
     }
 
@@ -59,8 +59,8 @@ class NetworkModule {
     @Provides
     fun provideGymsUseCase(
         apiService: ApiRepoImpl,
-    ): GymUseCase {
-        return GymUseCase(
+    ): GetLeadUseCase {
+        return GetLeadUseCase(
             apiService
         )
     }

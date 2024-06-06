@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.timeline
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,37 +23,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 
 
 @Composable
-fun TimelineScreen(modifier: Modifier) {
+fun TimelineScreen(navController: NavController,modifier: Modifier) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
 
-
-//    Column (modifier = Modifier.fillMaxSize(),
-//        horizontalAlignment = Alignment.CenterHorizontally){
-//        CardICon(modifier.weight(0.10f), gym = viewModel.gym)
-//        CardDetails(modifier.weight(0.80f), gym = viewModel.gym,Arrangement.Top)
-//    }
-    LazyColumn() {
+    LazyColumn(Modifier.padding(horizontal = 24.dp)) {
         items(5) {
-            TimelineItem()
+            TimelineItem {
+                navController.navigate(Screen.CRMScreen.route)
+            }
         }
     }
-
-
 }
 
-@Preview
+
 @Composable
-fun TimelineItem() {
+fun TimelineItem(onTimelineCLick: () -> Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -61,22 +59,23 @@ fun TimelineItem() {
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(screenHeight / 2.5f)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .height(screenHeight * 0.38f)
+            .padding(vertical = 6.dp)
+            .clickable { onTimelineCLick.invoke() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 14.dp)
+                .padding(horizontal = 16.dp)
                 .weight(6f),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
             Text(
-                modifier = Modifier.weight(1f)
-                    .padding(top=12.dp),
-                text = "CRM system and how to management clients and leads",
+                modifier = Modifier
+                    .padding(top = 12.dp),
+                text = stringResource(R.string.crm_system_and_how_to_management_clients_and_leads),
                 style = TextStyle(
                     color = Blue,
                     fontSize = 16.sp,
@@ -88,16 +87,16 @@ fun TimelineItem() {
                 contentDescription = "",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
+                    .height(screenHeight * 0.22f)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(percent = 10))
-                    .padding(vertical = 4.dp).weight(3.7f),
+                    .padding(vertical = 4.dp),
             )
 
             Row(
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-                    .weight(0.8f),
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -108,7 +107,7 @@ fun TimelineItem() {
                     )
                     Text(
                         modifier = Modifier.padding(horizontal = 4.dp),
-                        text = "3 Like", style = TextStyle(
+                        text = stringResource(R.string.like), style = TextStyle(
                             fontSize = 13.sp,
                         )
                     )
@@ -122,7 +121,7 @@ fun TimelineItem() {
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
                             .padding(end = 8.dp),
-                        text = "8 Comment", style = TextStyle(
+                        text = stringResource(R.string.comment), style = TextStyle(
                             fontSize = 13.sp,
                         )
                     )

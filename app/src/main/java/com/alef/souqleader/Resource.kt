@@ -22,7 +22,6 @@ sealed class Resource<T>(
             is Loading<T> -> "Loading"
         }
     }
-
 }
 
 

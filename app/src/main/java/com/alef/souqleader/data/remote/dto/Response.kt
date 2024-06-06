@@ -10,11 +10,10 @@ open class StatusResponse(
     val error: String? = ""
 )
 
-data class SymbolsResponse(
-    val success: Boolean = false,
-    var symbols: Any? = null
+data class LeadsByStatusResponse(
+    val status: Boolean = false,
+    var data: ArrayList<Lead>? = null
 ) : StatusResponse()
-
 
 
 data class ConvertResponse(

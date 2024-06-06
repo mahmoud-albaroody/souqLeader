@@ -32,11 +32,12 @@ sealed class Screen(
     object PaymentPlansScreen : Screen("paymentPlans")
 
     object ProfileScreen : Screen("profile")
-
+    object FilterScreen : Screen("filter")
+    object Filter2Screen : Screen("filter2")
     object RoleScreen : Screen("Roles")
 
     object CancellationsReportScreen : Screen("cancellationsReportScreen")
-
+    object CRMScreen : Screen("CRMScreen")
 }
 
 

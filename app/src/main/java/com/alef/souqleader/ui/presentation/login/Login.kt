@@ -4,10 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -32,15 +30,17 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun LoginScreen(navController: NavController, modifier: Modifier) {
+fun LoginScreen( modifier: Modifier) {
+    val navController = rememberNavController()
+
     //val viewModel: DetailsGymScreenViewModel = viewModel()
     LoginItem(navController)
 }
@@ -61,7 +61,7 @@ fun LoginItem(@PreviewParameter(SampleNameProvider::class) navController: NavCon
         modifier = Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 50.dp, horizontal = 32.dp),
+            .padding(vertical = 50.dp, horizontal = 24.dp),
         verticalArrangement = Arrangement.SpaceBetween
 
     ) {

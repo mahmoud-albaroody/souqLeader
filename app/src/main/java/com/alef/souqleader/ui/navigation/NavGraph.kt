@@ -1,39 +1,29 @@
 package com.alef.souqleader.ui.navigation
 
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navArgument
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.addlead.AddLead
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
-import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReportScreen
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
+import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.filter.FilterScreen
 import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
-import com.alef.souqleader.ui.presentation.gymDetailsScreen.DetailsGymScreen
-import com.alef.souqleader.ui.presentation.gymScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
 import com.alef.souqleader.ui.presentation.login.LoginScreen
-import com.alef.souqleader.ui.presentation.mainScreen.MyApp
 import com.alef.souqleader.ui.presentation.meetingReport.MeetingScreen
 import com.alef.souqleader.ui.presentation.paymentPlans.PaymentPlansScreen
 import com.alef.souqleader.ui.presentation.profile.ProfileScreen
-import com.alef.souqleader.ui.presentation.projectDetails.ProjectDetailsScreen
 import com.alef.souqleader.ui.presentation.rolesPremissions.RolesPermissionsScreen
 import com.alef.souqleader.ui.presentation.salesProfileReport.SalesProfileReportScreen
-import com.alef.souqleader.ui.presentation.simplifyWorkflow.SimplifyScreen
 import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
-import com.google.gson.Gson
 
 @Composable
 fun Navigation(
@@ -59,7 +49,7 @@ fun Navigation(
         composable(Screen.LoginScreen.route) {
             modifier?.let { it1 ->
                 LoginScreen(
-                    navController, modifier
+                    modifier
                 )
             }
         }
@@ -67,7 +57,8 @@ fun Navigation(
         composable(Screen.DashboardScreen.route) {
             modifier?.let { it1 ->
                 DashboardScreen(
-                    navController = navController)
+                    navController = navController
+                )
             }
         }
 
@@ -98,7 +89,16 @@ fun Navigation(
         composable(Screen.Timeline.route) {
             modifier?.let { it1 ->
                 TimelineScreen(
-                    modifier
+                    navController, modifier
+                )
+            }
+        }
+
+
+        composable(Screen.CRMScreen.route) {
+            modifier?.let { it1 ->
+                CRMScreen(
+                    navController, modifier
                 )
             }
         }
@@ -136,6 +136,22 @@ fun Navigation(
         composable(Screen.ProfileScreen.route) {
             modifier?.let { it1 ->
                 ProfileScreen(
+                    modifier
+                )
+            }
+        }
+
+        composable(Screen.FilterScreen.route) {
+            modifier?.let { it1 ->
+                FilterScreen(
+                    modifier
+                )
+            }
+        }
+
+        composable(Screen.Filter2Screen.route) {
+            modifier?.let { it1 ->
+                Filter2Screen(
                     modifier
                 )
             }

@@ -31,17 +31,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
 
 @Composable
-fun CRMScreen(modifier: Modifier) {
+fun CRMScreen(navController: NavController, modifier: Modifier) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
     CRMScreenItem()
 }
@@ -53,121 +55,128 @@ fun CRMScreenItem() {
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
     val scrollState = rememberScrollState()
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(White)
 //            .verticalScroll(scrollState)
-            .padding(vertical = 16.dp, horizontal = 16.dp),
+            .padding(vertical = 16.dp, horizontal = 24.dp),
     ) {
 
         Column(
-            Modifier
-                .fillMaxWidth()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 60.dp)
         ) {
-            Text(
-                text = "CRM system and how to management clients and leads",
-                style = TextStyle(
-                    fontSize = 18.sp, color = Blue, fontWeight = FontWeight.SemiBold
+            Column(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "CRM system and how to management clients and leads",
+                    style = TextStyle(
+                        fontSize = 18.sp, color = Blue, fontWeight = FontWeight.SemiBold
+                    )
                 )
-            )
 
-            Text(
-                text = "Lorem ipsum dolor sit amet," + " consectetur adipisici elit, sed do eiusmod tempor incididunt ut" + " labore et dolore magna aliqua. Ut enim ad minim. Empor incididunt ut" + " labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" + " exercitation ullamco laboris nisi ut aliquip ex.",
-                modifier = Modifier.padding(top = 8.dp),
-                style = TextStyle(
-                    fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.SemiBold
+                Text(
+                    text = "Lorem ipsum dolor sit amet," + " consectetur adipisici elit, sed do eiusmod tempor incididunt ut" + " labore et dolore magna aliqua. Ut enim ad minim. Empor incididunt ut" + " labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" + " exercitation ullamco laboris nisi ut aliquip ex.",
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = TextStyle(
+                        fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.SemiBold
+                    )
                 )
-            )
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+                Image(
+                    painterResource(R.drawable.test_icon),
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(screenHeight / 4)
+                        .padding(top = 8.dp)
+                        .clip(RoundedCornerShape(16.dp))
+
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painterResource(R.drawable.like),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(RoundedCornerShape(16.dp))
+
+                        )
+                        Text(
+                            text = "3 Like",
+                            modifier = Modifier.padding(start = 8.dp),
+                            style = TextStyle(
+                                fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painterResource(R.drawable.message_text),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                        )
+                        Text(
+                            text = stringResource(R.string.comment),
+                            modifier = Modifier
+                                .padding(start = 6.dp)
+                                .padding(end = 16.dp),
+                            style = TextStyle(
+                                fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+
+                Text(
+                    text = stringResource(R.string.comments),
+                    modifier = Modifier.padding(top = 16.dp),
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+
+
+            LazyColumn(content = {
+                items(16) {
+                    CommentItem()
+                }
+            })
+
         }
 
         Column(
-            Modifier
-                .fillMaxWidth()
-        ) {
-            Image(
-                painterResource(R.drawable.test_icon),
-                contentDescription = "",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(screenHeight / 4)
-                    .padding(top = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
+            Modifier.align(Alignment.BottomCenter),
 
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painterResource(R.drawable.like),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clip(RoundedCornerShape(16.dp))
-
-                    )
-                    Text(
-                        text = "3 Like",
-                        modifier = Modifier.padding(start = 8.dp),
-                        style = TextStyle(
-                            fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painterResource(R.drawable.message_text),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
-                    Text(
-                        text = "8 Comment",
-                        modifier = Modifier
-                            .padding(start = 6.dp)
-                            .padding(end = 16.dp),
-                        style = TextStyle(
-                            fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
-            }
-
-            Text(
-                text = "Comments",
-                modifier = Modifier.padding(top = 16.dp),
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-
-
-        LazyColumn(Modifier.height(screenHeight/3f), content = {
-            items(16) {
-                CommentItem()
-            }
-        })
-        Row(
-            Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            ReminderItem("Add comment", "qwqw")
+            ReminderItem(text = stringResource(R.string.add_comment), text1 = "qwqw")
         }
 
 
@@ -184,7 +193,7 @@ fun ReminderItem(text: String, text1: String) {
 
         value = "",
         placeholder = {
-            Text(text = "Notes")
+            Text(text = stringResource(R.string.notes))
         },
         colors = TextFieldDefaults.textFieldColors(
             cursorColor = Color.Black,

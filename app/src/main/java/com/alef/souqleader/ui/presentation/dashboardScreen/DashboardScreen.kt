@@ -1,4 +1,4 @@
-package com.alef.souqleader.ui.presentation.gymScreen
+package com.alef.souqleader.ui.presentation.dashboardScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,13 +20,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.alef.souqleader.R
-import com.alef.souqleader.domain.model.Gym
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
 import com.alef.souqleader.ui.theme.Blue
@@ -49,18 +51,18 @@ import com.alef.souqleader.ui.theme.White
 fun DashboardScreen(navController: NavController) {
     val viewModel: DashboardViewModel = viewModel()
 
-//    LaunchedEffect(key1 = true) {
-//        // viewModel.getGym()
-//    }
+    LaunchedEffect(key1 = true) {
+        viewModel.getLeads()
+    }
 
     LazyVerticalGrid(
         GridCells.Fixed(2),
         Modifier
             .fillMaxSize()
-            .padding(all = 16.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
-        items(6) {
-            MyCardItem(){
+        items(viewModel.stateListOfLeads.size) {
+            MyCardItem() {
                 navController.navigate(Screen.AllLeadsScreen.route)
             }
 //                modifier, listOfGym[it]) { gym ->
@@ -82,7 +84,7 @@ fun MyCardItem(@PreviewParameter(SampleNameProvider::class) onClick: () -> Unit)
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
-    val progress by remember { mutableStateOf(0.5f) }
+    val progress by remember { mutableFloatStateOf(0.5f) }
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -117,7 +119,7 @@ fun MyCardItem(@PreviewParameter(SampleNameProvider::class) onClick: () -> Unit)
                         )
                     )
                     Text(
-                        text = "All Leads", style = TextStyle(color = White)
+                        text = stringResource(R.string.all_leads), style = TextStyle(color = White)
                     )
                 }
                 Column(Modifier.padding(16.dp)) {
@@ -128,7 +130,7 @@ fun MyCardItem(@PreviewParameter(SampleNameProvider::class) onClick: () -> Unit)
                     )
                 }
             }
-            Row() {
+            Row {
                 LinearProgressIndicator(
                     progress = { progress },
                     modifier = Modifier

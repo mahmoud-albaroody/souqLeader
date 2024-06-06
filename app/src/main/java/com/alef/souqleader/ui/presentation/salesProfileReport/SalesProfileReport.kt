@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +46,7 @@ fun salesProfileReportItem() {
         modifier = Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 50.dp, horizontal = 40.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
 
         Row(
@@ -179,7 +180,7 @@ fun salesProfileReportItem() {
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .fillMaxWidth(),
-                        text = "Arrange Meeting",
+                        text = stringResource(R.string.arrange_meeting),
                         style = TextStyle(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
@@ -201,7 +202,7 @@ fun salesProfileReportItem() {
                     )
                     Text(
                         modifier = Modifier.padding(top = 8.dp),
-                        text = "Today Leads",
+                        text = stringResource(R.string.today_leads),
                         style = TextStyle(
                             fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                         )
@@ -230,7 +231,7 @@ fun salesProfileReportItem() {
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .fillMaxWidth(),
-                        text = "Today Leads",
+                        text = stringResource(R.string.today_leads),
                         style = TextStyle(
                             fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                         )
@@ -251,7 +252,7 @@ fun salesProfileReportItem() {
                     )
                     Text(
                         modifier = Modifier.padding(top = 8.dp),
-                        text = "Avg. Response",
+                        text = stringResource(R.string.avg_response),
                         style = TextStyle(
                             fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                         )

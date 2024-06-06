@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.gymScreen.DashboardViewModel
+import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
@@ -45,7 +45,7 @@ fun CancellationsReportScreen(modifier: Modifier) {
     LazyColumn(
         Modifier
             .fillMaxSize()
-            .padding(all = 16.dp)
+            .padding(vertical = 24.dp, horizontal = 24.dp)
     ) {
         items(6) {
             CancellationsReportItem()
@@ -67,7 +67,7 @@ fun CancellationsReportItem() {
         modifier = Modifier
             .fillMaxWidth()
             .height(screenHeight / 5.2f)
-            .padding(6.dp),
+            .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
 

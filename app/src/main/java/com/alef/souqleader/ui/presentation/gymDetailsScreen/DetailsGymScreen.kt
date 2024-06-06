@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -106,7 +107,7 @@ fun ProjectsItem() {
             ) {
                 Column {
                     Text(
-                        text = "Project Name",
+                        text = stringResource(R.string.project_name),
                         style = TextStyle(
                             color = Blue,
                             fontSize = 16.sp,

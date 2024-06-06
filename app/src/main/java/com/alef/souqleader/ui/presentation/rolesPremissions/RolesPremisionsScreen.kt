@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.rolesPremissions
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,13 +24,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.gymScreen.DashboardViewModel
+import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
@@ -46,7 +48,7 @@ fun RolesPermissionsScreen(modifier: Modifier) {
     LazyColumn(
         Modifier
             .fillMaxSize()
-            .padding(all = 16.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
         items(6) {
             RolesPermissionsItem()
@@ -74,7 +76,6 @@ fun RolesPermissionsItem() {
         Row(
             Modifier
                 .fillMaxWidth()
-                .weight(7f)
                 .padding(horizontal = 2.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -85,7 +86,7 @@ fun RolesPermissionsItem() {
                 modifier = Modifier
                     .clip(CircleShape)
                     .weight(1f)
-                    .size(40.dp)
+                    .size(35.dp)
             )
 
             Column(
@@ -99,7 +100,7 @@ fun RolesPermissionsItem() {
                     )
                 )
                 Text(
-                    text = "Admin", style = TextStyle(
+                    text = stringResource(R.string.admin), style = TextStyle(
                         fontSize = 13.sp,
                     )
                 )
@@ -108,31 +109,30 @@ fun RolesPermissionsItem() {
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(vertical = 14.dp, horizontal = 8.dp)
+                    .padding(vertical = 8.dp, horizontal = 8.dp)
                     .weight(2.5f),
                 colors = CardDefaults.cardColors(containerColor = Blue2),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Row(
                     Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(8.dp),
+                        .fillMaxSize()
+                        .padding(start = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        modifier = Modifier.padding(end = 4.dp),
+                        modifier = Modifier.padding(horizontal = 4.dp),
                         text = "PERMISSION", style = TextStyle(
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             color = White
                         )
                     )
                     Image(
-                        painterResource(R.drawable.drop_menu_icon),
+
+                        painterResource(R.drawable.drop_menu_icon_white),
                         contentDescription = "",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.padding(horizontal = 4.dp),
                     )
                 }
             }

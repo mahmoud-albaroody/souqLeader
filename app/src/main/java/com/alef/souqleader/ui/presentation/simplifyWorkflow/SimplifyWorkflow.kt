@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,8 +46,8 @@ fun SimplifyItem(navController: NavController) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
-    var cs = "Simplify your sales workflow"
-    var skip = "Skip"
+    var cs = stringResource(R.string.simplify_your_sales_workflow)
+    var skip = stringResource(R.string.skip)
     var image = R.drawable.walkthrow1
     Column(
         modifier = Modifier
@@ -56,7 +57,7 @@ fun SimplifyItem(navController: NavController) {
         ) {
         if (stat) {
             skip = ""
-            cs = "Stay ahead of the competition one click"
+            cs = stringResource(R.string.stay_ahead_of_the_competition_one_click)
             image = R.drawable.walkthrow2
         }
         Row(
@@ -85,7 +86,7 @@ fun SimplifyItem(navController: NavController) {
                 .height(screenHeight / 2.9f)
         )
         Text(
-            text = "Effortlessly manage sales leads and streamline your sales process with our powerful Souq Leader.",
+            text = stringResource(R.string.effortlessly_manage_sales_leads_and_streamline_your_sales_process_with_our_powerful_souq_leader),
             style = androidx.compose.ui.text.TextStyle(
                 fontSize = 15.sp
             ),
@@ -104,7 +105,7 @@ fun SimplifyItem(navController: NavController) {
                 }
 
             }) {
-            Text(text = "NEXT", Modifier.padding(vertical = 8.dp))
+            Text(text = stringResource(R.string.next), Modifier.padding(vertical = 8.dp))
         }
 
     }

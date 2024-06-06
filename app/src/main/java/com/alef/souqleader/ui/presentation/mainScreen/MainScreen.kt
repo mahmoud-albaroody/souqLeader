@@ -10,15 +10,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Snackbar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,18 +30,20 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -58,7 +59,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyApp(modifier: Modifier) {
     val navController = rememberNavController()
-    CustomModalDrawer(modifier, navController)
+        CustomModalDrawer(modifier, navController)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +68,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(drawerState = drawerState,
-        scrimColor =Transparent,
+        scrimColor = Transparent,
         drawerContent = {
             ModalDrawerSheet(
                 drawerShape = RectangleShape,
@@ -79,45 +80,66 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                     }
                     when (it) {
                         0 -> {
-                            navController.navigate(Screen.DashboardScreen.route)
+                            navController.navigate(Screen.DashboardScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         1 -> {
-                            navController.navigate(Screen.Timeline.route)
+                            navController.navigate(Screen.Timeline.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         2 -> {
-                            navController.navigate(Screen.AddLeadScreen.route)
+                            navController.navigate(Screen.AddLeadScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         3 -> {
-                            navController.navigate(Screen.SalesProfileReportScreen.route)
+                            navController.navigate(Screen.SalesProfileReportScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         4 -> {
-                            navController.navigate(Screen.InventoryScreen.route)
+                            navController.navigate(Screen.InventoryScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         5 -> {
-                            navController.navigate(Screen.ReportsScreen.route)
+                            navController.navigate(Screen.ReportsScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         6 -> {
-                            navController.navigate(Screen.PaymentPlansScreen.route)
+                            navController.navigate(Screen.PaymentPlansScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         7 -> {
-                            navController.navigate(Screen.ProfileScreen.route)
+                            navController.navigate(Screen.ProfileScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         8 -> {
-                            navController.navigate(Screen.RoleScreen.route)
+                            navController.navigate(Screen.RoleScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
 
                         9 -> {
-                            navController.navigate(Screen.LoginScreen.route)
+                            navController.navigate(Screen.LoginScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
                     }
+
 
                 }
             }
@@ -158,70 +180,73 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
 @Composable
 fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick: (Int) -> Unit) {
     val sideMenuItem: ArrayList<SideMenuItem> = arrayListOf()
-    sideMenuItem.add(SideMenuItem(R.drawable.element_1, "Dashboard"))
-    sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, "Timeline"))
-    sideMenuItem.add(SideMenuItem(R.drawable.project_icon, "Leads"))
-    sideMenuItem.add(SideMenuItem(R.drawable.sales_name_icon, "Sales Profile Report"))
-    sideMenuItem.add(SideMenuItem(R.drawable.inventory_menu_icon, "Inventory"))
-    sideMenuItem.add(SideMenuItem(R.drawable.repots_menu_icon, "Reports"))
-    sideMenuItem.add(SideMenuItem(R.drawable.payment_menu_icon, "Payment Plans"))
-    sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, "Profile"))
-    sideMenuItem.add(SideMenuItem(R.drawable.book, "Roles & Premmisions"))
-    sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, "Logout"))
-Column(
-    Modifier
-        .width(260.dp)
-        .background(White)) {
-    Box(
+    sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
+    sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
+    sideMenuItem.add(SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads)))
+    sideMenuItem.add(SideMenuItem(R.drawable.sales_name_icon,
+        stringResource(R.string.sales_profile_report)))
+    sideMenuItem.add(SideMenuItem(R.drawable.inventory_menu_icon, stringResource(R.string.inventory)))
+    sideMenuItem.add(SideMenuItem(R.drawable.repots_menu_icon, stringResource(R.string.reports)))
+    sideMenuItem.add(SideMenuItem(R.drawable.payment_menu_icon,
+        stringResource(R.string.payment_plans)))
+    sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, stringResource(R.string.profile)))
+    sideMenuItem.add(SideMenuItem(R.drawable.book, stringResource(R.string.roles_premmisions)))
+    sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, stringResource(R.string.logout)))
+    Column(
         Modifier
-            .width(260.dp)
-            .background(Blue)
-    ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp)
-                .padding(vertical = 24.dp)
-        ) {
-            Image(
-                painter = painterResource(R.drawable.user_profile),
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            )
-            Text(
-                modifier = Modifier.padding(top = 16.dp),
-                text = "Mahmoud Ali",
-                color = White,
-                style = TextStyle(
-                    fontSize = 16.sp, color = Blue,
-                ),
-            )
-            Text(
-                text = "Sales Director",
-                color = White,
-                style = TextStyle(
-                    fontSize = 13.sp
-                ),
-            )
-
-
-        }
-    }
-
-    Spacer(modifier = Modifier.height(8.dp))
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxHeight()
             .width(260.dp)
             .background(White)
     ) {
-        items(sideMenuItem.size) {
-            Item(sideMenuItem[it].image, sideMenuItem[it].title, Modifier) {
-                onItemClick(it)
+        Box(
+            Modifier
+                .width(260.dp)
+                .background(Blue)
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp)
+                    .padding(vertical = 24.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.user_profile),
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop
+                )
+                Text(
+                    modifier = Modifier.padding(top = 16.dp),
+                    text = "Mahmoud Ali",
+                    color = White,
+                    style = TextStyle(
+                        fontSize = 16.sp, color = Blue,
+                    ),
+                )
+                Text(
+                    text = "Sales Director",
+                    color = White,
+                    style = TextStyle(
+                        fontSize = 13.sp
+                    ),
+                )
+
+
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(260.dp)
+                .background(White)
+        ) {
+            items(sideMenuItem.size) {
+                Item(sideMenuItem[it].image, sideMenuItem[it].title, Modifier) {
+                    onItemClick(it)
+                }
             }
         }
     }
-}
 
 }
 
@@ -258,7 +283,6 @@ fun Item(image: Int, text: String, modifier: Modifier, onItemClick: () -> Unit) 
             modifier = modifier
                 .weight(1f)
                 .fillMaxWidth()
-
         )
     }
 }

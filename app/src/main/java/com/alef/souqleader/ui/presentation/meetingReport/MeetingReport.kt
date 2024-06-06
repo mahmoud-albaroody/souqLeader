@@ -9,18 +9,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Divider
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,7 +44,7 @@ fun MeetingItem() {
         modifier = Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 50.dp, horizontal = 40.dp),
+            .padding(vertical = 16.dp, horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -78,7 +76,7 @@ fun MeetingItem() {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Sales Director",
+                            text = stringResource(R.string.sales_director),
                             style = TextStyle(
                                 fontSize = 13.sp, fontWeight = FontWeight.SemiBold
                             ),
@@ -106,7 +104,7 @@ fun MeetingItem() {
                     )
                     Text(
                         modifier = Modifier.padding(top = 4.dp),
-                        text = "Total of Calls",
+                        text = stringResource(R.string.total_of_calls),
                         style = TextStyle(
                             fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                         ),
@@ -119,7 +117,7 @@ fun MeetingItem() {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Answer",
+                                text = stringResource(R.string.answer),
                                 style = TextStyle(
                                     fontSize = 13.sp
                                 ),
@@ -137,7 +135,7 @@ fun MeetingItem() {
 
                             ) {
                             Text(
-                                text = "No Answer",
+                                text = stringResource(R.string.no_answer),
                                 style = TextStyle(
                                     fontSize = 13.sp
                                 ),
@@ -155,7 +153,7 @@ fun MeetingItem() {
             }
         }
         Text(
-            text = "Meeting Per Day",
+            text = stringResource(R.string.meeting_per_day),
             Modifier
                 .padding(top = 16.dp),
             style = TextStyle(

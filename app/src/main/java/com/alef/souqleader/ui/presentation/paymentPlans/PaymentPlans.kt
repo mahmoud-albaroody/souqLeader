@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.gymScreen.DashboardViewModel
+import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Grey
 
@@ -40,7 +40,7 @@ fun PaymentPlansScreen(modifier: Modifier) {
     LazyColumn(
         Modifier
             .fillMaxSize()
-            .padding(all = 16.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
         items(6) {
             PaymentPlansItem()
@@ -62,7 +62,7 @@ fun PaymentPlansItem() {
         modifier = Modifier
             .fillMaxWidth()
             .height(screenHeight / 4.8f)
-            .padding(8.dp),
+            .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(

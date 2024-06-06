@@ -1,7 +1,13 @@
 package com.alef.souqleader.ui.presentation.profile
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,15 +25,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alef.souqleader.R
+import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.LocaleHelper
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
+import com.alef.souqleader.ui.updateLocale
+import java.util.Locale
 
 
 @Composable
@@ -42,11 +55,13 @@ fun ProfileItem() {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 50.dp, horizontal = 40.dp),
+            .padding(vertical = 16.dp, horizontal = 24.dp),
     ) {
 
         Card(
@@ -98,7 +113,11 @@ fun ProfileItem() {
             horizontalArrangement = Arrangement.spacedBy(6.dp)
 
         ) {
-            Card(Modifier.weight(1f).height(100.dp)) {
+            Card(
+                Modifier
+                    .weight(1f)
+                    .height(100.dp)
+            ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
                         text = "11",
@@ -110,14 +129,18 @@ fun ProfileItem() {
                     Text(
                         modifier = Modifier
                             .padding(top = 8.dp),
-                        text = "Recent Activities",
+                        text = stringResource(R.string.recent_activities),
                         style = TextStyle(
                             fontSize = 15.sp
                         )
                     )
                 }
             }
-            Card(Modifier.weight(1f).height(100.dp)) {
+            Card(
+                Modifier
+                    .weight(1f)
+                    .height(100.dp)
+            ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
                         text = "8",
@@ -129,7 +152,7 @@ fun ProfileItem() {
                     Text(
                         modifier = Modifier
                             .padding(top = 8.dp),
-                        text = "My Actions",
+                        text = stringResource(R.string.my_actions),
                         style = TextStyle(
                             fontSize = 15.sp
                         )
@@ -137,7 +160,11 @@ fun ProfileItem() {
 
                 }
             }
-            Card(Modifier.weight(1f).height(100.dp)) {
+            Card(
+                Modifier
+                    .weight(1f)
+                    .height(100.dp)
+            ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
                         text = "2",
@@ -149,7 +176,7 @@ fun ProfileItem() {
                     Text(
                         modifier = Modifier
                             .padding(top = 8.dp),
-                        text = "My Sales Report",
+                        text = stringResource(R.string.my_sales_report),
                         style = TextStyle(
                             fontSize = 15.sp
                         )
@@ -169,6 +196,21 @@ fun ProfileItem() {
             Card(
                 Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        if (AccountData.lang == "en") {
+                            AccountData.lang = "ar"
+                        } else {
+                            AccountData.lang = "en"
+                        }
+                        updateLocale(context, Locale(AccountData.lang))
+                        (context as? Activity)?.finish()
+                        (context as? Activity)?.startActivity(
+                            Intent(
+                                context,
+                                MainActivity::class.java
+                            )
+                        )
+                    }
 
             ) {
                 Row(
@@ -257,3 +299,4 @@ fun ProfileItem() {
         }
     }
 }
+

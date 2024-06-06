@@ -75,6 +75,29 @@ dependencies {
 
     implementation ("androidx.core:core-splashscreen:1.0.1")
 
+    implementation ("com.chibatching.kotpref:preference-screen-dsl:2.13.1")
+
+    //kotpref
+    // core
+    implementation ("com.chibatching.kotpref:kotpref:2.13.1")
+
+    // implementation 'com.github.mancj:MaterialSearchBar:0.8.5'
+
+    // optional, auto initialization module
+    implementation ("com.chibatching.kotpref:initializer:2.13.1")
+
+    // optional, support saving enum value and ordinal
+    implementation ("com.chibatching.kotpref:enum-support:2.13.1")
+
+    // optional, support saving json string through Gson
+    implementation ("com.chibatching.kotpref:gson-support:2.13.1")
+    implementation ("com.google.code.gson:gson:2.10.1")
+
+    // optional, support LiveData observable preference
+    implementation ("com.chibatching.kotpref:livedata-support:2.13.1")
+
+    // experimental, preference screen build dsl
+    implementation ("com.chibatching.kotpref:preference-screen-dsl:2.13.1")
 
     // Retrofit Dependencies
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

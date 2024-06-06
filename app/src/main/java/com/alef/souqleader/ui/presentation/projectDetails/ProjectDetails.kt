@@ -14,13 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
-import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdate
+import com.alef.souqleader.R
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
 import com.google.accompanist.pager.*
@@ -62,7 +63,7 @@ fun DetailsItem() {
             Column {
                 Column {
                     Text(
-                        text = "Project Name",
+                        text = stringResource(R.string.project_name),
                         style = TextStyle(
                             color = Blue,
                             fontWeight = FontWeight.Bold,
@@ -115,13 +116,13 @@ fun DetailsProduct() {
         Modifier
             .verticalScroll(scrollState)
     ) {
-        ReminderItem("Unit No", "A18")
-        ReminderItem("Building No", "2761")
-        ReminderItem("Land Space", "120 m2")
-        ReminderItem("Price", "250.000 EGP")
-        ReminderItem("Owner Name", "Ahmed Ali")
-        ReminderItem("Owner Mobile", "012736355546")
-        ReminderItem("Property Type", "Private property")
+        ReminderItem(stringResource(R.string.unit_no), "A18")
+        ReminderItem(stringResource(R.string.building_no), "2761")
+        ReminderItem(stringResource(R.string.land_space), "120 m2")
+        ReminderItem(stringResource(R.string.price), "250.000 EGP")
+        ReminderItem(stringResource(R.string.owner_name), "Ahmed Ali")
+        ReminderItem(stringResource(R.string.owner_mobile), "012736355546")
+        ReminderItem(stringResource(R.string.property_type), "Private property")
     }
 }
 

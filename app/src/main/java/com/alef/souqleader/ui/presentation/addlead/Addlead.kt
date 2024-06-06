@@ -1,20 +1,14 @@
 package com.alef.souqleader.ui.presentation.addlead
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,8 +17,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -42,21 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.login.LoginItem
 import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Grey
-import com.alef.souqleader.ui.theme.LightGrey
 import com.alef.souqleader.ui.theme.White
 
 
@@ -76,14 +61,14 @@ fun AddLead() {
         Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 16.dp, horizontal = 32.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
         Column(
             Modifier
                 .verticalScroll(scrollState)
                 .weight(12f)
         ) {
-            TextFiledItem("Name")
+            TextFiledItem(stringResource(R.string.name))
             Row(
                 Modifier
                     .fillMaxWidth(),
@@ -94,7 +79,7 @@ fun AddLead() {
                     TextFiledItem("+2")
                 }
                 Box(Modifier.weight(3f)) {
-                    TextFiledItem("Mobile")
+                    TextFiledItem(stringResource(R.string.mobile))
                 }
             }
             DynamicSelectTextField()
@@ -108,12 +93,11 @@ fun AddLead() {
             TextFiledItem("E-mail")
         }
         Button(modifier = Modifier
-            .weight(1f)
             .fillMaxWidth(),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue),
             onClick = { /*TODO*/ }) {
-            Text(text = "ADD LEAD", Modifier.padding(vertical = 8.dp))
+            Text(text = stringResource(R.string.add_lead), Modifier.padding(vertical = 8.dp))
         }
     }
 }
@@ -147,7 +131,7 @@ fun TextFiledItem(text: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicSelectTextField(
-    options: List<String> = listOf("Lead Stage", "Option 2", "Option 3", "Option 4", "Option 5"),
+    options: List<String> = listOf(stringResource(R.string.lead_stage), "Option 2", "Option 3", "Option 4", "Option 5"),
     onOptionSelected: (String) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -218,7 +202,7 @@ fun ReminderItem() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "After Two Hour",
+                text = stringResource(R.string.after_two_hour),
                 style = TextStyle(
                     fontSize = 14.sp, color = Color.Black
                 ),
@@ -231,11 +215,11 @@ fun ReminderItem() {
 fun RadioButtonGroup() {
     var selectedOption by remember { mutableStateOf("Not interested") }
     val options = listOf(
-        "Not interested",
-        "Low Budget",
-        "Wrong Number",
-        "Another Location",
-        "Another Reasons"
+        stringResource(R.string.not_interested),
+        stringResource(R.string.low_budget),
+        stringResource(R.string.wrong_number),
+        stringResource(R.string.another_location),
+        stringResource(R.string.another_reasons)
     )
 
     Column() {
