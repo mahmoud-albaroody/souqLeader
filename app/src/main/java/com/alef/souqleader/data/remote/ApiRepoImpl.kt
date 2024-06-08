@@ -3,12 +3,13 @@ package com.alef.souqleader.data.remote
 
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
+import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import javax.inject.Inject
 
 
 class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
-    suspend fun leadsByStatus(): Resource<LeadsByStatusResponse> {
-        val response = APIs.leadsByStatus()
+    suspend fun leadsStatus(): Resource<LeadsStatusResponse> {
+        val response = APIs.leadStatus()
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -16,18 +17,16 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    //    suspend fun convert(
-//        from: String,
-//        to: String,
-//        amount: String
-//    ): Resource<ConvertResponse> {
-//        val response = APIs.convert(from = from, to = to, amount = amount)
-//        return if (response.isSuccessful) {
-//            Resource.Success(response.body()!!, response.errorBody())
-//        } else {
-//            Resource.DataError(null, response.code(), response.errorBody())
-//        }
-//    }
+        suspend fun leadsByStatus(
+        id: String
+    ): Resource<LeadsByStatusResponse> {
+        val response = APIs.leadsByStatus(id)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
 
 //    suspend fun symbols(): LeadsByStatusResponse {
 //        val response = APIs.symbols()

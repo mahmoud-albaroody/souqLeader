@@ -69,4 +69,6 @@
     <string name="profile">الملف الشخصي</string>
     <string name="roles_premmisions"><![CDATA[الأدوار والأذونات]]></string>
     <string name="logout">تسجيل الخروج</string>
+    <string name="please_enter_valid_text">Please enter valid text</string>
+    <string name="login">تسجيل الدخول</string>
 </resources>

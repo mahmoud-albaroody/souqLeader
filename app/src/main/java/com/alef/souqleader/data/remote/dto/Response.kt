@@ -15,6 +15,10 @@ data class LeadsByStatusResponse(
     var data: ArrayList<Lead>? = null
 ) : StatusResponse()
 
+data class LeadsStatusResponse(
+    val status: Boolean = false,
+    var data: ArrayList<LeadStatus>? = null
+) : StatusResponse()
 
 data class ConvertResponse(
     val date: String,

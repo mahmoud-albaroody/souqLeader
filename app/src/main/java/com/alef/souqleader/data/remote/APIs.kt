@@ -1,6 +1,7 @@
 package com.alef.souqleader.data.remote
 
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
+import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -8,8 +9,11 @@ import retrofit2.http.*
 interface APIs {
 
 
-    @GET("leadsByStatus")
-    suspend fun leadsByStatus(): Response<LeadsByStatusResponse>
+    @GET("api/leadStatus")
+    suspend fun leadStatus(): Response<LeadsStatusResponse>
+
+    @GET("api/leadsByStatus")
+    suspend fun leadsByStatus(@Query("id") id: String): Response<LeadsByStatusResponse>
 
 //    @GET("convert")
 //    suspend fun convert(

@@ -1,6 +1,7 @@
 package com.alef.souqleader.data.di.networkModule
 
 import android.content.Context
+import android.util.Log
 import com.alef.souqleader.ui.SouqLeaderApp
 import com.alef.souqleader.data.remote.APIs
 import com.alef.souqleader.data.remote.ApiRepoImpl
@@ -88,8 +89,8 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        headerInterceptor: HttpLoggingInterceptor,
-        cache: Cache
+        headerInterceptor: HttpLoggingInterceptor,   interceptor: Interceptor,
+        cache: Cache,
     ): OkHttpClient {
         headerInterceptor.level = HttpLoggingInterceptor.Level.BODY
         val header = HttpLoggingInterceptor()
@@ -100,6 +101,7 @@ class NetworkModule {
         okHttpClientBuilder.writeTimeout(WRITE_TIMEOUT.toLong(), TimeUnit.SECONDS)
         okHttpClientBuilder.cache(cache)
         okHttpClientBuilder.addInterceptor(headerInterceptor)
+        okHttpClientBuilder.addInterceptor(interceptor)
         return okHttpClientBuilder.build()
     }
 
@@ -108,18 +110,19 @@ class NetworkModule {
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
         val httpLoggingInterceptor = HttpLoggingInterceptor()
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-
         return httpLoggingInterceptor
     }
 
     @Singleton
     @Provides
     fun provideHeaderInterceptor(): Interceptor {
+        Log.e("ddd","dsfdsfdsf")
         return Interceptor {
+
             val requestBuilder = it.request().newBuilder()
                 //hear you can add all headers you want by calling 'requestBuilder.addHeader(name ,  value)'
 //                .header("Content-Type", "application/json; charset=utf-8")
-                .header("apikey", ACCESS_TOKEN)
+                .header("Authorization", ACCESS_TOKEN)
 
                 //  .header("Host", "")
 

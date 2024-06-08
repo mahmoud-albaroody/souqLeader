@@ -64,9 +64,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.6.7")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0-alpha02")
-    implementation ("androidx.fragment:fragment-compose:1.7.0-alpha10")
-    implementation ("androidx.fragment:fragment-ktx:1.6.2")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.7")
+    implementation("io.coil-kt:coil-compose:2.0.0-rc01")
+
+    implementation ("androidx.fragment:fragment-compose:1.7.1")
+    implementation ("androidx.fragment:fragment-ktx:1.7.1")
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     implementation ("com.google.accompanist:accompanist-pager:0.25.1")
@@ -110,10 +112,10 @@ dependencies {
 
     //Hilt for di
     implementation ("com.google.dagger:hilt-android:2.49")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     implementation ("androidx.multidex:multidex:2.0.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")

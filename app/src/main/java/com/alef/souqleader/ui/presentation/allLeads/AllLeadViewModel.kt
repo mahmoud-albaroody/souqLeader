@@ -1,4 +1,4 @@
-package com.alef.souqleader.ui.presentation.dashboardScreen
+package com.alef.souqleader.ui.presentation.allLeads
 
 
 import androidx.compose.runtime.getValue
@@ -18,11 +18,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor(
+class AllLeadViewModel @Inject constructor(
     private val getLeadUseCase: GetLeadUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    var stateListOfLeads by mutableStateOf(emptyList<LeadStatus>())
+     var stateListOfLeads by mutableStateOf(emptyList<Lead>())
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -41,9 +41,9 @@ class DashboardViewModel @Inject constructor(
 //    }
 //
 //
-    fun getLeads() {
+    fun getLeadByStatus(id:String) {
         viewModelScope.launch(job) {
-            stateListOfLeads = getLeadUseCase.getLeadStatus().data?.data!!
+            stateListOfLeads = getLeadUseCase.getLeadByStatus(id).data?.data!!
         }
     }
 

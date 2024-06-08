@@ -69,4 +69,6 @@
     <string name="profile">Profile</string>
     <string name="roles_premmisions"><![CDATA[Roles & Premmisions]]></string>
     <string name="logout">Logout</string>
+    <string name="please_enter_valid_text">Please enter valid text</string>
+    <string name="login">LOGIN</string>
 </resources>

@@ -1,6 +1,6 @@
 package com.alef.souqleader.ui.constants
 
 object Constants {
-     val BASE_URL = "https://api.apilayer.com/fixer/"
-    const val ACCESS_TOKEN = "4N3pbuKVYfSXCm0csDI8DdrszbenEncv"
+     val BASE_URL = "https://company1.realstatecrm-development.dev.alefsoftware.com/"
+    const val ACCESS_TOKEN = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2NvbXBhbnkxLnJlYWxzdGF0ZWNybS1kZXZlbG9wbWVudC5kZXYuYWxlZnNvZnR3YXJlLmNvbS9hcGkvbG9naW4iLCJpYXQiOjE3MTc0MTQwMTQsImV4cCI6MTcxODAxODgxNCwibmJmIjoxNzE3NDE0MDE0LCJqdGkiOiJsMFVjMTdHSlpqaDVGbGszIiwic3ViIjoiNSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.lOfvUXkqwvjlJf8blC9K1HWAmIjUnjEz9G4rvqrHV0I"
 }
