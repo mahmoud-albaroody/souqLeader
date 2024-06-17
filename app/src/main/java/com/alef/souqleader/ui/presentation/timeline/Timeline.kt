@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,19 +31,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Post
+import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 
 
 @Composable
-fun TimelineScreen(navController: NavController,modifier: Modifier) {
-    //val viewModel: DetailsGymScreenViewModel = viewModel()
+fun TimelineScreen(navController: NavController, modifier: Modifier) {
+    val viewModel: TimeLineViewModel = hiltViewModel()
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getPosts()
+    }
+
 
     LazyColumn(Modifier.padding(horizontal = 24.dp)) {
-        items(5) {
-            TimelineItem {
+        items(viewModel.statePosts) {
+            TimelineItem(it) {
                 navController.navigate(Screen.CRMScreen.route)
             }
         }
@@ -50,7 +61,7 @@ fun TimelineScreen(navController: NavController,modifier: Modifier) {
 
 
 @Composable
-fun TimelineItem(onTimelineCLick: () -> Unit) {
+fun TimelineItem(post: Post, onTimelineCLick: () -> Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -75,7 +86,7 @@ fun TimelineItem(onTimelineCLick: () -> Unit) {
             Text(
                 modifier = Modifier
                     .padding(top = 12.dp),
-                text = stringResource(R.string.crm_system_and_how_to_management_clients_and_leads),
+                text = post.post,
                 style = TextStyle(
                     color = Blue,
                     fontSize = 16.sp,
@@ -83,7 +94,11 @@ fun TimelineItem(onTimelineCLick: () -> Unit) {
                 )
             )
             Image(
-                painterResource(R.drawable.test_icon),
+                painter = rememberAsyncImagePainter( if(post.images?.isNotEmpty() == true){Constants.BASE_URL + post.images[0].image
+                } else {
+                    ""
+                }
+                ),
                 contentDescription = "",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -107,7 +122,8 @@ fun TimelineItem(onTimelineCLick: () -> Unit) {
                     )
                     Text(
                         modifier = Modifier.padding(horizontal = 4.dp),
-                        text = stringResource(R.string.like), style = TextStyle(
+                        text = post.likes_count.toString() + " " + stringResource(R.string.like),
+                        style = TextStyle(
                             fontSize = 13.sp,
                         )
                     )
@@ -121,7 +137,8 @@ fun TimelineItem(onTimelineCLick: () -> Unit) {
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
                             .padding(end = 8.dp),
-                        text = stringResource(R.string.comment), style = TextStyle(
+                        text = post.commentCount()
+                            .toString() + " " + stringResource(R.string.comment), style = TextStyle(
                             fontSize = 13.sp,
                         )
                     )

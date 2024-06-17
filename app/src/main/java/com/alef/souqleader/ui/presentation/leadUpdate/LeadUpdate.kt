@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.presentation.leadUpdate
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,31 +43,41 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.LeadStatus
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Grey
 import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun LeadUpdateScreen(navController: NavController,modifier: Modifier) {
-    //val viewModel: DetailsGymScreenViewModel = viewModel()
-    LeadUpdate()
+fun LeadUpdateScreen(navController: NavController, modifier: Modifier) {
+    val viewModel: LeadUpdateViewModel = hiltViewModel()
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getLeads("0")
+        //    viewModel.updateMulti()
+
+    }
+    viewModel.stateListOfLeads.value?.let { it1 -> LeadUpdate(it1) }
+    //
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun LeadUpdate() {
 
+@OptIn(ExperimentalMaterial3Api::class)
+
+@Composable
+fun LeadUpdate(leads: List<Lead>) {
     Column(
         Modifier
             .fillMaxSize()
             .background(White)
             .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
-        DynamicSelectTextField()
+        DynamicSelectTextField(leads)
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,11 +177,11 @@ fun LeadUpdate() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicSelectTextField(
-    options: List<String> = listOf("Lead Stage", "Option 2", "Option 3", "Option 4", "Option 5"),
+    options: List<Lead>,
     onOptionSelected: (String) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf(options[0]) }
+    var selectedOptionText by remember { mutableStateOf(options[0].name) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -207,11 +219,11 @@ fun DynamicSelectTextField(
         ) {
             options.forEach { selectionOption ->
                 DropdownMenuItem(
-                    text = { Text(text = selectionOption) },
+                    text = { Text(text = selectionOption.name) },
                     onClick = {
-                        selectedOptionText = selectionOption
+                        selectedOptionText = selectionOption.name
                         expanded = false
-                        onOptionSelected(selectionOption)
+                        onOptionSelected(selectionOption.name)
                     }
                 )
             }
@@ -263,17 +275,17 @@ fun RadioButtonGroup() {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
-                   modifier =  Modifier.height(38.dp),
+                    modifier = Modifier.height(38.dp),
                     selected = (option == selectedOption),
                     onClick = { selectedOption = option },
                     colors = RadioButtonDefaults.colors(
-                         Blue
+                        Blue
                     )
                 )
                 Text(
                     text = option,
 
-                )
+                    )
             }
         }
     }

@@ -104,7 +104,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         4 -> {
-                            navController.navigate(Screen.InventoryScreen.route) {
+                            navController.navigate(Screen.ProjectsScreen.route) {
                                 launchSingleTop = true
                             }
                         }
@@ -134,7 +134,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         9 -> {
-                            navController.navigate(Screen.LoginScreen.route) {
+                            navController.navigate(Screen.CancellationsReportScreen.route) {
                                 launchSingleTop = true
                             }
                         }

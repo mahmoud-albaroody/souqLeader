@@ -35,8 +35,10 @@ sealed class Screen(
     object FilterScreen : Screen("filter")
     object Filter2Screen : Screen("filter2")
     object RoleScreen : Screen("Roles")
+    object ProjectsScreen : Screen("projectsScreen")
 
-    object CancellationsReportScreen : Screen("cancellationsReportScreen")
+    object ProjectsDetailsScreen : Screen("projectDetails")
+    object CancellationsReportScreen : Screen("CancellationsReport")
     object CRMScreen : Screen("CRMScreen")
 }
 

@@ -12,15 +12,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
+import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.filter.FilterScreen
 import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
+import com.alef.souqleader.ui.presentation.gymDetailsScreen.ProjectsScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
 import com.alef.souqleader.ui.presentation.login.LoginScreen
 import com.alef.souqleader.ui.presentation.meetingReport.MeetingScreen
 import com.alef.souqleader.ui.presentation.paymentPlans.PaymentPlansScreen
 import com.alef.souqleader.ui.presentation.profile.ProfileScreen
+import com.alef.souqleader.ui.presentation.projectDetails.ProjectDetailsScreen
 import com.alef.souqleader.ui.presentation.rolesPremissions.RolesPermissionsScreen
 import com.alef.souqleader.ui.presentation.salesProfileReport.SalesProfileReportScreen
 import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
@@ -160,6 +163,27 @@ fun Navigation(
             modifier?.let { it1 ->
                 RolesPermissionsScreen(
                     modifier
+                )
+            }
+        }
+        composable(Screen.ProjectsScreen.route) {
+            modifier?.let { it1 ->
+                ProjectsScreen(
+                   navController, modifier
+                )
+            }
+        }
+        composable(Screen.ProjectsDetailsScreen.route) {
+            modifier?.let { it1 ->
+                ProjectDetailsScreen(
+                    navController, modifier
+                )
+            }
+        }
+        composable(Screen.CancellationsReportScreen.route) {
+            modifier?.let { it1 ->
+                CancellationsReport(
+                    navController, modifier
                 )
             }
         }

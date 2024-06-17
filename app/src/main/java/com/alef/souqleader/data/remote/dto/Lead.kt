@@ -19,9 +19,10 @@ data class Lead(
     val note: String,
     val phone: String,
     val project_id: Int,
-    val project_name: String?,
+    val project_name: String,
     val sales_id: Int,
-    val sales_name: String?,
+    val sales_name: String,
     val status: Int,
-    var selected:Boolean
+    var selected:Boolean,
+
 )

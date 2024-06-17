@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -23,38 +25,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Plan
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Grey
 
 @Composable
 fun PaymentPlansScreen(modifier: Modifier) {
-    val viewModel: DashboardViewModel = viewModel()
+    val viewModel: PaymentPlanViewModel = hiltViewModel()
 
-//    LaunchedEffect(key1 = true) {
-//        // viewModel.getGym()
-//    }
+    LaunchedEffect(key1 = true) {
+        viewModel.getPaymentPlan()
+    }
 
     LazyColumn(
         Modifier
             .fillMaxSize()
             .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
-        items(6) {
-            PaymentPlansItem()
-//                modifier, listOfGym[it]) { gym ->
-////                viewModel.toggleFav(gym)
-//                onclick(gym)
-//            }
+        items(viewModel.statePaymentPlan) {
+            PaymentPlansItem(it)
         }
     }
 }
 
-@Preview
+
 @Composable
-fun PaymentPlansItem() {
+fun PaymentPlansItem(plan: Plan) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     Card(
@@ -82,26 +82,29 @@ fun PaymentPlansItem() {
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(vertical = 16.dp,
-                            horizontal = 16.dp)
+                        .padding(
+                            vertical = 16.dp,
+                            horizontal = 16.dp
+                        )
                 ) {
                     Text(
-                        text = "499.99 / year", style = TextStyle(
+                        text = plan.currency + plan.price + "/" + plan.trail_days,
+                        style = TextStyle(
                             fontSize = 18.sp, color = Blue,
                             fontWeight = FontWeight.Bold
                         )
                     )
                     Text(
                         modifier = Modifier.padding(top = 4.dp),
-                        text = "All-Access Pass", style = TextStyle(
+                        text = plan.getPlanName(), style = TextStyle(
                             fontSize = 13.sp, fontWeight = FontWeight.SemiBold
                         )
                     )
                 }
-                Image(
-                    painterResource(R.drawable.select_box),
-                    contentDescription = "",
-                )
+//                Image(
+//                    painterResource(R.drawable.select_box),
+//                    contentDescription = "",
+//                )
             }
 
             Row(
@@ -111,7 +114,7 @@ fun PaymentPlansItem() {
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "You will get unlimit access to every module you want, 50-100 user",
+                    text = "You will get unlimit access to every module you want, " + plan.frequency + " user",
                     style = TextStyle(
                         fontSize = 12.sp,
                         color = Grey

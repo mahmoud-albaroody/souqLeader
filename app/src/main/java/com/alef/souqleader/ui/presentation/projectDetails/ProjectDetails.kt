@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
 import androidx.compose.material3.Card
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.theme.Blue
@@ -27,7 +28,7 @@ import com.alef.souqleader.ui.theme.White
 import com.google.accompanist.pager.*
 
 @Composable
-fun ProjectDetailsScreen(modifier: Modifier) {
+fun ProjectDetailsScreen(navController: NavController, modifier: Modifier) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
     Item()
 }

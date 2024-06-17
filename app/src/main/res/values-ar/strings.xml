@@ -71,4 +71,11 @@
     <string name="logout">تسجيل الخروج</string>
     <string name="please_enter_valid_text">Please enter valid text</string>
     <string name="login">تسجيل الدخول</string>
+    <string name="view_all">View All</string>
+    <string name="done_meeting">Done Meeting</string>
+    <string name="stages_per_lead">Stages Per Lead</string>
+    <string name="total_actions">Total Actions</string>
+    <string name="total_activities">Total Activities</string>
+    <string name="total_of_meeting">Total of Meeting</string>
+    <string name="projects">Projects</string>
 </resources>

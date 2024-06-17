@@ -88,7 +88,6 @@ private fun screen(navController: NavController, stateListOfLeads: List<Lead>) {
                     AllLeadsItem(it) {
                         selected = stateListOfLeads.find { it.selected } != null
                     }
-
                 }
             }
         }

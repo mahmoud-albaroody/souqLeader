@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.dashboardScreen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,38 +22,24 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.alef.souqleader.R
-import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.LeadStatus
 import com.alef.souqleader.ui.constants.Constants.BASE_URL
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
-import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue1
 import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.OffWhite
 import com.alef.souqleader.ui.theme.White
 
 @Composable
