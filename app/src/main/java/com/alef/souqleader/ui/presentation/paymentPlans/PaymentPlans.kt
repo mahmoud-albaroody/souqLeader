@@ -73,8 +73,7 @@ fun PaymentPlansItem(plan: Plan) {
         ) {
             Row(
                 Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .weight(2f),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

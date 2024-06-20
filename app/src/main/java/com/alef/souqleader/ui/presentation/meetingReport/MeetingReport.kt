@@ -47,6 +47,7 @@ import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.domain.model.CustomBarChartRender
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
+import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
@@ -63,6 +64,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 
@@ -229,18 +231,18 @@ fun MyBarChart() {
         BarEntry(5f, 4f),
         BarEntry(6f, 1f)
     )
-    val labels = arrayOf("Label 1", "Label 2", "Label 3", "Label 4", "Label 5", "Label 6","Label 6")
+    val labels = arrayOf("Label 1", "Label 2", "Label 3", "Label 4", "Label 5", "lable6")
 
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
-            .size(300.dp)
-            .padding(vertical = 16.dp),
+            .size(220.dp)
+            .padding(vertical = 8.dp),
         factory = { context ->
             BarChart(context).apply {
-                layoutParams = android.view.ViewGroup.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 // Configure bar chart
                 this.description.isEnabled = false
@@ -251,25 +253,29 @@ fun MyBarChart() {
                 //
                 xAxis.position = XAxis.XAxisPosition.BOTTOM
                 xAxis.setDrawGridLines(false)
-                xAxis.granularity = 1f // only intervals of 1 day
+
                 xAxis.textColor = android.graphics.Color.BLACK
                 xAxis.textSize = 12f
                 xAxis.axisLineColor = android.graphics.Color.WHITE
-
-                xAxis.valueFormatter = CustomValueFormatter(labels)
+                xAxis.granularity = 1f
+              //  xAxis.isGranularityEnabled = true
                 xAxis.setCenterAxisLabels(true)
+              //  xAxis.setAvoidFirstLastClipping(true)
+               // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
                 legend.isEnabled = false
-               // data.barWidth = 0.5f
+                xAxis.valueFormatter = IndexAxisValueFormatter(labels);
+                //   xAxis.valueFormatter = CustomValueFormatter(labels)
+                // data.barWidth = 0.5f
                 //   data.isHighlightEnabled = true
                 setScaleEnabled(false)
-                setVisibleXRangeMaximum(4f)
+             setVisibleXRangeMaximum(4f)
                 val barChartRender = CustomBarChartRender(
                     this,
                     animator,
                     viewPortHandler
                 )
-                barChartRender.setRadius(20)
+                barChartRender.setRadius(30)
 
                 renderer = barChartRender
                 // Create bar data set
@@ -283,8 +289,8 @@ fun MyBarChart() {
 
                 // Set data to the chart
                 val datad = BarData(barDataSet)
-                datad.barWidth = 0.5f
-                datad.isHighlightEnabled = true
+                datad.barWidth = 0.7f
+                datad.isHighlightEnabled = false
                 data = datad
                 this.invalidate() // Refresh chart
             }

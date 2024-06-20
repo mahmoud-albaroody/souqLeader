@@ -53,6 +53,10 @@ data class SalesProfileReportResponse(
     var data: SalesProfileReport? = null
 ) : StatusResponse()
 
+data class LoginResponse(
+    var data: Login? = null
+) : StatusResponse()
+
 data class MeetingReportResponse(
     var data: MeetingReport? = null
 ) : StatusResponse()

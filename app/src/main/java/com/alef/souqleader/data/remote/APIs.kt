@@ -5,6 +5,7 @@ import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
+import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.MeetingReportResponse
 import com.alef.souqleader.data.remote.dto.MultiResponse
 import com.alef.souqleader.data.remote.dto.PlanResponse
@@ -13,6 +14,7 @@ import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.PropertyResponse
 import com.alef.souqleader.data.remote.dto.SalesProfileReportRequest
 import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
+import com.alef.souqleader.data.remote.dto.StatusResponse
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -65,7 +67,10 @@ interface APIs {
     @POST("api/MeetingReport")
     suspend fun getMeetingReport(): Response<MeetingReportResponse>
 
+    @POST("api/login")
+    suspend fun login(): Response<LoginResponse>
 
-
+    @POST("api/logout")
+    suspend fun logout(): Response<StatusResponse>
 
 }

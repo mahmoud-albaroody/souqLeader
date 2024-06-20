@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.presentation.salesProfileReport
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
@@ -41,6 +46,7 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.SalesProfileReport
 import com.alef.souqleader.data.remote.dto.StatusCounter
 import com.alef.souqleader.ui.constants.Constants
+import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
 
@@ -66,259 +72,325 @@ fun SalesProfileReportItem(
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
-    Column(
+
+    var stageHeight by remember { mutableIntStateOf(200) }
+
+
+    LazyColumn(
+        // and not having a Modifier that could return non-infinite max height contraint
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
-            .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
 
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // ,
-
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .height(140.dp)
+        item {
+            Column(
+                modifier = Modifier
+                    .background(White)
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp, horizontal = 24.dp)
             ) {
-                Column(Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
-                    Image(
-                        painter = rememberAsyncImagePainter(
-                            if (salesProfileReport.user.image?.isNotEmpty() == true) {
-                                Constants.BASE_URL + salesProfileReport.user.image
-                            } else {
-                                R.drawable.user_profile_placehoder
-                            }
-                        ),
-                        contentDescription = "",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, Color.LightGray, CircleShape)
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 16.dp),
-                        text = salesProfileReport.user.name,
-                        style = TextStyle(
-                            fontSize = 16.sp, color = Blue
-                        ),
-                    )
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // ,
+
+                    Card(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .height(140.dp)
                     ) {
-                        Text(
-                            text = salesProfileReport.user.role,
-                            style = TextStyle(
-                                fontSize = 13.sp, fontWeight = FontWeight.SemiBold
-                            ),
-                        )
+                        Column(Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
+                            Image(
+                                painter = rememberAsyncImagePainter(
+                                    if (salesProfileReport.user.image?.isNotEmpty() == true) {
+                                        Constants.BASE_URL + salesProfileReport.user.image
+                                    } else {
+                                        R.drawable.user_profile_placehoder
+                                    }
+                                ),
+                                contentDescription = "",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .clip(CircleShape)
+                                    .border(2.dp, Color.LightGray, CircleShape)
+                            )
+                            Text(
+                                modifier = Modifier.padding(top = 16.dp),
+                                text = salesProfileReport.user.name,
+                                style = TextStyle(
+                                    fontSize = 16.sp, color = Blue
+                                ),
+                            )
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = salesProfileReport.user.role,
+                                    style = TextStyle(
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    ),
+                                )
+                            }
+
+                        }
                     }
 
-                }
-            }
-
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .height(140.dp)
-            ) {
-                Column(
-                    Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = salesProfileReport.total_calls,
-                        style = TextStyle(
-                            fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
-                        ),
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        text = "Total of Calls",
-                        style = TextStyle(
-                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold
-                        ),
-                    )
-                    Column(
-                        Modifier.padding(top = 24.dp), verticalArrangement = Arrangement.Bottom
+                    Card(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .height(140.dp)
                     ) {
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        Column(
+                            Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Answer",
+                                text = salesProfileReport.total_calls,
                                 style = TextStyle(
-                                    fontSize = 13.sp
+                                    fontSize = 20.sp,
+                                    color = Blue,
+                                    fontWeight = FontWeight.Bold
                                 ),
                             )
                             Text(
-                                text = salesProfileReport.answer,
+                                modifier = Modifier.padding(top = 4.dp),
+                                text = "Total of Calls",
                                 style = TextStyle(
-                                    fontSize = 13.sp
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                                 ),
                             )
-                        }
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-
+                            Column(
+                                Modifier.padding(top = 24.dp),
+                                verticalArrangement = Arrangement.Bottom
                             ) {
-                            Text(
-                                text = "No Answer",
-                                style = TextStyle(
-                                    fontSize = 13.sp
-                                ),
-                            )
-                            Text(
-                                text = salesProfileReport.no_answer,
-                                style = TextStyle(
-                                    fontSize = 13.sp
-                                ),
-                            )
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Answer",
+                                        style = TextStyle(
+                                            fontSize = 13.sp
+                                        ),
+                                    )
+                                    Text(
+                                        text = salesProfileReport.answer,
+                                        style = TextStyle(
+                                            fontSize = 13.sp
+                                        ),
+                                    )
+                                }
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+
+                                    ) {
+                                    Text(
+                                        text = "No Answer",
+                                        style = TextStyle(
+                                            fontSize = 13.sp
+                                        ),
+                                    )
+                                    Text(
+                                        text = salesProfileReport.no_answer,
+                                        style = TextStyle(
+                                            fontSize = 13.sp
+                                        ),
+                                    )
+                                }
+                            }
+
                         }
                     }
 
                 }
-            }
-
-        }
 
 
-        Card(Modifier.padding(top = 16.dp)) {
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+                Card(Modifier.padding(top = 16.dp)) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                Column(
-                    Modifier
-                        .padding(horizontal = 12.dp)
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = salesProfileReport.arrange_meeting, style = TextStyle(
-                            fontSize = 20.sp, color = Blue,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .fillMaxWidth(),
-                        text = stringResource(R.string.arrange_meeting),
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
+                        Column(
+                            Modifier
+                                .padding(horizontal = 12.dp)
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = salesProfileReport.arrange_meeting,
+                                style = TextStyle(
+                                    fontSize = 20.sp, color = Blue,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .fillMaxWidth(),
+                                text = stringResource(R.string.arrange_meeting),
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
 
-                VerticalDivider()
-                Column(
-                    Modifier
-                        .padding(16.dp)
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = salesProfileReport.done_meeting, style = TextStyle(
-                            fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 8.dp),
-                        text = stringResource(R.string.done_meeting),
-                        style = TextStyle(
-                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
-            }
-        }
-        Card(Modifier.padding(top = 16.dp)) {
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    Modifier
-                        .padding(12.dp)
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = salesProfileReport.created_today_lead, style = TextStyle(
-                            fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .fillMaxWidth(),
-                        text = stringResource(R.string.today_leads),
-                        style = TextStyle(
-                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
-
-                VerticalDivider()
-                Column(
-                    Modifier
-                        .padding(16.dp)
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = salesProfileReport.avg_response + "%", style = TextStyle(
-                            fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 8.dp),
-                        text = stringResource(R.string.avg_response),
-                        style = TextStyle(
-                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
-            }
-        }
-        Card(Modifier.padding(top = 16.dp)) {
-            Column(Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = stringResource(R.string.stages_per_lead),
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 16.dp),
-                    style = TextStyle(fontWeight = FontWeight.SemiBold)
-                )
-                LazyColumn {
-                    items(salesProfileReport.status_counters) { statusCounters ->
-                        StagesPerLead(statusCounters)
+                        VerticalDivider()
+                        Column(
+                            Modifier
+                                .padding(16.dp)
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = salesProfileReport.done_meeting,
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    color = Blue,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            Text(
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = stringResource(R.string.done_meeting),
+                                style = TextStyle(
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
                     }
                 }
-                Text(
-                    text = stringResource(R.string.view_all),
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    style = TextStyle(fontWeight = FontWeight.SemiBold, color = Blue)
-                )
+                Card(Modifier.padding(top = 16.dp)) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(
+                            Modifier
+                                .padding(12.dp)
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = salesProfileReport.created_today_lead,
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    color = Blue,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .fillMaxWidth(),
+                                text = stringResource(R.string.today_leads),
+                                style = TextStyle(
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
+
+                        VerticalDivider()
+                        Column(
+                            Modifier
+                                .padding(16.dp)
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            Text(
+                                text = salesProfileReport.avg_response + "%",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    color = Blue,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            Text(
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = stringResource(R.string.avg_response),
+                                style = TextStyle(
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
+                    }
+                }
+                Card(Modifier.padding(top = 16.dp)) {
+                    Column(
+                        Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_per_day),
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .padding(top = 16.dp),
+                            style = TextStyle(fontWeight = FontWeight.SemiBold)
+                        )
+                        MyBarChart()
+                    }
+                }
             }
+        }
+
+        item {
+            Card(Modifier.padding( horizontal = 24.dp).padding(bottom = 16.dp)) {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                        Text(
+                            text = stringResource(R.string.stages_per_lead),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(horizontal = 8.dp, vertical = 16.dp),
+                            style = TextStyle(
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center
+                            )
+                        )
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(stageHeight.dp)
+                    ) {
+
+                        items(salesProfileReport.status_counters) { statusCounters ->
+                            StagesPerLead(statusCounters)
+                        }
+                    }
+                    Text(
+                        text = stringResource(R.string.view_all),
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                            .clickable {
+                                stageHeight = if (stageHeight == 200) {
+                                    400
+                                } else {
+                                    200
+                                }
+                            },
+                        style = TextStyle(fontWeight = FontWeight.SemiBold, color = Blue)
+                    )
+                }
+            }
+
         }
     }
+
 
 }
 
@@ -359,9 +431,9 @@ fun StagesPerLead(statusCounters: StatusCounter) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(end = 10.dp)
             ) {
-                val statusIcon: Int = if(statusCounters.has_pending){
+                val statusIcon: Int = if (statusCounters.has_pending) {
                     R.drawable.ellipse_red
-                }else{
+                } else {
                     R.drawable.ellipse
                 }
                 Image(

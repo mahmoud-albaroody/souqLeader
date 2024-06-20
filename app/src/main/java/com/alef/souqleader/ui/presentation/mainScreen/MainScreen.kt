@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.FabPosition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.rememberScaffoldState
 
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +33,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,21 +55,27 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.SideMenuItem
+import com.alef.souqleader.ui.appbar.HomeAppBar
 import com.alef.souqleader.ui.navigation.Navigation
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.navigation.currentRoute
+import com.alef.souqleader.ui.navigation.navigationTitle
 import com.alef.souqleader.ui.theme.Blue
+import com.bitaqaty.reseller.ui.component.appbar.AppBarWithArrow
 import kotlinx.coroutines.launch
 
 @Composable
 fun MyApp(modifier: Modifier) {
     val navController = rememberNavController()
-        CustomModalDrawer(modifier, navController)
+    CustomModalDrawer(modifier, navController)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scaffoldState = rememberScaffoldState()
+    val isAppBarVisible = remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(drawerState = drawerState,
         scrimColor = Transparent,
@@ -74,11 +84,11 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                 drawerShape = RectangleShape,
                 drawerContainerColor = Transparent
             ) {
-                DrawerContent(navController, modifier) {
+                DrawerContent(navController, modifier) {position, s->
                     scope.launch {
                         drawerState.close()
                     }
-                    when (it) {
+                    when (position) {
                         0 -> {
                             navController.navigate(Screen.DashboardScreen.route) {
                                 launchSingleTop = true
@@ -104,7 +114,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         4 -> {
-                            navController.navigate(Screen.ProjectsScreen.route) {
+                            navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
                                 launchSingleTop = true
                             }
                         }
@@ -145,26 +155,78 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
             }
         },
         content = {
-            Scaffold(topBar = {
-                TopAppBar(title = {
-                    Text("My App")
-                }, colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Blue, // Background color
-                    titleContentColor = White, // Title text color
-                    navigationIconContentColor = White // Navigation icon color
-                ), navigationIcon = {
-                    IconButton(onClick = {
-                        // Control drawer state here
-                        if (drawerState.isClosed) {
-                            scope.launch { drawerState.open() }
-                        } else {
-                            // Prevent reducing or closing the drawer
+            Scaffold(
+//                topBar = {
+//                TopAppBar(title = {
+//                    Text("My App")
+//                },
+//                    colors = TopAppBarDefaults.topAppBarColors(
+//                    containerColor = Blue, // Background color
+//                    titleContentColor = White, // Title text color
+//                    navigationIconContentColor = White // Navigation icon color
+//                ), navigationIcon = {
+//                    IconButton(onClick = {
+//                        // Control drawer state here
+//                        if (drawerState.isClosed) {
+//                            scope.launch { drawerState.open() }
+//                        } else {
+//                            // Prevent reducing or closing the drawer
+//                        }
+//                    }) {
+//                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+//                    }
+//                })
+//            }
+                topBar = {
+                    when (currentRoute(navController)) {
+                        Screen.DashboardScreen.route,
+                        Screen.Timeline.route,
+                        Screen.AddLeadScreen.route,
+                        Screen.SalesProfileReportScreen.route,
+                        Screen.ReportsScreen.route,
+                        Screen.PaymentPlansScreen.route,
+                        Screen.ProfileScreen.route,
+                        Screen.RoleScreen.route -> {
+                            if (isAppBarVisible.value) {
+                                val appTitle: String =
+                                    if (currentRoute(navController) == Screen.DashboardScreen.route)
+                                        stringResource(R.string.dashboard)
+                                    else if (currentRoute(navController) == Screen.Timeline.route)
+                                        stringResource(R.string.timeline)
+                                    else if (currentRoute(navController) == Screen.AddLeadScreen.route)
+                                        stringResource(R.string.add_lead)
+                                    else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route)
+                                        stringResource(R.string.sales_profile_report)
+                                    else if (currentRoute(navController) == Screen.ReportsScreen.route)
+                                        stringResource(R.string.reports)
+                                    else if (currentRoute(navController) == Screen.PaymentPlansScreen.route)
+                                        stringResource(R.string.payment_plans)
+                                    else if (currentRoute(navController) == Screen.ProfileScreen.route)
+                                        stringResource(R.string.profile)
+                                    else if (currentRoute(navController) == Screen.RoleScreen.route)
+                                        stringResource(R.string.roles_premmisions)
+                                    else stringResource(R.string.dashboard)
+                                HomeAppBar(title = appTitle, openDrawer = {
+                                    scope.launch {
+                                        if (drawerState.isClosed) {
+                                            drawerState.open()
+                                        }
+                                    }
+                                }, openFilters = {
+                                    isAppBarVisible.value = false
+                                })
+                            }
                         }
-                    }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+
+                        else -> {
+                            AppBarWithArrow(navigationTitle(navController)) {
+                                navController.popBackStack()
+                            }
+                        }
                     }
-                })
-            }) { paddingValues ->
+                },
+            )
+            { paddingValues ->
                 Box(
                     modifier = modifier
                         .fillMaxWidth()
@@ -178,17 +240,30 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
 }
 
 @Composable
-fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick: (Int) -> Unit) {
+fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick: (Int,String?) -> Unit) {
     val sideMenuItem: ArrayList<SideMenuItem> = arrayListOf()
     sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
     sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
     sideMenuItem.add(SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads)))
-    sideMenuItem.add(SideMenuItem(R.drawable.sales_name_icon,
-        stringResource(R.string.sales_profile_report)))
-    sideMenuItem.add(SideMenuItem(R.drawable.inventory_menu_icon, stringResource(R.string.inventory)))
+    sideMenuItem.add(
+        SideMenuItem(
+            R.drawable.sales_name_icon,
+            stringResource(R.string.sales_profile_report)
+        )
+    )
+    sideMenuItem.add(
+        SideMenuItem(
+            R.drawable.inventory_menu_icon,
+            stringResource(R.string.inventory)
+        )
+    )
     sideMenuItem.add(SideMenuItem(R.drawable.repots_menu_icon, stringResource(R.string.reports)))
-    sideMenuItem.add(SideMenuItem(R.drawable.payment_menu_icon,
-        stringResource(R.string.payment_plans)))
+    sideMenuItem.add(
+        SideMenuItem(
+            R.drawable.payment_menu_icon,
+            stringResource(R.string.payment_plans)
+        )
+    )
     sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, stringResource(R.string.profile)))
     sideMenuItem.add(SideMenuItem(R.drawable.book, stringResource(R.string.roles_premmisions)))
     sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, stringResource(R.string.logout)))
@@ -240,9 +315,9 @@ fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick:
                 .width(260.dp)
                 .background(White)
         ) {
-            items(sideMenuItem.size) {
-                Item(sideMenuItem[it].image, sideMenuItem[it].title, Modifier) {
-                    onItemClick(it)
+            items(sideMenuItem.size) {position->
+                Item(sideMenuItem[position].image, sideMenuItem[position].title, Modifier, position) {
+                    onItemClick(position,it)
                 }
             }
         }
@@ -252,38 +327,82 @@ fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick:
 
 
 @Composable
-fun Item(image: Int, text: String, modifier: Modifier, onItemClick: () -> Unit) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .height(45.dp)
-            .clickable {
-                onItemClick()
-            },
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(image),
-            contentDescription = "",
-            modifier = modifier
-                .weight(1f)
+fun Item(image: Int, text: String, modifier: Modifier, position: Int, onItemClick: (s:String?) -> Unit) {
+    Column {
+        Row(
+            modifier
                 .fillMaxWidth()
-        )
-        Text(
-            text, fontSize = 16.sp, style = TextStyle(
-                textAlign = TextAlign.Start,
-            ), modifier = modifier
-                .fillMaxWidth()
-                .weight(3f)
-        )
-        Image(
-            painter = painterResource(R.drawable.next_menu_icon),
-            contentDescription = "",
-            modifier = modifier
-                .weight(1f)
-                .fillMaxWidth()
-        )
+                .height(45.dp)
+                .clickable {
+                    onItemClick(null)
+                },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(image),
+                contentDescription = "",
+                modifier = modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            )
+            Text(
+                text, fontSize = 16.sp, style = TextStyle(
+                    textAlign = TextAlign.Start,
+                ), modifier = modifier
+                    .fillMaxWidth()
+                    .weight(3f)
+            )
+            Image(
+                painter = painterResource(R.drawable.next_menu_icon),
+                contentDescription = "",
+                modifier = modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            )
+        }
+
+        if (position == 4) {
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+                    .clickable {
+                        onItemClick("Projects")
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    stringResource(id = R.string.projects), fontSize = 14.sp, style = TextStyle(
+                        textAlign = TextAlign.Start,
+                    ), modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                )
+
+            }
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+                    .clickable {
+                        onItemClick("Properties")
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    stringResource(R.string.properties), fontSize = 14.sp, style = TextStyle(
+                        textAlign = TextAlign.Start,
+                    ), modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                )
+            }
+        }
     }
 }
 

@@ -39,11 +39,19 @@ import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 
 @Composable
-fun ProjectsScreen(navController: NavController, modifier: Modifier) {
+fun ProjectsScreen(navController: NavController, modifier: Modifier,typeScreen:String) {
     val viewModel: ProjectsScreenViewModel = hiltViewModel()
+
+
     LaunchedEffect(key1 = true) {
-        viewModel.getProject()
+        if (typeScreen=="Projects") {
+            viewModel.getProject()
+        }else{
+            //viewModel.getProperty()
+        }
     }
+
+
 
 
     LazyColumn {

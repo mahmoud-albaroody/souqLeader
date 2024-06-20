@@ -6,7 +6,7 @@ data class LeadStatus(
     val icon: String,
     val icon_name: String,
     val id: Int,
-    val leads_count: String?,
+    val leads_count: String,
     val percentage: Int,
     val title_ar: String,
     val title_en: String

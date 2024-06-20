@@ -40,12 +40,13 @@ import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
 import com.alef.souqleader.ui.theme.Blue1
 import com.alef.souqleader.ui.theme.Blue2
+import com.alef.souqleader.ui.theme.Grey1
+import com.alef.souqleader.ui.theme.Grey2
 import com.alef.souqleader.ui.theme.White
 
 @Composable
 fun DashboardScreen(navController: NavController) {
     val viewModel: DashboardViewModel = hiltViewModel()
-
     LaunchedEffect(key1 = true) {
         viewModel.getLeads()
     }
@@ -81,7 +82,20 @@ fun MyCardItem(
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-
+    val background =
+        if (leadStatus.leads_count == "0") {
+            Brush.verticalGradient(
+                colors = listOf(Grey1, Grey2),
+                startY = 0f,
+                endY = 450f
+            )
+        } else {
+            Brush.verticalGradient(
+                colors = listOf(Blue1, Blue2),
+                startY = 0f,
+                endY = 450f
+            )
+        }
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -95,11 +109,7 @@ fun MyCardItem(
             Modifier
                 .fillMaxHeight()
                 .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Blue1, Blue2), // Gradient colors
-                        startY = 0f, // Starting Y position of the gradient
-                        endY = 450f // Ending Y position of the gradient
-                    )
+                    brush = background
                 ),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -129,6 +139,12 @@ fun MyCardItem(
                     )
                 }
             }
+            var trackColor = Blue1
+            trackColor = if (leadStatus.leads_count == "0") {
+                Grey1
+            } else {
+                Blue1
+            }
             Row {
                 LinearProgressIndicator(
                     progress = { leadStatus.getPer() },
@@ -139,7 +155,7 @@ fun MyCardItem(
                         )
                         .padding(bottom = 11.dp),
                     color = White,
-                    trackColor = Blue1
+                    trackColor = trackColor
 
                 )
             }

@@ -15,6 +15,8 @@ sealed class Screen(
             Icons.Filled.Home, contentDescription = "gym_details_screen"
         )
     },
+    val objectName: String = "",
+    val objectPath: String = "",
 ) {
     object SimplifyWorkFlowScreen : Screen("simplifyWorkFlowScreen")
     object LoginScreen : Screen("login")
@@ -35,11 +37,12 @@ sealed class Screen(
     object FilterScreen : Screen("filter")
     object Filter2Screen : Screen("filter2")
     object RoleScreen : Screen("Roles")
-    object ProjectsScreen : Screen("projectsScreen")
+    object ProjectsScreen : Screen("projectsScreen", objectName = "s", objectPath = "/{s}")
 
     object ProjectsDetailsScreen : Screen("projectDetails")
     object CancellationsReportScreen : Screen("CancellationsReport")
     object CRMScreen : Screen("CRMScreen")
+    object MainScreen : Screen("MainScreen")
 }
 
 

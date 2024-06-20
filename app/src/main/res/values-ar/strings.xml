@@ -78,4 +78,8 @@
     <string name="total_activities">Total Activities</string>
     <string name="total_of_meeting">Total of Meeting</string>
     <string name="projects">Projects</string>
+    <string name="lead_update">Lead Update</string>
+    <string name="project_details">Project Details</string>
+    <string name="action_per_day">Action Per Day</string>
+    <string name="properties">Properties</string>
 </resources>

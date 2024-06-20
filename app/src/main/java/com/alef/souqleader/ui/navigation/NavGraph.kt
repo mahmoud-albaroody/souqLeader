@@ -1,14 +1,17 @@
 package com.alef.souqleader.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
@@ -32,8 +35,8 @@ import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
 fun Navigation(
     navController: NavHostController, modifier: Modifier? = null
 ) {
-    NavHost(navController, startDestination = Screen.SimplifyWorkFlowScreen.route) {
-        composable(Screen.SimplifyWorkFlowScreen.route) {
+    NavHost(navController, startDestination = Screen.DashboardScreen.route) {
+        composable(Screen.DashboardScreen.route) {
             modifier?.let { it1 ->
 //                GymScreen(it1) {
 //                    navController.navigate(Screen.Gym.route)
@@ -166,13 +169,7 @@ fun Navigation(
                 )
             }
         }
-        composable(Screen.ProjectsScreen.route) {
-            modifier?.let { it1 ->
-                ProjectsScreen(
-                   navController, modifier
-                )
-            }
-        }
+
         composable(Screen.ProjectsDetailsScreen.route) {
             modifier?.let { it1 ->
                 ProjectDetailsScreen(
@@ -188,28 +185,55 @@ fun Navigation(
             }
         }
 
-//        composable(
-//            Screen.Gym.route.plus("/{gym_id}"), arguments =
-//            listOf(navArgument("gym_id") {
-//                type = NavType.StringType
-//            })
-//        ) {
-//            if (modifier != null) {
-//                DetailsGymScreen(
-//                    modifier
-//                )
-//            }
-//
-//        }
+        composable(
+            Screen.ProjectsScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
+        ) { backStack ->
+            val typeScreen = backStack.arguments?.getString(Screen.ProjectsScreen.objectName)
+            typeScreen?.let {
+                if (modifier != null) {
+                    ProjectsScreen(
+                        navController, modifier, typeScreen
+                    )
+                }
 
+            }
+
+        }
     }
 }
 
 @Composable
 fun navigationTitle(navController: NavController): String {
+
     return when (currentRoute(navController)) {
-        Screen.SimplifyWorkFlowScreen.route -> stringResource(id = R.string.app_name)
-        Screen.LoginScreen.route -> stringResource(id = R.string.app_name)
+        Screen.AddLeadScreen.route -> {
+            stringResource(id = R.string.add_lead)
+        }
+
+        Screen.LeadUpdateScreen.route -> {
+            stringResource(R.string.lead_update)
+        }
+
+        Screen.ProjectsDetailsScreen.route -> {
+            stringResource(R.string.project_details)
+        }
+
+        Screen.SalesProfileReportScreen.route -> {
+            stringResource(R.string.sales_profile_report)
+        }
+
+        Screen.ProjectsScreen.route -> {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            navBackStackEntry?.destination?.route?.let {
+                Log.e("ddd",it.substringAfter("/"))
+            }
+            stringResource(R.string.projects)
+        }
+
+
         else -> {
             ""
         }

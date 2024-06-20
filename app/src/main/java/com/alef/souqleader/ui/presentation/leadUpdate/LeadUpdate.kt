@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.presentation.leadUpdate
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -75,6 +78,7 @@ fun LeadUpdate(leads: List<Lead>) {
         Modifier
             .fillMaxSize()
             .background(White)
+            .verticalScroll(rememberScrollState())
             .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
         DynamicSelectTextField(leads)
@@ -164,8 +168,7 @@ fun LeadUpdate(leads: List<Lead>) {
         })
 
         Button(modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
+            .fillMaxWidth(),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue),
             onClick = { /*TODO*/ }) {

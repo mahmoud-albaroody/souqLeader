@@ -64,7 +64,7 @@
     <string name="leads">Leads</string>
     <string name="sales_profile_report">Sales Profile Report</string>
     <string name="inventory">Inventory</string>
-    <string name="reports">Reports</string>
+    <string name="reports">Meeting Reports</string>
     <string name="payment_plans">Payment Plans</string>
     <string name="profile">Profile</string>
     <string name="roles_premmisions"><![CDATA[Roles & Premmisions]]></string>
@@ -78,4 +78,8 @@
     <string name="total_activities">Total Activities</string>
     <string name="total_of_meeting">Total of Meeting</string>
     <string name="projects">Projects</string>
+    <string name="lead_update">Lead Update</string>
+    <string name="project_details">Project Details</string>
+    <string name="action_per_day">Action Per Day</string>
+    <string name="properties">Properties</string>
 </resources>
