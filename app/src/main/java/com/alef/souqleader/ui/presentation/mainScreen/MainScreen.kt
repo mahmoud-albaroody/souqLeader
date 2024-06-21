@@ -15,39 +15,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.FabPosition
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.rememberScaffoldState
-
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -70,12 +59,11 @@ fun MyApp(modifier: Modifier) {
     CustomModalDrawer(modifier, navController)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scaffoldState = rememberScaffoldState()
     val isAppBarVisible = remember { mutableStateOf(true) }
+    var title = ""
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(drawerState = drawerState,
         scrimColor = Transparent,
@@ -84,7 +72,8 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                 drawerShape = RectangleShape,
                 drawerContainerColor = Transparent
             ) {
-                DrawerContent(navController, modifier) {position, s->
+                DrawerContent(navController, modifier) { position, s ->
+                    title = s.toString()
                     scope.launch {
                         drawerState.close()
                     }
@@ -156,27 +145,6 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
         },
         content = {
             Scaffold(
-//                topBar = {
-//                TopAppBar(title = {
-//                    Text("My App")
-//                },
-//                    colors = TopAppBarDefaults.topAppBarColors(
-//                    containerColor = Blue, // Background color
-//                    titleContentColor = White, // Title text color
-//                    navigationIconContentColor = White // Navigation icon color
-//                ), navigationIcon = {
-//                    IconButton(onClick = {
-//                        // Control drawer state here
-//                        if (drawerState.isClosed) {
-//                            scope.launch { drawerState.open() }
-//                        } else {
-//                            // Prevent reducing or closing the drawer
-//                        }
-//                    }) {
-//                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-//                    }
-//                })
-//            }
                 topBar = {
                     when (currentRoute(navController)) {
                         Screen.DashboardScreen.route,
@@ -219,7 +187,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         else -> {
-                            AppBarWithArrow(navigationTitle(navController)) {
+                            AppBarWithArrow(navigationTitle(navController, title)) {
                                 navController.popBackStack()
                             }
                         }
@@ -240,7 +208,11 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
 }
 
 @Composable
-fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick: (Int,String?) -> Unit) {
+fun DrawerContent(
+    navController: NavController,
+    modifier: Modifier,
+    onItemClick: (Int, String?) -> Unit
+) {
     val sideMenuItem: ArrayList<SideMenuItem> = arrayListOf()
     sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
     sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
@@ -315,9 +287,14 @@ fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick:
                 .width(260.dp)
                 .background(White)
         ) {
-            items(sideMenuItem.size) {position->
-                Item(sideMenuItem[position].image, sideMenuItem[position].title, Modifier, position) {
-                    onItemClick(position,it)
+            items(sideMenuItem.size) { position ->
+                Item(
+                    sideMenuItem[position].image,
+                    sideMenuItem[position].title,
+                    Modifier,
+                    position,
+                ) {
+                    onItemClick(position, it)
                 }
             }
         }
@@ -327,14 +304,26 @@ fun DrawerContent(navController: NavController, modifier: Modifier, onItemClick:
 
 
 @Composable
-fun Item(image: Int, text: String, modifier: Modifier, position: Int, onItemClick: (s:String?) -> Unit) {
+fun Item(
+    image: Int,
+    text: String,
+    modifier: Modifier,
+    position: Int,
+    onItemClick: (s: String?) -> Unit
+) {
+    var isVisible by remember { mutableStateOf(false) }
+
     Column {
         Row(
             modifier
                 .fillMaxWidth()
                 .height(45.dp)
                 .clickable {
-                    onItemClick(null)
+                    if (position == 4) {
+                        isVisible = !isVisible
+                    } else {
+                        onItemClick(null)
+                    }
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -362,7 +351,7 @@ fun Item(image: Int, text: String, modifier: Modifier, position: Int, onItemClic
             )
         }
 
-        if (position == 4) {
+        if (position == 4 && isVisible) {
             Row(
                 modifier
                     .fillMaxWidth()

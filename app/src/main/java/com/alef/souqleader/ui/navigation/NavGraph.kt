@@ -200,13 +200,14 @@ fun Navigation(
                 }
 
             }
+            label = typeScreen
 
         }
     }
 }
 
 @Composable
-fun navigationTitle(navController: NavController): String {
+fun navigationTitle(navController: NavController,title:String): String {
 
     return when (currentRoute(navController)) {
         Screen.AddLeadScreen.route -> {
@@ -226,11 +227,7 @@ fun navigationTitle(navController: NavController): String {
         }
 
         Screen.ProjectsScreen.route -> {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            navBackStackEntry?.destination?.route?.let {
-                Log.e("ddd",it.substringAfter("/"))
-            }
-            stringResource(R.string.projects)
+            title
         }
 
 
