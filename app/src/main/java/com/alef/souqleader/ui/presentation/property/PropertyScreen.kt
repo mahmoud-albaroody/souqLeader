@@ -1,4 +1,4 @@
-package com.alef.souqleader.ui.presentation.gymDetailsScreen
+package com.alef.souqleader.ui.presentation.property
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,8 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,32 +29,28 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
+import com.alef.souqleader.data.remote.dto.Property
 import com.alef.souqleader.ui.constants.Constants
+import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 
 @Composable
-fun ProjectsScreen(navController: NavController, modifier: Modifier,typeScreen:String) {
-    val viewModel: ProjectsScreenViewModel = hiltViewModel()
+fun PropertyScreen(navController: NavController, modifier: Modifier) {
+    val viewModel: PropertyScreenViewModel = hiltViewModel()
 
 
     LaunchedEffect(key1 = true) {
-        if (typeScreen=="Projects") {
-            viewModel.getProject()
-        }else{
-            //viewModel.getProperty()
-        }
+        viewModel.getProperty()
     }
 
-
-
-
     LazyColumn {
-        items(viewModel.stateListOfProjects) {
-            ProjectsItem(it) {
-                navController.navigate(Screen.ProjectsDetailsScreen.route)
+        items(viewModel.stateListOfProperty) {
+            PropertyItem(it) {  property->
+                val propertyJson = property.toJson()
+                navController.navigate(Screen.PropertyDetailsScreen.route
+                    .plus("?"+Screen.PropertyDetailsScreen.objectName+"=${propertyJson}"))
             }
         }
     }
@@ -67,7 +60,7 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier,typeScreen:S
 
 
 @Composable
-fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
+fun PropertyItem(property: Property, onProjectClick: (Property) -> Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -79,7 +72,7 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
             .height(screenHeight / 3.2f)
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable {
-                onProjectClick.invoke(project)
+                onProjectClick.invoke(property)
             },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -96,10 +89,10 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
                     .fillMaxWidth()
                     .weight(3.4f)
             ) {
-                if (project.images?.isNotEmpty() == true)
+                if (!property.gallery.isNullOrEmpty())
                     Image(
                         painter = rememberAsyncImagePainter(
-                            Constants.BASE_URL + project.images[0].file
+                            Constants.BASE_URL + property.gallery[0].image
                         ),
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
@@ -117,25 +110,29 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    project.title?.let {
-                        Text(
-                            text = it,
-                            style = TextStyle(
-                                color = Blue,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                    property.getTitle().let {
+                        it?.let { it1 ->
+                            Text(
+                                text = it1,
+                                style = TextStyle(
+                                    color = Blue,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
-                        )
+                        }
                     }
-                    project.region_name?.let {
-                        Text(
-                            text = it, style = TextStyle(
-                                fontSize = 13.sp,
+                    property.region_name.let {
+                        it?.let { it1 ->
+                            Text(
+                                text = it1, style = TextStyle(
+                                    fontSize = 13.sp,
+                                )
                             )
-                        )
+                        }
                     }
                 }
-                project.start_price?.let {
+                property.price?.let {
                     Text(
                         text = it, style = TextStyle(
                             fontSize = 14.sp,

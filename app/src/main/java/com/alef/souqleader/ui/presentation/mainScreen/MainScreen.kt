@@ -103,8 +103,14 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         4 -> {
-                            navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
-                                launchSingleTop = true
+                            if (s == "Projects") {
+                                navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate(Screen.PropertyScreen.route) {
+                                    launchSingleTop = true
+                                }
                             }
                         }
 
@@ -173,6 +179,8 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                                         stringResource(R.string.profile)
                                     else if (currentRoute(navController) == Screen.RoleScreen.route)
                                         stringResource(R.string.roles_premmisions)
+                                    else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route)
+                                        stringResource(R.string.project_details)
                                     else stringResource(R.string.dashboard)
                                 HomeAppBar(title = appTitle, openDrawer = {
                                     scope.launch {
@@ -370,7 +378,6 @@ fun Item(
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
                 )
-
             }
             Row(
                 modifier

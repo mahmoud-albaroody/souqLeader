@@ -37,6 +37,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.ui.constants.Constants
+import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 
@@ -51,9 +52,11 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
 
 
     LazyColumn(Modifier.padding(horizontal = 24.dp)) {
-        items(viewModel.statePosts) {
-            TimelineItem(it) {
-                navController.navigate(Screen.CRMScreen.route)
+        items(viewModel.statePosts) { post->
+            TimelineItem(post) {
+                val postJson = post.toJson()
+                navController.navigate(Screen.CRMScreen.route
+                    .plus("?"+Screen.CRMScreen.objectName+"=${postJson}"))
             }
         }
     }
@@ -94,10 +97,12 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit) {
                 )
             )
             Image(
-                painter = rememberAsyncImagePainter( if(post.images?.isNotEmpty() == true){Constants.BASE_URL + post.images[0].image
-                } else {
-                    ""
-                }
+                painter = rememberAsyncImagePainter(
+                    if (post.images?.isNotEmpty() == true) {
+                        Constants.BASE_URL + post.images[0].image
+                    } else {
+                        ""
+                    }
                 ),
                 contentDescription = "",
                 contentScale = ContentScale.Crop,

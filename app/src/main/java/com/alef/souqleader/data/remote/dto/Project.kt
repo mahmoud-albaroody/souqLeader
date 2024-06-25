@@ -1,11 +1,13 @@
 package com.alef.souqleader.data.remote.dto
 
+import java.io.Serializable
+
 data class Project(
     val category_id: String?,
     val created_at: String?,
     val created_by: Int?,
     val description: String?,
-    val id: Int,
+    val id: Int?,
     val images: List<Image>?,
     val map: String?,
     val region: Int?,

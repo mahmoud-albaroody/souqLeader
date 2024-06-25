@@ -13,7 +13,6 @@ class SouqLeaderApp: MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
-
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         Kotpref.init(this)
         Kotpref.gson = Gson()

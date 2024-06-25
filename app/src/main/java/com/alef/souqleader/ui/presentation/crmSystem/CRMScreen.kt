@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,19 +39,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Comment
+import com.alef.souqleader.data.remote.dto.Post
+import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
 
 @Composable
-fun CRMScreen(navController: NavController, modifier: Modifier) {
+fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
-    CRMScreenItem()
+    CRMScreenItem(post)
 }
 
-@Preview
+
 @Composable
-fun CRMScreenItem() {
+fun CRMScreenItem(post: Post) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -73,14 +78,14 @@ fun CRMScreenItem() {
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "CRM system and how to management clients and leads",
+                    text = post.post,
                     style = TextStyle(
                         fontSize = 18.sp, color = Blue, fontWeight = FontWeight.SemiBold
                     )
                 )
 
                 Text(
-                    text = "Lorem ipsum dolor sit amet," + " consectetur adipisici elit, sed do eiusmod tempor incididunt ut" + " labore et dolore magna aliqua. Ut enim ad minim. Empor incididunt ut" + " labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud" + " exercitation ullamco laboris nisi ut aliquip ex.",
+                    text = post.post,
                     modifier = Modifier.padding(top = 8.dp),
                     style = TextStyle(
                         fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.SemiBold
@@ -93,7 +98,17 @@ fun CRMScreenItem() {
                     .fillMaxWidth()
             ) {
                 Image(
-                    painterResource(R.drawable.test_icon),
+                    painter = rememberAsyncImagePainter(
+                        if (!post.images.isNullOrEmpty()) {
+                            if (post.images[0].image?.isNotEmpty() == true) {
+                                Constants.BASE_URL + post.images[0].image
+                            } else {
+                                //  R.drawable.user_profile_placehoder
+                            }
+                        } else {
+
+                        }
+                    ),
                     contentDescription = "",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -122,7 +137,7 @@ fun CRMScreenItem() {
 
                         )
                         Text(
-                            text = "3 Like",
+                            text = post.likes_count + "Like",
                             modifier = Modifier.padding(start = 8.dp),
                             style = TextStyle(
                                 fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold
@@ -141,7 +156,7 @@ fun CRMScreenItem() {
                                 .clip(RoundedCornerShape(16.dp))
                         )
                         Text(
-                            text = stringResource(R.string.comment),
+                            text = post.comment.size.toString() + " " + stringResource(R.string.comment),
                             modifier = Modifier
                                 .padding(start = 6.dp)
                                 .padding(end = 16.dp),
@@ -165,8 +180,8 @@ fun CRMScreenItem() {
 
 
             LazyColumn(content = {
-                items(16) {
-                    CommentItem()
+                items(post.comment) {
+                    CommentItem(it)
                 }
             })
 
@@ -210,28 +225,43 @@ fun ReminderItem(text: String, text1: String) {
 }
 
 @Composable
-fun CommentItem() {
+fun CommentItem(comment: Comment) {
     Row(Modifier.padding(top = 14.dp)) {
         Image(
-            painterResource(R.drawable.user_profile_placehoder),
+            painter = rememberAsyncImagePainter(
+                if (comment.user_Image?.isNotEmpty() == true) {
+                    Constants.BASE_URL + comment.user_Image
+                } else {
+                    R.drawable.user_profile_placehoder
+                }
+            ),
             contentDescription = "",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape)
         )
-        Column() {
-            Text(
-                text = "Ayman Mahmoud",
-                modifier = Modifier.padding(horizontal = 14.dp),
-                style = TextStyle(
-                    fontSize = 14.sp, color = Color.Black,
-                    fontWeight = FontWeight.Bold
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            comment.username?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(horizontal = 14.dp),
+                    style = TextStyle(
+                        fontSize = 12.sp, color = Color.Black,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
+            }
             Text(
-                text = "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed do eiusmod tempor",
-                modifier = Modifier.padding(horizontal = 11.dp)
+                text = comment.comment,
+                modifier = Modifier.padding(horizontal = 11.dp),
+                        style = TextStyle(
+                        fontSize = 12.sp, color = Color.Black,
+                fontWeight = FontWeight.Bold
+            )
             )
         }
     }

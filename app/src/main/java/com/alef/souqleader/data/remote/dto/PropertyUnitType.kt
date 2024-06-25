@@ -1,10 +1,20 @@
 package com.alef.souqleader.data.remote.dto
 
+import com.alef.souqleader.domain.model.AccountData
+
 data class PropertyUnitType(
-    val category_id: Int,
-    val created_at: String,
-    val id: Int,
-    val title_ar: String,
-    val title_en: String,
-    val updated_at: Any
-)
+    val category_id: Int?,
+    val created_at: String?,
+    val id: Int?,
+    val title_ar: String?,
+    val title_en: String?,
+    val updated_at: String?
+) {
+    fun title(): String? {
+        return if (AccountData.lang == "ar") {
+            title_ar
+        } else {
+            title_en
+        }
+    }
+}

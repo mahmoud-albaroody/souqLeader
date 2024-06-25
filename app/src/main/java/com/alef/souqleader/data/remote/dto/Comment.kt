@@ -8,5 +8,7 @@ data class Comment(
     val post_id: Int,
     val tenant_id: Int,
     val updated_at: String,
-    val user_id: Int
+    val user_id: Int,
+    val username: String?,
+    val user_Image: String?,
 )

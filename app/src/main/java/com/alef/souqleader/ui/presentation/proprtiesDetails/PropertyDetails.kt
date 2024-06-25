@@ -1,15 +1,20 @@
-package com.alef.souqleader.ui.presentation.projectDetails
-
+package com.alef.souqleader.ui.presentation.proprtiesDetails
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,33 +22,36 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
-import com.alef.souqleader.ui.constants.Constants.BASE_URL
+import com.alef.souqleader.data.remote.dto.Property
+import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
-import com.google.accompanist.pager.*
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
 
 @Composable
-fun ProjectDetailsScreen(navController: NavController, modifier: Modifier, project: Project?) {
+fun PropertyDetailsScreen(navController: NavController, modifier: Modifier, property: Property?) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
-    Item(project)
+    Item(property)
 }
 
 @Composable
-fun Item(project: Project?) {
+fun Item(property: Property?) {
     Column(
         Modifier
             .background(White)
             .fillMaxSize()
     ) {
 
-        project?.let {
+        property?.let {
             ImageSliderExample(it)
             DetailsItem(it)
         }
@@ -52,7 +60,7 @@ fun Item(project: Project?) {
 }
 
 @Composable
-fun DetailsItem(project: Project) {
+fun DetailsItem(property: Property) {
     Column(
         Modifier
             .padding(horizontal = 24.dp, vertical = 8.dp)
@@ -68,7 +76,7 @@ fun DetailsItem(project: Project) {
         ) {
             Column {
                 Column {
-                    project.title?.let {
+                    property.getTitle()?.let {
                         Text(
                             text = it,
                             style = TextStyle(
@@ -78,7 +86,7 @@ fun DetailsItem(project: Project) {
                             )
                         )
                     }
-                    project.region_name?.let {
+                    property.region_name?.let {
                         Text(
                             text = it,
                             style = TextStyle(
@@ -90,7 +98,7 @@ fun DetailsItem(project: Project) {
                 }
             }
             Column {
-                project.start_price?.let {
+                property.price?.let {
                     Text(
                         text = it,
                         style = TextStyle(
@@ -103,40 +111,32 @@ fun DetailsItem(project: Project) {
             }
         }
 
-        // DetailsProduct()
-        project.description?.let {
-            MyScrollableTextView(
-                it
-            )
-        }
-    }
-}
+        DetailsProduct(property)
 
-@Composable
-fun MyScrollableTextView(text: String) {
-    // val text = "This is a long text. ".repeat(20)
-
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        Text(text = text)
     }
 }
 
 
 @Composable
-fun DetailsProduct() {
+fun DetailsProduct(property: Property) {
     val scrollState = rememberScrollState()
 
     Column(
         Modifier
             .verticalScroll(scrollState)
     ) {
-        ReminderItem(stringResource(R.string.unit_no), "A18")
-        ReminderItem(stringResource(R.string.building_no), "2761")
-        ReminderItem(stringResource(R.string.land_space), "120 m2")
-        ReminderItem(stringResource(R.string.price), "250.000 EGP")
-        ReminderItem(stringResource(R.string.owner_name), "Ahmed Ali")
-        ReminderItem(stringResource(R.string.owner_mobile), "012736355546")
-        ReminderItem(stringResource(R.string.property_type), "Private property")
+        property.unit_no?.let { ReminderItem(stringResource(R.string.unit_no), it) }
+        property.bulding_no?.let { ReminderItem(stringResource(R.string.building_no), it) }
+        property.land_space?.let { ReminderItem(stringResource(R.string.land_space), it) }
+        property.price?.let { ReminderItem(stringResource(R.string.price), it) }
+        property.owner?.let { ReminderItem(stringResource(R.string.owner_name), it) }
+        property.owner_mobile?.let { ReminderItem(stringResource(R.string.owner_mobile), it) }
+        property.property_unit_type?.title()?.let {
+            ReminderItem(
+                stringResource(R.string.property_type),
+                it
+            )
+        }
     }
 }
 
@@ -177,7 +177,7 @@ fun ReminderItem(text: String, text1: String) {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ImageSliderExample(project: Project) {
+fun ImageSliderExample(property: Property) {
     val images = listOf(
         "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
         "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
@@ -187,7 +187,7 @@ fun ImageSliderExample(project: Project) {
     val pagerState = rememberPagerState()
 
     Column {
-        project.images?.size?.let {
+        property.gallery?.size?.let {
             HorizontalPager(
                 count = it,
                 state = pagerState,
@@ -196,7 +196,7 @@ fun ImageSliderExample(project: Project) {
                     .height(280.dp)
             ) { page ->
                 Image(
-                    painter = rememberImagePainter(data = BASE_URL + project.images[page].file),
+                    painter = rememberImagePainter(data = Constants.BASE_URL + property.gallery[page].image),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -212,4 +212,3 @@ fun ImageSliderExample(project: Project) {
         )
     }
 }
-

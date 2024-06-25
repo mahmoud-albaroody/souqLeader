@@ -43,7 +43,7 @@ interface APIs {
     @GET("api/project")
     suspend fun project(): Response<ProjectResponse>
 
-    @POST("api/property")
+    @GET("api/property")
     suspend fun getProperty(): Response<PropertyResponse>
     @GET("api/plans")
     suspend fun plans(): Response<PlanResponse>

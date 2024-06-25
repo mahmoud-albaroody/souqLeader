@@ -39,9 +39,16 @@ sealed class Screen(
     object RoleScreen : Screen("Roles")
     object ProjectsScreen : Screen("projectsScreen", objectName = "s", objectPath = "/{s}")
 
-    object ProjectsDetailsScreen : Screen("projectDetails")
+    object PropertyScreen : Screen("propertyScreen")
+
+    object ProjectsDetailsScreen : Screen("projectDetails", objectName = "product", objectPath = "/{product}")
+
+    object PropertyDetailsScreen : Screen("propertyDetails", objectName = "property", objectPath = "/{property}")
+
+    object CRMScreen : Screen("CRMScreen", objectName = "CRMS", objectPath = "/{CRMS}")
+
     object CancellationsReportScreen : Screen("CancellationsReport")
-    object CRMScreen : Screen("CRMScreen")
+
     object MainScreen : Screen("MainScreen")
 }
 

@@ -1,4 +1,4 @@
-package com.alef.souqleader.ui.presentation.gymDetailsScreen
+package com.alef.souqleader.ui.presentation.property
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,13 +15,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProjectsScreenViewModel @Inject constructor(
+class PropertyScreenViewModel @Inject constructor(
     private val projectsUseCase: ProjectsUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
 
-    var stateListOfProjects by mutableStateOf(emptyList<Project>())
+
     var stateListOfProperty by mutableStateOf(emptyList<Property>())
 
 
@@ -30,11 +30,6 @@ class ProjectsScreenViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    fun getProject() {
-        viewModelScope.launch(job) {
-            stateListOfProjects = projectsUseCase.project().data?.data!!
-        }
-    }
 
     fun getProperty() {
         viewModelScope.launch(job) {

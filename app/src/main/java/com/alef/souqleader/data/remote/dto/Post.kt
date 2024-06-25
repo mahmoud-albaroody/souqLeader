@@ -6,7 +6,7 @@ data class Post(
     val id: Int,
     val images: List<Image>? = null,
     val isLiked: Int,
-    val likes_count: Int,
+    val likes_count: String,
     val post: String,
     val tenant_id: Int,
     val updated_at: String,
