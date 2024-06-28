@@ -1,7 +1,7 @@
 package com.alef.souqleader.data.remote.dto
 
 data class SalesProfileReport(
-    val action_chart: List<ActionChart>,
+    val action_chart: List<Chart>,
     val answer: String,
     val arrange_meeting: String,
     val avg_response: String,

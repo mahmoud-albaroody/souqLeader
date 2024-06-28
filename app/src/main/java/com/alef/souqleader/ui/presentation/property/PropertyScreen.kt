@@ -34,6 +34,7 @@ import com.alef.souqleader.data.remote.dto.Property
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.projects.Filter
 import com.alef.souqleader.ui.theme.Blue
 
 @Composable
@@ -44,17 +45,20 @@ fun PropertyScreen(navController: NavController, modifier: Modifier) {
     LaunchedEffect(key1 = true) {
         viewModel.getProperty()
     }
-
-    LazyColumn {
-        items(viewModel.stateListOfProperty) {
-            PropertyItem(it) {  property->
-                val propertyJson = property.toJson()
-                navController.navigate(Screen.PropertyDetailsScreen.route
-                    .plus("?"+Screen.PropertyDetailsScreen.objectName+"=${propertyJson}"))
+    Column {
+        Filter()
+        LazyColumn {
+            items(viewModel.stateListOfProperty) {
+                PropertyItem(it) { property ->
+                    val propertyJson = property.toJson()
+                    navController.navigate(
+                        Screen.PropertyDetailsScreen.route
+                            .plus("?" + Screen.PropertyDetailsScreen.objectName + "=${propertyJson}")
+                    )
+                }
             }
         }
     }
-
 
 }
 

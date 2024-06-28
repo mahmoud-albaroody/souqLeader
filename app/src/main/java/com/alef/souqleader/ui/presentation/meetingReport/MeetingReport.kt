@@ -16,10 +16,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,20 +37,27 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.marginStart
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Chart
+import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.domain.model.CustomBarChartRender
 import com.alef.souqleader.ui.constants.Constants
+import com.alef.souqleader.ui.presentation.crmSystem.CommentItem
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
@@ -67,6 +79,7 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+import org.xmlpull.v1.sax2.Driver
 
 @Composable
 fun MeetingScreen(modifier: Modifier) {
@@ -74,7 +87,44 @@ fun MeetingScreen(modifier: Modifier) {
     LaunchedEffect(key1 = true) {
         viewModel.getMeetingReport()
     }
-    viewModel.meetingReports?.let { MeetingItem(it) }
+    viewModel.meetingReports?.let {
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            content = {
+                item {
+                    MeetingItem(it)
+                }
+                item {
+                    Card(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = 8.dp),
+                    ) {
+                        Column(
+                            Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                                text = stringResource(R.string.meeting_leads),
+                                fontSize = 18.sp, color = Color.Black,
+                                fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
+                            )
+                            LazyColumn(
+                                modifier = Modifier
+                                    .heightIn(200.dp, 500.dp), content = {
+                                    items(it.leads) { lead ->
+                                        MeetingLeads(lead)
+                                    }
+                                })
+                        }
+                    }
+                }
+            })
+    }
 }
 
 @Composable
@@ -86,8 +136,8 @@ fun MeetingItem(meetingReport: MeetingReport) {
         modifier = Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 16.dp, horizontal = 24.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(vertical = 8.dp, horizontal = 16.dp),
+//            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -205,33 +255,57 @@ fun MeetingItem(meetingReport: MeetingReport) {
                 }
             }
         }
-        Text(
-            text = stringResource(R.string.meeting_per_day),
+
+        Card(
             Modifier
-                .padding(top = 16.dp),
-            style = TextStyle(
-                fontSize = 16.sp, color = Color.Black,
-                fontWeight = FontWeight.SemiBold
-            )
-        )
-        MyBarChart()
-        PieChart()
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+
+        ) {
+            MyBarChart(meetingReport.chart)
+        }
+        Card(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+
+        ) {
+            PieChart(meetingReport, stringResource(R.string.projects))
+        }
+        Card(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+
+
+        ) {
+            PieChart(meetingReport, stringResource(R.string.channels))
+        }
+
+
     }
 
 }
 
 @Composable
-fun MyBarChart() {
+fun MyBarChart(chart: List<Chart>) {
     // Sample data
-    val barEntries = listOf(
-        BarEntry(1f, 4f),
-        BarEntry(2f, 6f),
-        BarEntry(3f, 8f),
-        BarEntry(4f, 2f),
-        BarEntry(5f, 4f),
-        BarEntry(6f, 1f)
+    val barEntries: ArrayList<BarEntry> = arrayListOf()
+    val labels: ArrayList<String> = arrayListOf()
+    chart.forEachIndexed { index, chart ->
+        labels.add(chart.date)
+        barEntries.add(BarEntry(index.toFloat(), chart.count))
+    }
+    Text(
+        text = stringResource(R.string.meeting_per_day),
+        Modifier
+            .padding(top = 16.dp)
+            .fillMaxWidth(),
+        style = TextStyle(
+            fontSize = 18.sp, color = Color.Black,
+            fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
+        )
     )
-    val labels = arrayOf("Label 1", "Label 2", "Label 3", "Label 4", "Label 5", "lable6")
 
     AndroidView(
         modifier = Modifier
@@ -258,10 +332,10 @@ fun MyBarChart() {
                 xAxis.textSize = 12f
                 xAxis.axisLineColor = android.graphics.Color.WHITE
                 xAxis.granularity = 1f
-              //  xAxis.isGranularityEnabled = true
-                xAxis.setCenterAxisLabels(true)
-              //  xAxis.setAvoidFirstLastClipping(true)
-               // xAxis.setDrawGridLines(true)
+                //  xAxis.isGranularityEnabled = true
+                //   xAxis.setCenterAxisLabels(true)
+                //  xAxis.setAvoidFirstLastClipping(true)
+                // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
                 legend.isEnabled = false
                 xAxis.valueFormatter = IndexAxisValueFormatter(labels);
@@ -269,7 +343,7 @@ fun MyBarChart() {
                 // data.barWidth = 0.5f
                 //   data.isHighlightEnabled = true
                 setScaleEnabled(false)
-             setVisibleXRangeMaximum(4f)
+                setVisibleXRangeMaximum(4f)
                 val barChartRender = CustomBarChartRender(
                     this,
                     animator,
@@ -289,7 +363,7 @@ fun MyBarChart() {
 
                 // Set data to the chart
                 val datad = BarData(barDataSet)
-                datad.barWidth = 0.7f
+                datad.barWidth = 0.6f
                 datad.isHighlightEnabled = false
                 data = datad
                 this.invalidate() // Refresh chart
@@ -299,9 +373,21 @@ fun MyBarChart() {
 }
 
 @Composable
-fun PieChart() {
+fun PieChart(meetingReport: MeetingReport, title: String) {
     // on below line we are creating a column
     // and specifying a modifier as max size.
+
+    val arr: ArrayList<PieChartData> = arrayListOf()
+
+    if (title == stringResource(R.string.projects)) {
+        meetingReport.project_chart.forEachIndexed { index, projectChart ->
+            arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
+        }
+    } else {
+        meetingReport.channel_chart.forEachIndexed { index, channelChart ->
+            arr.add(PieChartData(channelChart.title(), channelChart.lead_count))
+        }
+    }
     Column(modifier = Modifier.fillMaxSize()) {
         // on below line we are again creating a column
         // with modifier and horizontal and vertical arrangement
@@ -313,19 +399,10 @@ fun PieChart() {
             // on below line we are creating a simple text
             // and specifying a text as Web browser usage share
             Text(
-                text = stringResource(R.string.projects),
-
-                // on below line we are specifying style for our text
-                style = TextStyle.Default,
-
-                // on below line we are specifying font family.
-                fontFamily = FontFamily.Default,
-
-                // on below line we are specifying font style
-                fontStyle = FontStyle.Normal,
-
-                // on below line we are specifying font size.
-                fontSize = 20.sp
+                text = title,
+                modifier = Modifier.padding(top = 16.dp),
+                fontSize = 18.sp, color = Color.Black,
+                fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
             )
 
             // on below line we are creating a column and
@@ -333,7 +410,7 @@ fun PieChart() {
             // and specifying padding from all sides.
             Column(
                 modifier = Modifier
-                    .padding(18.dp)
+                    .padding(8.dp)
                     .size(300.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -341,7 +418,7 @@ fun PieChart() {
                 // on below line we are creating a cross fade and
                 // specifying target state as pie chart data the
                 // method we have created in Pie chart data class.
-                Crossfade(targetState = getPieChartData, label = "") { pieChartData ->
+                Crossfade(targetState = arr, label = "") { pieChartData ->
                     // on below line we are creating an
                     // android view for pie chart.
                     AndroidView(factory = { context ->
@@ -354,6 +431,8 @@ fun PieChart() {
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                             )
+
+
                             // on below line we are setting description
                             // enables for our pie chart.
                             this.description.isEnabled = false
@@ -367,13 +446,12 @@ fun PieChart() {
 
                             // on below line we are specifying
                             // text size for our legend.
-                            this.legend.textSize = 14F
+                            this.legend.textSize = 9F
 
                             // on below line we are specifying
                             // alignment for our legend.
                             this.legend.horizontalAlignment =
                                 Legend.LegendHorizontalAlignment.CENTER
-
                             // on below line we are specifying entry label color as white.
                             this.setEntryLabelColor(resources.getColor(R.color.white))
                         }
@@ -382,7 +460,8 @@ fun PieChart() {
                         // for it and specifying padding to it.
                         modifier = Modifier
                             .wrapContentSize()
-                            .padding(5.dp), update = {
+                            .padding(16.dp),
+                        update = {
                             // on below line we are calling update pie chart
                             // method and passing pie chart and list of data.
                             updatePieChartWithData(it, pieChartData)
@@ -398,25 +477,18 @@ data class PieChartData(
     var value: Float?
 )
 
-// on below line we are creating a method
-// in which we are passing all the data.
-val getPieChartData = listOf(
-    PieChartData("Chrome", 34.68F),
-    PieChartData("Firefox", 16.60F),
-    PieChartData("Safari", 16.15F),
-    PieChartData("Internet Explorer", 15.62F),
-)
-
-val Purple200 = Color(0xFF0F9D58)
-val Purple500 = Color(0xFF0F9D58)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
 
 // on below line we are adding different colors.
 val greenColor = Color(0xFF0F9D58)
 val blueColor = Color(0xFF2196F3)
 val yellowColor = Color(0xFFFFC107)
 val redColor = Color(0xFFF44336)
+val broundColor = Color(0xFF6A2E2A)
+val greenColor1 = Color(0xFF949C98)
+val blueColor2 = Color(0xFF0D5995)
+val yellowColor3 = Color(0xFF5F5024)
+val redColor4 = Color(0xFFF6B0AC)
+val broundColor5 = Color(0xFF535151)
 
 // on below line we are creating a update pie
 // chart function to update data in pie chart.
@@ -448,6 +520,12 @@ fun updatePieChartWithData(
         blueColor.toArgb(),
         redColor.toArgb(),
         yellowColor.toArgb(),
+        broundColor.toArgb(),
+        greenColor1.toArgb(),
+        blueColor2.toArgb(),
+        yellowColor3.toArgb(),
+        redColor4.toArgb(),
+        broundColor5.toArgb(),
     )
     // on below line we are specifying position for value
     ds.yValuePosition = PieDataSet.ValuePosition.INSIDE_SLICE
@@ -464,10 +542,10 @@ fun updatePieChartWithData(
 
     // on below line we are specifying
     // text size for value.
-    ds.valueTextSize = 18f
+    ds.valueTextSize = 10f
 
     // on below line we are specifying type face as bold.
-    ds.valueTypeface = Typeface.DEFAULT_BOLD
+    ds.valueTypeface = Typeface.DEFAULT
 
     // on below line we are creating
     // a variable for pie data
@@ -482,8 +560,56 @@ fun updatePieChartWithData(
     chart.invalidate()
 }
 
-class CustomValueFormatter(private val labels: Array<String>) : ValueFormatter() {
-    override fun getFormattedValue(value: Float): String {
-        return labels.getOrNull(value.toInt()) ?: value.toString()
+
+@Composable
+fun MeetingLeads(lead: Lead) {
+
+    Column {
+        Row(
+            Modifier
+                .padding(vertical = 4.dp, horizontal = 6.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = lead.name, style = TextStyle(), modifier = Modifier.weight(1f))
+            Text(
+                text = lead.phone,
+                style = TextStyle(color = Blue2),
+                modifier = Modifier.weight(1f)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(0.5f)
+            ) {
+                Image(
+                    modifier = Modifier.padding(end = 4.dp),
+                    painter = painterResource(id = R.drawable.baseline_call_24),
+                    contentDescription = "",
+                    contentScale = ContentScale.Fit,
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_assistant_navigation_24),
+                    contentDescription = "",
+                    contentScale = ContentScale.Fit
+                )
+            }
+            if (lead.project_name.isEmpty()) {
+                lead.project_name = "Un Specified"
+            }
+            Text(
+                text = lead.project_name,
+                style = TextStyle(textAlign = TextAlign.End),
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Divider(
+            modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth()  // Set the thickness of the vertical line
+                .background(Blue2)
+                .padding(top = 16.dp) // Set the color of the vertical line
+        )
     }
 }

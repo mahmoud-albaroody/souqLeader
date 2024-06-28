@@ -69,4 +69,7 @@
     <string name="profile">الملف الشخصي</string>
     <string name="roles_premmisions"><![CDATA[الأدوار والأذونات]]></string>
     <string name="logout">تسجيل الخروج</string>
+    <string name="channels">Channels</string>
+    <string name="meeting_leads">Meeting Leads</string>
+    <string name="cancellation_report">Cancellation Report</string>
 </resources>

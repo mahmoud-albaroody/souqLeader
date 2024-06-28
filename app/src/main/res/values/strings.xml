@@ -83,4 +83,9 @@
     <string name="action_per_day">Action Per Day</string>
     <string name="properties">Properties</string>
     <string name="property_details">Property Details</string>
+    <string name="channels">Channels</string>
+    <string name="meeting_leads">Meeting Leads</string>
+    <string name="meeting_report">Meeting Report</string>
+    <string name="cancellation_report">Cancellation Report</string>
+    <string name="post">Post</string>
 </resources>

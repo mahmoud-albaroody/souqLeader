@@ -22,18 +22,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.salesProfileReport.VerticalDivider
 import com.alef.souqleader.ui.theme.Blue
+import com.alef.souqleader.ui.theme.Blue2
 import com.google.gson.Gson
 
 @Composable
@@ -47,18 +53,114 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier) {
 
 
 
-
-    LazyColumn {
-        items(viewModel.stateListOfProjects) { item ->
-            ProjectsItem(item) { project ->
-                val projectJson = project.toJson()
-                navController.navigate(Screen.ProjectsDetailsScreen
-                    .route.plus("?"+Screen.ProjectsDetailsScreen.objectName+"=${projectJson}"))
+    Column {
+        Filter()
+        LazyColumn(Modifier.padding(top = 8.dp)) {
+            items(viewModel.stateListOfProjects) { item ->
+                ProjectsItem(item) { project ->
+                    val projectJson = project.toJson()
+                    navController.navigate(
+                        Screen.ProjectsDetailsScreen
+                            .route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "=${projectJson}")
+                    )
+                }
             }
         }
     }
 }
 
+
+@Preview
+@Composable
+fun Filter() {
+    Card(Modifier.padding(top = 16.dp).padding(horizontal = 16.dp)) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+
+            Row(
+                Modifier
+                    .padding(horizontal = 12.dp)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painterResource(R.drawable.filter_icon),
+                    contentDescription = "",
+                    Modifier
+
+                        .clickable {
+                            //   onFilterClick.invoke()
+                        }
+                )
+                Text(
+                    text = "Filter",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Blue2
+                    )
+                )
+            }
+
+            VerticalDivider()
+            Row(
+                Modifier
+                    .padding(horizontal = 12.dp)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painterResource(R.drawable.sort_icon),
+                    contentDescription = "",
+                    Modifier
+
+                        .clickable {
+                            //   onFilterClick.invoke()
+                        }
+                )
+                Text(
+                    text = "Sort by",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Blue2
+                    )
+                )
+            }
+            VerticalDivider()
+            Row(
+                Modifier
+                    .padding(horizontal = 12.dp)
+                    .weight(1f),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painterResource(R.drawable.map_icon),
+                    contentDescription = "",
+                    Modifier
+                        .clickable {
+                            //   onFilterClick.invoke()
+                        }
+                )
+                Text(
+                    text = "Map",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Blue2
+                    )
+                )
+            }
+        }
+    }
+
+}
 
 @Composable
 fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {

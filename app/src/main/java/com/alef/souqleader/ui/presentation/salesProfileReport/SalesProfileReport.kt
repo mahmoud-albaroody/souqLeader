@@ -339,29 +339,32 @@ fun SalesProfileReportItem(
                                 .padding(top = 16.dp),
                             style = TextStyle(fontWeight = FontWeight.SemiBold)
                         )
-                        MyBarChart()
+                        MyBarChart(salesProfileReport.action_chart)
                     }
                 }
             }
         }
 
         item {
-            Card(Modifier.padding( horizontal = 24.dp).padding(bottom = 16.dp)) {
+            Card(
+                Modifier
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 16.dp)) {
                 Column(
                     Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                        Text(
-                            text = stringResource(R.string.stages_per_lead),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)
-                                .padding(horizontal = 8.dp, vertical = 16.dp),
-                            style = TextStyle(
-                                fontWeight = FontWeight.SemiBold,
-                                textAlign = TextAlign.Center
-                            )
+                    Text(
+                        text = stringResource(R.string.stages_per_lead),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                            .padding(horizontal = 8.dp, vertical = 16.dp),
+                        style = TextStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
                         )
+                    )
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()

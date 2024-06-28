@@ -115,8 +115,14 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         5 -> {
-                            navController.navigate(Screen.ReportsScreen.route) {
-                                launchSingleTop = true
+                            if (s == "meetingReport") {
+                                navController.navigate(Screen.ReportsScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate(Screen.CancellationsReportScreen.route) {
+                                    launchSingleTop = true
+                                }
                             }
                         }
 
@@ -139,7 +145,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         9 -> {
-                            navController.navigate(Screen.CancellationsReportScreen.route) {
+                            navController.navigate(Screen.LoginScreen.route) {
                                 launchSingleTop = true
                             }
                         }
@@ -160,6 +166,10 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         Screen.ReportsScreen.route,
                         Screen.PaymentPlansScreen.route,
                         Screen.ProfileScreen.route,
+
+                        Screen.ProjectsScreen.route,
+                        Screen.PropertyScreen.route,
+                        Screen.CancellationsReportScreen.route,
                         Screen.RoleScreen.route -> {
                             if (isAppBarVisible.value) {
                                 val appTitle: String =
@@ -193,7 +203,9 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                                 })
                             }
                         }
+                        Screen.LoginScreen.route -> {
 
+                        }
                         else -> {
                             AppBarWithArrow(navigationTitle(navController, title)) {
                                 navController.popBackStack()
@@ -320,17 +332,22 @@ fun Item(
     onItemClick: (s: String?) -> Unit
 ) {
     var isVisible by remember { mutableStateOf(false) }
-
     Column {
         Row(
             modifier
                 .fillMaxWidth()
                 .height(45.dp)
                 .clickable {
-                    if (position == 4) {
-                        isVisible = !isVisible
-                    } else {
-                        onItemClick(null)
+                    when (position) {
+                        4 -> {
+                            isVisible = !isVisible
+                        }
+                        5 -> {
+                            isVisible = !isVisible
+                        }
+                        else -> {
+                            onItemClick(null)
+                        }
                     }
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -394,6 +411,49 @@ fun Item(
                     stringResource(R.string.properties), fontSize = 14.sp, style = TextStyle(
                         textAlign = TextAlign.Start,
                     ), modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                )
+            }
+        }
+        if (position == 5 && isVisible) {
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+                    .clickable {
+                        onItemClick("meetingReport")
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    stringResource(R.string.meeting_report), fontSize = 14.sp, style = TextStyle(
+                        textAlign = TextAlign.Start,
+                    ), modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                )
+            }
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .height(45.dp)
+                    .clickable {
+                        onItemClick("CancellationReport")
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = stringResource(R.string.cancellation_report),
+                    fontSize = 14.sp,
+                    style = TextStyle(
+                        textAlign = TextAlign.Start,
+                    ),
+                    modifier = modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
                 )
