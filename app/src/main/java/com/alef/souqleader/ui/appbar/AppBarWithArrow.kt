@@ -17,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.alef.souqleader.R
 import com.alef.souqleader.ui.theme.Blue1
 import com.alef.souqleader.ui.theme.Blue2
 
@@ -35,7 +37,7 @@ fun AppBarWithArrow(
             Spacer(modifier = Modifier.width(10.dp))
 
             Image(
-                imageVector = Icons.Filled.ArrowBack,
+                painter = painterResource(R.drawable.arrow_left),
                 colorFilter = ColorFilter.tint(Color.White),
                 contentDescription = null,
                 modifier = Modifier

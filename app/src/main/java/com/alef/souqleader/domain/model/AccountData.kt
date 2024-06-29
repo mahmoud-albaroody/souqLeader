@@ -25,7 +25,7 @@ object AccountData : KotprefModel() {
     var userId: Int by intPref(0)
     var countryKey: String by stringPref("")
     var currency: String by stringPref("EGP")
-    var lang: String by stringPref("ar")
+    var lang: String by stringPref("en")
     var confirm_expiration: String by stringPref("")
     var mobile: String? by nullableStringPref(null)
     var flgUserType: Int by intPref(0)

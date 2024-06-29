@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -16,6 +15,7 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.Property
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.extention.fromJson
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
@@ -35,40 +35,34 @@ import com.alef.souqleader.ui.presentation.property.PropertyScreen
 import com.alef.souqleader.ui.presentation.proprtiesDetails.PropertyDetailsScreen
 import com.alef.souqleader.ui.presentation.rolesPremissions.RolesPermissionsScreen
 import com.alef.souqleader.ui.presentation.salesProfileReport.SalesProfileReportScreen
+import com.alef.souqleader.ui.presentation.simplifyWorkflow.SimplifyScreen
 import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
 
 @Composable
 fun Navigation(
-    navController: NavHostController, modifier: Modifier? = null
+    navController: NavHostController, modifier: Modifier? = null,
+    ssd: String
 ) {
-    NavHost(navController, startDestination = Screen.DashboardScreen.route) {
-        composable(Screen.DashboardScreen.route) {
-            modifier?.let { it1 ->
-//                GymScreen(it1) {
-//                    navController.navigate(Screen.Gym.route)
-////                    val gson = Gson()
-////                    val json = Uri.encode(gson.toJson(it))
-////                    navController.navigate( "${Screen.Gym.route}/$json")
-//                }
+    NavHost(navController, startDestination = ssd) {
 
-                DashboardScreen(
-                    navController
+        composable(Screen.SimplifyWorkFlowScreen.route) {
+            modifier?.let { it1 ->
+                SimplifyScreen(
+                    modifier, navController = navController
                 )
             }
         }
 
-
+        composable(Screen.DashboardScreen.route) {
+            modifier?.let { it1 ->
+                DashboardScreen(
+                    navController = navController
+                )
+            }
+        }
         composable(Screen.LoginScreen.route) {
             modifier?.let { it1 ->
-                LoginScreen(
-                    modifier
-                )
-            }
-        }
-
-        composable(Screen.DashboardScreen.route) {
-            modifier?.let { it1 ->
-                DashboardScreen(
+                LoginScreen(modifier = modifier,
                     navController = navController
                 )
             }
@@ -81,6 +75,7 @@ fun Navigation(
                 )
             }
         }
+
         composable(Screen.LeadUpdateScreen.route) {
             modifier?.let { it1 ->
                 LeadUpdateScreen(
@@ -97,7 +92,6 @@ fun Navigation(
             }
         }
 
-
         composable(Screen.Timeline.route) {
             modifier?.let { it1 ->
                 TimelineScreen(
@@ -105,7 +99,6 @@ fun Navigation(
                 )
             }
         }
-
 
         composable(
             Screen.CRMScreen.route.plus("?" + Screen.CRMScreen.objectName + "={CRMS}"),
@@ -132,6 +125,7 @@ fun Navigation(
                 )
             }
         }
+
         composable(Screen.InventoryScreen.route) {
             modifier?.let { it1 ->
                 ProfileScreen(
@@ -139,6 +133,7 @@ fun Navigation(
                 )
             }
         }
+
         composable(Screen.ReportsScreen.route) {
             modifier?.let { it1 ->
                 MeetingScreen(
@@ -147,7 +142,6 @@ fun Navigation(
             }
         }
 
-
         composable(Screen.PaymentPlansScreen.route) {
             modifier?.let { it1 ->
                 PaymentPlansScreen(
@@ -155,6 +149,7 @@ fun Navigation(
                 )
             }
         }
+
         composable(Screen.ProfileScreen.route) {
             modifier?.let { it1 ->
                 ProfileScreen(
@@ -178,6 +173,7 @@ fun Navigation(
                 )
             }
         }
+
         composable(Screen.RoleScreen.route) {
             modifier?.let { it1 ->
                 RolesPermissionsScreen(
@@ -203,6 +199,7 @@ fun Navigation(
                 }
             }
         }
+
         composable(
             Screen.PropertyDetailsScreen.route.plus("?" + Screen.PropertyDetailsScreen.objectName + "={property}"),
             arguments = listOf(navArgument(Screen.PropertyDetailsScreen.objectName) {
@@ -221,7 +218,6 @@ fun Navigation(
             }
         }
 
-
         composable(Screen.CancellationsReportScreen.route) {
             modifier?.let { it1 ->
                 CancellationsReport(
@@ -229,6 +225,7 @@ fun Navigation(
                 )
             }
         }
+
         composable(Screen.PropertyScreen.route) {
             modifier?.let { it1 ->
                 PropertyScreen(
@@ -268,6 +265,7 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.LeadUpdateScreen.route -> {
             stringResource(R.string.lead_update)
         }
+
         Screen.AllLeadsScreen.route -> {
             stringResource(R.string.all_leads)
         }
@@ -275,9 +273,11 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.ProjectsDetailsScreen.route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "={product}") -> {
             stringResource(R.string.project_details)
         }
+
         Screen.PropertyDetailsScreen.route.plus("?" + Screen.PropertyDetailsScreen.objectName + "={property}") -> {
             stringResource(R.string.property_details)
         }
+
         Screen.PropertyScreen.route -> {
             stringResource(R.string.properties)
         }

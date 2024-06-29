@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,6 +45,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.SideMenuItem
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.appbar.HomeAppBar
 import com.alef.souqleader.ui.navigation.Navigation
 import com.alef.souqleader.ui.navigation.Screen
@@ -145,6 +147,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         }
 
                         9 -> {
+
                             navController.navigate(Screen.LoginScreen.route) {
                                 launchSingleTop = true
                             }
@@ -158,6 +161,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
         content = {
             Scaffold(
                 topBar = {
+                    Log.e("dd", currentRoute(navController).toString())
                     when (currentRoute(navController)) {
                         Screen.DashboardScreen.route,
                         Screen.Timeline.route,
@@ -166,46 +170,52 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         Screen.ReportsScreen.route,
                         Screen.PaymentPlansScreen.route,
                         Screen.ProfileScreen.route,
-
                         Screen.ProjectsScreen.route,
                         Screen.PropertyScreen.route,
                         Screen.CancellationsReportScreen.route,
                         Screen.RoleScreen.route -> {
-                            if (isAppBarVisible.value) {
-                                val appTitle: String =
-                                    if (currentRoute(navController) == Screen.DashboardScreen.route)
-                                        stringResource(R.string.dashboard)
-                                    else if (currentRoute(navController) == Screen.Timeline.route)
-                                        stringResource(R.string.timeline)
-                                    else if (currentRoute(navController) == Screen.AddLeadScreen.route)
-                                        stringResource(R.string.add_lead)
-                                    else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route)
-                                        stringResource(R.string.sales_profile_report)
-                                    else if (currentRoute(navController) == Screen.ReportsScreen.route)
-                                        stringResource(R.string.reports)
-                                    else if (currentRoute(navController) == Screen.PaymentPlansScreen.route)
-                                        stringResource(R.string.payment_plans)
-                                    else if (currentRoute(navController) == Screen.ProfileScreen.route)
-                                        stringResource(R.string.profile)
-                                    else if (currentRoute(navController) == Screen.RoleScreen.route)
-                                        stringResource(R.string.roles_premmisions)
-                                    else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route)
-                                        stringResource(R.string.project_details)
-                                    else stringResource(R.string.dashboard)
-                                HomeAppBar(title = appTitle, openDrawer = {
-                                    scope.launch {
-                                        if (drawerState.isClosed) {
-                                            drawerState.open()
-                                        }
+//                            if (isAppBarVisible.value) {
+                            val appTitle: String =
+                                if (currentRoute(navController) == Screen.DashboardScreen.route)
+                                    stringResource(R.string.dashboard)
+                                else if (currentRoute(navController) == Screen.Timeline.route)
+                                    stringResource(R.string.timeline)
+                                else if (currentRoute(navController) == Screen.AddLeadScreen.route)
+                                    stringResource(R.string.add_lead)
+                                else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route)
+                                    stringResource(R.string.sales_profile_report)
+                                else if (currentRoute(navController) == Screen.ReportsScreen.route)
+                                    stringResource(R.string.reports)
+                                else if (currentRoute(navController) == Screen.PaymentPlansScreen.route)
+                                    stringResource(R.string.payment_plans)
+                                else if (currentRoute(navController) == Screen.ProfileScreen.route)
+                                    stringResource(R.string.profile)
+                                else if (currentRoute(navController) == Screen.RoleScreen.route)
+                                    stringResource(R.string.roles_premmisions)
+                                else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route)
+                                    stringResource(R.string.project_details)
+                                else stringResource(R.string.dashboard)
+                            HomeAppBar(title = appTitle, openDrawer = {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
                                     }
-                                }, openFilters = {
+                                }
+                            },
+                                openFilters = {
                                     isAppBarVisible.value = false
                                 })
-                            }
                         }
+//                        }
+
                         Screen.LoginScreen.route -> {
 
                         }
+
+                        Screen.SimplifyWorkFlowScreen.route -> {
+
+                        }
+
                         else -> {
                             AppBarWithArrow(navigationTitle(navController, title)) {
                                 navController.popBackStack()
@@ -220,7 +230,23 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                         .fillMaxWidth()
                         .padding(paddingValues)
                 ) {
-                    Navigation(navController = navController, modifier = modifier)
+                    if (AccountData.isFirstTime && AccountData.auth_token == null) {
+                        Navigation(
+                            navController = navController,
+                            modifier = modifier, Screen.SimplifyWorkFlowScreen.route
+                        )
+                        //    AccountData.isFirstTime = false
+                    } else if (AccountData.auth_token == null) {
+                        Navigation(
+                            navController = navController,
+                            modifier = modifier, Screen.LoginScreen.route
+                        )
+                    } else {
+                        Navigation(
+                            navController = navController,
+                            modifier = modifier, Screen.DashboardScreen.route
+                        )
+                    }
                 }
 
             }
@@ -342,9 +368,11 @@ fun Item(
                         4 -> {
                             isVisible = !isVisible
                         }
+
                         5 -> {
                             isVisible = !isVisible
                         }
+
                         else -> {
                             onItemClick(null)
                         }

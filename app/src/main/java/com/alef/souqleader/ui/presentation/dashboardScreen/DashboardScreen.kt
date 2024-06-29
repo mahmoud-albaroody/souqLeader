@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.data.remote.dto.LeadStatus
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants.BASE_URL
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
@@ -47,6 +48,7 @@ import com.alef.souqleader.ui.theme.White
 @Composable
 fun DashboardScreen(navController: NavController) {
     val viewModel: DashboardViewModel = hiltViewModel()
+    AccountData.auth_token="token"
     LaunchedEffect(key1 = true) {
         viewModel.getLeads()
     }

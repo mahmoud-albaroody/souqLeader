@@ -56,14 +56,16 @@ import androidx.core.util.PatternsCompat.EMAIL_ADDRESS
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.R
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun LoginScreen(modifier: Modifier) {
-    val navController = rememberNavController()
+fun LoginScreen(modifier: Modifier, navController: NavController) {
+    AccountData.auth_token = null
+    AccountData.isFirstTime = false
     LoginItem(modifier, navController)
 }
 
@@ -77,7 +79,8 @@ class SampleNameProvider(override val values: Sequence<NavController>) :
 @Composable
 fun LoginItem(
     modifier: Modifier,
-    @PreviewParameter(SampleNameProvider::class) navController: NavController
+    @PreviewParameter(SampleNameProvider::class)
+    navController: NavController
 ) {
     val configuration = LocalConfiguration.current
     var email by rememberSaveable { mutableStateOf("") }
@@ -86,6 +89,7 @@ fun LoginItem(
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -209,9 +213,13 @@ fun LoginItem(
             .align(Alignment.CenterHorizontally),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue2),
-            onClick = { navController.navigate(Screen.DashboardScreen.route) }) {
-            Text(text = stringResource(R.string.login), modifier.padding(vertical = 8.dp),
-                style = TextStyle(textAlign = TextAlign.Center, fontSize = 15.sp))
+            onClick = {
+                navController.navigate(Screen.DashboardScreen.route)
+            }) {
+            Text(
+                text = stringResource(R.string.login), modifier.padding(vertical = 8.dp),
+                style = TextStyle(textAlign = TextAlign.Center, fontSize = 15.sp)
+            )
         }
 
     }

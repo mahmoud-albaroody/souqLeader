@@ -88,4 +88,8 @@
     <string name="meeting_report">Meeting Report</string>
     <string name="cancellation_report">Cancellation Report</string>
     <string name="post">Post</string>
+    <string name="continue_with_e_mail">CONTINUE WITH E-MAIL</string>
+    <string name="ready_to_explore">Ready to explore?</string>
+    <string name="don_t_have_an_access">Don’t have an access?</string>
+    <string name="contact_us">Contact us</string>
 </resources>
