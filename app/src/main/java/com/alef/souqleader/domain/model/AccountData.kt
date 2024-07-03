@@ -8,6 +8,9 @@ object AccountData : KotprefModel() {
     var auth_token: String? by nullableStringPref(null)
     var isFirstTime: Boolean by booleanPref(true)
     var name: String by stringPref("")
+    var log: String by stringPref("")
+    var domain: String by stringPref("")
+
     var address: String by stringPref("")
     var lat: String by stringPref("0.0")
     var lng: String by stringPref("0.0")

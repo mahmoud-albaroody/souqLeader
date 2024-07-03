@@ -27,6 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,20 +55,34 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.util.PatternsCompat.EMAIL_ADDRESS
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.meetingReport.MeetingReportViewModel
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
 
 
 @Composable
 fun LoginScreen(modifier: Modifier, navController: NavController) {
+    val viewModel: LoginViewModel = hiltViewModel()
+
     AccountData.auth_token = null
-    AccountData.isFirstTime = false
-    LoginItem(modifier, navController)
+    AccountData.isFirstTime = true
+    val loginState by viewModel.loginState.collectAsState()
+
+    loginState.let {
+        AccountData.auth_token = it.access_token
+        if (AccountData.auth_token != null)
+            navController.navigate(Screen.DashboardScreen.route)
+    }
+    LoginItem(modifier, navController, viewModel)
+
+
 }
 
 class SampleNameProvider(override val values: Sequence<NavController>) :
@@ -80,13 +96,13 @@ class SampleNameProvider(override val values: Sequence<NavController>) :
 fun LoginItem(
     modifier: Modifier,
     @PreviewParameter(SampleNameProvider::class)
-    navController: NavController
+    navController: NavController, viewModel: LoginViewModel
 ) {
     val configuration = LocalConfiguration.current
     var email by rememberSaveable { mutableStateOf("") }
-    var isValid by remember { mutableStateOf(true) }
-    var isValidPassword by remember { mutableStateOf(true) }
     var password by rememberSaveable { mutableStateOf("") }
+    var isNotValid by remember { mutableStateOf(false) }
+    var isValidNotPassword by remember { mutableStateOf(false) }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
@@ -110,13 +126,13 @@ fun LoginItem(
         ) {
             Text(
                 text = stringResource(R.string.let_s_login),
-                style = androidx.compose.ui.text.TextStyle(
+                style = TextStyle(
                     fontSize = 26.sp, color = Blue2, fontWeight = FontWeight.Bold
                 ),
             )
             Text(
                 text = stringResource(R.string.lorem_ipsum_dolor_sit_amet_cons_ectetur_adipisici_elit),
-                style = androidx.compose.ui.text.TextStyle(
+                style = TextStyle(
                     fontSize = 15.sp
                 ),
                 modifier = modifier.padding(top = 16.dp)
@@ -142,14 +158,14 @@ fun LoginItem(
                 ),
                 onValueChange = {
                     email = it
-                    isValid = isValidText(it)
+                    isNotValid = !isValidText(it)
                 },
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true,
-                isError = !isValid
+                isError = isNotValid
             )
 
-            if (!isValid) {
+            if (isNotValid) {
                 Text(text = stringResource(R.string.please_enter_valid_text), color = Color.Red)
             }
             TextField(
@@ -189,18 +205,18 @@ fun LoginItem(
                 ),
                 onValueChange = {
                     password = it
-                    isValidPassword = it.isNotEmpty()
+                    isValidNotPassword = it.isEmpty()
                 },
                 shape = RoundedCornerShape(8.dp),
-                isError = !isValidPassword
+                isError = isValidNotPassword
             )
 
-            if (!isValidPassword) {
+            if (isValidNotPassword) {
                 Text(text = stringResource(R.string.please_enter_valid_text), color = Color.Red)
             }
             Text(
                 text = stringResource(R.string.forgot_password),
-                style = androidx.compose.ui.text.TextStyle(
+                style = TextStyle(
                     fontSize = 15.sp, color = Blue2
                 ),
                 modifier = modifier.align(Alignment.End)
@@ -214,7 +230,17 @@ fun LoginItem(
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue2),
             onClick = {
-                navController.navigate(Screen.DashboardScreen.route)
+                if (email.isNotEmpty() && password.isNotEmpty() && !isNotValid) {
+                    viewModel.login(email, password)
+                } else {
+                    if (email.isEmpty()) {
+                        isNotValid = true
+                    }
+                    if (password.isEmpty()) {
+                        isValidNotPassword = true
+                    }
+
+                }
             }) {
             Text(
                 text = stringResource(R.string.login), modifier.padding(vertical = 8.dp),

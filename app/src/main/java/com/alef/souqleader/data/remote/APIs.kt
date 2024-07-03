@@ -3,6 +3,7 @@ package com.alef.souqleader.data.remote
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
+import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
@@ -45,6 +46,7 @@ interface APIs {
 
     @GET("api/property")
     suspend fun getProperty(): Response<PropertyResponse>
+
     @GET("api/plans")
     suspend fun plans(): Response<PlanResponse>
 
@@ -67,8 +69,15 @@ interface APIs {
     @POST("api/MeetingReport")
     suspend fun getMeetingReport(): Response<MeetingReportResponse>
 
+    @FormUrlEncoded
     @POST("api/login")
-    suspend fun login(): Response<LoginResponse>
+    suspend fun login(
+        @Field("email") email: String,
+        @Field("password") password: String
+    ): Response<LoginResponse>
+
+    @GET("api/getClient/{name}")
+    suspend fun getClient(@Path("name") name: String): Response<GetClientResponse>
 
     @POST("api/logout")
     suspend fun logout(): Response<StatusResponse>

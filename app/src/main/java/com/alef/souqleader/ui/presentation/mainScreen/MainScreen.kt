@@ -161,7 +161,6 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
         content = {
             Scaffold(
                 topBar = {
-                    Log.e("dd", currentRoute(navController).toString())
                     when (currentRoute(navController)) {
                         Screen.DashboardScreen.route,
                         Screen.Timeline.route,

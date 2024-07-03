@@ -5,8 +5,10 @@ import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
+import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
+import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.MeetingReportResponse
 import com.alef.souqleader.data.remote.dto.MultiResponse
 import com.alef.souqleader.data.remote.dto.PlanResponse
@@ -126,6 +128,24 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
 
     suspend fun cancelationReport(userId:String): Resource<CancelationReportResponse> {
         val response = APIs.cancelationReport(userId)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun login(username:String,password:String): Resource<LoginResponse> {
+        val response = APIs.login(username,password)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
+    suspend fun getClient(username:String): Resource<GetClientResponse> {
+        val response = APIs.getClient(username)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {

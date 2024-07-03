@@ -1,12 +1,12 @@
 package com.alef.souqleader.data.remote.dto
 
 data class Login(
-    val access_token: String,
-    val email: String,
-    val id: Int,
-    val name: String,
-    val permissions: List<String>,
-    val photo: String,
-    val role_id: Int,
-    val role_name: String
+    val access_token: String? = null,
+    val email: String? = null,
+    val id: Int? = null,
+    val name: String? = null,
+    val permissions: List<permission>? = null,
+    val photo: String? = null,
+    val role_id: Int? = null,
+    val role_name: String? = null
 )
