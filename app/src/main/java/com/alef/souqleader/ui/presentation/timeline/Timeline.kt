@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Post
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
@@ -231,7 +232,7 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit) {
             Image(
                 painter = rememberAsyncImagePainter(
                     if (post.images?.isNotEmpty() == true) {
-                        Constants.BASE_URL + post.images[0].image
+                        AccountData.BASE_URL + post.images[0].image
                     } else {
                         ""
                     }

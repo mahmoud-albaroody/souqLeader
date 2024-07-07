@@ -18,12 +18,11 @@ import kotlinx.coroutines.flow.flowOn
 
 import javax.inject.Inject
 
-class LoginUseCase @Inject constructor(private val repository: ApiRepoImpl) {
+class LoginUseCase @Inject constructor(
+    private val repository: ApiRepoImpl
+) {
     suspend fun login(username: String, password: String): Resource<LoginResponse> {
-        return repository.login(username,password)
+        return repository.login(username, password)
     }
 
-    suspend fun getClient(username: String): Resource<GetClientResponse> {
-        return repository.getClient(username)
-    }
 }

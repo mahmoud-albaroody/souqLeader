@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.presentation.login
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -36,9 +38,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -62,21 +67,33 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.meetingReport.MeetingReportViewModel
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
 
 
 @Composable
-fun LoginScreen(modifier: Modifier, navController: NavController) {
+fun LoginScreen(
+    modifier: Modifier, navController: NavController, sharedViewModel: SharedViewModel
+) {
     val viewModel: LoginViewModel = hiltViewModel()
-
     AccountData.auth_token = null
     AccountData.isFirstTime = true
     val loginState by viewModel.loginState.collectAsState()
-
+    viewModel.updateBaseUrl(AccountData.BASE_URL)
     loginState.let {
-        AccountData.auth_token = it.access_token
+        if (!it.access_token.isNullOrEmpty()) {
+            AccountData.auth_token = "Bearer " + it.access_token
+            AccountData.name = it.name.toString()
+            AccountData.role_name = it.role_name.toString()
+            AccountData.role_id = it.role_id ?: 0
+            AccountData.photo = it.photo.toString()
+            sharedViewModel.updateSalesNameState(it.role_name.toString())
+            sharedViewModel.updatePhotoState(it.photo.toString())
+            sharedViewModel.updateNameState(it.name.toString())
+        }
+
         if (AccountData.auth_token != null)
             navController.navigate(Screen.DashboardScreen.route)
     }
@@ -95,8 +112,8 @@ class SampleNameProvider(override val values: Sequence<NavController>) :
 @Composable
 fun LoginItem(
     modifier: Modifier,
-    @PreviewParameter(SampleNameProvider::class)
-    navController: NavController, viewModel: LoginViewModel
+    @PreviewParameter(SampleNameProvider::class) navController: NavController,
+    viewModel: LoginViewModel
 ) {
     val configuration = LocalConfiguration.current
     var email by rememberSaveable { mutableStateOf("") }
@@ -105,7 +122,8 @@ fun LoginItem(
     var isValidNotPassword by remember { mutableStateOf(false) }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
-
+    val (focusRequester) = FocusRequester.createRefs()
+    val keyboardController = LocalSoftwareKeyboardController.current
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -137,11 +155,11 @@ fun LoginItem(
                 ),
                 modifier = modifier.padding(top = 16.dp)
             )
-            TextField(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
+            TextField(modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
                 value = email,
+
                 placeholder = {
                     Text(
                         text = stringResource(R.string.e_mail),
@@ -162,24 +180,29 @@ fun LoginItem(
                 },
                 shape = RoundedCornerShape(8.dp),
                 singleLine = true,
-                isError = isNotValid
-            )
+                isError = isNotValid,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }))
 
             if (isNotValid) {
                 Text(text = stringResource(R.string.please_enter_valid_text), color = Color.Red)
             }
             TextField(
+
                 modifier = modifier
                     .fillMaxWidth()
+                    .focusRequester(focusRequester)
                     .padding(vertical = 8.dp)
                     .padding(top = 8.dp),
 //                keyboardActions =KeyboardOptions(imeAction = ImeAction.Next) ,
                 value = password,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                // keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+
                 trailingIcon = {
-                    val image = if (passwordVisible)
-                        Icons.Filled.Visibility
+                    val image = if (passwordVisible) Icons.Filled.Visibility
                     else Icons.Filled.VisibilityOff
 
                     // Please provide localized description for accessibility services
@@ -215,11 +238,9 @@ fun LoginItem(
                 Text(text = stringResource(R.string.please_enter_valid_text), color = Color.Red)
             }
             Text(
-                text = stringResource(R.string.forgot_password),
-                style = TextStyle(
+                text = stringResource(R.string.forgot_password), style = TextStyle(
                     fontSize = 15.sp, color = Blue2
-                ),
-                modifier = modifier.align(Alignment.End)
+                ), modifier = modifier.align(Alignment.End)
             )
         }
 
@@ -243,7 +264,8 @@ fun LoginItem(
                 }
             }) {
             Text(
-                text = stringResource(R.string.login), modifier.padding(vertical = 8.dp),
+                text = stringResource(R.string.login),
+                modifier.padding(vertical = 8.dp),
                 style = TextStyle(textAlign = TextAlign.Center, fontSize = 15.sp)
             )
         }

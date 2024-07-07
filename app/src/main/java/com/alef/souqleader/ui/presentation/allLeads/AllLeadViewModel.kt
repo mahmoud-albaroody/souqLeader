@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.LeadStatus
 import com.alef.souqleader.domain.GetLeadUseCase
+import com.alef.souqleader.domain.NetworkManager
 import com.alef.souqleader.domain.model.Gym
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -19,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AllLeadViewModel @Inject constructor(
-    private val getLeadUseCase: GetLeadUseCase,
+    private val getLeadUseCase: GetLeadUseCase,private val networkManager: NetworkManager
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
      var stateListOfLeads by mutableStateOf(emptyList<Lead>())
@@ -46,5 +47,7 @@ class AllLeadViewModel @Inject constructor(
             stateListOfLeads = getLeadUseCase.getLeadByStatus(id).data?.data!!
         }
     }
-
+    fun updateBaseUrl(newUrl: String) {
+        networkManager.changeBaseUrl(newUrl)
+    }
 }

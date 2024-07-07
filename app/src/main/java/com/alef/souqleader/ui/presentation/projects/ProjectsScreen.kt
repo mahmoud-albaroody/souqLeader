@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
@@ -195,7 +196,7 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
                 if (project.images?.isNotEmpty() == true)
                     Image(
                         painter = rememberAsyncImagePainter(
-                            Constants.BASE_URL + project.images[0].file
+                            AccountData.BASE_URL + project.images[0].file
                         ),
                         contentDescription = "",
                         contentScale = ContentScale.Crop,

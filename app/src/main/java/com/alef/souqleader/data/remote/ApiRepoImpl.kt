@@ -144,6 +144,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
 
+
     suspend fun getClient(username:String): Resource<GetClientResponse> {
         val response = APIs.getClient(username)
         return if (response.isSuccessful) {
@@ -152,7 +153,6 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
-
 
     suspend fun getMeetingReport(): Resource<MeetingReportResponse> {
         val response = APIs.getMeetingReport()

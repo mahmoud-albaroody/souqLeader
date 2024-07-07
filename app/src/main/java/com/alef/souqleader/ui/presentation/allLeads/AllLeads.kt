@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
@@ -56,6 +57,7 @@ import com.alef.souqleader.ui.theme.Grey
 fun AllLeadsScreen(navController: NavController, modifier: Modifier) {
     val viewModel: AllLeadViewModel = hiltViewModel()
 
+    viewModel.updateBaseUrl(AccountData.BASE_URL)
     LaunchedEffect(key1 = true) {
         viewModel.getLeadByStatus("0")
     }

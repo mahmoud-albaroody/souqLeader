@@ -43,6 +43,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Comment
 import com.alef.souqleader.data.remote.dto.Post
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
@@ -101,7 +102,7 @@ fun CRMScreenItem(post: Post) {
                     painter = rememberAsyncImagePainter(
                         if (!post.images.isNullOrEmpty()) {
                             if (post.images[0].image?.isNotEmpty() == true) {
-                                Constants.BASE_URL + post.images[0].image
+                                AccountData.BASE_URL+ post.images[0].image
                             } else {
                                 //  R.drawable.user_profile_placehoder
                             }
@@ -230,7 +231,7 @@ fun CommentItem(comment: Comment) {
         Image(
             painter = rememberAsyncImagePainter(
                 if (comment.user_Image?.isNotEmpty() == true) {
-                    Constants.BASE_URL + comment.user_Image
+                    AccountData.BASE_URL + comment.user_Image
                 } else {
                     R.drawable.user_profile_placehoder
                 }

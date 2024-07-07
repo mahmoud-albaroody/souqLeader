@@ -1,7 +1,5 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
-
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
@@ -40,9 +42,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.SideMenuItem
 import com.alef.souqleader.domain.model.AccountData
@@ -51,18 +56,26 @@ import com.alef.souqleader.ui.navigation.Navigation
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.navigation.currentRoute
 import com.alef.souqleader.ui.navigation.navigationTitle
+import com.alef.souqleader.ui.presentation.SharedViewModel
+import com.alef.souqleader.ui.presentation.login.LoginViewModel
 import com.alef.souqleader.ui.theme.Blue
 import com.bitaqaty.reseller.ui.component.appbar.AppBarWithArrow
 import kotlinx.coroutines.launch
 
 @Composable
 fun MyApp(modifier: Modifier) {
+    val viewModel: SharedViewModel = hiltViewModel()
+
     val navController = rememberNavController()
-    CustomModalDrawer(modifier, navController)
+    CustomModalDrawer(modifier, navController, viewModel)
 }
 
 @Composable
-fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
+fun CustomModalDrawer(
+    modifier: Modifier,
+    navController: NavHostController,
+    viewModel: SharedViewModel
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val isAppBarVisible = remember { mutableStateOf(true) }
     var title = ""
@@ -74,7 +87,7 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                 drawerShape = RectangleShape,
                 drawerContainerColor = Transparent
             ) {
-                DrawerContent(navController, modifier) { position, s ->
+                DrawerContent(navController, modifier, viewModel) { position, s ->
                     title = s.toString()
                     scope.launch {
                         drawerState.close()
@@ -232,18 +245,18 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
                     if (AccountData.isFirstTime && AccountData.auth_token == null) {
                         Navigation(
                             navController = navController,
-                            modifier = modifier, Screen.SimplifyWorkFlowScreen.route
+                            modifier = modifier, Screen.SimplifyWorkFlowScreen.route,viewModel
                         )
                         //    AccountData.isFirstTime = false
                     } else if (AccountData.auth_token == null) {
                         Navigation(
                             navController = navController,
-                            modifier = modifier, Screen.LoginScreen.route
+                            modifier = modifier, Screen.LoginScreen.route,viewModel
                         )
                     } else {
                         Navigation(
                             navController = navController,
-                            modifier = modifier, Screen.DashboardScreen.route
+                            modifier = modifier, Screen.DashboardScreen.route,viewModel
                         )
                     }
                 }
@@ -255,9 +268,13 @@ fun CustomModalDrawer(modifier: Modifier, navController: NavHostController) {
 @Composable
 fun DrawerContent(
     navController: NavController,
-    modifier: Modifier,
+    modifier: Modifier, viewModel: SharedViewModel,
     onItemClick: (Int, String?) -> Unit
 ) {
+    val nameState by viewModel.nameState.collectAsState()
+    val photoState by viewModel.photoState.collectAsState()
+    val salesNameState by viewModel.salesNameState
+
     val sideMenuItem: ArrayList<SideMenuItem> = arrayListOf()
     sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
     sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
@@ -284,11 +301,13 @@ fun DrawerContent(
     sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, stringResource(R.string.profile)))
     sideMenuItem.add(SideMenuItem(R.drawable.book, stringResource(R.string.roles_premmisions)))
     sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, stringResource(R.string.logout)))
+
     Column(
         Modifier
             .width(260.dp)
             .background(White)
     ) {
+
         Box(
             Modifier
                 .width(260.dp)
@@ -301,27 +320,35 @@ fun DrawerContent(
                     .padding(vertical = 24.dp)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.user_profile),
+                    painter = rememberAsyncImagePainter(
+                        if (photoState.isNotEmpty()) {
+                            AccountData.BASE_URL + photoState
+                        } else {
+                            R.drawable.user_profile_placehoder
+                        }
+                    ),
+
                     contentDescription = "",
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(CircleShape)
                 )
                 Text(
                     modifier = Modifier.padding(top = 16.dp),
-                    text = "Mahmoud Ali",
+                    text = nameState,
                     color = White,
                     style = TextStyle(
                         fontSize = 16.sp, color = Blue,
                     ),
                 )
                 Text(
-                    text = "Sales Director",
+                    text = salesNameState,
                     color = White,
                     style = TextStyle(
                         fontSize = 13.sp
                     ),
                 )
-
-
             }
         }
 

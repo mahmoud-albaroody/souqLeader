@@ -46,6 +46,7 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Chart
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.MeetingReport
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.CustomBarChartRender
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
@@ -137,7 +138,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                     Image(
                         painter = rememberAsyncImagePainter(
                             if (meetingReport.the_best.user_image?.isNotEmpty() == true) {
-                                Constants.BASE_URL + meetingReport.the_best.user_image
+                                AccountData.BASE_URL + meetingReport.the_best.user_image
                             } else {
                                 R.drawable.user_profile_placehoder
                             }
@@ -276,8 +277,8 @@ fun MyBarChart(chart: List<Chart>) {
     val barEntries: ArrayList<BarEntry> = arrayListOf()
     val labels: ArrayList<String> = arrayListOf()
     chart.forEachIndexed { index, chart ->
-        labels.add(chart.date)
-        barEntries.add(BarEntry(index.toFloat(), chart.count))
+        chart.date?.let { labels.add(it) }
+        chart.count?.let { BarEntry(index.toFloat(), it) }?.let { barEntries.add(it) }
     }
     Text(
         text = stringResource(R.string.meeting_per_day),

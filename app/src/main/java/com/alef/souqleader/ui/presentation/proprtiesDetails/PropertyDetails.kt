@@ -29,6 +29,7 @@ import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.Property
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
@@ -196,7 +197,7 @@ fun ImageSliderExample(property: Property) {
                     .height(280.dp)
             ) { page ->
                 Image(
-                    painter = rememberImagePainter(data = Constants.BASE_URL + property.gallery[page].image),
+                    painter = rememberImagePainter(data = AccountData.BASE_URL + property.gallery[page].image),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

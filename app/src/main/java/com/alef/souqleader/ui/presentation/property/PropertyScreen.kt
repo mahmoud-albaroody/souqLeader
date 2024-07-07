@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.Property
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
@@ -96,7 +97,7 @@ fun PropertyItem(property: Property, onProjectClick: (Property) -> Unit) {
                 if (!property.gallery.isNullOrEmpty())
                     Image(
                         painter = rememberAsyncImagePainter(
-                            Constants.BASE_URL + property.gallery[0].image
+                            AccountData.BASE_URL + property.gallery[0].image
                         ),
                         contentDescription = "",
                         contentScale = ContentScale.Crop,

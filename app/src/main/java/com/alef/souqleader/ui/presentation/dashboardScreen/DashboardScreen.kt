@@ -36,7 +36,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.data.remote.dto.LeadStatus
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.constants.Constants.BASE_URL
+
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
 import com.alef.souqleader.ui.theme.Blue1
@@ -48,7 +48,7 @@ import com.alef.souqleader.ui.theme.White
 @Composable
 fun DashboardScreen(navController: NavController) {
     val viewModel: DashboardViewModel = hiltViewModel()
-    AccountData.auth_token="token"
+    viewModel.updateBaseUrl(AccountData.BASE_URL)
     LaunchedEffect(key1 = true) {
         viewModel.getLeads()
     }
@@ -135,7 +135,7 @@ fun MyCardItem(
                 }
                 Column(Modifier.padding(16.dp)) {
                     Image(
-                        painter = rememberAsyncImagePainter(BASE_URL + leadStatus.icon),
+                        painter = rememberAsyncImagePainter(AccountData.BASE_URL + leadStatus.icon),
                         contentDescription = "",
                         Modifier.size(20.dp)
                     )
@@ -163,4 +163,5 @@ fun MyCardItem(
             }
         }
     }
+
 }

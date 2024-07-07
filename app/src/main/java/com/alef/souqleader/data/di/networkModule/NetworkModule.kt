@@ -4,11 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.alef.souqleader.ui.SouqLeaderApp
 import com.alef.souqleader.data.remote.APIs
-import com.alef.souqleader.data.remote.ApiRepoImpl
-import com.alef.souqleader.domain.GetLeadUseCase
-import com.alef.souqleader.ui.constants.Constants
+import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.constants.Constants.BASE_URL
 
-import com.alef.souqleader.ui.constants.Constants.ACCESS_TOKEN
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -16,8 +14,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
+import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -26,9 +27,17 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 
+
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
+
+
+    @Provides
+    @Singleton
+    fun provideBaseUrlInterceptor(): BaseUrlInterceptor {
+        return BaseUrlInterceptor()
+    }
 
     @Singleton
     @Provides
@@ -45,7 +54,7 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideRetrofit(client: OkHttpClient): Retrofit {
-        return Retrofit.Builder().baseUrl(Constants.BASE_URL).client(client)
+        return Retrofit.Builder().baseUrl(BASE_URL).client(client)
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .build()
     }
@@ -56,15 +65,16 @@ class NetworkModule {
         return retrofit.create(APIs::class.java)
     }
 
-    @Singleton
-    @Provides
-    fun provideGymsUseCase(
-        apiService: ApiRepoImpl,
-    ): GetLeadUseCase {
-        return GetLeadUseCase(
-            apiService
-        )
-    }
+//    @Singleton
+//    @Provides
+//    fun provideGymsUseCase(
+//        apiService: ApiRepoImpl,
+//    ): GetLeadUseCase {
+//        return GetLeadUseCase(
+//            apiService
+//        )
+//    }
+
 
 
 //    @Singleton
@@ -89,8 +99,8 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        headerInterceptor: HttpLoggingInterceptor,   interceptor: Interceptor,
-        cache: Cache,
+        headerInterceptor: HttpLoggingInterceptor, interceptor: Interceptor,
+        cache: Cache,baseUrlInterceptor: BaseUrlInterceptor
     ): OkHttpClient {
         headerInterceptor.level = HttpLoggingInterceptor.Level.BODY
         val header = HttpLoggingInterceptor()
@@ -100,8 +110,10 @@ class NetworkModule {
         okHttpClientBuilder.readTimeout(READ_TIMEOUT.toLong(), TimeUnit.SECONDS)
         okHttpClientBuilder.writeTimeout(WRITE_TIMEOUT.toLong(), TimeUnit.SECONDS)
         okHttpClientBuilder.cache(cache)
+        okHttpClientBuilder.addInterceptor(baseUrlInterceptor)
         okHttpClientBuilder.addInterceptor(headerInterceptor)
         okHttpClientBuilder.addInterceptor(interceptor)
+
         return okHttpClientBuilder.build()
     }
 
@@ -116,15 +128,15 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideHeaderInterceptor(): Interceptor {
-        Log.e("ddd","dsfdsfdsf")
+        Log.e("ddd", "dsfdsfdsf")
         return Interceptor {
 
             val requestBuilder = it.request().newBuilder()
                 //hear you can add all headers you want by calling 'requestBuilder.addHeader(name ,  value)'
 //                .header("Content-Type", "application/json; charset=utf-8")
-                .header("Authorization", ACCESS_TOKEN)
+                .header("Authorization", AccountData.auth_token.toString())
 
-                //  .header("Host", "")
+            //  .header("Host", "")
 
             it.proceed(requestBuilder.build())
         }
@@ -136,7 +148,6 @@ class NetworkModule {
         val httpCacheDirectory = File(context.cacheDir.absolutePath, "HttpCache")
         return Cache(httpCacheDirectory, CACHE_SIZE_BYTES)
     }
-
 
 
 }

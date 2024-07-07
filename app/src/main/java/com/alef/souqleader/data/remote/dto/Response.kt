@@ -4,10 +4,7 @@ import com.alef.souqleader.domain.model.Client
 import com.google.gson.annotations.SerializedName
 
 open class StatusResponse(
-    @SerializedName("status")
     val status: Boolean = false,
-
-    @SerializedName("message")
     val message: String? = ""
 )
 
@@ -72,4 +69,4 @@ data class SalesProfileReportRequest(var user_id: String) {
 
 data class GetClientResponse(
     var data: Client? = null
-)
+): StatusResponse()

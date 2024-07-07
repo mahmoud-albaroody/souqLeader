@@ -24,7 +24,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
-import com.alef.souqleader.ui.constants.Constants.BASE_URL
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
 import com.google.accompanist.pager.*
@@ -196,7 +196,7 @@ fun ImageSliderExample(project: Project) {
                     .height(280.dp)
             ) { page ->
                 Image(
-                    painter = rememberImagePainter(data = BASE_URL + project.images[page].file),
+                    painter = rememberImagePainter(data = AccountData.BASE_URL + project.images[page].file),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

@@ -8,27 +8,24 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.data.remote.dto.GetClientResponse
-import com.alef.souqleader.data.remote.dto.Login
-import com.alef.souqleader.domain.LoginUseCase
-import com.alef.souqleader.domain.model.Client
+import com.alef.souqleader.domain.SimplifyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SimplifyWorkViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase,
+    private val simplifyUseCase: SimplifyUseCase,
 ) : ViewModel() {
 
     //  var loginState: Login? by mutableStateOf(null)
 
-    private val _getClientState = MutableStateFlow(Client())
-    val getClientState: StateFlow<Client> get() = _getClientState
+  //  private val _getClientState = MutableState(GetClientResponse())
+    //val getClientState: MutableState<GetClientResponse> get() = _getClientState
 
+    var getClientState by mutableStateOf(GetClientResponse())
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -38,8 +35,8 @@ class SimplifyWorkViewModel @Inject constructor(
 
     fun getClient(username: String) {
         viewModelScope.launch(job) {
-            loginUseCase.getClient(username).data!!.data?.let {
-                _getClientState.value = it
+            simplifyUseCase.getClient(username).data?.let {
+                getClientState =it
             }
         }
     }

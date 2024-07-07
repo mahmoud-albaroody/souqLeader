@@ -45,6 +45,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.SalesProfileReport
 import com.alef.souqleader.data.remote.dto.StatusCounter
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 import com.alef.souqleader.ui.theme.Blue
@@ -106,7 +107,7 @@ fun SalesProfileReportItem(
                             Image(
                                 painter = rememberAsyncImagePainter(
                                     if (salesProfileReport.user.image?.isNotEmpty() == true) {
-                                        Constants.BASE_URL + salesProfileReport.user.image
+                                        AccountData.BASE_URL + salesProfileReport.user.image
                                     } else {
                                         R.drawable.user_profile_placehoder
                                     }
@@ -153,7 +154,7 @@ fun SalesProfileReportItem(
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = salesProfileReport.total_calls,
+                                text = salesProfileReport.total_calls?:"",
                                 style = TextStyle(
                                     fontSize = 20.sp,
                                     color = Blue,
@@ -182,7 +183,7 @@ fun SalesProfileReportItem(
                                         ),
                                     )
                                     Text(
-                                        text = salesProfileReport.answer,
+                                        text = salesProfileReport.answer?:"",
                                         style = TextStyle(
                                             fontSize = 13.sp
                                         ),
@@ -200,7 +201,7 @@ fun SalesProfileReportItem(
                                         ),
                                     )
                                     Text(
-                                        text = salesProfileReport.no_answer,
+                                        text = salesProfileReport.no_answer?:"",
                                         style = TextStyle(
                                             fontSize = 13.sp
                                         ),
@@ -228,7 +229,7 @@ fun SalesProfileReportItem(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                text = salesProfileReport.arrange_meeting,
+                                text = salesProfileReport.arrange_meeting?:"",
                                 style = TextStyle(
                                     fontSize = 20.sp, color = Blue,
                                     fontWeight = FontWeight.Bold
@@ -254,7 +255,7 @@ fun SalesProfileReportItem(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                text = salesProfileReport.done_meeting,
+                                text = salesProfileReport.done_meeting?:"",
                                 style = TextStyle(
                                     fontSize = 20.sp,
                                     color = Blue,
@@ -284,7 +285,7 @@ fun SalesProfileReportItem(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                text = salesProfileReport.created_today_lead,
+                                text = salesProfileReport.created_today_lead?:"",
                                 style = TextStyle(
                                     fontSize = 20.sp,
                                     color = Blue,

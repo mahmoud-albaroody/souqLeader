@@ -9,9 +9,13 @@ object AccountData : KotprefModel() {
     var isFirstTime: Boolean by booleanPref(true)
     var name: String by stringPref("")
     var log: String by stringPref("")
-    var domain: String by stringPref("")
+    var role_name: String by stringPref("")
+    var photo: String by stringPref("")
 
-    var address: String by stringPref("")
+    var role_id: Int by intPref(0)
+    var domain: String by stringPref("")
+    var BASE_URL: String by stringPref( "https://realstatecrm-development.dev.alefsoftware.com/")
+
     var lat: String by stringPref("0.0")
     var lng: String by stringPref("0.0")
     var addressId: String by stringPref("")

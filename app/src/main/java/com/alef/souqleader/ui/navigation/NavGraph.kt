@@ -17,6 +17,7 @@ import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.Property
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.extention.fromJson
+import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
@@ -41,8 +42,9 @@ import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
 @Composable
 fun Navigation(
     navController: NavHostController, modifier: Modifier? = null,
-    ssd: String
+    ssd: String,viewModel: SharedViewModel
 ) {
+  //  Navigation(navController, Modifier.padding(it), genreList.value)
     NavHost(navController, startDestination = ssd) {
 
         composable(Screen.SimplifyWorkFlowScreen.route) {
@@ -63,7 +65,7 @@ fun Navigation(
         composable(Screen.LoginScreen.route) {
             modifier?.let { it1 ->
                 LoginScreen(modifier = modifier,
-                    navController = navController
+                    navController = navController,viewModel
                 )
             }
         }

@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.simplifyWorkflow
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -43,7 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.constants.Constants.BASE_URL
+
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
@@ -57,22 +61,31 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 @Composable
 fun SimplifyScreen(modifier: Modifier, navController: NavController) {
     val simplifyWorkViewModel: SimplifyWorkViewModel = hiltViewModel()
-    val client = simplifyWorkViewModel.getClientState.collectAsState()
+
+    val context = LocalContext.current
     SimplifyItem(navController) { companyName ->
-        Log.e("ddd","Sdfdsfds")
         simplifyWorkViewModel.getClient(companyName)
     }
+    simplifyWorkViewModel.getClientState.let {
+        if (it.status) {
+            it.data?.let {
+                if (!it.domain.isNullOrEmpty()) {
+                    AccountData.name = it.name ?: ""
+                    AccountData.domain = it.domain
+                    AccountData.BASE_URL = ("https://" + AccountData.domain + "/")
+                    AccountData.log = it.logo ?: ""
+                    navController.navigate(Screen.LoginScreen.route)
+                }
+            }
+        } else {
+            if (!it.message.isNullOrEmpty()) {
+                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+            } else {
 
-    client.value.let {
-
-        if (!it.domain.isNullOrEmpty()) {
-            AccountData.name = it.name ?: ""
-            AccountData.domain = it.domain ?: ""
-            BASE_URL = it.domain ?: ""
-            AccountData.log = it.logo ?: ""
-            navController.navigate(Screen.LoginScreen.route)
+            }
         }
     }
+
 
 }
 
@@ -82,6 +95,7 @@ fun SimplifyScreen(modifier: Modifier, navController: NavController) {
 fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
     var stat by remember { mutableIntStateOf(0) }
     var companyName by remember { mutableStateOf("") }
+    var isValidCompanyName by remember { mutableStateOf(true) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -92,7 +106,8 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(White),
+            .background(White)
+            .verticalScroll(rememberScrollState()),
 
         ) {
         if (stat == 1) {
@@ -180,6 +195,7 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                             unfocusedIndicatorColor = Color.Transparent
                         ),
                         onValueChange = {
+                            isValidCompanyName = true
                             companyName = it
                         },
                         shape = RoundedCornerShape(16.dp),
@@ -195,7 +211,16 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                     )
                 }
             }
-
+        if (!isValidCompanyName) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                text = stringResource(R.string.please_enter_valid_text),
+                color = Color.Red,
+                fontSize = 13.sp
+            )
+        }
         Button(
             modifier = Modifier
                 .fillMaxWidth()
@@ -215,7 +240,11 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
 
                     else -> {
 
-                        onclick(companyName)
+                        if (isValidCompanyName && companyName.isNotEmpty()) {
+                            onclick(companyName)
+                        } else {
+                            isValidCompanyName = false
+                        }
                     }
                 }
             }) {
