@@ -92,4 +92,8 @@
     <string name="ready_to_explore">Ready to explore?</string>
     <string name="don_t_have_an_access">Don’t have an access?</string>
     <string name="contact_us">Contact us</string>
+    <string name="lead_source">Lead Source</string>
+    <string name="project">Project</string>
+    <string name="total_of_cancellation">Total of Cancellation</string>
+    <string name="channel_report">Channel Report</string>
 </resources>

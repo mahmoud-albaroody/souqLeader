@@ -1,6 +1,9 @@
 package com.alef.souqleader.domain.model
 
+import com.alef.souqleader.data.remote.dto.ModulePermission
+import com.alef.souqleader.data.remote.dto.Permissions
 import com.chibatching.kotpref.KotprefModel
+import com.chibatching.kotpref.gsonpref.gsonPref
 
 
 object AccountData : KotprefModel() {
@@ -11,7 +14,7 @@ object AccountData : KotprefModel() {
     var log: String by stringPref("")
     var role_name: String by stringPref("")
     var photo: String by stringPref("")
-
+    var firebase_token: String? by nullableStringPref(null)
     var role_id: Int by intPref(0)
     var domain: String by stringPref("")
     var BASE_URL: String by stringPref( "https://realstatecrm-development.dev.alefsoftware.com/")
@@ -28,8 +31,9 @@ object AccountData : KotprefModel() {
     var showNewPassword: Boolean by booleanPref(false)
 
     var email: String by stringPref("")
+
     var walletBalance: String by stringPref("")
-    var userId: Int by intPref(0)
+    var userId: Int by intPref(5)
     var countryKey: String by stringPref("")
     var currency: String by stringPref("EGP")
     var lang: String by stringPref("en")
@@ -53,7 +57,7 @@ object AccountData : KotprefModel() {
 
     var fragmentName: String by stringPref("")
     var orderId: String by stringPref("")
-//    var currency by gsonPref(Currency())
+    var permissionList: List<ModulePermission> by gsonPref(emptyList<ModulePermission>())
 }
 
 

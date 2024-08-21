@@ -6,14 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alef.souqleader.data.remote.dto.Lead
-import com.alef.souqleader.data.remote.dto.LeadStatus
+import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.domain.NetworkManager
-import com.alef.souqleader.domain.model.Gym
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +20,7 @@ class DashboardViewModel @Inject constructor(
     private val getLeadUseCase: GetLeadUseCase,private val networkManager: NetworkManager
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    var stateListOfLeads by mutableStateOf(emptyList<LeadStatus>())
+    var stateListOfLeads by mutableStateOf(emptyList<AllLeadStatus>())
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->

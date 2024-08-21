@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.presentation.salesProfileReport
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,15 +43,19 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.SalesProfileReport
 import com.alef.souqleader.data.remote.dto.StatusCounter
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants
+import com.alef.souqleader.ui.presentation.meetingReport.MeetingLeads
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
+import kotlin.system.exitProcess
 
 @Composable
 fun SalesProfileReportScreen(modifier: Modifier) {
@@ -67,20 +73,18 @@ class SalesProfileReportPreviewParamProvider(override val values: Sequence<Sales
 
 @Composable
 fun SalesProfileReportItem(
-    @PreviewParameter(SalesProfileReportPreviewParamProvider::class)
-    salesProfileReport: SalesProfileReport
+    @PreviewParameter(SalesProfileReportPreviewParamProvider::class) salesProfileReport: SalesProfileReport
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
 
     var stageHeight by remember { mutableIntStateOf(200) }
-
+    var size by remember { mutableIntStateOf(5) }
 
     LazyColumn(
         // and not having a Modifier that could return non-infinite max height contraint
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
 
         item {
@@ -92,8 +96,7 @@ fun SalesProfileReportItem(
             ) {
 
                 Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // ,
 
@@ -134,8 +137,7 @@ fun SalesProfileReportItem(
                                 Text(
                                     text = salesProfileReport.user.role,
                                     style = TextStyle(
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.SemiBold
+                                        fontSize = 13.sp, fontWeight = FontWeight.SemiBold
                                     ),
                                 )
                             }
@@ -154,11 +156,9 @@ fun SalesProfileReportItem(
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = salesProfileReport.total_calls?:"",
+                                text = salesProfileReport.total_calls ?: "",
                                 style = TextStyle(
-                                    fontSize = 20.sp,
-                                    color = Blue,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
                                 ),
                             )
                             Text(
@@ -183,7 +183,7 @@ fun SalesProfileReportItem(
                                         ),
                                     )
                                     Text(
-                                        text = salesProfileReport.answer?:"",
+                                        text = salesProfileReport.answer ?: "",
                                         style = TextStyle(
                                             fontSize = 13.sp
                                         ),
@@ -201,7 +201,7 @@ fun SalesProfileReportItem(
                                         ),
                                     )
                                     Text(
-                                        text = salesProfileReport.no_answer?:"",
+                                        text = salesProfileReport.no_answer ?: "",
                                         style = TextStyle(
                                             fontSize = 13.sp
                                         ),
@@ -229,10 +229,8 @@ fun SalesProfileReportItem(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                text = salesProfileReport.arrange_meeting?:"",
-                                style = TextStyle(
-                                    fontSize = 20.sp, color = Blue,
-                                    fontWeight = FontWeight.Bold
+                                text = salesProfileReport.arrange_meeting ?: "", style = TextStyle(
+                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -241,8 +239,7 @@ fun SalesProfileReportItem(
                                     .fillMaxWidth(),
                                 text = stringResource(R.string.arrange_meeting),
                                 style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                                 )
                             )
                         }
@@ -255,11 +252,8 @@ fun SalesProfileReportItem(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                text = salesProfileReport.done_meeting?:"",
-                                style = TextStyle(
-                                    fontSize = 20.sp,
-                                    color = Blue,
-                                    fontWeight = FontWeight.Bold
+                                text = salesProfileReport.done_meeting ?: "", style = TextStyle(
+                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -285,11 +279,9 @@ fun SalesProfileReportItem(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                text = salesProfileReport.created_today_lead?:"",
+                                text = salesProfileReport.created_today_lead ?: "",
                                 style = TextStyle(
-                                    fontSize = 20.sp,
-                                    color = Blue,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -311,11 +303,8 @@ fun SalesProfileReportItem(
                                 .fillMaxWidth()
                         ) {
                             Text(
-                                text = salesProfileReport.avg_response + "%",
-                                style = TextStyle(
-                                    fontSize = 20.sp,
-                                    color = Blue,
-                                    fontWeight = FontWeight.Bold
+                                text = salesProfileReport.avg_response + "%", style = TextStyle(
+                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -330,8 +319,7 @@ fun SalesProfileReportItem(
                 }
                 Card(Modifier.padding(top = 16.dp)) {
                     Column(
-                        Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = stringResource(R.string.action_per_day),
@@ -340,9 +328,11 @@ fun SalesProfileReportItem(
                                 .padding(top = 16.dp),
                             style = TextStyle(fontWeight = FontWeight.SemiBold)
                         )
-                        MyBarChart(salesProfileReport.action_chart)
+                        MyBarChart(salesProfileReport.action_chart,stringResource(R.string.sales_profile_report))
                     }
                 }
+
+
             }
         }
 
@@ -350,10 +340,10 @@ fun SalesProfileReportItem(
             Card(
                 Modifier
                     .padding(horizontal = 24.dp)
-                    .padding(bottom = 16.dp)) {
+                    .padding(bottom = 16.dp)
+            ) {
                 Column(
-                    Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = stringResource(R.string.stages_per_lead),
@@ -362,17 +352,17 @@ fun SalesProfileReportItem(
                             .align(Alignment.CenterHorizontally)
                             .padding(horizontal = 8.dp, vertical = 16.dp),
                         style = TextStyle(
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center
+                            fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
                         )
                     )
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(stageHeight.dp)
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                        .height(stageHeight.dp)
                     ) {
-
-                        items(salesProfileReport.status_counters) { statusCounters ->
+//                        for (statusCounters in 0 until size) {
+//                            StagesPerLead(salesProfileReport.status_counters[statusCounters])
+//                        }
+                        (salesProfileReport.status_counters).forEach { statusCounters ->
                             StagesPerLead(statusCounters)
                         }
                     }
@@ -386,6 +376,12 @@ fun SalesProfileReportItem(
                                 } else {
                                     200
                                 }
+//                                size = if (size == 5) {
+//                                    salesProfileReport.status_counters.size
+//                                } else {
+//                                    5
+//                                }
+
                             },
                         style = TextStyle(fontWeight = FontWeight.SemiBold, color = Blue)
                     )
@@ -423,7 +419,9 @@ fun StagesPerLead(statusCounters: StatusCounter) {
 
     Column {
         Row(
-            Modifier
+            Modifier.onGloballyPositioned {
+            //    size
+            }
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp)
                 .padding(vertical = 12.dp),
@@ -465,4 +463,24 @@ fun StagesPerLead(statusCounters: StatusCounter) {
         }
         HorizontalDivider()
     }
+}
+
+@Composable
+fun MyScreen(navController: NavHostController) {
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = currentEntry?.destination
+
+    // Handle back button press
+    BackHandler {
+        if (navController.currentBackStackEntry?.destination?.route == "home_screen") {
+            // If we're on the home screen, exit the app
+            exitProcess(0)
+        } else {
+            // Otherwise, go back in the navigation stack
+            navController.popBackStack()
+        }
+    }
+
+    // Your screen content goes here
+    // ...
 }

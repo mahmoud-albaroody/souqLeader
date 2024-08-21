@@ -21,8 +21,8 @@ sealed class Screen(
     object SimplifyWorkFlowScreen : Screen("simplifyWorkFlowScreen")
     object LoginScreen : Screen("login")
     object DashboardScreen : Screen("dashboard")
-    object AllLeadsScreen : Screen("allLeadsScreen")
-    object LeadUpdateScreen : Screen("leadUpdateScreen")
+    object AllLeadsScreen : Screen("allLeadsScreen", objectName = "s", objectPath = "/{s}")
+    object LeadUpdateScreen : Screen("leadUpdateScreen", objectName = "s", objectPath = "/{s}")
     object Timeline : Screen("timeline")
     object SalesProfileReportScreen : Screen("salesProfileReportScreen")
     object AddLeadScreen : Screen("addLeadScreen")
@@ -41,13 +41,24 @@ sealed class Screen(
 
     object PropertyScreen : Screen("propertyScreen")
 
-    object ProjectsDetailsScreen : Screen("projectDetails", objectName = "product", objectPath = "/{product}")
+    object ProjectsDetailsScreen : Screen(
+        "projectDetails",
+        objectName = "product", objectPath = "/{product}"
+    )
 
-    object PropertyDetailsScreen : Screen("propertyDetails", objectName = "property", objectPath = "/{property}")
+    object PropertyDetailsScreen :
+        Screen("propertyDetails", objectName = "property", objectPath = "/{property}")
 
     object CRMScreen : Screen("CRMScreen", objectName = "CRMS", objectPath = "/{CRMS}")
 
     object CancellationsReportScreen : Screen("CancellationsReport")
+
+    object ProjectReport : Screen("ProjectReport")
+
+    object DelayReport : Screen("DelayReport")
+
+
+    object ChannelReport : Screen("ChannelReport")
 
     object MainScreen : Screen("MainScreen")
 }

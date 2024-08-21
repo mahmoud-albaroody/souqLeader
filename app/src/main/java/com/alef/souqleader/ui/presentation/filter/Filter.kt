@@ -66,12 +66,21 @@ fun Filter() {
 
         Column() {
             Spacer(modifier = Modifier.height(32.dp))
-            TextFiledItem(stringResource(R.string.name_phone))
+            TextFiledItem(stringResource(R.string.name_phone)) {
+
+            }
             DynamicSelectTextField()
             DynamicSelectTextField()
-            TextFiledItem(stringResource(R.string.channel))
-            TextFiledItem(stringResource(R.string.communicate_way))
-            Text(text = stringResource(R.string.budget), style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp))
+            TextFiledItem(stringResource(R.string.channel)) {
+
+            }
+            TextFiledItem(stringResource(R.string.communicate_way)) {
+
+            }
+            Text(
+                text = stringResource(R.string.budget),
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            )
             Row(
                 Modifier
                     .fillMaxWidth(),
@@ -79,7 +88,9 @@ fun Filter() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Box(Modifier.weight(2f)) {
-                    TextFiledItem("0")
+                    TextFiledItem("0") {
+
+                    }
                 }
                 Box(
                     Modifier
@@ -92,7 +103,9 @@ fun Filter() {
                     )
                 }
                 Box(Modifier.weight(2f)) {
-                    TextFiledItem("0")
+                    TextFiledItem("0") {
+
+                    }
                 }
             }
             RangeSliderExample()
@@ -108,7 +121,10 @@ fun Filter() {
                 .fillMaxWidth(),
                 shape = RoundedCornerShape(15.dp),
                 onClick = { /*TODO*/ }) {
-                Text(text = stringResource(R.string.reset), modifier = Modifier.padding(vertical = 8.dp))
+                Text(
+                    text = stringResource(R.string.reset),
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             }
             Button(modifier = Modifier
                 .weight(2f)
@@ -116,7 +132,10 @@ fun Filter() {
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(Blue),
                 onClick = { /*TODO*/ }) {
-                Text(text = stringResource(R.string.show), modifier = Modifier.padding(vertical = 8.dp))
+                Text(
+                    text = stringResource(R.string.show),
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             }
         }
     }

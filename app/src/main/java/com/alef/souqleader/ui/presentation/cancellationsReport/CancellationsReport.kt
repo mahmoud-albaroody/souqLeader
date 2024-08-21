@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,12 +23,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +40,10 @@ import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.CancelationReport
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
+import com.alef.souqleader.ui.presentation.meetingReport.MeetingLeads
+import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
@@ -47,7 +53,7 @@ fun CancellationsReport(navController: NavController, modifier: Modifier) {
     val viewModel: CancellationReportViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
-        viewModel.getCancellationReport("5")
+        viewModel.getCancellationReport(AccountData.userId.toString())
     }
     Column(
         Modifier
@@ -56,19 +62,53 @@ fun CancellationsReport(navController: NavController, modifier: Modifier) {
     ) {
         viewModel.cancellationStatus?.let {
             Cancellations(it)
-            LazyColumn(
+            Card(
                 Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
+
             ) {
-                items(it.leads) { lead ->
-                    CancellationsReportItem(lead)
-//                modifier, listOfGym[it]) { gym ->
-////                viewModel.toggleFav(gym)
-//                onclick(gym)
-//            }
+                MyBarChart(it.reasons_chart, stringResource(R.string.cancellation_report))
+            }
+            Card(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp, top = 8.dp),
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+
+                ) {
+                    Text(
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                        text = "Cancellation Leads",
+                        fontSize = 18.sp, color = Color.Black,
+                        fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
+                    )
+                    LazyColumn(
+                        modifier = Modifier
+                            .heightIn(200.dp, 500.dp), content = {
+                            items(it.leads) { lead ->
+                                MeetingLeads(lead)
+                            }
+                        })
                 }
             }
+//            LazyColumn(
+//                Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 8.dp)
+//            ) {
+//                items(it.leads) { lead ->
+//                    CancellationsReportItem(lead)
+////                modifier, listOfGym[it]) { gym ->
+//////                viewModel.toggleFav(gym)
+////                onclick(gym)
+////            }
+//                }
+//            }
         }
     }
 
@@ -255,7 +295,7 @@ fun Cancellations(cancelationReport: CancelationReport) {
             )
             Text(
                 modifier = Modifier.padding(top = 4.dp),
-                text = stringResource(R.string.total_of_meeting),
+                text = stringResource(R.string.total_of_cancellation),
                 style = TextStyle(
                     fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                 ),

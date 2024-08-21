@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.alef.souqleader.data.remote.dto.LeadStatus
+import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.domain.model.AccountData
 
 import com.alef.souqleader.ui.navigation.Screen
@@ -79,7 +79,7 @@ class SampleNameProvider(override val values: Sequence<Unit>) :
 //@Preview
 @Composable
 fun MyCardItem(
-    leadStatus: LeadStatus,
+    leadStatus: AllLeadStatus,
     @PreviewParameter(SampleNameProvider::class) onClick: () -> Unit
 ) {
     val configuration = LocalConfiguration.current

@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -21,8 +22,10 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
+import com.alef.souqleader.ui.presentation.channelReport.ChannelReport
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
+import com.alef.souqleader.ui.presentation.delaysReports.DelaysReports
 import com.alef.souqleader.ui.presentation.filter.FilterScreen
 import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
 import com.alef.souqleader.ui.presentation.projects.ProjectsScreen
@@ -32,6 +35,7 @@ import com.alef.souqleader.ui.presentation.meetingReport.MeetingScreen
 import com.alef.souqleader.ui.presentation.paymentPlans.PaymentPlansScreen
 import com.alef.souqleader.ui.presentation.profile.ProfileScreen
 import com.alef.souqleader.ui.presentation.projectDetails.ProjectDetailsScreen
+import com.alef.souqleader.ui.presentation.projectReports.ProjectReport
 import com.alef.souqleader.ui.presentation.property.PropertyScreen
 import com.alef.souqleader.ui.presentation.proprtiesDetails.PropertyDetailsScreen
 import com.alef.souqleader.ui.presentation.rolesPremissions.RolesPermissionsScreen
@@ -42,9 +46,9 @@ import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
 @Composable
 fun Navigation(
     navController: NavHostController, modifier: Modifier? = null,
-    ssd: String,viewModel: SharedViewModel
+    ssd: String, viewModel: SharedViewModel
 ) {
-  //  Navigation(navController, Modifier.padding(it), genreList.value)
+    //  Navigation(navController, Modifier.padding(it), genreList.value)
     NavHost(navController, startDestination = ssd) {
 
         composable(Screen.SimplifyWorkFlowScreen.route) {
@@ -64,25 +68,44 @@ fun Navigation(
         }
         composable(Screen.LoginScreen.route) {
             modifier?.let { it1 ->
-                LoginScreen(modifier = modifier,
-                    navController = navController,viewModel
+                LoginScreen(
+                    modifier = modifier,
+                    navController = navController, viewModel
                 )
             }
         }
 
-        composable(Screen.AllLeadsScreen.route) {
-            modifier?.let { it1 ->
-                AllLeadsScreen(
-                    navController, modifier
-                )
+        composable(
+            Screen.AllLeadsScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
+        ) {
+            val leadId = it.arguments?.getString(Screen.ProjectsScreen.objectName)
+            leadId?.let {
+                if (modifier != null) {
+                    AllLeadsScreen(
+                        navController, modifier, leadId = leadId
+                    )
+                }
+
             }
         }
 
-        composable(Screen.LeadUpdateScreen.route) {
-            modifier?.let { it1 ->
-                LeadUpdateScreen(
-                    navController, modifier
-                )
+        composable(
+            Screen.LeadUpdateScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
+        ) {
+            val leadId = it.arguments?.getString(Screen.LeadUpdateScreen.objectName)
+            leadId?.let {
+                if (modifier != null) {
+                    LeadUpdateScreen(
+                        navController, modifier, leadId = leadId
+                    )
+                }
+
             }
         }
 
@@ -121,6 +144,7 @@ fun Navigation(
         }
 
         composable(Screen.SalesProfileReportScreen.route) {
+
             modifier?.let { it1 ->
                 SalesProfileReportScreen(
                     modifier
@@ -227,6 +251,28 @@ fun Navigation(
                 )
             }
         }
+        composable(Screen.ProjectReport.route) {
+            modifier?.let { it1 ->
+                ProjectReport(
+                    navController, modifier
+                )
+            }
+        }
+        composable(Screen.DelayReport.route) {
+            modifier?.let { it1 ->
+                DelaysReports(
+                    navController, modifier
+                )
+            }
+        }
+
+        composable(Screen.ChannelReport.route) {
+            modifier?.let { it1 ->
+                ChannelReport(
+                    navController, modifier
+                )
+            }
+        }
 
         composable(Screen.PropertyScreen.route) {
             modifier?.let { it1 ->
@@ -269,7 +315,7 @@ fun navigationTitle(navController: NavController, title: String): String {
         }
 
         Screen.AllLeadsScreen.route -> {
-            stringResource(R.string.all_leads)
+            title
         }
 
         Screen.ProjectsDetailsScreen.route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "={product}") -> {
@@ -291,10 +337,12 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.ProjectsScreen.route -> {
             title
         }
-
+        Screen.ProjectsScreen.route -> {
+            title
+        }
 
         else -> {
-            ""
+            title
         }
     }
 }

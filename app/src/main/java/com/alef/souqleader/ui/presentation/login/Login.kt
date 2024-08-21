@@ -14,9 +14,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -24,12 +21,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,11 +44,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
@@ -62,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.util.PatternsCompat.EMAIL_ADDRESS
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
@@ -88,7 +80,13 @@ fun LoginScreen(
             AccountData.name = it.name.toString()
             AccountData.role_name = it.role_name.toString()
             AccountData.role_id = it.role_id ?: 0
+            AccountData.userId = it.id ?: 0
             AccountData.photo = it.photo.toString()
+            AccountData.email = it.email.toString()
+            it.permissions?.let {
+                AccountData.permissionList = it
+            }
+            AccountData.firebase_token?.let { it1 -> viewModel.updateFcmToken(it1) }
             sharedViewModel.updateSalesNameState(it.role_name.toString())
             sharedViewModel.updatePhotoState(it.photo.toString())
             sharedViewModel.updateNameState(it.name.toString())
@@ -155,9 +153,10 @@ fun LoginItem(
                 ),
                 modifier = modifier.padding(top = 16.dp)
             )
-            TextField(modifier = modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
+            TextField(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
                 value = email,
 
                 placeholder = {
@@ -182,7 +181,8 @@ fun LoginItem(
                 singleLine = true,
                 isError = isNotValid,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }))
+                keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() })
+            )
 
             if (isNotValid) {
                 Text(text = stringResource(R.string.please_enter_valid_text), color = Color.Red)

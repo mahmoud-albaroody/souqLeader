@@ -7,12 +7,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.data.remote.dto.AllLeadStatus
+import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.domain.SaveMultiUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,14 +34,55 @@ class LeadUpdateViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    fun getLeads(id:String) {
+    private val _allLead =
+        MutableSharedFlow<ArrayList<AllLeadStatus>>()
+    val allLead: MutableSharedFlow<ArrayList<AllLeadStatus>>
+        get() = _allLead
+
+
+    private val _updateLead =
+        MutableSharedFlow<UpdateLeadResponse>()
+    val updateLead: MutableSharedFlow<UpdateLeadResponse>
+        get() = _updateLead
+
+    private val _cancelationReason =
+        MutableSharedFlow<CancelationReasonResponse>()
+    val cancelationReason: MutableSharedFlow<CancelationReasonResponse>
+        get() = _cancelationReason
+
+
+    fun getLeads() {
         viewModelScope.launch(job) {
-            stateListOfLeads.value = getLeadUseCase.getLeadByStatus(id).data?.data!!
+            _allLead.emit(getLeadUseCase.getLeadStatus().data?.data!!)
         }
     }
-    fun updateMulti(ids:ArrayList<String>) {
+
+    fun updateMulti(ids: ArrayList<String>) {
         viewModelScope.launch(job) {
             stateUpdateMulti = saveMultiUseCase.updateMulti(ids).data?.data!!
+        }
+    }
+
+    fun updateLead(
+        id: String, status: String?,
+        note: String?,
+        reminderTime: String?,
+        cancelReason: String?
+    ) {
+        viewModelScope.launch(job) {
+            getLeadUseCase.updateLead(
+                id,
+                status,
+                note,
+                reminderTime,
+                cancelReason
+            ).data?.let { _updateLead.emit(it) }
+        }
+    }
+
+    fun cancelationReason() {
+        viewModelScope.launch(job) {
+            getLeadUseCase.cancelationReason().data?.let { _cancelationReason.emit(it) }
         }
     }
 }

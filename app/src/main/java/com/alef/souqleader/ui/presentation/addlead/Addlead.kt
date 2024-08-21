@@ -1,5 +1,7 @@
 package com.alef.souqleader.ui.presentation.addlead
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -28,92 +32,346 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Project
+import com.alef.souqleader.domain.model.AddLead
+import com.alef.souqleader.domain.model.Campaign
+import com.alef.souqleader.domain.model.Channel
+import com.alef.souqleader.domain.model.CommunicationWay
+import com.alef.souqleader.domain.model.Marketer
+import com.alef.souqleader.domain.model.Sales
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.White
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun AddLeadScreen(modifier: Modifier) {
-    //val viewModel: DetailsGymScreenViewModel = viewModel()
-    AddLead()
+    val addLeadViewModel: AddLeadViewModel = hiltViewModel()
+    val context = LocalContext.current
+    val campaignList = remember { mutableStateListOf<Campaign>() }
+    val projectList = remember { mutableStateListOf<Project>() }
+    val channelList = remember { mutableStateListOf<Channel>() }
+    val salesList = remember { mutableStateListOf<Sales>() }
+    val marketerList = remember { mutableStateListOf<Marketer>() }
+    val communicationWayList = remember { mutableStateListOf<CommunicationWay>() }
+    LaunchedEffect(key1 = true) {
+        addLeadViewModel.allMarketer()
+        addLeadViewModel.allSales()
+        addLeadViewModel.campaign()
+        addLeadViewModel.communicationWay()
+        addLeadViewModel.channel()
+        addLeadViewModel.getProject()
+        addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.campaignResponse.collect {
+                it.data?.let { it1 -> campaignList.addAll(it1) }
+            }
+        }
+        addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.project.collect {
+                it.data?.let { it1 -> projectList.addAll(it1) }
+            }
+        }
+        addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.channel.collect {
+                it.data?.let { it1 -> channelList.addAll(it1) }
+            }
+        }
+        addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.addLead.collect {
+                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+            }
+        }
+
+        addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.sales.collect {
+                it.data?.let { it1 -> salesList.addAll(it1) }
+            }
+        }
+        addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.marketer.collect {
+                it.data?.let { it1 -> marketerList.addAll(it1) }
+            }
+        }
+        addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.communicationWay.collect {
+                it.data?.let { it1 -> communicationWayList.addAll(it1) }
+            }
+        }
+    }
+    AddLead(
+        campaignList, marketerList, salesList, channelList, communicationWayList, projectList
+    ) {
+        addLeadViewModel.lead(it)
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
+
 @Composable
-fun AddLead() {
+fun AddLead(
+    campaignList: SnapshotStateList<Campaign>,
+    marketerList: SnapshotStateList<Marketer>,
+    salesList: SnapshotStateList<Sales>,
+    channelList: SnapshotStateList<Channel>,
+    communicationWayList: SnapshotStateList<CommunicationWay>,
+    projectList: SnapshotStateList<Project>,
+    onAddClick: (AddLead) -> Unit
+) {
     val scrollState = rememberScrollState()
+    val hasName = remember { mutableStateOf(false) }
+    val hasPhone = remember { mutableStateOf(false) }
+    val hasChannel = remember { mutableStateOf(false) }
+    val hasMarketer = remember { mutableStateOf(false) }
+    val hasSales = remember { mutableStateOf(false) }
+
+    val addLead = AddLead(is_fresh = true)
+
+    val channels = arrayListOf<String>()
+    channels.add(stringResource(R.string.lead_source))
+    if (channelList.isNotEmpty()) channelList.forEach {
+        channels.add(it.getTitle())
+    }
+    val projects = arrayListOf<String>()
+    projects.add(stringResource(R.string.project))
+    if (projectList.isNotEmpty()) projectList.forEach {
+        it.title?.let { it1 -> projects.add(it1) }
+    }
+
+    val communicationWays = arrayListOf<String>()
+    communicationWays.add("Communication Way")
+    if (communicationWayList.isNotEmpty()) communicationWayList.forEach {
+        communicationWays.add(it.getTitle())
+    }
+
+    val marketers = arrayListOf<String>()
+    marketers.add("Marketer")
+    if (marketerList.isNotEmpty()) marketerList.forEach {
+        marketers.add(it.name)
+    }
+    val sales = arrayListOf<String>()
+    sales.add("Sales Rep")
+    if (salesList.isNotEmpty()) salesList.forEach {
+        sales.add(it.name)
+    }
+
+    val campaigns = arrayListOf<String>()
+    campaigns.add("Campaign ID")
+    if (campaignList.isNotEmpty()) campaignList.forEach {
+        campaigns.add(it.getTitle())
+    }
 
     Column(
         Modifier
             .fillMaxSize()
             .background(White)
-            .padding(vertical = 16.dp, horizontal = 24.dp)
+            .padding(vertical = 8.dp, horizontal = 24.dp)
     ) {
         Column(
             Modifier
                 .verticalScroll(scrollState)
                 .weight(12f)
         ) {
-            TextFiledItem(stringResource(R.string.name))
+            TextFiledItem(stringResource(R.string.name)) {
+                addLead.name = it
+                hasName.value = false
+            }
+            if (hasName.value) Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "The name is required",
+                style = TextStyle(
+                    color = Color.Red, fontSize = 12.sp
+                )
+            )
+
             Row(
-                Modifier
-                    .fillMaxWidth(),
+                Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(Modifier.weight(1f)) {
-                    TextFiledItem("+2")
-                }
-                Box(Modifier.weight(3f)) {
-                    TextFiledItem(stringResource(R.string.mobile))
+//                Box(Modifier.weight(1f)) {
+//                    TextFiledItem("+2") {
+//                        addLead.phone = it
+//                    }
+//                }
+                Box(Modifier.fillMaxWidth()) {
+                    TextFiledItem(stringResource(R.string.mobile)) {
+                        addLead.phone = it
+                        hasPhone.value = false
+                    }
                 }
             }
-            DynamicSelectTextField()
-            TextFiledItem("E-mail")
-            DynamicSelectTextField()
-            DynamicSelectTextField()
-            TextFiledItem("E-mail")
-            DynamicSelectTextField()
-            TextFiledItem("E-mail")
-            TextFiledItem("E-mail")
-            TextFiledItem("E-mail")
+            if (hasPhone.value) Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "The phone is required",
+                style = TextStyle(
+                    color = Color.Red, fontSize = 12.sp
+                )
+            )
+            DynamicSelectTextField(channels) { channel ->
+                addLead.channel = channelList.find { it.getTitle() == channel }?.id!!
+                hasChannel.value = false
+            }
+            if (hasChannel.value) Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "The channel is required",
+                style = TextStyle(
+                    color = Color.Red, fontSize = 12.sp
+                )
+            )
+            TextFiledItem("E-mail") {
+                addLead.email = it
+
+            }
+
+
+            DynamicSelectTextField(projects) { projectName ->
+                addLead.project_id = projectList.find { it.title == projectName }?.id!!
+            }
+            DynamicSelectTextField(communicationWays) { communicationWays ->
+                addLead.communication_way =
+                    communicationWayList.find { it.getTitle() == communicationWays }?.id!!
+            }
+            TextFiledItem("Cancel Reason") {
+                addLead.cancel_reason = it
+            }
+            DynamicSelectTextField(marketers) { marketer ->
+                addLead.marketer_id = marketerList.find { it.name == marketer }?.id!!
+                hasMarketer.value = false
+            }
+            if (hasMarketer.value) Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "The marketer id is required",
+                style = TextStyle(
+                    color = Color.Red, fontSize = 12.sp
+                )
+            )
+            TextFiledItem("Note") {
+                addLead.note = it
+            }
+            DynamicSelectTextField(sales) { sales ->
+                addLead.sales_id = salesList.find { it.name == sales }?.id!!
+                hasSales.value = false
+            }
+            if (hasSales.value) Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "The sales id is required",
+                style = TextStyle(
+                    color = Color.Red, fontSize = 12.sp
+                )
+            )
+            TextFiledItem("Budget") {
+                addLead.budget = it
+            }
+            DynamicSelectTextField(campaigns) { campaigns ->
+                addLead.campaign_id = campaignList.find { it.getTitle() == campaigns }?.id!!
+            }
         }
         Button(modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(top = 8.dp),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(Blue),
-            onClick = { /*TODO*/ }) {
-            Text(text = stringResource(R.string.add_lead), Modifier.padding(vertical = 8.dp))
+            onClick = {
+                addLead.is_fresh = true
+                if (addLead.name.isNullOrEmpty()) {
+                    hasName.value = true
+                }
+                if (addLead.phone.isNullOrEmpty()) {
+                    hasPhone.value = true
+                }
+
+                if (addLead.marketer_id == null) {
+                    hasMarketer.value = true
+                }
+
+                if (addLead.channel == null) {
+                    hasChannel.value = true
+                }
+
+                if (addLead.sales_id == null) {
+                    hasSales.value = true
+                }
+
+                //  onAddClick(addLead)
+            }) {
+            Text(
+                text = stringResource(R.string.add_lead), Modifier.padding(vertical = 8.dp)
+            )
         }
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun TextFiledItem(text: String) {
+fun TextFiledItem(
+    text: String, onTextChange: (String) -> Unit
+) {
+
+    var textValue by remember { mutableStateOf("") }
+    //  val (focusRequester) = FocusRequester.createRefs()
+    val keyboardOptions: KeyboardOptions = when (text) {
+        stringResource(id = R.string.mobile) -> {
+            KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+            )
+        }
+
+        "Budget" -> {
+            KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+            )
+        }
+
+        "E-mail" -> {
+            KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
+            )
+        }
+
+        else -> {
+            KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+            )
+        }
+    }
+
     TextField(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        value = "",
+            //   .focusRequester(focusRequester)
+            .padding(top = 8.dp),
+        value = textValue,
         placeholder = {
-            Text(text = text, style = TextStyle(fontSize = 14.sp,)
+            Text(
+                text = text, style = TextStyle(fontSize = 13.sp)
             )
         },
+        keyboardOptions = keyboardOptions,
+        //  keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
+
+        textStyle = TextStyle(fontSize = 13.sp),
         colors = TextFieldDefaults.textFieldColors(
             cursorColor = Color.Black,
             disabledLabelColor = Blue,
@@ -121,7 +379,8 @@ fun TextFiledItem(text: String) {
             unfocusedIndicatorColor = Color.Transparent
         ),
         onValueChange = {
-
+            textValue = it
+            onTextChange(it)
         },
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
@@ -131,30 +390,27 @@ fun TextFiledItem(text: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicSelectTextField(
-    options: List<String> = listOf(stringResource(R.string.lead_stage), "Option 2", "Option 3", "Option 4", "Option 5"),
-    onOptionSelected: (String) -> Unit = {}
+    options: List<String>, onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[0]) }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        }
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {
+        expanded = !expanded
+    }) {
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(top = 8.dp)
                 .menuAnchor(),
             readOnly = true,
+            textStyle = TextStyle(fontSize = 13.sp),
             value = selectedOptionText,
             onValueChange = { },
             trailingIcon = {
                 Icon(
-                    imageVector = if (expanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
-                    contentDescription = null
+                    imageVector = if (expanded) Icons.Default.ArrowDropDown
+                    else Icons.Default.ArrowDropDown, contentDescription = null
                 )
             },
             shape = RoundedCornerShape(8.dp),
@@ -165,21 +421,19 @@ fun DynamicSelectTextField(
                 unfocusedIndicatorColor = Color.Transparent
             ),
         )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-            }
-        ) {
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = {
+            expanded = false
+        }) {
             options.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(text = selectionOption) },
-                    onClick = {
-                        selectedOptionText = selectionOption
-                        expanded = false
-                        onOptionSelected(selectionOption)
-                    }
-                )
+                DropdownMenuItem(text = {
+                    Text(
+                        text = selectionOption, style = TextStyle(fontSize = 13.sp)
+                    )
+                }, onClick = {
+                    selectedOptionText = selectionOption
+                    expanded = false
+                    onOptionSelected(selectionOption)
+                })
             }
         }
     }

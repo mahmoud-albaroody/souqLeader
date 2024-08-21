@@ -6,47 +6,50 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.Lead
-import com.alef.souqleader.data.remote.dto.LeadStatus
 import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.domain.NetworkManager
-import com.alef.souqleader.domain.model.Gym
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AllLeadViewModel @Inject constructor(
-    private val getLeadUseCase: GetLeadUseCase,private val networkManager: NetworkManager
+    private val getLeadUseCase: GetLeadUseCase, private val networkManager: NetworkManager
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-     var stateListOfLeads by mutableStateOf(emptyList<Lead>())
+    private val _stateListOfLeads =
+        MutableSharedFlow<ArrayList<Lead>>()
+    val stateListOfLeads: MutableSharedFlow<ArrayList<Lead>>
+        get() = _stateListOfLeads
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
     }
 
-
-    //
-//
-//
-//    fun toggleFav(gym: Gym) {
-//        val gyms = stateListOfGym.toMutableList()
-//        val index = gyms.indexOf(gym)
-//        gyms[index] = gyms[index].copy(isFav = !gyms[index].isFav)
-//        stateListOfGym = gyms
-//    }
-//
-//
-    fun getLeadByStatus(id:String) {
+    fun getLeadByStatus(id: String) {
         viewModelScope.launch(job) {
-            stateListOfLeads = getLeadUseCase.getLeadByStatus(id).data?.data!!
+            _stateListOfLeads.emit(getLeadUseCase.getLeadByStatus(id).data?.data!!)
         }
     }
+
+    fun delayLeads() {
+        viewModelScope.launch(job) {
+            _stateListOfLeads.emit(getLeadUseCase.delayLeads().data?.data!!)
+        }
+    }
+
+    fun duplicated() {
+        viewModelScope.launch(job) {
+            _stateListOfLeads.emit(getLeadUseCase.duplicated().data?.data!!)
+        }
+    }
+
     fun updateBaseUrl(newUrl: String) {
         networkManager.changeBaseUrl(newUrl)
     }

@@ -9,5 +9,8 @@ data class MeetingReport(
     val totalLeads: Int,
     val total_actions: Int,
     val total_activity: Int,
-    val total_meeting: Int
+    val total_meeting: Int,
+    val leads_count: String,
+    val projectChart: List<ProjectChart>,
+    val projects_count: String
 )

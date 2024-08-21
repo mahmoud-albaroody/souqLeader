@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.meetingReport
 
 import android.graphics.Typeface
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.compose.animation.Crossfade
@@ -48,13 +49,13 @@ import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.CustomBarChartRender
-import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.White
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -64,6 +65,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+
 
 @Composable
 fun MeetingScreen(modifier: Modifier) {
@@ -246,7 +248,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                 .padding(top = 8.dp)
 
         ) {
-            MyBarChart(meetingReport.chart)
+            MyBarChart(meetingReport.chart, stringResource(R.string.meeting_per_day))
         }
         Card(
             Modifier
@@ -254,7 +256,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                 .padding(top = 8.dp)
 
         ) {
-            PieChart(meetingReport, stringResource(R.string.projects))
+            PieChart(meetingReport, stringResource(R.string.meeting_report))
         }
         Card(
             Modifier
@@ -272,16 +274,22 @@ fun MeetingItem(meetingReport: MeetingReport) {
 }
 
 @Composable
-fun MyBarChart(chart: List<Chart>) {
+fun MyBarChart(chart: List<Chart>, title: String) {
     // Sample data
+
     val barEntries: ArrayList<BarEntry> = arrayListOf()
     val labels: ArrayList<String> = arrayListOf()
     chart.forEachIndexed { index, chart ->
-        chart.date?.let { labels.add(it) }
-        chart.count?.let { BarEntry(index.toFloat(), it) }?.let { barEntries.add(it) }
+        if (chart.date.isNullOrEmpty()) {
+            chart.getTitle().let { it?.let { it1 -> labels.add(it1) } }
+        } else {
+            chart.date.let { labels.add(it) }
+        }
+
+        BarEntry(index.toFloat(), chart.getCount()).let { barEntries.add(it) }
     }
     Text(
-        text = stringResource(R.string.meeting_per_day),
+        text = title,
         Modifier
             .padding(top = 16.dp)
             .fillMaxWidth(),
@@ -313,7 +321,7 @@ fun MyBarChart(chart: List<Chart>) {
                 xAxis.setDrawGridLines(false)
 
                 xAxis.textColor = android.graphics.Color.BLACK
-                xAxis.textSize = 12f
+                xAxis.textSize = 10f
                 xAxis.axisLineColor = android.graphics.Color.WHITE
                 xAxis.granularity = 1f
                 //  xAxis.isGranularityEnabled = true
@@ -363,11 +371,17 @@ fun PieChart(meetingReport: MeetingReport, title: String) {
 
     val arr: ArrayList<PieChartData> = arrayListOf()
 
-    if (title == stringResource(R.string.projects)) {
+    if (title ==  stringResource(R.string.meeting_report)) {
         meetingReport.project_chart.forEachIndexed { index, projectChart ->
             arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
         }
-    } else {
+    }
+    if (title == stringResource(R.string.projects)) {
+        meetingReport.projectChart.forEachIndexed { index, projectChart ->
+            arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
+        }
+    }
+    else {
         meetingReport.channel_chart.forEachIndexed { index, channelChart ->
             arr.add(PieChartData(channelChart.title(), channelChart.lead_count))
         }
@@ -415,29 +429,40 @@ fun PieChart(meetingReport: MeetingReport, title: String) {
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                             )
-
-
+                            this.setDrawEntryLabels(false)
+                            this.setDrawSliceText(false); // To remove slice text
+                            this.setDrawMarkers(false); // To remove markers when click
                             // on below line we are setting description
                             // enables for our pie chart.
                             this.description.isEnabled = false
+                            this.setDrawCenterText(false)
 
                             // on below line we are setting draw hole
                             // to false not to draw hole in pie chart
-                            this.isDrawHoleEnabled = false
+                            this.isDrawHoleEnabled = true
 
                             // on below line we are enabling legend.
-                            this.legend.isEnabled = true
+                            this.legend.isEnabled = false
 
                             // on below line we are specifying
                             // text size for our legend.
                             this.legend.textSize = 9F
-
                             // on below line we are specifying
                             // alignment for our legend.
                             this.legend.horizontalAlignment =
                                 Legend.LegendHorizontalAlignment.CENTER
                             // on below line we are specifying entry label color as white.
                             this.setEntryLabelColor(resources.getColor(R.color.white))
+
+                            val l: Legend =this.legend
+
+
+                            l.setDrawInside(false);
+                            l.yEntrySpace = 10f
+
+                            l.isWordWrapEnabled = true
+                            l.isEnabled = true
+
                         }
                     },
                         // on below line we are specifying modifier
@@ -496,7 +521,7 @@ fun updatePieChartWithData(
     // on below line we are creating
     // a variable for pie data set.
     val ds = PieDataSet(entries, "")
-
+    ds.setDrawValues(false)
     // on below line we are specifying color
     // int the array list from colors.
     ds.colors = arrayListOf(

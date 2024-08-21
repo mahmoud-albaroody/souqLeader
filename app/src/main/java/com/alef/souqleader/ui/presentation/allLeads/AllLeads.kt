@@ -27,6 +27,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,37 +40,66 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.ModulePermission
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.domain.model.Campaign
+import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.Blue
 import com.alef.souqleader.ui.theme.Blue2
 import com.alef.souqleader.ui.theme.Grey
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
 
 
 @Composable
-fun AllLeadsScreen(navController: NavController, modifier: Modifier) {
+fun AllLeadsScreen(
+    navController: NavController, modifier: Modifier, leadId: String
+) {
     val viewModel: AllLeadViewModel = hiltViewModel()
-
+    val leadList = remember { mutableStateListOf<Lead>() }
     viewModel.updateBaseUrl(AccountData.BASE_URL)
     LaunchedEffect(key1 = true) {
-        viewModel.getLeadByStatus("0")
+        when (leadId) {
+            "100" -> {
+                viewModel.delayLeads()
+            }
+
+            "200" -> {
+                viewModel.duplicated()
+            }
+
+            else -> {
+                viewModel.getLeadByStatus(leadId)
+            }
+        }
+        viewModel.viewModelScope.launch {
+            viewModel.stateListOfLeads.collect {
+                leadList.addAll(it)
+            }
+        }
+
     }
 
-    screen(navController, viewModel.stateListOfLeads)
+    screen(navController, leadList)
 
 }
 
 
 @Composable
 private fun screen(navController: NavController, stateListOfLeads: List<Lead>) {
-    var selected by remember { mutableStateOf(false) }
+    var selectedId by remember { mutableStateOf("") }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     Box(
@@ -83,26 +113,29 @@ private fun screen(navController: NavController, stateListOfLeads: List<Lead>) {
                 navController.navigate(Screen.FilterScreen.route)
             }
             LazyColumn(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
             ) {
                 items(stateListOfLeads) {
-                    AllLeadsItem(it) {
-                        selected = stateListOfLeads.find { it.selected } != null
+                    AllLeadsItem(it) { lead ->
+                        stateListOfLeads.forEach {
+                            it.selected = false
+                        }
+
+                        stateListOfLeads.find { it.id == lead.id }?.selected = true
+                        selectedId = lead.id.toString()
                     }
                 }
             }
         }
-        if (selected)
+        if (selectedId.isNotEmpty())
             Button(modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(Blue2),
                 onClick = {
-                    navController.navigate(Screen.LeadUpdateScreen.route)
-                })
-            {
+                    navController.navigate(Screen.LeadUpdateScreen.route.plus("/${selectedId}"))
+                }) {
                 Text(
                     text = stringResource(R.string.add_action),
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -112,10 +145,11 @@ private fun screen(navController: NavController, stateListOfLeads: List<Lead>) {
 }
 
 @Composable
-fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
+fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
     var selected by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
+    selected = lead.selected
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -123,9 +157,9 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
             .height(screenHeight / 3f)
             .padding(6.dp)
             .clickable {
-                lead.selected = !lead.selected
-                selected = lead.selected
-                onItemClick()
+                onItemClick(lead)
+
+
             },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -136,7 +170,6 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
                     contentDescription = "",
                     Modifier.align(Alignment.TopEnd)
                 )
-
 
             Column(
                 Modifier
@@ -158,8 +191,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
                     Image(
                         painterResource(R.drawable.client_placeholder),
                         contentDescription = "",
-                        modifier = Modifier
-                            .padding(end = 8.dp)
+                        modifier = Modifier.padding(end = 8.dp)
                     )
 
                     Column(
@@ -183,12 +215,11 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
                 }
 
                 Row(
-                    Modifier
-                        .fillMaxWidth(),
+                    Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    lead.sales_name?.let {
+                    lead.sales_name.let {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
                                 painterResource(R.drawable.sales_name_icon),
@@ -197,22 +228,19 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = lead.sales_name,
-                                style = TextStyle(
+                                text = lead.sales_name, style = TextStyle(
                                     fontSize = 14.sp,
-                                ),
-                                modifier = Modifier.padding(start = 4.dp)
+                                ), modifier = Modifier.padding(start = 4.dp)
                             )
                         }
                     }
                 }
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    lead.project_name?.let {
+                    lead.project_name.let {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.weight(1f)
@@ -224,11 +252,9 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = it,
-                                style = TextStyle(
+                                text = it, style = TextStyle(
                                     fontSize = 14.sp,
-                                ),
-                                modifier = Modifier.padding(start = 4.dp)
+                                ), modifier = Modifier.padding(start = 4.dp)
                             )
                         }
                     }
@@ -241,16 +267,13 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
                                 painterResource(R.drawable.coin),
                                 contentDescription = "",
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(20.dp)
+                                modifier = Modifier.size(20.dp)
                             )
 
                             Text(
-                                text = it,
-                                style = TextStyle(
+                                text = it, style = TextStyle(
                                     fontSize = 14.sp,
-                                ),
-                                modifier = Modifier.padding(start = 4.dp)
+                                ), modifier = Modifier.padding(start = 4.dp)
                             )
                         }
                     }
@@ -264,13 +287,13 @@ fun AllLeadsItem(lead: Lead, onItemClick: () -> Unit) {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.size(20.dp)
                     )
-                    Text(
-                        text = lead.note,
-                        style = TextStyle(
-                            fontSize = 11.sp, color = Grey
-                        ),
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+                    lead.note?.let {
+                        Text(
+                            text = it, style = TextStyle(
+                                fontSize = 11.sp, color = Grey
+                            ), modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
                 }
 
                 Row(
@@ -344,16 +367,14 @@ fun Search(text: String, onFilterClick: () -> Unit) {
 //                shape = RoundedCornerShape(8.dp),
                 singleLine = true,
             )
-            Image(
-                painterResource(R.drawable.filter_icon),
+            Image(painterResource(R.drawable.filter_icon),
                 contentDescription = "",
                 Modifier
                     .size(30.dp)
                     .weight(0.5f)
                     .clickable {
                         onFilterClick.invoke()
-                    }
-            )
+                    })
         }
     }
 

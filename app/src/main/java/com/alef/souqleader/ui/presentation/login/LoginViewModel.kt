@@ -13,6 +13,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.compose.runtime.State
+import com.alef.souqleader.data.remote.dto.AddLike
+import com.alef.souqleader.data.remote.dto.StatusResponse
 
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,6 +30,9 @@ class LoginViewModel @Inject constructor(
     val loginState: StateFlow<Login> get() = _loginState
 
 
+    private val _updateFcmToken = MutableStateFlow(StatusResponse())
+    val updateFcmToken: StateFlow<StatusResponse> get() = _updateFcmToken
+
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
@@ -38,6 +43,15 @@ class LoginViewModel @Inject constructor(
             _loginState.value = loginUseCase.login(username, password).data!!.data!!
         }
     }
+
+    fun updateFcmToken(token: String) {
+        viewModelScope.launch(job) {
+            loginUseCase.updateFcmToken(token).data?.let {
+                _updateFcmToken.value = it
+            }
+        }
+    }
+
 
     fun updateBaseUrl(newUrl: String) {
         networkManager.changeBaseUrl(newUrl)

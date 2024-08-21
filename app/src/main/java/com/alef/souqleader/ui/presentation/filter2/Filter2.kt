@@ -120,7 +120,9 @@ private fun Budget() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(Modifier.weight(2f)) {
-            TextFiledItem("0")
+            TextFiledItem("0"){
+
+            }
         }
         Box(
             Modifier
@@ -133,7 +135,9 @@ private fun Budget() {
             )
         }
         Box(Modifier.weight(2f)) {
-            TextFiledItem(stringResource(R.string.any))
+            TextFiledItem(stringResource(R.string.any)){
+
+            }
         }
     }
 }

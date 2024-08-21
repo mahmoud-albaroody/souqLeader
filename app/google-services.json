@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "150322170228",
+    "project_id": "souqleader-d2390",
+    "storage_bucket": "souqleader-d2390.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150322170228:android:413f73956fe6f71607c421",
+        "android_client_info": {
+          "package_name": "com.alef.souqleader"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaPe6PzI0XrlnCyARapEXLfifcPLibIqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

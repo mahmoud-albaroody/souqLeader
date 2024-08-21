@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id ("dagger.hilt.android.plugin")
     id ("kotlin-kapt")
+    id ("com.google.gms.google-services")
+
 }
 
 android {
@@ -54,26 +56,38 @@ android {
 }
 
 dependencies {
+  //  implementation("com.google.firebase:firebase-messaging-ktx:24.0.0")
+    val cameraVersion = "1.3.4"
+    implementation("androidx.camera:camera-lifecycle:$cameraVersion")
+    implementation("androidx.camera:camera-camera2:$cameraVersion")
+    implementation("androidx.camera:camera-view:$cameraVersion")
+    implementation("androidx.camera:camera-core:$cameraVersion")
 
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    implementation("androidx.activity:activity-compose:1.9.1")
     implementation(platform("androidx.compose:compose-bom:2024.02.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.6.7")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.8")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material")
-    implementation ("androidx.compose.material:material-icons-extended:1.6.7")
-    implementation("io.coil-kt:coil-compose:2.0.0-rc01")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation ("com.google.firebase:firebase-messaging:24.0.0")
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
 
-    implementation ("androidx.fragment:fragment-compose:1.7.1")
-    implementation ("androidx.fragment:fragment-ktx:1.7.1")
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+
+    // Add the dependency for the Firebase SDK for Google Analytics
+    implementation("com.google.firebase:firebase-analytics")
+    implementation ("androidx.fragment:fragment-compose:1.8.2")
+    implementation ("androidx.fragment:fragment-ktx:1.8.2")
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     implementation ("com.google.accompanist:accompanist-pager:0.25.1")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.25.1")
-    implementation("io.coil-kt:coil-compose:2.0.0")
 
     implementation ("androidx.core:core-splashscreen:1.0.1")
 
@@ -114,8 +128,12 @@ dependencies {
     implementation ("com.google.dagger:hilt-android:2.49")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1")
+    implementation("androidx.camera:camera-view:1.3.4")
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0")
+    implementation("com.google.mlkit:barcode-scanning-common:17.0.0")
+    implementation("androidx.camera:camera-mlkit-vision:1.4.0-beta02")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     implementation ("androidx.multidex:multidex:2.0.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -127,13 +145,13 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.05.00")
     implementation(composeBom)
 
-    debugImplementation("androidx.compose.ui:ui-tooling:1.6.7")
-    implementation("androidx.compose.ui:ui-tooling-preview-android:1.7.0-beta02@aar")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.8")
+    implementation("androidx.compose.ui:ui-tooling-preview-android:1.7.0-beta06@aar")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")

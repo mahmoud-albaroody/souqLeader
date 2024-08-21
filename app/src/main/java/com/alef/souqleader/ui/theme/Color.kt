@@ -19,7 +19,7 @@ val White = Color(0xFFFFFFFF)
 val Grey = Color(0xFF727279)
 
 val LightGrey = Color(0xFFC6C6D0)
-
+val Grey100 = Color(0xFFECECEC)
 val Grey1 = Color(0xFFC6C6D0)
 val Grey2 = Color(0xFF727279)
 

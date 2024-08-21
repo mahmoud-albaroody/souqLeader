@@ -1,7 +1,11 @@
 package com.alef.souqleader.data.remote.dto
 
+import com.alef.souqleader.domain.model.Campaign
+import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.Client
-import com.google.gson.annotations.SerializedName
+import com.alef.souqleader.domain.model.CommunicationWay
+import com.alef.souqleader.domain.model.Marketer
+import com.alef.souqleader.domain.model.Sales
 
 open class StatusResponse(
     val status: Boolean = false,
@@ -12,29 +16,70 @@ data class LeadsByStatusResponse(
     var data: ArrayList<Lead>? = null
 ) : StatusResponse()
 
+data class DelayReportResponse(
+    var data: ArrayList<DelayReport>? = null
+) : StatusResponse()
+
+data class ProjectsReportResponse(
+    var data: MeetingReport? = null
+) : StatusResponse()
+data class UserDateResponse(
+    var data: UserDate? = null
+) : StatusResponse()
+
+
+data class ChannelResponse(
+    var data: ArrayList<Channel>? = null
+) : StatusResponse()
+data class AddLeadResponse(
+    var data: Boolean
+) : StatusResponse()
+data class CampaignResponse(
+    var data: ArrayList<Campaign>? = null
+) : StatusResponse()
+
+data class MarketerResponse(
+    var data: ArrayList<Marketer>? = null
+) : StatusResponse()
+
+data class SalesResponse(
+    var data: ArrayList<Sales>? = null
+) : StatusResponse()
+
+
+data class CommunicationWayResponse(
+    var data: ArrayList<CommunicationWay>? = null
+) : StatusResponse()
+
 data class MultiResponse(
     var data: Boolean
 ) : StatusResponse()
-
+data class UpdateLeadResponse(
+    var data: Boolean
+) : StatusResponse()
 
 data class ProjectResponse(
     var data: ArrayList<Project>? = null
 )
 
+data class AddLikeResponse(
+    var data: AddLike? = null
+) : StatusResponse()
+
 data class PlanResponse(
     var data: ArrayList<Plan>? = null
-)
+) : StatusResponse()
 
 data class PostResponse(
-    var data: ArrayList<Post>? = null
-)
+    var data: PostData
+) : StatusResponse()
 
 data class AllRolesAndAllPermissionsResponse(
     var data: ArrayList<AllRolesAndAllPermissions>? = null
-)
+) : StatusResponse()
 
 data class LeadsStatusResponse(
-    var data: ArrayList<LeadStatus>? = null
+    var data: ArrayList<AllLeadStatus>? = null
 ) : StatusResponse()
 
 
@@ -59,6 +104,10 @@ data class MeetingReportResponse(
     var data: MeetingReport? = null
 ) : StatusResponse()
 
+data class ChannelReportResponse(
+    var data: ArrayList<Chart>? = null
+) : StatusResponse()
+
 data class PropertyResponse(
     var data: ArrayList<Property>? = null
 ) : StatusResponse()
@@ -69,4 +118,4 @@ data class SalesProfileReportRequest(var user_id: String) {
 
 data class GetClientResponse(
     var data: Client? = null
-): StatusResponse()
+) : StatusResponse()

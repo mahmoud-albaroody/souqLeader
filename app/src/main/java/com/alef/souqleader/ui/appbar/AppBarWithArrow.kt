@@ -1,4 +1,4 @@
-package com.bitaqaty.reseller.ui.component.appbar
+package com.alef.souqleader.ui.appbar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

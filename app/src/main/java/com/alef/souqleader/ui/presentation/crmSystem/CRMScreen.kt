@@ -1,16 +1,15 @@
 package com.alef.souqleader.ui.presentation.crmSystem
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,13 +17,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,28 +40,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Comment
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.theme.Blue
+import com.alef.souqleader.ui.theme.Grey100
 import com.alef.souqleader.ui.theme.White
 
 @Composable
 fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
-    //val viewModel: DetailsGymScreenViewModel = viewModel()
-    CRMScreenItem(post)
+
+    val viewModel: CRMViewModel = hiltViewModel()
+  //  Log.e("sdd", AccountData.auth_token.toString())
+    CRMScreenItem(post) {
+        viewModel.addComment(it, post.id.toString())
+    }
 }
 
 
 @Composable
-fun CRMScreenItem(post: Post) {
+fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -102,7 +111,7 @@ fun CRMScreenItem(post: Post) {
                     painter = rememberAsyncImagePainter(
                         if (!post.images.isNullOrEmpty()) {
                             if (post.images[0].image?.isNotEmpty() == true) {
-                                AccountData.BASE_URL+ post.images[0].image
+                                AccountData.BASE_URL + post.images[0].image
                             } else {
                                 //  R.drawable.user_profile_placehoder
                             }
@@ -186,43 +195,77 @@ fun CRMScreenItem(post: Post) {
                 }
             })
 
-        }
 
+        }
         Column(
-            Modifier.align(Alignment.BottomCenter),
-
-            ) {
-            ReminderItem(text = stringResource(R.string.add_comment), text1 = "qwqw")
+            Modifier.align(Alignment.BottomCenter)
+        ) {
+            AddComment {
+                onSendTextClick(it)
+            }
         }
-
 
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderItem(text: String, text1: String) {
-    TextField(
+fun AddComment(onSendTextClick: (String) -> Unit) {
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(end = 8.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = Grey100)
+    ) {
+        ReminderItem(
+            text = stringResource(R.string.add_comment),
+            text1 = "qwqw"
+        ) {
+            onSendTextClick(it)
+        }
+    }
 
-        value = "",
-        placeholder = {
-            Text(text = stringResource(R.string.notes))
-        },
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderItem(text: String, text1: String, onSendTextClick: (String) -> Unit) {
+    var textState by remember { mutableStateOf("") }
+    val maxLength = 110
+    val lightBlue = Color(0xffd8e6ff)
+    val blue = Color(0xff76d3ff)
+    TextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = textState,
         colors = TextFieldDefaults.textFieldColors(
+
             cursorColor = Color.Black,
-            disabledLabelColor = Blue,
+            disabledLabelColor = lightBlue,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
+        placeholder = {
+            Text(text = "Add Comment")
+        },
         onValueChange = {
-
+            if (it.length <= maxLength) textState = it
         },
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
+        trailingIcon = {
+            IconButton(onClick = {
+                onSendTextClick(textState)
+                textState = ""
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.like),
+                    contentDescription = null
+                )
+            }
+        }
     )
+
 }
 
 @Composable
@@ -246,23 +289,21 @@ fun CommentItem(comment: Comment) {
             Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
-            comment.username?.let {
                 Text(
-                    text = it,
+                    text = comment.username?:"",
                     modifier = Modifier.padding(horizontal = 14.dp),
                     style = TextStyle(
                         fontSize = 12.sp, color = Color.Black,
                         fontWeight = FontWeight.Bold
                     )
                 )
-            }
+
             Text(
                 text = comment.comment,
                 modifier = Modifier.padding(horizontal = 11.dp),
-                        style = TextStyle(
-                        fontSize = 12.sp, color = Color.Black,
-                fontWeight = FontWeight.Bold
-            )
+                style = TextStyle(
+                    fontSize = 12.sp, color = Color.Gray
+                )
             )
         }
     }
