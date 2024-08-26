@@ -1,5 +1,6 @@
 package com.alef.souqleader.data.remote.dto
 
+import com.alef.souqleader.data.UsersItem
 import com.alef.souqleader.domain.model.Campaign
 import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.Client
@@ -18,6 +19,9 @@ data class LeadsByStatusResponse(
 
 data class DelayReportResponse(
     var data: ArrayList<DelayReport>? = null
+) : StatusResponse()
+data class AllUserResponse(
+    var data: ArrayList<UsersItem>?=null
 ) : StatusResponse()
 
 data class ProjectsReportResponse(

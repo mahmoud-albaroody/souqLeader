@@ -22,9 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,8 +35,7 @@ import com.alef.souqleader.data.remote.dto.Chart
 import com.alef.souqleader.data.remote.dto.DelayActions
 import com.alef.souqleader.ui.presentation.addlead.DynamicSelectTextField
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Grey
+import com.alef.souqleader.ui.theme.*
 
 @Composable
 fun DelaysReports(navController: NavController, modifier: Modifier) {
@@ -70,16 +70,16 @@ fun DelaysReports(navController: NavController, modifier: Modifier) {
                             .padding(horizontal = 16.dp)
                             .padding(bottom = 8.dp),
                     ) {
-                        MyBarChart(chartActionsList, "Delay Report")
+                        MyBarChart(chartActionsList, stringResource(R.string.delay_report))
                     }
                 }
                 item {
-
-
                     Text(
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp).padding(horizontal = 16.dp),
-                        text = "Select a status to view the delay actions",
-                        fontSize = 12.sp, color = Color.Gray
+                        modifier = Modifier
+                            .padding(top = 16.dp, bottom = 8.dp)
+                            .padding(horizontal = 16.dp),
+                        text = stringResource(R.string.select_a_status_to_view_the_delay_actions),
+                        fontSize = 12.sp, color = colorResource(id = R.color.gray)
                     )
 
                     Box(
@@ -146,7 +146,7 @@ fun DelayReport(delayActions: DelayActions) {
                 ) {
                     Text(
                         text = delayActions.lead_name ?: "", style = TextStyle(
-                            fontSize = 16.sp, color = Blue
+                            fontSize = 16.sp, color = colorResource(id = R.color.blue)
                         )
                     )
 
@@ -240,7 +240,7 @@ fun DelayReport(delayActions: DelayActions) {
 
                         Text(
                             text = delayActions.reminder_time ?: "", style = TextStyle(
-                                fontSize = 14.sp, color = Color.Red
+                                fontSize = 14.sp, color = colorResource(id = R.color.red)
                             ), modifier = Modifier.padding(start = 4.dp)
                         )
                     }
@@ -260,7 +260,7 @@ fun DelayReport(delayActions: DelayActions) {
 
                     Text(
                         text = delayActions.note, style = TextStyle(
-                            fontSize = 12.sp, color = Grey
+                            fontSize = 12.sp, color = colorResource(id = R.color.gray)
                         ), modifier = Modifier.padding(start = 4.dp)
                     )
 

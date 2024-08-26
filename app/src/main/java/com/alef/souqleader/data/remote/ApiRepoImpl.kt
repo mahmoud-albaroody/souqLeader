@@ -1,10 +1,12 @@
 package com.alef.souqleader.data.remote
 
 
+import android.util.Log
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
+import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
@@ -12,6 +14,7 @@ import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
+import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
@@ -194,6 +197,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
     suspend fun userData(
         id: String
     ): Resource<UserDateResponse> {
@@ -358,7 +362,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
-    suspend fun  channelReport(): Resource<ChannelReportResponse> {
+
+    suspend fun channelReport(): Resource<ChannelReportResponse> {
         val response = APIs.channelStatistics()
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -366,7 +371,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
-    suspend fun  projectsReport(): Resource<ProjectsReportResponse> {
+
+    suspend fun projectsReport(): Resource<ProjectsReportResponse> {
         val response = APIs.projectsReport()
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -374,7 +380,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
-    suspend fun  delayReport(): Resource<DelayReportResponse> {
+
+    suspend fun delayReport(): Resource<DelayReportResponse> {
         val response = APIs.delayReport()
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -382,5 +389,27 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
+    suspend fun allUsers(): Resource<AllUserResponse> {
+        val response = APIs.allUsers()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun leadsFilter(filterRequest: FilterRequest): Resource<LeadsByStatusResponse> {
+        val response = APIs.leadsFilter(filterRequest.phone,filterRequest.status,
+            filterRequest.name,filterRequest.note,filterRequest.channel,
+            filterRequest.sales,filterRequest.project,filterRequest.budget,filterRequest.marketer,
+            filterRequest.communication_way,filterRequest.region)
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
 
 }

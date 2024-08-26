@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -35,10 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissions
-import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.White
+
 
 
 @Composable
@@ -96,7 +94,7 @@ fun RolesPermissionsItem(roles:AllRolesAndAllPermissions) {
             ) {
                 Text(
                     text = "Mahmoud Ali", style = TextStyle(
-                        fontSize = 15.sp, color = Blue
+                        fontSize = 15.sp, color = colorResource(id = R.color.blue)
                     )
                 )
                 Text(
@@ -111,7 +109,7 @@ fun RolesPermissionsItem(roles:AllRolesAndAllPermissions) {
                     .fillMaxHeight()
                     .padding(vertical = 8.dp, horizontal = 8.dp)
                     .weight(2.5f),
-                colors = CardDefaults.cardColors(containerColor = Blue2),
+                colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.blue2)),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Row(
@@ -125,7 +123,7 @@ fun RolesPermissionsItem(roles:AllRolesAndAllPermissions) {
                         modifier = Modifier.padding(horizontal = 4.dp),
                         text = "PERMISSION", style = TextStyle(
                             fontSize = 10.sp,
-                            color = White
+                            color = colorResource(id = R.color.white)
                         )
                     )
                     Image(

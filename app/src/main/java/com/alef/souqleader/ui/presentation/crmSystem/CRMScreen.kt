@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,16 +27,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -43,37 +49,71 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Comment
+import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.Post
+import com.alef.souqleader.data.remote.dto.User
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Grey100
-import com.alef.souqleader.ui.theme.White
+import com.alef.souqleader.ui.theme.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
+    val postList = remember { mutableStateListOf<Comment>() }
+    var comment by remember { mutableStateOf("") }
 
+    postList.clear()
+    postList.addAll(post.comment)
     val viewModel: CRMViewModel = hiltViewModel()
-  //  Log.e("sdd", AccountData.auth_token.toString())
-    CRMScreenItem(post) {
+
+    LaunchedEffect(key1 = true) {
+        viewModel.viewModelScope.launch {
+            viewModel.stateAddComment.collect {
+                // postList.clear()
+                postList.add(
+                    Comment(
+                        comment = comment,
+                        user = User(
+                            photo = AccountData.photo,
+                            name = AccountData.name
+                        )
+                    )
+                )
+            }
+        }
+    }
+    CRMScreenItem(post, postList = postList) {
+        comment = it
         viewModel.addComment(it, post.id.toString())
     }
 }
 
 
 @Composable
-fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
+fun CRMScreenItem(
+    post: Post,
+    postList: SnapshotStateList<Comment>, onSendTextClick: (String) -> Unit
+) {
+    val lazyColumnListState = rememberLazyListState()
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
     val scrollState = rememberScrollState()
+    val corroutineScope = rememberCoroutineScope()
+
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
+            .background(colorResource(id = R.color.white))
 //            .verticalScroll(scrollState)
             .padding(vertical = 16.dp, horizontal = 24.dp),
     ) {
@@ -90,7 +130,9 @@ fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
                 Text(
                     text = post.post,
                     style = TextStyle(
-                        fontSize = 18.sp, color = Blue, fontWeight = FontWeight.SemiBold
+                        fontSize = 18.sp,
+                        color = colorResource(id = R.color.blue),
+                        fontWeight = FontWeight.SemiBold
                     )
                 )
 
@@ -98,7 +140,9 @@ fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
                     text = post.post,
                     modifier = Modifier.padding(top = 8.dp),
                     style = TextStyle(
-                        fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.SemiBold
+                        fontSize = 14.sp,
+                        color = colorResource(id = R.color.gray),
+                        fontWeight = FontWeight.SemiBold
                     )
                 )
             }
@@ -147,10 +191,13 @@ fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
 
                         )
                         Text(
-                            text = post.likes_count + "Like",
+                            text = post.likes_count +
+                                    stringResource(id = R.string.like),
                             modifier = Modifier.padding(start = 8.dp),
                             style = TextStyle(
-                                fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold
+                                fontSize = 14.sp,
+                                color = colorResource(id = R.color.gray),
+                                fontWeight = FontWeight.Bold
                             )
                         )
                     }
@@ -166,12 +213,14 @@ fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
                                 .clip(RoundedCornerShape(16.dp))
                         )
                         Text(
-                            text = post.comment.size.toString() + " " + stringResource(R.string.comment),
+                            text = postList.size.toString() + " " + stringResource(R.string.comment),
                             modifier = Modifier
                                 .padding(start = 6.dp)
                                 .padding(end = 16.dp),
                             style = TextStyle(
-                                fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Bold
+                                fontSize = 14.sp,
+                                color = colorResource(id = R.color.gray),
+                                fontWeight = FontWeight.Bold
                             )
                         )
                     }
@@ -182,19 +231,18 @@ fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
                     modifier = Modifier.padding(top = 16.dp),
                     style = TextStyle(
                         fontSize = 14.sp,
-                        color = Color.Black,
+                        color = colorResource(id = R.color.black),
                         fontWeight = FontWeight.Bold
                     )
                 )
             }
 
 
-            LazyColumn(content = {
-                items(post.comment) {
+            LazyColumn(state = lazyColumnListState, content = {
+                items(postList) {
                     CommentItem(it)
                 }
             })
-
 
         }
         Column(
@@ -202,9 +250,15 @@ fun CRMScreenItem(post: Post, onSendTextClick: (String) -> Unit) {
         ) {
             AddComment {
                 onSendTextClick(it)
+
             }
         }
 
+    }
+    SideEffect {
+        corroutineScope.launch {
+            lazyColumnListState.scrollToItem(lazyColumnListState.layoutInfo.totalItemsCount)
+        }
     }
 }
 
@@ -216,12 +270,13 @@ fun AddComment(onSendTextClick: (String) -> Unit) {
             .fillMaxWidth()
             .padding(end = 8.dp),
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = Grey100)
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.grey100))
     ) {
         ReminderItem(
             text = stringResource(R.string.add_comment),
             text1 = "qwqw"
         ) {
+
             onSendTextClick(it)
         }
     }
@@ -233,20 +288,19 @@ fun AddComment(onSendTextClick: (String) -> Unit) {
 fun ReminderItem(text: String, text1: String, onSendTextClick: (String) -> Unit) {
     var textState by remember { mutableStateOf("") }
     val maxLength = 110
-    val lightBlue = Color(0xffd8e6ff)
-    val blue = Color(0xff76d3ff)
+
+
     TextField(
         modifier = Modifier.fillMaxWidth(),
         value = textState,
         colors = TextFieldDefaults.textFieldColors(
-
-            cursorColor = Color.Black,
-            disabledLabelColor = lightBlue,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            cursorColor = colorResource(id = R.color.black),
+            disabledLabelColor = colorResource(id = R.color.lightBlue),
+            focusedIndicatorColor = colorResource(id = R.color.transparent),
+            unfocusedIndicatorColor = colorResource(id = R.color.transparent)
         ),
         placeholder = {
-            Text(text = "Add Comment")
+            Text(text = stringResource(id = R.string.add_comment))
         },
         onValueChange = {
             if (it.length <= maxLength) textState = it
@@ -259,7 +313,7 @@ fun ReminderItem(text: String, text1: String, onSendTextClick: (String) -> Unit)
                 textState = ""
             }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.like),
+                    painter = painterResource(id = R.drawable.baseline_send_24),
                     contentDescription = null
                 )
             }
@@ -273,8 +327,8 @@ fun CommentItem(comment: Comment) {
     Row(Modifier.padding(top = 14.dp)) {
         Image(
             painter = rememberAsyncImagePainter(
-                if (comment.user_Image?.isNotEmpty() == true) {
-                    AccountData.BASE_URL + comment.user_Image
+                if (comment.user?.photo?.isNotEmpty() == true) {
+                    AccountData.BASE_URL + comment.user.photo
                 } else {
                     R.drawable.user_profile_placehoder
                 }
@@ -289,20 +343,21 @@ fun CommentItem(comment: Comment) {
             Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
-                Text(
-                    text = comment.username?:"",
-                    modifier = Modifier.padding(horizontal = 14.dp),
-                    style = TextStyle(
-                        fontSize = 12.sp, color = Color.Black,
-                        fontWeight = FontWeight.Bold
-                    )
+            Text(
+                text = comment.user?.name ?: "",
+                modifier = Modifier.padding(horizontal = 14.dp),
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    color = colorResource(id = R.color.black),
+                    fontWeight = FontWeight.Bold
                 )
+            )
 
             Text(
-                text = comment.comment,
-                modifier = Modifier.padding(horizontal = 11.dp),
+                text = comment.comment ?: "",
+                modifier = Modifier.padding(horizontal = 14.dp),
                 style = TextStyle(
-                    fontSize = 12.sp, color = Color.Gray
+                    fontSize = 12.sp, color = colorResource(id = R.color.gray)
                 )
             )
         }

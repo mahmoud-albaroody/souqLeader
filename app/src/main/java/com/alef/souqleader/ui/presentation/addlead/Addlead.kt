@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -33,7 +33,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,10 +41,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -62,8 +59,7 @@ import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.CommunicationWay
 import com.alef.souqleader.domain.model.Marketer
 import com.alef.souqleader.domain.model.Sales
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.White
+import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 
 
@@ -78,6 +74,7 @@ fun AddLeadScreen(modifier: Modifier) {
     val marketerList = remember { mutableStateListOf<Marketer>() }
     val communicationWayList = remember { mutableStateListOf<CommunicationWay>() }
     LaunchedEffect(key1 = true) {
+
         addLeadViewModel.allMarketer()
         addLeadViewModel.allSales()
         addLeadViewModel.campaign()
@@ -94,6 +91,8 @@ fun AddLeadScreen(modifier: Modifier) {
                 it.data?.let { it1 -> projectList.addAll(it1) }
             }
         }
+
+
         addLeadViewModel.viewModelScope.launch {
             addLeadViewModel.channel.collect {
                 it.data?.let { it1 -> channelList.addAll(it1) }
@@ -160,24 +159,24 @@ fun AddLead(
     }
 
     val communicationWays = arrayListOf<String>()
-    communicationWays.add("Communication Way")
+    communicationWays.add(stringResource(R.string.communication_way))
     if (communicationWayList.isNotEmpty()) communicationWayList.forEach {
         communicationWays.add(it.getTitle())
     }
 
     val marketers = arrayListOf<String>()
-    marketers.add("Marketer")
+    marketers.add(stringResource(R.string.marketer))
     if (marketerList.isNotEmpty()) marketerList.forEach {
         marketers.add(it.name)
     }
     val sales = arrayListOf<String>()
-    sales.add("Sales Rep")
+    sales.add(stringResource(R.string.sales_rep))
     if (salesList.isNotEmpty()) salesList.forEach {
         sales.add(it.name)
     }
 
     val campaigns = arrayListOf<String>()
-    campaigns.add("Campaign ID")
+    campaigns.add(stringResource(R.string.campaign_id))
     if (campaignList.isNotEmpty()) campaignList.forEach {
         campaigns.add(it.getTitle())
     }
@@ -185,7 +184,7 @@ fun AddLead(
     Column(
         Modifier
             .fillMaxSize()
-            .background(White)
+            .background(colorResource(id = R.color.white))
             .padding(vertical = 8.dp, horizontal = 24.dp)
     ) {
         Column(
@@ -193,15 +192,15 @@ fun AddLead(
                 .verticalScroll(scrollState)
                 .weight(12f)
         ) {
-            TextFiledItem(stringResource(R.string.name)) {
+            TextFiledItem(stringResource(R.string.name), true) {
                 addLead.name = it
                 hasName.value = false
             }
             if (hasName.value) Text(
                 modifier = Modifier.padding(start = 8.dp),
-                text = "The name is required",
+                text = stringResource(R.string.the_name_is_required),
                 style = TextStyle(
-                    color = Color.Red, fontSize = 12.sp
+                    color = colorResource(id = R.color.red), fontSize = 12.sp
                 )
             )
 
@@ -216,7 +215,7 @@ fun AddLead(
 //                    }
 //                }
                 Box(Modifier.fillMaxWidth()) {
-                    TextFiledItem(stringResource(R.string.mobile)) {
+                    TextFiledItem(stringResource(R.string.mobile), true) {
                         addLead.phone = it
                         hasPhone.value = false
                     }
@@ -224,75 +223,75 @@ fun AddLead(
             }
             if (hasPhone.value) Text(
                 modifier = Modifier.padding(start = 8.dp),
-                text = "The phone is required",
+                text = stringResource(R.string.the_phone_is_required),
                 style = TextStyle(
-                    color = Color.Red, fontSize = 12.sp
+                    color = colorResource(id = R.color.red), fontSize = 12.sp
                 )
             )
             DynamicSelectTextField(channels) { channel ->
-                addLead.channel = channelList.find { it.getTitle() == channel }?.id!!
+                addLead.channel = channelList.find { it.getTitle() == channel }?.id
                 hasChannel.value = false
             }
             if (hasChannel.value) Text(
                 modifier = Modifier.padding(start = 8.dp),
-                text = "The channel is required",
+                text = stringResource(R.string.the_channel_is_required),
                 style = TextStyle(
-                    color = Color.Red, fontSize = 12.sp
+                    color = colorResource(id = R.color.red), fontSize = 12.sp
                 )
             )
-            TextFiledItem("E-mail") {
+            TextFiledItem(stringResource(id = R.string.e_mail), true) {
                 addLead.email = it
 
             }
 
 
             DynamicSelectTextField(projects) { projectName ->
-                addLead.project_id = projectList.find { it.title == projectName }?.id!!
+                addLead.project_id = projectList.find { it.title == projectName }?.id
             }
             DynamicSelectTextField(communicationWays) { communicationWays ->
                 addLead.communication_way =
-                    communicationWayList.find { it.getTitle() == communicationWays }?.id!!
+                    communicationWayList.find { it.getTitle() == communicationWays }?.id
             }
-            TextFiledItem("Cancel Reason") {
+            TextFiledItem(stringResource(R.string.cancel_reason), true) {
                 addLead.cancel_reason = it
             }
             DynamicSelectTextField(marketers) { marketer ->
-                addLead.marketer_id = marketerList.find { it.name == marketer }?.id!!
+                addLead.marketer_id = marketerList.find { it.name == marketer }?.id
                 hasMarketer.value = false
             }
             if (hasMarketer.value) Text(
                 modifier = Modifier.padding(start = 8.dp),
-                text = "The marketer id is required",
+                text = stringResource(R.string.the_marketer_id_is_required),
                 style = TextStyle(
-                    color = Color.Red, fontSize = 12.sp
+                    color = colorResource(id = R.color.red), fontSize = 12.sp
                 )
             )
-            TextFiledItem("Note") {
+            TextFiledItem(stringResource(R.string.note), true) {
                 addLead.note = it
             }
             DynamicSelectTextField(sales) { sales ->
-                addLead.sales_id = salesList.find { it.name == sales }?.id!!
+                addLead.sales_id = salesList.find { it.name == sales }?.id
                 hasSales.value = false
             }
             if (hasSales.value) Text(
                 modifier = Modifier.padding(start = 8.dp),
-                text = "The sales id is required",
+                text = stringResource(R.string.the_sales_id_is_required),
                 style = TextStyle(
-                    color = Color.Red, fontSize = 12.sp
+                    color = colorResource(id = R.color.red), fontSize = 12.sp
                 )
             )
-            TextFiledItem("Budget") {
+            TextFiledItem(stringResource(id = R.string.budget), true) {
                 addLead.budget = it
             }
             DynamicSelectTextField(campaigns) { campaigns ->
-                addLead.campaign_id = campaignList.find { it.getTitle() == campaigns }?.id!!
+                addLead.campaign_id = campaignList.find { it.getTitle() == campaigns }?.id
             }
         }
         Button(modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp),
             shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(Blue),
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
                 addLead.is_fresh = true
                 if (addLead.name.isNullOrEmpty()) {
@@ -314,7 +313,7 @@ fun AddLead(
                     hasSales.value = true
                 }
 
-                //  onAddClick(addLead)
+                onAddClick(addLead)
             }) {
             Text(
                 text = stringResource(R.string.add_lead), Modifier.padding(vertical = 8.dp)
@@ -326,11 +325,11 @@ fun AddLead(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TextFiledItem(
-    text: String, onTextChange: (String) -> Unit
+    text: String, click: Boolean, onTextChange: (String) -> Unit
 ) {
 
     var textValue by remember { mutableStateOf("") }
-    //  val (focusRequester) = FocusRequester.createRefs()
+
     val keyboardOptions: KeyboardOptions = when (text) {
         stringResource(id = R.string.mobile) -> {
             KeyboardOptions.Default.copy(
@@ -338,13 +337,19 @@ fun TextFiledItem(
             )
         }
 
-        "Budget" -> {
+        stringResource(id = R.string.budget) -> {
             KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
             )
         }
 
-        "E-mail" -> {
+        stringResource(id = R.string.name) -> {
+            KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+            )
+        }
+
+        stringResource(id = R.string.e_mail) -> {
             KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
             )
@@ -357,10 +362,9 @@ fun TextFiledItem(
         }
     }
 
-    TextField(
+    OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
-            //   .focusRequester(focusRequester)
             .padding(top = 8.dp),
         value = textValue,
         placeholder = {
@@ -373,10 +377,11 @@ fun TextFiledItem(
 
         textStyle = TextStyle(fontSize = 13.sp),
         colors = TextFieldDefaults.textFieldColors(
-            cursorColor = Color.Black,
-            disabledLabelColor = Blue,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
+            cursorColor = colorResource(id = R.color.black),
+            disabledLabelColor = colorResource(id = R.color.transparent),
+            focusedIndicatorColor = colorResource(id = R.color.transparent),
+            unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+            unfocusedLabelColor = colorResource(id = R.color.transparent)
         ),
         onValueChange = {
             textValue = it
@@ -384,6 +389,7 @@ fun TextFiledItem(
         },
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
+        enabled = click
     )
 }
 
@@ -415,10 +421,10 @@ fun DynamicSelectTextField(
             },
             shape = RoundedCornerShape(8.dp),
             colors = ExposedDropdownMenuDefaults.textFieldColors(
-                cursorColor = Color.Black,
-                disabledLabelColor = Color.Blue,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                cursorColor = colorResource(id = R.color.black),
+                disabledLabelColor = colorResource(id = R.color.blue),
+                focusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedIndicatorColor = colorResource(id = R.color.transparent)
             ),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = {
@@ -458,7 +464,7 @@ fun ReminderItem() {
             Text(
                 text = stringResource(R.string.after_two_hour),
                 style = TextStyle(
-                    fontSize = 14.sp, color = Color.Black
+                    fontSize = 14.sp, color = colorResource(id = R.color.black)
                 ),
             )
         }
@@ -487,7 +493,7 @@ fun RadioButtonGroup() {
                     selected = (option == selectedOption),
                     onClick = { selectedOption = option },
                     colors = RadioButtonDefaults.colors(
-                        Blue
+                        colorResource(id = R.color.blue)
                     )
                 )
                 Text(

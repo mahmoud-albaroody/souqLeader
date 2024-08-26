@@ -4,6 +4,7 @@ package com.alef.souqleader.ui.presentation.addlead
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
+import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
@@ -11,6 +12,7 @@ import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.domain.AddLeadUseCase
+import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.domain.model.AddLead
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -21,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddLeadViewModel @Inject constructor(
-    private val addLeadUseCase: AddLeadUseCase
+    private val addLeadUseCase: AddLeadUseCase, private val getLeadUseCase: GetLeadUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _channel =
@@ -61,7 +63,10 @@ class AddLeadViewModel @Inject constructor(
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
     }
-
+    private val _allLead =
+        MutableSharedFlow<ArrayList<AllLeadStatus>>()
+    val allLead: MutableSharedFlow<ArrayList<AllLeadStatus>>
+        get() = _allLead
 
     fun communicationWay() {
         viewModelScope.launch(job) {
@@ -102,6 +107,11 @@ class AddLeadViewModel @Inject constructor(
     fun getProject() {
         viewModelScope.launch(job) {
             _project.emit(addLeadUseCase.project().data!!)
+        }
+    }
+    fun getLeads() {
+        viewModelScope.launch(job) {
+            _allLead.emit(getLeadUseCase.getLeadStatus().data?.data!!)
         }
     }
 

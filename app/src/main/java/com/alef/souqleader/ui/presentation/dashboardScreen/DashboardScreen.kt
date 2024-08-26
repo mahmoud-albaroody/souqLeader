@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -34,22 +35,24 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.domain.model.AccountData
-
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
-import com.alef.souqleader.ui.theme.Blue1
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.Grey1
-import com.alef.souqleader.ui.theme.Grey2
-import com.alef.souqleader.ui.theme.White
+import com.alef.souqleader.ui.theme.*
 
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(navController: NavController,
+                    sharedViewModel: SharedViewModel
+) {
     val viewModel: DashboardViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
     LaunchedEffect(key1 = true) {
+        sharedViewModel.updateSalesNameState(AccountData.role_name)
+        sharedViewModel.updatePhotoState(AccountData.photo)
+        sharedViewModel.updateNameState(AccountData.name)
         viewModel.getLeads()
     }
 
@@ -61,12 +64,10 @@ fun DashboardScreen(navController: NavController) {
     ) {
         items(viewModel.stateListOfLeads) {
             MyCardItem(it) {
-                navController.navigate(Screen.AllLeadsScreen.route)
+                navController.navigate(Screen.
+                AllLeadsScreen.route.
+                plus("/${ it.id}"))
             }
-//                modifier, listOfGym[it]) { gym ->
-////                viewModel.toggleFav(gym)
-//                onclick(gym)
-//            }
         }
     }
 }
@@ -87,13 +88,13 @@ fun MyCardItem(
     val background =
         if (leadStatus.leads_count == "0") {
             Brush.verticalGradient(
-                colors = listOf(Grey1, Grey2),
+                colors = listOf(colorResource(id = R.color.grey1), colorResource(id = R.color.grey2)),
                 startY = 0f,
                 endY = 450f
             )
         } else {
             Brush.verticalGradient(
-                colors = listOf(Blue1, Blue2),
+                colors = listOf(colorResource(id = R.color.blue1), colorResource(id = R.color.blue2)),
                 startY = 0f,
                 endY = 450f
             )
@@ -126,26 +127,26 @@ fun MyCardItem(
                         text = leadStatus.leads_count.toString(),
                         Modifier.padding(bottom = 8.dp),
                         style = TextStyle(
-                            fontSize = 24.sp, color = White, fontWeight = FontWeight.Bold
+                            fontSize = 24.sp, color = colorResource(id = R.color.white), fontWeight = FontWeight.Bold
                         )
                     )
                     Text(
-                        text = leadStatus.getTitle(), style = TextStyle(color = White)
+                        text = leadStatus.getTitle(), style = TextStyle(color = colorResource(id = R.color.white))
                     )
                 }
                 Column(Modifier.padding(16.dp)) {
                     Image(
-                        painter = rememberAsyncImagePainter(AccountData.BASE_URL + leadStatus.icon),
+                        painter = rememberAsyncImagePainter(
+                            AccountData.BASE_URL + leadStatus.icon),
                         contentDescription = "",
                         Modifier.size(20.dp)
                     )
                 }
             }
-            var trackColor = Blue1
-            trackColor = if (leadStatus.leads_count == "0") {
-                Grey1
+            val trackColor = if (leadStatus.leads_count == "0") {
+                colorResource(id = R.color.grey1)
             } else {
-                Blue1
+                colorResource(id = R.color.blue1)
             }
             Row {
                 LinearProgressIndicator(
@@ -156,7 +157,7 @@ fun MyCardItem(
                             horizontal = 16.dp, vertical = 12.dp
                         )
                         .padding(bottom = 11.dp),
-                    color = White,
+                    color = colorResource(id = R.color.white),
                     trackColor = trackColor
 
                 )

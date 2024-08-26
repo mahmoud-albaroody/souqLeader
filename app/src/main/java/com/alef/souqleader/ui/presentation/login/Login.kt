@@ -35,10 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -60,15 +60,14 @@ import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
-import com.alef.souqleader.ui.presentation.meetingReport.MeetingReportViewModel
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.White
 
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier, navController: NavController, sharedViewModel: SharedViewModel
+    modifier: Modifier, navController: NavController,
+    sharedViewModel: SharedViewModel
 ) {
+
     val viewModel: LoginViewModel = hiltViewModel()
     AccountData.auth_token = null
     AccountData.isFirstTime = true
@@ -125,7 +124,7 @@ fun LoginItem(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(White)
+            .background(colorResource(id = R.color.white))
             .verticalScroll(scrollState)
             .padding(vertical = 50.dp, horizontal = 24.dp),
         verticalArrangement = Arrangement.SpaceBetween
@@ -143,7 +142,7 @@ fun LoginItem(
             Text(
                 text = stringResource(R.string.let_s_login),
                 style = TextStyle(
-                    fontSize = 26.sp, color = Blue2, fontWeight = FontWeight.Bold
+                    fontSize = 26.sp, color = colorResource(id = R.color.blue2), fontWeight = FontWeight.Bold
                 ),
             )
             Text(
@@ -162,16 +161,16 @@ fun LoginItem(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.e_mail),
-                        style = TextStyle(color = Color.Gray)
+                        style = TextStyle(color = colorResource(id = R.color.gray))
                     )
                 },
                 colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = Blue2,
-                    disabledLabelColor = Blue2,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent,
-                    errorCursorColor = Color.Transparent
+                    cursorColor = colorResource(id = R.color.blue2),
+                    disabledLabelColor = colorResource(id = R.color.blue2),
+                    focusedIndicatorColor = colorResource(id = R.color.transparent),
+                    unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+                    errorIndicatorColor = colorResource(id = R.color.transparent),
+                    errorCursorColor = colorResource(id = R.color.transparent)
                 ),
                 onValueChange = {
                     email = it
@@ -185,7 +184,9 @@ fun LoginItem(
             )
 
             if (isNotValid) {
-                Text(text = stringResource(R.string.please_enter_valid_text), color = Color.Red)
+                Text(text = stringResource(R.string.please_enter_valid_text),
+                    fontSize = 12.sp,
+                    color = colorResource(id = R.color.red))
             }
             TextField(
 
@@ -215,16 +216,16 @@ fun LoginItem(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.password),
-                        style = TextStyle(color = Color.Gray)
+                        style = TextStyle(color = colorResource(id = R.color.gray))
                     )
                 },
                 colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = Blue2,
-                    disabledLabelColor = Blue2,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent,
-                    errorCursorColor = Color.Transparent
+                    cursorColor = colorResource(id = R.color.blue2),
+                    disabledLabelColor = colorResource(id = R.color.blue2),
+                    focusedIndicatorColor = colorResource(id = R.color.transparent),
+                    unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+                    errorIndicatorColor = colorResource(id = R.color.transparent),
+                    errorCursorColor = colorResource(id = R.color.transparent)
                 ),
                 onValueChange = {
                     password = it
@@ -235,11 +236,13 @@ fun LoginItem(
             )
 
             if (isValidNotPassword) {
-                Text(text = stringResource(R.string.please_enter_valid_text), color = Color.Red)
+                Text(text = stringResource(R.string.please_enter_valid_text),
+                    color = colorResource(id = R.color.red),
+                    fontSize = 12.sp)
             }
             Text(
                 text = stringResource(R.string.forgot_password), style = TextStyle(
-                    fontSize = 15.sp, color = Blue2
+                    fontSize = 15.sp, color = colorResource(id = R.color.blue2)
                 ), modifier = modifier.align(Alignment.End)
             )
         }
@@ -249,7 +252,7 @@ fun LoginItem(
             .padding(vertical = 40.dp)
             .align(Alignment.CenterHorizontally),
             shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(Blue2),
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
             onClick = {
                 if (email.isNotEmpty() && password.isNotEmpty() && !isNotValid) {
                     viewModel.login(email, password)

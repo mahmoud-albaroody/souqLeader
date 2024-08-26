@@ -15,18 +15,18 @@ data class Lead(
     val id: Int,
     val marketer_id: Int,
     val marketer_name: String,
-    val name: String,
+    val name: String?,
     val note: String?,
-    val phone: String,
+    val phone: String?,
     val project_id: Int?,
-    var project_name: String,
-    val sales_id: Int,
-    val sales_name: String,
-    val status: Int,
+    var project_name: String?,
+    val sales_id: Int?,
+    val sales_name: String?,
+    val status: Int?,
     var selected: Boolean,
     val channel: Any,
-    val created_at: String,
-    val is_duplicated: Int,
-    val updated_at: String
+    val created_at: String?,
+    val is_duplicated: Int?,
+    val updated_at: String?
 
 )

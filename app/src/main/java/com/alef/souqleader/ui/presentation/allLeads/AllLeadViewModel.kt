@@ -1,13 +1,16 @@
 package com.alef.souqleader.ui.presentation.allLeads
 
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
+import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.domain.FilterUseCase
 import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.domain.NetworkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AllLeadViewModel @Inject constructor(
-    private val getLeadUseCase: GetLeadUseCase, private val networkManager: NetworkManager
+    private val getLeadUseCase: GetLeadUseCase, private val filterUseCase: FilterUseCase, private val networkManager: NetworkManager
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _stateListOfLeads =
@@ -53,4 +56,10 @@ class AllLeadViewModel @Inject constructor(
     fun updateBaseUrl(newUrl: String) {
         networkManager.changeBaseUrl(newUrl)
     }
+    fun leadsFilter(filterRequest: FilterRequest) {
+        viewModelScope.launch(job) {
+            _stateListOfLeads.emit(filterUseCase.leadsFilter(filterRequest).data?.data!!)
+        }
+    }
+
 }

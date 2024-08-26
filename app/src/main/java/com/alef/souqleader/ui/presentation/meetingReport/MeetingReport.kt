@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -49,9 +50,7 @@ import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.CustomBarChartRender
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.White
+import com.alef.souqleader.ui.theme.*
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -96,12 +95,13 @@ fun MeetingScreen(modifier: Modifier) {
                             Text(
                                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                                 text = stringResource(R.string.meeting_leads),
-                                fontSize = 18.sp, color = Color.Black,
+                                fontSize = 18.sp, color = colorResource(id = R.color.black),
                                 fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
                             )
                             LazyColumn(
                                 modifier = Modifier
-                                    .heightIn(200.dp, 500.dp), content = {
+                                    .heightIn(200.dp, 500.dp),
+                                content = {
                                     items(it.leads) { lead ->
                                         MeetingLeads(lead)
                                     }
@@ -121,7 +121,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
+            .background(colorResource(id = R.color.white))
             .padding(vertical = 8.dp, horizontal = 16.dp),
 //            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -150,13 +150,13 @@ fun MeetingItem(meetingReport: MeetingReport) {
                         modifier = Modifier
                             .size(50.dp)
                             .clip(CircleShape)
-                            .border(2.dp, Color.LightGray, CircleShape)
+                            .border(2.dp, colorResource(id = R.color.lightGray), CircleShape)
                     )
                     Text(
                         modifier = Modifier.padding(top = 24.dp),
                         text = meetingReport.the_best.user_name,
                         style = TextStyle(
-                            fontSize = 16.sp, color = Blue
+                            fontSize = 16.sp, color = colorResource(id = R.color.blue)
                         ),
                     )
                     Row(
@@ -188,7 +188,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                     Text(
                         text = meetingReport.the_best.meetings_count,
                         style = TextStyle(
-                            fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
+                            fontSize = 20.sp, color = colorResource(id = R.color.blue), fontWeight = FontWeight.Bold
                         ),
                     )
                     Text(
@@ -294,7 +294,7 @@ fun MyBarChart(chart: List<Chart>, title: String) {
             .padding(top = 16.dp)
             .fillMaxWidth(),
         style = TextStyle(
-            fontSize = 18.sp, color = Color.Black,
+            fontSize = 18.sp, color = colorResource(id = R.color.black),
             fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
         )
     )
@@ -399,7 +399,7 @@ fun PieChart(meetingReport: MeetingReport, title: String) {
             Text(
                 text = title,
                 modifier = Modifier.padding(top = 16.dp),
-                fontSize = 18.sp, color = Color.Black,
+                fontSize = 18.sp, color = colorResource(id = R.color.black),
                 fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
             )
 
@@ -581,10 +581,10 @@ fun MeetingLeads(lead: Lead) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = lead.name, style = TextStyle(), modifier = Modifier.weight(1f))
+            Text(text = lead.name?:"", style = TextStyle(), modifier = Modifier.weight(1f))
             Text(
-                text = lead.phone,
-                style = TextStyle(color = Blue2),
+                text = lead.phone?:"",
+                style = TextStyle(color = colorResource(id = R.color.blue2)),
                 modifier = Modifier.weight(1f)
             )
             Row(
@@ -604,11 +604,11 @@ fun MeetingLeads(lead: Lead) {
                     contentScale = ContentScale.Fit
                 )
             }
-            if (lead.project_name.isEmpty()) {
+            if (lead.project_name?.isEmpty() == true) {
                 lead.project_name = "Un Specified"
             }
             Text(
-                text = lead.project_name,
+                text = lead.project_name?:"",
                 style = TextStyle(textAlign = TextAlign.End),
                 modifier = Modifier.weight(1f)
             )
@@ -617,7 +617,7 @@ fun MeetingLeads(lead: Lead) {
             modifier = Modifier
                 .height(1.dp)
                 .fillMaxWidth()  // Set the thickness of the vertical line
-                .background(Blue2)
+                .background(colorResource(id = R.color.blue2))
                 .padding(top = 16.dp) // Set the color of the vertical line
         )
     }

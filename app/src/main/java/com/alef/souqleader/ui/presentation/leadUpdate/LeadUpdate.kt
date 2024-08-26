@@ -45,9 +45,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -62,9 +62,7 @@ import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.CancelationReason
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Grey
-import com.alef.souqleader.ui.theme.White
+import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
@@ -119,10 +117,10 @@ fun LeadUpdateScreen(
                 cancelationReason.find { it.getTitle() == cancelationTitle }?.id.toString()
             var date: String? = selectedDate
             var leadNote: String? = note
-            if (status == "0"||status=="null") {
+            if (status == "0" || status == "null") {
                 status = null
             }
-            if (selectedDate=="Date / Time") {
+            if (selectedDate == "Date / Time") {
                 date = null
             }
             if (cancelReason.isNullOrEmpty()) {
@@ -167,7 +165,7 @@ fun LeadUpdate(
     Column(
         Modifier
             .fillMaxSize()
-            .background(White)
+            .background(colorResource(id = R.color.white))
             .verticalScroll(rememberScrollState())
             .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
@@ -193,10 +191,10 @@ fun LeadUpdate(
             },
 
             colors = TextFieldDefaults.textFieldColors(
-                cursorColor = Color.Black,
-                disabledLabelColor = Blue,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                cursorColor = colorResource(id = R.color.black),
+                disabledLabelColor = colorResource(id = R.color.blue),
+                focusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedIndicatorColor = colorResource(id = R.color.transparent)
             ),
             onValueChange = {
                 note = it
@@ -235,7 +233,7 @@ fun LeadUpdate(
         }
 
         Text(
-            text = "Cancellation Reason", modifier =
+            text = stringResource(R.string.cancellation_reason), modifier =
             Modifier.padding(top = 16.dp, bottom = 8.dp),
             style = TextStyle(fontSize = 14.sp)
         )
@@ -243,46 +241,16 @@ fun LeadUpdate(
             RadioButtonGroup(cancelationTitleReason, onCancelationResionSelect = {
                 cancelationTitle = it
             })
-//        TextField(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(vertical = 8.dp),
-//            value = "",
-//            placeholder = {
-//                Text(
-//                    text = "Write another reason", style = TextStyle(
-//                        color = Grey
-//                    )
-//                )
-//            },
-//            colors = TextFieldDefaults.textFieldColors(
-//                cursorColor = Color.Black,
-//                disabledLabelColor = Blue,
-//                focusedIndicatorColor = Color.Transparent,
-//                unfocusedIndicatorColor = Color.Transparent
-//            ),
-//            onValueChange = {
-//
-//            },
-//            shape = RoundedCornerShape(8.dp),
-//            singleLine = true,
-//        )
 
-
-//        LazyRow(content = {
-//            items(5) {
-//                ReminderItem()
-//            }
-//        })
 
         Button(modifier = Modifier
             .fillMaxWidth(),
             shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(Blue),
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
                 onUpdateClick(leadSelected, note, cancelationTitle, selectedDate)
             }) {
-            Text(text = "UPDATE", Modifier.padding(vertical = 8.dp))
+            Text(text = stringResource(R.string.update), Modifier.padding(vertical = 8.dp))
         }
     }
     if (showDatePicker)
@@ -334,10 +302,10 @@ fun DynamicSelectTextField(
             },
             shape = RoundedCornerShape(8.dp),
             colors = ExposedDropdownMenuDefaults.textFieldColors(
-                cursorColor = Color.Black,
-                disabledLabelColor = Color.Blue,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                cursorColor = colorResource(id = R.color.black),
+                disabledLabelColor = colorResource(id = R.color.blue),
+                focusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedIndicatorColor = colorResource(id = R.color.transparent)
             ),
         )
         ExposedDropdownMenu(
@@ -382,9 +350,9 @@ fun ReminderItem() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "After Two Hour",
+                text = stringResource(id = R.string.after_two_hour),
                 style = TextStyle(
-                    fontSize = 14.sp, color = Color.Black
+                    fontSize = 14.sp, color = colorResource(id = R.color.black)
                 ),
             )
         }
@@ -412,7 +380,7 @@ fun RadioButtonGroup(
                         onCancelationResionSelect(selectedOption)
                     },
                     colors = RadioButtonDefaults.colors(
-                        Blue
+                        colorResource(id = R.color.blue)
                     )
                 )
                 Text(

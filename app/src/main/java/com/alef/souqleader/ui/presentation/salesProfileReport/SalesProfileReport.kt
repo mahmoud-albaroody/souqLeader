@@ -29,10 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -50,11 +50,9 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.SalesProfileReport
 import com.alef.souqleader.data.remote.dto.StatusCounter
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.constants.Constants
-import com.alef.souqleader.ui.presentation.meetingReport.MeetingLeads
+
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.White
+
 import kotlin.system.exitProcess
 
 @Composable
@@ -90,7 +88,7 @@ fun SalesProfileReportItem(
         item {
             Column(
                 modifier = Modifier
-                    .background(White)
+                    .background(colorResource(id = R.color.white))
                     .fillMaxSize()
                     .padding(vertical = 16.dp, horizontal = 24.dp)
             ) {
@@ -120,13 +118,17 @@ fun SalesProfileReportItem(
                                 modifier = Modifier
                                     .size(50.dp)
                                     .clip(CircleShape)
-                                    .border(2.dp, Color.LightGray, CircleShape)
+                                    .border(
+                                        2.dp,
+                                        colorResource(id = R.color.lightGray),
+                                        CircleShape
+                                    )
                             )
                             Text(
                                 modifier = Modifier.padding(top = 16.dp),
-                                text = salesProfileReport.user.name,
+                                text = salesProfileReport.user.name ?: "",
                                 style = TextStyle(
-                                    fontSize = 16.sp, color = Blue
+                                    fontSize = 16.sp, color = colorResource(id = R.color.blue)
                                 ),
                             )
                             Row(
@@ -135,7 +137,7 @@ fun SalesProfileReportItem(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = salesProfileReport.user.role,
+                                    text = salesProfileReport.user.role ?: "",
                                     style = TextStyle(
                                         fontSize = 13.sp, fontWeight = FontWeight.SemiBold
                                     ),
@@ -158,12 +160,14 @@ fun SalesProfileReportItem(
                             Text(
                                 text = salesProfileReport.total_calls ?: "",
                                 style = TextStyle(
-                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
+                                    fontSize = 20.sp,
+                                    color = colorResource(id = R.color.blue),
+                                    fontWeight = FontWeight.Bold
                                 ),
                             )
                             Text(
                                 modifier = Modifier.padding(top = 4.dp),
-                                text = "Total of Calls",
+                                text = stringResource(id = R.string.total_of_calls),
                                 style = TextStyle(
                                     fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                                 ),
@@ -177,7 +181,7 @@ fun SalesProfileReportItem(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
-                                        text = "Answer",
+                                        text = stringResource(id = R.string.answer),
                                         style = TextStyle(
                                             fontSize = 13.sp
                                         ),
@@ -195,7 +199,7 @@ fun SalesProfileReportItem(
 
                                     ) {
                                     Text(
-                                        text = "No Answer",
+                                        text = stringResource(id = R.string.no_answer),
                                         style = TextStyle(
                                             fontSize = 13.sp
                                         ),
@@ -230,7 +234,9 @@ fun SalesProfileReportItem(
                         ) {
                             Text(
                                 text = salesProfileReport.arrange_meeting ?: "", style = TextStyle(
-                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
+                                    fontSize = 20.sp,
+                                    color = colorResource(id = R.color.blue),
+                                    fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -253,7 +259,9 @@ fun SalesProfileReportItem(
                         ) {
                             Text(
                                 text = salesProfileReport.done_meeting ?: "", style = TextStyle(
-                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
+                                    fontSize = 20.sp,
+                                    color = colorResource(id = R.color.blue),
+                                    fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -281,7 +289,9 @@ fun SalesProfileReportItem(
                             Text(
                                 text = salesProfileReport.created_today_lead ?: "",
                                 style = TextStyle(
-                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
+                                    fontSize = 20.sp,
+                                    color = colorResource(id = R.color.blue),
+                                    fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -304,7 +314,9 @@ fun SalesProfileReportItem(
                         ) {
                             Text(
                                 text = salesProfileReport.avg_response + "%", style = TextStyle(
-                                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
+                                    fontSize = 20.sp,
+                                    color = colorResource(id = R.color.blue),
+                                    fontWeight = FontWeight.Bold
                                 )
                             )
                             Text(
@@ -328,7 +340,10 @@ fun SalesProfileReportItem(
                                 .padding(top = 16.dp),
                             style = TextStyle(fontWeight = FontWeight.SemiBold)
                         )
-                        MyBarChart(salesProfileReport.action_chart,stringResource(R.string.sales_profile_report))
+                        MyBarChart(
+                            salesProfileReport.action_chart,
+                            stringResource(R.string.sales_profile_report)
+                        )
                     }
                 }
 
@@ -356,8 +371,9 @@ fun SalesProfileReportItem(
                         )
                     )
                     Column(
-                        modifier = Modifier.fillMaxWidth()
-                        .height(stageHeight.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(stageHeight.dp)
                     ) {
 //                        for (statusCounters in 0 until size) {
 //                            StagesPerLead(salesProfileReport.status_counters[statusCounters])
@@ -383,7 +399,10 @@ fun SalesProfileReportItem(
 //                                }
 
                             },
-                        style = TextStyle(fontWeight = FontWeight.SemiBold, color = Blue)
+                        style = TextStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            color = colorResource(id = R.color.blue)
+                        )
                     )
                 }
             }
@@ -400,7 +419,7 @@ fun VerticalDivider() {
         modifier = Modifier
             .height(55.dp)
             .width(1.dp)  // Set the thickness of the vertical line
-            .background(Color.LightGray)  // Set the color of the vertical line
+            .background(colorResource(id = R.color.lightGray))  // Set the color of the vertical line
     )
 }
 
@@ -410,7 +429,7 @@ fun HorizontalDivider() {
         modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)  // Set the thickness of the vertical line
-            .background(Color.LightGray)  // Set the color of the vertical line
+            .background(colorResource(id = R.color.lightGray))  // Set the color of the vertical line
     )
 }
 
@@ -419,9 +438,10 @@ fun StagesPerLead(statusCounters: StatusCounter) {
 
     Column {
         Row(
-            Modifier.onGloballyPositioned {
-            //    size
-            }
+            Modifier
+                .onGloballyPositioned {
+                    //    size
+                }
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp)
                 .padding(vertical = 12.dp),
@@ -457,7 +477,10 @@ fun StagesPerLead(statusCounters: StatusCounter) {
             }
             Text(
                 text = statusCounters.actions_count,
-                style = TextStyle(color = Blue, fontWeight = FontWeight.SemiBold)
+                style = TextStyle(
+                    color = colorResource(id = R.color.blue),
+                    fontWeight = FontWeight.SemiBold
+                )
             )
 
         }

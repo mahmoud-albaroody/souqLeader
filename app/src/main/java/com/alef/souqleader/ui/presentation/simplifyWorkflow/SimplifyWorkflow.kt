@@ -31,10 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -49,13 +49,7 @@ import com.alef.souqleader.R
 import com.alef.souqleader.domain.model.AccountData
 
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.Grey
-import com.alef.souqleader.ui.theme.Grey1
-import com.alef.souqleader.ui.theme.Grey2
-import com.alef.souqleader.ui.theme.White
-import dagger.hilt.android.lifecycle.HiltViewModel
+
 
 
 @Composable
@@ -106,7 +100,7 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
+            .background(colorResource(id = R.color.white))
             .verticalScroll(rememberScrollState()),
 
         ) {
@@ -139,7 +133,9 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
             text = cs,
             minLines = 2,
             style = TextStyle(
-                fontSize = 25.sp, color = Blue, fontWeight = FontWeight.Bold
+                fontSize = 25.sp,
+                color = colorResource(id = R.color.blue),
+                fontWeight = FontWeight.Bold
             ),
             modifier = Modifier
                 .padding(horizontal = 40.dp)
@@ -184,15 +180,18 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                             Text(
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp),
-                                text = "Company Name",
-                                style = TextStyle(textAlign = TextAlign.End, color = Grey)
+                                text = stringResource(id = R.string.company_name),
+                                style = TextStyle(
+                                    textAlign = TextAlign.End,
+                                    color = colorResource(id = R.color.gray)
+                                )
                             )
                         },
                         colors = TextFieldDefaults.textFieldColors(
-                            cursorColor = Color.Black,
-                            disabledLabelColor = Blue,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
+                            cursorColor = colorResource(id = R.color.black),
+                            disabledLabelColor = colorResource(id = R.color.blue),
+                            focusedIndicatorColor = colorResource(id = R.color.transparent),
+                            unfocusedIndicatorColor = colorResource(id = R.color.transparent)
                         ),
                         onValueChange = {
                             isValidCompanyName = true
@@ -206,7 +205,7 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 24.dp),
-                        text = ".SouqLeader.com",
+                        text = stringResource(id = R.string.souqleader_com),
                         style = TextStyle(textAlign = TextAlign.End)
                     )
                 }
@@ -217,8 +216,8 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 text = stringResource(R.string.please_enter_valid_text),
-                color = Color.Red,
-                fontSize = 13.sp
+                color = colorResource(id = R.color.red),
+                fontSize = 12.sp
             )
         }
         Button(
@@ -227,7 +226,7 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                 .padding(horizontal = 24.dp)
                 .padding(top = 40.dp, bottom = 16.dp),
             shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(Blue),
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
                 when (stat) {
                     0 -> {
@@ -265,12 +264,17 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
             ) {
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = colorResource(id = R.color.gray)
+                    ),
                     text = stringResource(R.string.don_t_have_an_access),
-                    color = Grey
                 )
                 Text(
-                    text = stringResource(R.string.contact_us), style = TextStyle(
-                        color = Blue2
+                    text = stringResource(R.string.contact_us),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = colorResource(id = R.color.blue2)
                     )
                 )
             }
@@ -293,7 +297,7 @@ fun SimplifyItemP() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(White),
+            .background(colorResource(id = R.color.white)),
 
         ) {
         if (stat == 1) {
@@ -324,7 +328,7 @@ fun SimplifyItemP() {
             text = cs,
             minLines = 2,
             style = TextStyle(
-                fontSize = 25.sp, color = Blue, fontWeight = FontWeight.Bold
+                fontSize = 25.sp, color = colorResource(id = R.color.blue), fontWeight = FontWeight.Bold
             ),
             modifier = Modifier
                 .padding(horizontal = 40.dp)
@@ -367,17 +371,17 @@ fun SimplifyItemP() {
                         value = companyName,
                         placeholder = {
                             Text(
-                                modifier = Modifier
-                                    .padding(horizontal = 8.dp),
-                                text = "Company Name",
-                                style = TextStyle(textAlign = TextAlign.End, color = Grey)
+                                modifier = Modifier,
+                                fontSize = 12.sp,
+                                text = stringResource(R.string.company_name),
+                                style = TextStyle(textAlign = TextAlign.End, color = colorResource(id = R.color.gray))
                             )
                         },
                         colors = TextFieldDefaults.textFieldColors(
-                            cursorColor = Color.Black,
-                            disabledLabelColor = Blue,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
+                            cursorColor = colorResource(id = R.color.black),
+                            disabledLabelColor = colorResource(id = R.color.blue),
+                            focusedIndicatorColor = colorResource(id = R.color.transparent),
+                            unfocusedIndicatorColor = colorResource(id = R.color.transparent)
                         ),
                         onValueChange = {
                             companyName = it
@@ -390,7 +394,8 @@ fun SimplifyItemP() {
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 24.dp),
-                        text = ".SouqLeader.com",
+                        fontSize = 12.sp,
+                        text = stringResource(R.string.souqleader_com),
                         style = TextStyle(textAlign = TextAlign.End)
                     )
                 }
@@ -403,7 +408,7 @@ fun SimplifyItemP() {
                 .padding(horizontal = 24.dp)
                 .padding(top = 40.dp, bottom = 16.dp),
             shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(Blue),
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
                 when (stat) {
                     0 -> {
@@ -436,12 +441,17 @@ fun SimplifyItemP() {
             ) {
                 Text(
                     modifier = Modifier.padding(end = 8.dp),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = colorResource(id = R.color.gray)
+                    ),
                     text = stringResource(R.string.don_t_have_an_access),
-                    color = Grey
                 )
                 Text(
-                    text = stringResource(R.string.contact_us), style = TextStyle(
-                        color = Blue2
+                    text = stringResource(R.string.contact_us),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = colorResource(id = R.color.blue2)
                     )
                 )
             }

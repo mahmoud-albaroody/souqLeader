@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.filterResult
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,7 +26,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -50,22 +49,20 @@ import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.Grey
+import com.alef.souqleader.ui.presentation.allLeads.AllLeadViewModel
+import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 
 @Composable
-fun AllLeadsScreen(
-    navController: NavController, modifier: Modifier, leadId: String?, obj: JSONObject?
+fun FilterResultScreen(
+    navController: NavController, modifier: Modifier, obj: JSONObject?
 ) {
 
     val viewModel: AllLeadViewModel = hiltViewModel()
-    viewModel.updateBaseUrl(AccountData.BASE_URL)
+    //   viewModel.updateBaseUrl(AccountData.BASE_URL)
     val leadList by remember { mutableStateOf(ArrayList<Lead>()) }
-    var cc by remember { mutableStateOf(true) }
     var name: String? = null
     var status: String? = null
     var channel: String? = null
@@ -95,68 +92,46 @@ fun AllLeadsScreen(
 
     }
     LaunchedEffect(key1 = true) {
-        if (leadId != null) {
-            when (leadId) {
-                "100" -> {
-                    viewModel.delayLeads()
-                }
-
-                "200" -> {
-                    viewModel.duplicated()
-                }
-
-                else -> {
-                    leadId.let { viewModel.getLeadByStatus(it) }
-                }
-            }
-        } else {
-            viewModel.leadsFilter(
-                FilterRequest(
-                    name = name, status = status,
-                    project = project, communication_way = communicationWay,
-                    channel = channel, budget = budget
-                )
+        viewModel.leadsFilter(
+            FilterRequest(
+                name = name, status = status,
+                project = project, communication_way = communicationWay,
+                channel = channel, budget = budget
             )
-        }
+        )
 
-//        viewModel.viewModelScope.launch {
-//            viewModel.stateListOfLeads.collect {
-//                Log.e("mmm",it.toString())
-//                cc=false
-//                Log.e("ddddssdddd",cc.toString())
-//                leadList.addAll(it)
-//
-//            }
-//        }
-//    }
+
+        viewModel.viewModelScope.launch {
+            viewModel.stateListOfLeads.collect {
+                leadList.clear()
+                leadList.addAll(it)
+            }
+        }
     }
-    Screen(navController, leadList,cc)
+    Screen(navController, leadList)
 
 }
 
 
 @Composable
- fun Screen(navController: NavController, stateListOfLeads: List<Lead>,cc:Boolean) {
+fun Screen(navController: NavController, stateListOfLeads: List<Lead>) {
     var selectedId by remember { mutableStateOf("") }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    Log.e("ddddssdddd",cc.toString())
+
     Box(
         Modifier
-            .background(Color.White)
+            .background(colorResource(id = R.color.white))
             .padding(horizontal = 24.dp, vertical = 16.dp)
             .fillMaxSize()
     ) {
         Column(Modifier.height(screenHeight)) {
-            Search(stringResource(R.string.search)) {
-                navController.navigate(Screen.FilterScreen.route)
-            }
+
 
             LazyColumn(
                 Modifier.fillMaxWidth()
             ) {
                 items(stateListOfLeads) {
-                    Log.e("ddddssdd",cc.toString())
                     AllLeadsItem(it) { lead ->
                         stateListOfLeads.forEach {
                             it.selected = false
@@ -172,7 +147,7 @@ fun AllLeadsScreen(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(15.dp),
-                colors = ButtonDefaults.buttonColors(Blue2),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
                 onClick = {
                     navController.navigate(Screen.LeadUpdateScreen.route.plus("/${selectedId}"))
                 }) {
@@ -241,12 +216,12 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                             .padding(top = 6.dp)
                     ) {
                         Text(
-                            text = lead.name, style = TextStyle(
-                                fontSize = 16.sp, color = Blue
+                            text = lead.name ?: "", style = TextStyle(
+                                fontSize = 16.sp, color = colorResource(id = R.color.blue)
                             )
                         )
                         Text(
-                            text = lead.phone, style = TextStyle(
+                            text = lead.phone ?: "", style = TextStyle(
                                 fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                             )
                         )
@@ -268,7 +243,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = lead.sales_name, style = TextStyle(
+                                text = lead.sales_name ?: "", style = TextStyle(
                                     fontSize = 14.sp,
                                 ), modifier = Modifier.padding(start = 4.dp)
                             )
@@ -292,7 +267,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = it, style = TextStyle(
+                                text = it ?: "", style = TextStyle(
                                     fontSize = 14.sp,
                                 ), modifier = Modifier.padding(start = 4.dp)
                             )
@@ -330,7 +305,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                     lead.note?.let {
                         Text(
                             text = it, style = TextStyle(
-                                fontSize = 11.sp, color = Grey
+                                fontSize = 11.sp, color = colorResource(id = R.color.gray)
                             ), modifier = Modifier.padding(start = 4.dp)
                         )
                     }
@@ -396,10 +371,10 @@ fun Search(text: String, onFilterClick: () -> Unit) {
                     Text(text = text)
                 },
                 colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = Color.Black,
-                    disabledLabelColor = Blue,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    cursorColor = colorResource(id = R.color.black),
+                    disabledLabelColor = colorResource(id = R.color.blue),
+                    focusedIndicatorColor = colorResource(id = R.color.transparent),
+                    unfocusedIndicatorColor = colorResource(id = R.color.transparent)
                 ),
                 onValueChange = {
 

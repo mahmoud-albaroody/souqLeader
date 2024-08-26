@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -39,8 +40,7 @@ import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.salesProfileReport.VerticalDivider
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
+import com.alef.souqleader.ui.theme.*
 import com.google.gson.Gson
 
 @Composable
@@ -74,7 +74,10 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier) {
 @Preview
 @Composable
 fun Filter() {
-    Card(Modifier.padding(top = 16.dp).padding(horizontal = 16.dp)) {
+    Card(
+        Modifier
+            .padding(top = 16.dp)
+            .padding(horizontal = 16.dp)) {
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -98,11 +101,11 @@ fun Filter() {
                         }
                 )
                 Text(
-                    text = "Filter",
+                    text = stringResource(id = R.string.filter),
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Blue2
+                        color = colorResource(id = R.color.blue2)
                     )
                 )
             }
@@ -125,11 +128,11 @@ fun Filter() {
                         }
                 )
                 Text(
-                    text = "Sort by",
+                    text = stringResource(R.string.sort_by),
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Blue2
+                        color = colorResource(id = R.color.blue2)
                     )
                 )
             }
@@ -150,11 +153,11 @@ fun Filter() {
                         }
                 )
                 Text(
-                    text = "Map",
+                    text = stringResource(R.string.map),
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Blue2
+                        color = colorResource(id = R.color.blue2)
                     )
                 )
             }
@@ -218,7 +221,7 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
                         Text(
                             text = it,
                             style = TextStyle(
-                                color = Blue,
+                                color = colorResource(id = R.color.blue),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )

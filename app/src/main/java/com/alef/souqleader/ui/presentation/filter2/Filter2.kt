@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,10 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Grey
-import com.alef.souqleader.ui.theme.LightGrey
-import com.alef.souqleader.ui.theme.White
+import com.alef.souqleader.ui.theme.*
 
 
 @Composable
@@ -66,7 +64,7 @@ fun Filter2() {
     Box(
         Modifier
             .fillMaxSize()
-            .background(White)
+            .background(colorResource(id = R.color.white))
             .padding(horizontal = 24.dp)
     ) {
 
@@ -100,7 +98,7 @@ fun Filter2() {
                 .weight(2f)
                 .fillMaxWidth(),
                 shape = RoundedCornerShape(15.dp),
-                colors = ButtonDefaults.buttonColors(Blue),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
                 onClick = { /*TODO*/ }) {
                 Text(
                     text = stringResource(R.string.show),
@@ -120,7 +118,7 @@ private fun Budget() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(Modifier.weight(2f)) {
-            TextFiledItem("0"){
+            TextFiledItem("0",true){
 
             }
         }
@@ -135,7 +133,7 @@ private fun Budget() {
             )
         }
         Box(Modifier.weight(2f)) {
-            TextFiledItem(stringResource(R.string.any)){
+            TextFiledItem(stringResource(R.string.any),true){
 
             }
         }
@@ -173,8 +171,8 @@ fun DynamicSelectTextField(
             },
             shape = RoundedCornerShape(8.dp),
             colors = ExposedDropdownMenuDefaults.textFieldColors(
-                cursorColor = Color.Black,
-                disabledLabelColor = Color.Blue,
+                cursorColor = colorResource(id = R.color.black),
+                disabledLabelColor =colorResource(id = R.color.blue),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -207,7 +205,7 @@ fun FilterChoose() {
             modifier = Modifier
                 .height(1.dp)
                 .fillMaxWidth() // Set the thickness of the vertical line
-                .background(Color.LightGray)  // Set the color of the vertical line
+                .background(colorResource(id = R.color.lightGray))  // Set the color of the vertical line
         )
         Text(
             text = stringResource(R.string.budget), Modifier.padding(top = 10.dp),
@@ -233,8 +231,8 @@ fun BudgetItem() {
             .fillMaxWidth()
             .padding(end = 8.dp),
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, Grey),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        border = BorderStroke(1.dp, colorResource(id = R.color.gray)),
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.transparent))
     ) {
         Row(
             Modifier
@@ -246,7 +244,7 @@ fun BudgetItem() {
             Text(
                 text = stringResource(R.string.dev_one),
                 style = TextStyle(
-                    fontSize = 14.sp, color = Color.Black
+                    fontSize = 14.sp, color = colorResource(id = R.color.black)
                 ),
             )
         }
@@ -268,10 +266,10 @@ fun RangeSliderExample() {
                 // viewModel.updateSelectedSliderValue(sliderPosition)
             },
             colors = SliderDefaults.colors(
-                thumbColor = Blue,
-                activeTrackColor = Blue,
-                activeTickColor = Blue, inactiveTickColor = LightGrey,
-                inactiveTrackColor = LightGrey
+                thumbColor = colorResource(id = R.color.blue),
+                activeTrackColor = colorResource(id = R.color.blue),
+                activeTickColor = colorResource(id = R.color.blue), inactiveTickColor = colorResource(id = R.color.lightGray),
+                inactiveTrackColor = colorResource(id = R.color.lightGray)
             )
         )
 //        Text(text = sliderPosition.toString())

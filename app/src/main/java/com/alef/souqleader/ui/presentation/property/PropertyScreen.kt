@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.Property
 import com.alef.souqleader.domain.model.AccountData
@@ -36,7 +38,7 @@ import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.projects.Filter
-import com.alef.souqleader.ui.theme.Blue
+
 
 @Composable
 fun PropertyScreen(navController: NavController, modifier: Modifier) {
@@ -120,7 +122,7 @@ fun PropertyItem(property: Property, onProjectClick: (Property) -> Unit) {
                             Text(
                                 text = it1,
                                 style = TextStyle(
-                                    color = Blue,
+                                    color = colorResource(id = R.color.blue),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )

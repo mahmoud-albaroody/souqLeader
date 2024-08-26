@@ -1,23 +1,27 @@
 package com.alef.souqleader.data.remote.dto
 
+import com.alef.souqleader.data.Role
+import com.google.gson.annotations.SerializedName
+
 data class User(
-    val image: String?=null,
-    val role: String,
-    val created_at: String,
-    val deactivate: Int,
-    val deleted_at: Any,
-    val email: String,
-    val email_verified_at: Any,
-    val gender: String,
-    val id: Int,
-    val is_online: Int,
-    val lang: String,
-    val name: String,
-    val phone: String,
-    val photo: String,
-    val reports_to: Int,
-    val reset_code: Any,
-    val reset_date: Any,
-    val role_id: Int,
-    val updated_at: String
-)
+    val image: String? = null,
+    val role: String? = null,
+    val created_at: String? = null,
+    val deactivate: Int? = null,
+    val deleted_at: Any? = null,
+    val email: String? = null,
+    val email_verified_at: Any? = null,
+    val gender: String? = null,
+    val id: Int? = null,
+    val is_online: Int? = null,
+    val lang: String? = null,
+    val name: String? = null,
+    val phone: String? = null,
+    val photo: String? = null,
+    val reports_to: Int? = null,
+    val reset_code: Any? = null,
+    val reset_date: Any? = null,
+    val role_id: Int? = null,
+    val updated_at: String? = null,
+
+    )

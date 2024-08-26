@@ -16,7 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,9 +29,6 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.data.remote.dto.ProjectChart
 import com.alef.souqleader.ui.presentation.meetingReport.PieChart
-import com.alef.souqleader.ui.theme.Grey1
-import com.alef.souqleader.ui.theme.Grey100
-import com.alef.souqleader.ui.theme.OffWhite
 
 
 @Composable
@@ -54,7 +51,7 @@ fun ProjectReport(navController: NavController, modifier: Modifier) {
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Grey100)
+                        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.grey100))
                     ) {
                         PieChart(
                             it,
@@ -68,7 +65,7 @@ fun ProjectReport(navController: NavController, modifier: Modifier) {
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .padding(top = 16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Grey1)
+                        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.grey1))
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -79,12 +76,12 @@ fun ProjectReport(navController: NavController, modifier: Modifier) {
                             Text(
                                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                                 text = stringResource(id = R.string.projects),
-                                fontSize = 13.sp, color = Color.Black, textAlign = TextAlign.Center
+                                fontSize = 13.sp, color = colorResource(id = R.color.black), textAlign = TextAlign.Center
                             )
                             Text(
                                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
                                 text = stringResource(id = R.string.leads),
-                                fontSize = 12.sp, color = Color.Black,
+                                fontSize = 12.sp, color = colorResource(id = R.color.black),
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -99,7 +96,7 @@ fun ProjectReport(navController: NavController, modifier: Modifier) {
                                 vertical = 4.dp
                             ),
                         shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = OffWhite)
+                        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.offWhite))
                     ) {
                         ProjectLead(lead)
                     }
@@ -119,12 +116,12 @@ fun ProjectLead(projectChart: ProjectChart) {
         Text(
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
             text = projectChart.title,
-            fontSize = 13.sp, color = Color.Black, textAlign = TextAlign.Center
+            fontSize = 13.sp, color = colorResource(id = R.color.black), textAlign = TextAlign.Center
         )
         Text(
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
             text = projectChart.leads ?: "",
-            fontSize = 12.sp, color = Color.Black,
+            fontSize = 12.sp, color = colorResource(id = R.color.black),
             textAlign = TextAlign.Center
         )
     }
@@ -139,7 +136,7 @@ fun ProjectTotals(projectsReport: MeetingReport) {
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
             .height(140.dp),
-        colors = CardDefaults.cardColors(containerColor = Grey100)
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.grey100))
     ) {
         Column(
             Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
@@ -161,7 +158,7 @@ fun ProjectTotals(projectsReport: MeetingReport) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "All Projects",
+                        text = stringResource(R.string.all_projects),
                         style = TextStyle(
                             fontSize = 13.sp
                         ),
@@ -180,7 +177,7 @@ fun ProjectTotals(projectsReport: MeetingReport) {
 
                     ) {
                     Text(
-                        text = "Leads",
+                        text = stringResource(id = R.string.leads),
                         style = TextStyle(
                             fontSize = 13.sp
                         ),

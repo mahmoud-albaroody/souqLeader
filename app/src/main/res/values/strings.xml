@@ -96,4 +96,36 @@
     <string name="project">Project</string>
     <string name="total_of_cancellation">Total of Cancellation</string>
     <string name="channel_report">Channel Report</string>
+    <string name="delay_report">Delay Report</string>
+    <string name="select_a_status_to_view_the_delay_actions">Select a status to view the delay actions</string>
+    <string name="filter_result">Filter Result</string>
+    <string name="filter">Filter</string>
+    <string name="communication_way">Communication Way</string>
+    <string name="marketer">Marketer</string>
+    <string name="sales_rep">Sales Rep</string>
+    <string name="campaign_id">Campaign ID</string>
+    <string name="the_name_is_required">The name is required</string>
+    <string name="the_phone_is_required">The phone is required</string>
+    <string name="the_channel_is_required">The channel is required</string>
+    <string name="cancel_reason">Cancel Reason</string>
+    <string name="the_marketer_id_is_required">The marketer id is required</string>
+    <string name="note">Note</string>
+    <string name="the_sales_id_is_required">The sales id is required</string>
+    <string name="select_image">Select image</string>
+    <string name="write_your_post">Write your post</string>
+    <string name="sort_by">Sort by</string>
+    <string name="map">Map</string>
+    <string name="all_projects">All Projects</string>
+    <string name="language">Language</string>
+    <string name="change_password">Change Password</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="project_report">Project Report</string>
+    <string name="cancellation_reason">Cancellation Reason</string>
+    <string name="update">UPDATE</string>
+    <string name="status">Status</string>
+    <string name="cancellation_leads">Cancellation Leads</string>
+    <string name="souqleader_com">.SouqLeader.com</string>
+    <string name="company_name">Company Name</string>
+    <string name="users">Users</string>
+
 </resources>

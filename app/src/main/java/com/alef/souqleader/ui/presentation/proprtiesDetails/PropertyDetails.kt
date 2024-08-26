@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -30,9 +31,6 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.Property
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.constants.Constants
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.White
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
@@ -48,7 +46,7 @@ fun PropertyDetailsScreen(navController: NavController, modifier: Modifier, prop
 fun Item(property: Property?) {
     Column(
         Modifier
-            .background(White)
+            .background(colorResource(id = R.color.white))
             .fillMaxSize()
     ) {
 
@@ -81,7 +79,7 @@ fun DetailsItem(property: Property) {
                         Text(
                             text = it,
                             style = TextStyle(
-                                color = Blue,
+                                color = colorResource(id = R.color.blue),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -91,7 +89,7 @@ fun DetailsItem(property: Property) {
                         Text(
                             text = it,
                             style = TextStyle(
-                                color = Color.LightGray,
+                                color = colorResource(id = R.color.lightGray),
                                 fontSize = 14.sp
                             )
                         )
@@ -103,7 +101,7 @@ fun DetailsItem(property: Property) {
                     Text(
                         text = it,
                         style = TextStyle(
-                            color = Color.Black,
+                            color = colorResource(id = R.color.black),
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -162,13 +160,13 @@ fun ReminderItem(text: String, text1: String) {
             Text(
                 text = text,
                 style = TextStyle(
-                    fontSize = 12.sp, color = Color.Gray
+                    fontSize = 12.sp, color = colorResource(id = R.color.gray)
                 ),
             )
             Text(
                 text = text1,
                 style = TextStyle(
-                    fontSize = 14.sp, color = Color.Black
+                    fontSize = 14.sp, color = colorResource(id = R.color.black)
                 ),
             )
         }

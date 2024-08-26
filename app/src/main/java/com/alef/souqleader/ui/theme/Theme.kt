@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.darkColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -10,16 +11,33 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// Dark Theme Colors
+val DarkPrimary = Color(0xFFBB86FC)
+val DarkPrimaryVariant = Color(0xFF3700B3)
+val DarkSecondary = Color(0xFF03DAC5)
+val DarkBackground = Color(0xFF121212)  // Very dark background
+val DarkSurface = Color(0xFF1E1E1E)  // Slightly lighter surface for cards, etc.
+val DarkOnPrimary = Color(0xFF000000)  // Black text on primary color
+val DarkOnSecondary = Color(0xFFFFFFFF)  // White text on secondary color
+val DarkOnBackground = Color(0xFFFFFFFF)  // White text on dark background
+val DarkOnSurface = Color(0xFFFFFFFF)  // White text on dark surface
+ val DarkColorPalette = darkColorScheme(
+    primary = DarkPrimary,
+    secondary = DarkSecondary,
+    background = DarkBackground,
+    surface = DarkSurface,
+    onPrimary = DarkOnPrimary,
+    onSecondary = DarkOnSecondary,
+    onBackground = DarkOnBackground,
+    onSurface = DarkOnSurface,
 )
+private val DarkColorScheme = DarkColorPalette
 
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
@@ -67,4 +85,5 @@ fun AndroidCookiesTheme(
         typography = Typography,
         content = content
     )
+
 }

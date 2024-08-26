@@ -6,11 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.AddCommentUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,7 +21,13 @@ class CRMViewModel @Inject constructor(
     private val addCommentUseCase: AddCommentUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    var cancellationStatus: StatusResponse? by mutableStateOf(null)
+
+
+    private val _stateAddComment =
+        MutableSharedFlow<StatusResponse>()
+    val stateAddComment: MutableSharedFlow<StatusResponse>
+        get() = _stateAddComment
+
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
@@ -39,7 +47,7 @@ class CRMViewModel @Inject constructor(
 //
     fun addComment(comment: String, post_id: String) {
         viewModelScope.launch(job) {
-            cancellationStatus = addCommentUseCase.addComment(comment, post_id).data
+            addCommentUseCase.addComment(comment, post_id).data?.let { _stateAddComment.emit(it) }
         }
     }
 

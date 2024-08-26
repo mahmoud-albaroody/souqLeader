@@ -1,7 +1,7 @@
 package com.alef.souqleader.data.remote.dto
 
 data class Post(
-    val comment: List<Comment>,
+    val comment: ArrayList<Comment>,
     val created_at: String,
     val id: Int,
     val images: List<Image>? = null,

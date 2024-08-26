@@ -1,6 +1,11 @@
 package com.alef.souqleader.ui.presentation.allLeads
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,9 +38,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -46,31 +52,27 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
-import com.alef.souqleader.data.remote.dto.ModulePermission
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.domain.model.Campaign
-import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.Grey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import com.google.gson.reflect.TypeToken
+import com.alef.souqleader.ui.presentation.SharedViewModel
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
 
 
 @Composable
 fun AllLeadsScreen(
-    navController: NavController, modifier: Modifier, leadId: String
+    navController: NavController,
+    modifier: Modifier,
+    leadId: String?
 ) {
+    Log.e("ssss", AccountData.permissionList.toString())
     val viewModel: AllLeadViewModel = hiltViewModel()
-    val leadList = remember { mutableStateListOf<Lead>() }
     viewModel.updateBaseUrl(AccountData.BASE_URL)
+    val leadList = remember { mutableStateListOf<Lead>() }
+
     LaunchedEffect(key1 = true) {
+
         when (leadId) {
             "100" -> {
                 viewModel.delayLeads()
@@ -81,37 +83,57 @@ fun AllLeadsScreen(
             }
 
             else -> {
-                viewModel.getLeadByStatus(leadId)
+                leadId?.let { viewModel.getLeadByStatus(it) }
             }
         }
+
+
         viewModel.viewModelScope.launch {
             viewModel.stateListOfLeads.collect {
+                leadList.clear()
                 leadList.addAll(it)
             }
         }
-
     }
 
-    screen(navController, leadList)
+    Screen(navController, setKeyword = {
+        if (it.isEmpty()) {
+            leadId?.let { viewModel.getLeadByStatus(it) }
+        } else {
+            if (it.length > 3)
+                viewModel.leadsFilter(
+                    FilterRequest(
+                        name = it
+                    )
+                )
+        }
+    }, leadList)
 
 }
 
 
 @Composable
-private fun screen(navController: NavController, stateListOfLeads: List<Lead>) {
+fun Screen(
+    navController: NavController,
+    setKeyword: (String) -> Unit,
+    stateListOfLeads: List<Lead>
+) {
     var selectedId by remember { mutableStateOf("") }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     Box(
         Modifier
-            .background(Color.White)
+            .background(colorResource(id = R.color.white))
             .padding(horizontal = 24.dp, vertical = 16.dp)
             .fillMaxSize()
     ) {
         Column(Modifier.height(screenHeight)) {
-            Search(stringResource(R.string.search)) {
+            Search(stringResource(R.string.search), setKeyword = {
+                setKeyword(it)
+            }, onFilterClick = {
                 navController.navigate(Screen.FilterScreen.route)
-            }
+            })
+
             LazyColumn(
                 Modifier.fillMaxWidth()
             ) {
@@ -120,7 +142,6 @@ private fun screen(navController: NavController, stateListOfLeads: List<Lead>) {
                         stateListOfLeads.forEach {
                             it.selected = false
                         }
-
                         stateListOfLeads.find { it.id == lead.id }?.selected = true
                         selectedId = lead.id.toString()
                     }
@@ -132,7 +153,7 @@ private fun screen(navController: NavController, stateListOfLeads: List<Lead>) {
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(15.dp),
-                colors = ButtonDefaults.buttonColors(Blue2),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
                 onClick = {
                     navController.navigate(Screen.LeadUpdateScreen.route.plus("/${selectedId}"))
                 }) {
@@ -149,6 +170,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
     var selected by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
+    val ctx = LocalContext.current
     selected = lead.selected
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -158,8 +180,6 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
             .padding(6.dp)
             .clickable {
                 onItemClick(lead)
-
-
             },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -201,12 +221,12 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                             .padding(top = 6.dp)
                     ) {
                         Text(
-                            text = lead.name, style = TextStyle(
-                                fontSize = 16.sp, color = Blue
+                            text = lead.name ?: "", style = TextStyle(
+                                fontSize = 16.sp, color = colorResource(id = R.color.blue)
                             )
                         )
                         Text(
-                            text = lead.phone, style = TextStyle(
+                            text = lead.phone ?: "", style = TextStyle(
                                 fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                             )
                         )
@@ -219,20 +239,18 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    lead.sales_name.let {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                painterResource(R.drawable.sales_name_icon),
-                                contentDescription = "",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = lead.sales_name, style = TextStyle(
-                                    fontSize = 14.sp,
-                                ), modifier = Modifier.padding(start = 4.dp)
-                            )
-                        }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painterResource(R.drawable.sales_name_icon),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = lead.sales_name ?: "", style = TextStyle(
+                                fontSize = 14.sp,
+                            ), modifier = Modifier.padding(start = 4.dp)
+                        )
                     }
                 }
                 Row(
@@ -252,7 +270,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                                 modifier = Modifier.size(20.dp)
                             )
                             Text(
-                                text = it, style = TextStyle(
+                                text = it ?: "", style = TextStyle(
                                     fontSize = 14.sp,
                                 ), modifier = Modifier.padding(start = 4.dp)
                             )
@@ -290,7 +308,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                     lead.note?.let {
                         Text(
                             text = it, style = TextStyle(
-                                fontSize = 11.sp, color = Grey
+                                fontSize = 11.sp, color = colorResource(id = R.color.gray)
                             ), modifier = Modifier.padding(start = 4.dp)
                         )
                     }
@@ -303,7 +321,32 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                     Image(
                         painterResource(R.drawable.call_icon),
                         contentDescription = "",
-                        Modifier.size(60.dp, 40.dp)
+                        Modifier
+                            .size(60.dp, 40.dp)
+                            .clickable {
+                                val u = Uri.parse(
+                                    "tel:"
+                                            + lead.phone.toString()
+                                )
+
+                                // Create the intent and set the data for the
+                                // intent as the phone number.
+                                val i = Intent(Intent.ACTION_DIAL, u)
+                                try {
+
+                                    // Launch the Phone app's dialer with a phone
+                                    // number to dial a call.
+                                    ctx.startActivity(i)
+                                } catch (s: SecurityException) {
+
+                                    // show() method display the toast with
+                                    // exception message.
+                                    Toast
+                                        .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                        .show()
+                                }
+
+                            }
                     )
                     Image(
                         painterResource(R.drawable.sms_icon),
@@ -313,12 +356,40 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                     Image(
                         painterResource(R.drawable.mail_icon),
                         contentDescription = "",
-                        Modifier.size(60.dp, 40.dp)
+                        Modifier
+                            .size(60.dp, 40.dp)
+                            .clickable {
+                                ctx.sendMail(
+                                    to = lead.email,
+                                    subject = ""
+                                )
+
+                            }
                     )
                     Image(
                         painterResource(R.drawable.whats_icon),
                         contentDescription = "",
-                        Modifier.size(60.dp, 40.dp)
+                        Modifier
+                            .size(60.dp, 40.dp)
+                            .clickable {
+                                ctx.startActivity(
+                                    // on below line we are opening the intent.
+                                    Intent(
+                                        // on below line we are calling
+                                        // uri to parse the data
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(
+                                            // on below line we are passing uri,
+                                            // message and whats app phone number.
+                                            java.lang.String.format(
+                                                "https://api.whatsapp.com/send?phone=%s&text=%s",
+                                                lead.phone,
+                                                ""
+                                            )
+                                        )
+                                    )
+                                )
+                            }
                     )
                 }
             }
@@ -328,7 +399,8 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Search(text: String, onFilterClick: () -> Unit) {
+fun Search(text: String, setKeyword: (String) -> Unit, onFilterClick: () -> Unit) {
+    var keyword by remember { mutableStateOf("") }
     Card(
         Modifier
             .fillMaxWidth()
@@ -351,18 +423,19 @@ fun Search(text: String, onFilterClick: () -> Unit) {
             )
             TextField(
                 modifier = Modifier.weight(3f),
-                value = "",
+                value = keyword,
                 placeholder = {
                     Text(text = text)
                 },
                 colors = TextFieldDefaults.textFieldColors(
-                    cursorColor = Color.Black,
-                    disabledLabelColor = Blue,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    cursorColor = colorResource(id = R.color.black),
+                    disabledLabelColor = colorResource(id = R.color.blue),
+                    focusedIndicatorColor = colorResource(id = R.color.transparent),
+                    unfocusedIndicatorColor = colorResource(id = R.color.transparent)
                 ),
                 onValueChange = {
-
+                    keyword = it
+                    setKeyword(keyword)
                 },
 //                shape = RoundedCornerShape(8.dp),
                 singleLine = true,
@@ -379,3 +452,18 @@ fun Search(text: String, onFilterClick: () -> Unit) {
     }
 
 }
+
+fun Context.sendMail(to: String, subject: String) {
+    try {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "vnd.android.cursor.item/email" // or "message/rfc822"
+        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+        startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        // TODO: Handle case where no email app is available
+    } catch (t: Throwable) {
+        // TODO: Handle potential other type of exceptions
+    }
+}
+

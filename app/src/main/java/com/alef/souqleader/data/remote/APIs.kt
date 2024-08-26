@@ -3,6 +3,7 @@ package com.alef.souqleader.data.remote
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
+import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
@@ -180,12 +181,38 @@ interface APIs {
     @FormUrlEncoded
     @GET("api/userData/{id}")
     suspend fun userData(@Path("id") id: String): Response<UserDateResponse>
+
     @GET("api/channelStatistics")
     suspend fun channelStatistics(): Response<ChannelReportResponse>
+
     @POST("api/ProjectsReport")
     suspend fun projectsReport(): Response<ProjectsReportResponse>
+
     @POST("api/DelayReport")
     suspend fun delayReport(): Response<DelayReportResponse>
+
+    @GET("api/AllUsers")
+    suspend fun allUsers(): Response<AllUserResponse>
+
+
+    @GET("api/Leadsfilter")
+    suspend fun leadsFilter(
+        @Query("phone") phone: String? = null,
+        @Query("status") status: String? = null,
+        @Query("name") name: String? = null,
+        @Query("note") note: String? = null,
+        @Query("channel") channel: String? = null,
+        @Query("sales") sales: String? = null,
+        @Query("project") project: String? = null,
+        @Query("budget") budget: String? = null,
+        @Query("marketer") marketer: String? = null,
+        @Query("communication_way") communication_way: String? = null,
+        @Query("region") region: String? = null,
+        @Query("created_from") created_from: String? = null,
+        @Query("created_to") created_to: Boolean? = null,
+        @Query("action_date_from") action_date_from: Boolean? = null,
+        @Query("action_date_to") action_date_to: Boolean? = null
+    ): Response<LeadsByStatusResponse>
 
 
 }

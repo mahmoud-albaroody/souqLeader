@@ -35,10 +35,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color.Companion.Transparent
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -61,7 +60,7 @@ import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.navigation.currentRoute
 import com.alef.souqleader.ui.navigation.navigationTitle
 import com.alef.souqleader.ui.presentation.SharedViewModel
-import com.alef.souqleader.ui.theme.Blue
+import com.alef.souqleader.ui.theme.*
 import com.alef.souqleader.ui.appbar.AppBarWithArrow
 import kotlinx.coroutines.launch
 
@@ -106,213 +105,231 @@ fun CustomModalDrawer(
     var title = ""
     val scope = rememberCoroutineScope()
 
-    ModalNavigationDrawer(drawerState = drawerState, scrimColor = Transparent, drawerContent = {
-        ModalDrawerSheet(
-            drawerShape = RectangleShape, drawerContainerColor = Transparent
-        ) {
-            DrawerContent(navController, modifier, viewModel, allLead) { position, s ->
-                title = s.toString()
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        scrimColor = colorResource(id = R.color.transparent),
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerShape = RectangleShape,
+                drawerContainerColor = colorResource(id = R.color.transparent)
+            ) {
+                DrawerContent(navController, modifier, viewModel, allLead) { position, s ->
+                    title = s.toString()
 
-                scope.launch {
-                    drawerState.close()
-                }
-                when (position) {
-                    0 -> {
-                        navController.navigate(Screen.DashboardScreen.route) {
-                            launchSingleTop = true
-                        }
+                    scope.launch {
+                        drawerState.close()
                     }
-
-                    1 -> {
-                        navController.navigate(Screen.Timeline.route) {
-                            launchSingleTop = true
-                        }
-                    }
-
-                    2 -> {
-                        if (s == "Add Lead") {
-                            navController.navigate(Screen.AddLeadScreen.route) {
-                                launchSingleTop = true
-                            }
-                        } else {
-                            navController.navigate(
-                                Screen.AllLeadsScreen.route
-                                    .plus("/${allLead.find { it.getTitle() == s }?.id}")
-                            ) {
-                                launchSingleTop = true
-                            }
-                        }
-                    }
-
-                    3 -> {
-                        navController.navigate(Screen.SalesProfileReportScreen.route) {
-                            launchSingleTop = true
-                        }
-                    }
-
-                    4 -> {
-                        if (s == "Projects") {
-                            navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
-                                launchSingleTop = true
-                            }
-                        } else {
-                            navController.navigate(Screen.PropertyScreen.route) {
-                                launchSingleTop = true
-                            }
-                        }
-                    }
-
-                    5 -> {
-                        if (s == "meetingReport") {
-                            navController.navigate(Screen.ReportsScreen.route) {
-                                launchSingleTop = true
-                            }
-                        }
-                        else if (s == "CancellationReport") {
-                            navController.navigate(Screen.CancellationsReportScreen.route) {
-                                launchSingleTop = true
-                            }
-                        }
-                        else if (s == "ProjectReport") {
-                            navController.navigate(Screen.ProjectReport.route) {
-                                launchSingleTop = true
-                            }
-                        }
-                        else if (s == "DelayReport") {
-                            navController.navigate(Screen.DelayReport.route) {
+                    when (position) {
+                        0 -> {
+                            navController.navigate(Screen.DashboardScreen.route) {
                                 launchSingleTop = true
                             }
                         }
 
-                        else {
-                            navController.navigate(Screen.ChannelReport.route) {
+                        1 -> {
+                            navController.navigate(Screen.Timeline.route) {
                                 launchSingleTop = true
                             }
                         }
 
-                    }
-
-                    6 -> {
-                        navController.navigate(Screen.PaymentPlansScreen.route) {
-                            launchSingleTop = true
-                        }
-                    }
-
-                    7 -> {
-                        navController.navigate(Screen.ProfileScreen.route) {
-                            launchSingleTop = true
-                        }
-                    }
-
-                    8 -> {
-                        navController.navigate(Screen.RoleScreen.route) {
-                            launchSingleTop = true
-                        }
-                    }
-
-                    9 -> {
-                        navController.navigate(Screen.LoginScreen.route) {
-                            launchSingleTop = true
-                        }
-                    }
-                }
-            }
-        }
-    }, content = {
-        Scaffold(
-            topBar = {
-                when (currentRoute(navController)) {
-                    Screen.DashboardScreen.route, Screen.Timeline.route, Screen.SalesProfileReportScreen.route, Screen.PaymentPlansScreen.route, Screen.ProfileScreen.route, Screen.RoleScreen.route -> {
-//                            if (isAppBarVisible.value) {
-                        val appTitle: String =
-                            if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
-                                R.string.dashboard
-                            )
-                            else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
-                                R.string.timeline
-                            )
-                            else if (currentRoute(navController) == Screen.AddLeadScreen.route) stringResource(
-                                R.string.add_lead
-                            )
-                            else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route) stringResource(
-                                R.string.sales_profile_report
-                            )
-                            else if (currentRoute(navController) == Screen.ReportsScreen.route) stringResource(
-                                R.string.reports
-                            )
-                            else if (currentRoute(navController) == Screen.PaymentPlansScreen.route) stringResource(
-                                R.string.payment_plans
-                            )
-                            else if (currentRoute(navController) == Screen.ProfileScreen.route) stringResource(
-                                R.string.profile
-                            )
-                            else if (currentRoute(navController) == Screen.RoleScreen.route) stringResource(
-                                R.string.roles_premmisions
-                            )
-                            else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
-                                R.string.project_details
-                            )
-                            else stringResource(R.string.dashboard)
-                        HomeAppBar(title = appTitle, openDrawer = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
+                        2 -> {
+                            if (s == "Add Lead") {
+                                navController.navigate(Screen.AddLeadScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate(
+                                    Screen.AllLeadsScreen.route
+                                        .plus("/${allLead.find { it.getTitle() == s }?.id}")
+                                ) {
+                                    launchSingleTop = true
                                 }
                             }
-                        }, openFilters = {
-                            isAppBarVisible.value = false
-                        })
-                    }
-//                        }
+                        }
 
-                    Screen.LoginScreen.route -> {
+                        3 -> {
+                            navController.navigate(Screen.SalesProfileReportScreen.route) {
+                                launchSingleTop = true
+                            }
+                        }
 
-                    }
+                        4 -> {
+                            if (s == "Projects") {
+                                navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate(Screen.PropertyScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
 
-                    Screen.SimplifyWorkFlowScreen.route -> {
+                        5 -> {
+                            when (s) {
+                                "meetingReport" -> {
+                                    navController.navigate(Screen.ReportsScreen.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
 
-                    }
+                                "CancellationReport" -> {
+                                    navController.navigate(Screen.CancellationsReportScreen.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
 
-                    else -> {
-                        AppBarWithArrow(navigationTitle(navController, title)) {
-                            navController.popBackStack()
+                                "ProjectReport" -> {
+                                    navController.navigate(Screen.ProjectReport.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
+
+                                "DelayReport" -> {
+                                    navController.navigate(Screen.DelayReport.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
+
+                                else -> {
+                                    navController.navigate(Screen.ChannelReport.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+
+                        }
+
+                        6 -> {
+                            navController.navigate(Screen.PaymentPlansScreen.route) {
+                                launchSingleTop = true
+                            }
+                        }
+
+                        7 -> {
+                            navController.navigate(Screen.ProfileScreen.route) {
+                                launchSingleTop = true
+                            }
+                        }
+
+                        8 -> {
+                            navController.navigate(Screen.RoleScreen.route) {
+                                launchSingleTop = true
+                            }
+                        }
+
+                        9 -> {
+                            navController.navigate(Screen.LoginScreen.route) {
+                                launchSingleTop = true
+                            }
                         }
                     }
                 }
-            },
-        ) { paddingValues ->
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues)
-            ) {
-                if (AccountData.isFirstTime && AccountData.auth_token == null) {
-                    Navigation(
-                        navController = navController,
-                        modifier = modifier,
-                        Screen.SimplifyWorkFlowScreen.route,
-                        viewModel
-                    )
-                    //    AccountData.isFirstTime = false
-                } else if (AccountData.auth_token == null) {
-                    Navigation(
-                        navController = navController,
-                        modifier = modifier,
-                        Screen.LoginScreen.route,
-                        viewModel
-                    )
-                } else {
-                    Navigation(
-                        navController = navController,
-                        modifier = modifier,
-                        Screen.DashboardScreen.route,
-                        viewModel
-                    )
-                }
             }
+        },
+        content = {
+            Scaffold(
+                topBar = {
+                    when (currentRoute(navController)) {
+                        Screen.DashboardScreen.route, Screen.Timeline.route, Screen.SalesProfileReportScreen.route, Screen.PaymentPlansScreen.route, Screen.ProfileScreen.route, Screen.RoleScreen.route -> {
+//                            if (isAppBarVisible.value) {
+                            val appTitle: String =
+                                if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
+                                    R.string.dashboard
+                                )
+                                else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
+                                    R.string.timeline
+                                )
+                                else if (currentRoute(navController) == Screen.AddLeadScreen.route) stringResource(
+                                    R.string.add_lead
+                                )
+                                else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
+                                    R.string.filter_result
+                                )
+                                else if (currentRoute(navController) == Screen.FilterScreen.route)
+                                    stringResource(R.string.filter)
+                                else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route) stringResource(
+                                    R.string.sales_profile_report
+                                )
+                                else if (currentRoute(navController) == Screen.ReportsScreen.route) stringResource(
+                                    R.string.reports
+                                )
+                                else if (currentRoute(navController) == Screen.PaymentPlansScreen.route) stringResource(
+                                    R.string.payment_plans
+                                )
+                                else if (currentRoute(navController) == Screen.ProfileScreen.route) stringResource(
+                                    R.string.profile
+                                )
+                                else if (currentRoute(navController) == Screen.RoleScreen.route) stringResource(
+                                    R.string.roles_premmisions
+                                )
+                                else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
+                                    R.string.project_details
+                                )
+                                else if (currentRoute(navController) == Screen.CRMScreen.route) stringResource(
+                                    R.string.project_details
+                                )
+                                else stringResource(R.string.dashboard)
+                            HomeAppBar(title = appTitle, openDrawer = {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    }
+                                }
+                            }, openFilters = {
+                                isAppBarVisible.value = false
+                            })
+                        }
+//                        }
 
-        }
-    })
+                        Screen.LoginScreen.route -> {
+
+                        }
+
+                        Screen.SimplifyWorkFlowScreen.route -> {
+
+                        }
+
+                        else -> {
+                            AppBarWithArrow(navigationTitle(navController, title)) {
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                },
+            ) { paddingValues ->
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues)
+                ) {
+                    if (AccountData.isFirstTime && AccountData.auth_token == null) {
+                        Navigation(
+                            navController = navController,
+                            modifier = modifier,
+                            Screen.SimplifyWorkFlowScreen.route,
+                            viewModel
+                        )
+                        //    AccountData.isFirstTime = false
+                    } else if (AccountData.auth_token == null) {
+                        Navigation(
+                            navController = navController,
+                            modifier = modifier,
+                            Screen.LoginScreen.route,
+                            viewModel
+                        )
+                    } else {
+                        Navigation(
+                            navController = navController,
+                            modifier = modifier,
+                            Screen.DashboardScreen.route,
+                            viewModel
+                        )
+                    }
+                }
+
+            }
+        })
 }
 
 @Composable
@@ -327,40 +344,46 @@ fun DrawerContent(
     val photoState by viewModel.photoState.collectAsState()
     val salesNameState by viewModel.salesNameState
 
+
     val sideMenuItem: ArrayList<SideMenuItem> = arrayListOf()
     sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
     sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
-    sideMenuItem.add(SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads)))
-    sideMenuItem.add(
-        SideMenuItem(
-            R.drawable.sales_name_icon, stringResource(R.string.sales_profile_report)
+
+    if (AccountData.permissionList.find { it.module_name == "lead" && it.permissions.read } != null)
+        sideMenuItem.add(SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads)))
+    if (AccountData.permissionList.find { it.module_name == "reports" && it.permissions.read } != null)
+        sideMenuItem.add(
+            SideMenuItem(
+                R.drawable.sales_name_icon, stringResource(R.string.sales_profile_report)
+            )
         )
-    )
-    sideMenuItem.add(
-        SideMenuItem(
-            R.drawable.inventory_menu_icon, stringResource(R.string.inventory)
+    if (AccountData.permissionList.find { it.module_name == "inventory" && it.permissions.read } != null)
+        sideMenuItem.add(
+            SideMenuItem(
+                R.drawable.inventory_menu_icon, stringResource(R.string.inventory)
+            )
         )
-    )
     sideMenuItem.add(SideMenuItem(R.drawable.repots_menu_icon, stringResource(R.string.reports)))
-    sideMenuItem.add(
-        SideMenuItem(
-            R.drawable.payment_menu_icon, stringResource(R.string.payment_plans)
+    if (AccountData.permissionList.find { it.module_name == "Users" && it.permissions.read } != null)
+        sideMenuItem.add(
+            SideMenuItem(
+                R.drawable.profile_menu_icon, stringResource(R.string.users)
+            )
         )
-    )
     sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, stringResource(R.string.profile)))
-    sideMenuItem.add(SideMenuItem(R.drawable.book, stringResource(R.string.roles_premmisions)))
+    // sideMenuItem.add(SideMenuItem(R.drawable.book, stringResource(R.string.roles_premmisions)))
     sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, stringResource(R.string.logout)))
 
     Column(
         Modifier
             .width(260.dp)
-            .background(White)
+            .background(colorResource(id = R.color.white))
     ) {
 
         Box(
             Modifier
                 .width(260.dp)
-                .background(Blue)
+                .background(colorResource(id = R.color.blue))
         ) {
             Column(
                 Modifier
@@ -386,14 +409,14 @@ fun DrawerContent(
                 Text(
                     modifier = Modifier.padding(top = 16.dp),
                     text = nameState,
-                    color = White,
+                    color = colorResource(id = R.color.white),
                     style = TextStyle(
-                        fontSize = 16.sp, color = Blue,
+                        fontSize = 16.sp, color = colorResource(id = R.color.blue),
                     ),
                 )
                 Text(
                     text = salesNameState,
-                    color = White,
+                    color = colorResource(id = R.color.white),
                     style = TextStyle(
                         fontSize = 13.sp
                     ),
@@ -406,7 +429,7 @@ fun DrawerContent(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(260.dp)
-                .background(White)
+                .background(colorResource(id = R.color.white))
         ) {
             items(sideMenuItem.size) { position ->
                 Item(
@@ -506,46 +529,10 @@ fun Item(
                     )
                 }
             }
-//            Row(
-//                modifier
-//                    .fillMaxWidth()
-//                    .height(45.dp)
-//                    .clickable {
-//                        onItemClick("Projects")
-//                    },
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//
-//                Text(
-//                    stringResource(id = R.string.projects), fontSize = 14.sp, style = TextStyle(
-//                        textAlign = TextAlign.Start,
-//                    ), modifier = modifier
-//                        .fillMaxWidth()
-//                        .padding(horizontal = 24.dp)
-//                )
-//            }
-//            Row(
-//                modifier
-//                    .fillMaxWidth()
-//                    .height(45.dp)
-//                    .clickable {
-//                        onItemClick("Properties")
-//                    },
-//                horizontalArrangement = Arrangement.SpaceBetween,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//
-//                Text(
-//                    stringResource(R.string.properties), fontSize = 14.sp, style = TextStyle(
-//                        textAlign = TextAlign.Start,
-//                    ), modifier = modifier
-//                        .fillMaxWidth()
-//                        .padding(horizontal = 24.dp)
-//                )
-//            }
+
         }
         if (position == 4 && isVisible) {
+
             Row(
                 modifier
                     .fillMaxWidth()
@@ -584,110 +571,121 @@ fun Item(
             }
         }
         if (position == 5 && isVisible) {
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .padding(start = 60.dp, end = 16.dp)
-                    .clickable {
-                        onItemClick("meetingReport")
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            if (AccountData.permissionList.find { it.module_name == "meeting_report" && it.permissions.read } != null)
 
-                Text(
-                    stringResource(R.string.meeting_report), fontSize = 14.sp, style = TextStyle(
-                        textAlign = TextAlign.Start,
-                    ), modifier = modifier.fillMaxWidth()
-                )
-            }
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .padding(start = 60.dp, end = 16.dp)
-                    .clickable {
-                        onItemClick("CancellationReport")
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .padding(start = 60.dp, end = 16.dp)
+                        .clickable {
+                            onItemClick("meetingReport")
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                Text(
-                    text = stringResource(R.string.cancellation_report),
-                    fontSize = 14.sp,
-                    style = TextStyle(
-                        textAlign = TextAlign.Start,
-                    ),
-                    modifier = modifier.fillMaxWidth()
-                )
-            }
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .padding(start = 60.dp, end = 16.dp)
-                    .clickable {
-                        onItemClick("ChannelReport")
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                    Text(
+                        stringResource(R.string.meeting_report),
+                        fontSize = 14.sp,
+                        style = TextStyle(
+                            textAlign = TextAlign.Start,
+                        ),
+                        modifier = modifier.fillMaxWidth()
+                    )
+                }
+            if (AccountData.permissionList.find { it.module_name == "cancelation_report" && it.permissions.read } != null)
 
-                Text(
-                    text = stringResource(R.string.channel_report),
-                    fontSize = 14.sp,
-                    style = TextStyle(
-                        textAlign = TextAlign.Start,
-                    ),
-                    modifier = modifier.fillMaxWidth()
-                )
-            }
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .padding(start = 60.dp, end = 16.dp)
-                    .clickable {
-                        onItemClick("ProjectReport")
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .padding(start = 60.dp, end = 16.dp)
+                        .clickable {
+                            onItemClick("CancellationReport")
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                Text(
-                    text = "Project Report",
-                    fontSize = 14.sp,
-                    style = TextStyle(
-                        textAlign = TextAlign.Start,
-                    ),
-                    modifier = modifier.fillMaxWidth()
-                )
-            }
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .padding(start = 60.dp, end = 16.dp)
-                    .clickable {
-                        onItemClick("DelayReport")
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                    Text(
+                        text = stringResource(R.string.cancellation_report),
+                        fontSize = 14.sp,
+                        style = TextStyle(
+                            textAlign = TextAlign.Start,
+                        ),
+                        modifier = modifier.fillMaxWidth()
+                    )
+                }
+            if (AccountData.permissionList.find { it.module_name == "channel_report" && it.permissions.read } != null)
 
-                Text(
-                    text = "Delay Report",
-                    fontSize = 14.sp,
-                    style = TextStyle(
-                        textAlign = TextAlign.Start,
-                    ),
-                    modifier = modifier.fillMaxWidth()
-                )
-            }
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .padding(start = 60.dp, end = 16.dp)
+                        .clickable {
+                            onItemClick("ChannelReport")
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
+                    Text(
+                        text = stringResource(R.string.channel_report),
+                        fontSize = 14.sp,
+                        style = TextStyle(
+                            textAlign = TextAlign.Start,
+                        ),
+                        modifier = modifier.fillMaxWidth()
+                    )
+                }
+            if (AccountData.permissionList.find { it.module_name == "project_report" && it.permissions.read } != null)
 
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .padding(start = 60.dp, end = 16.dp)
+                        .clickable {
+                            onItemClick("ProjectReport")
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        text = stringResource(R.string.project_report),
+                        fontSize = 14.sp,
+                        style = TextStyle(
+                            textAlign = TextAlign.Start,
+                        ),
+                        modifier = modifier.fillMaxWidth()
+                    )
+                }
+            if (AccountData.permissionList.find { it.module_name == "delay_report" && it.permissions.read } != null)
+
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .padding(start = 60.dp, end = 16.dp)
+                        .clickable {
+                            onItemClick("DelayReport")
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        text = stringResource(id = R.string.delay_report),
+                        fontSize = 14.sp,
+                        style = TextStyle(
+                            textAlign = TextAlign.Start,
+                        ),
+                        modifier = modifier.fillMaxWidth()
+                    )
+                }
         }
     }
 }

@@ -5,17 +5,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.alef.souqleader.ui.theme.Blue2
+import androidx.compose.ui.res.colorResource
+import com.alef.souqleader.R
 
 
 @Composable
 fun HomeAppBar(title: String, openDrawer: () -> Unit, openFilters: () -> Unit) {
     TopAppBar(
-        backgroundColor = Blue2,
+        backgroundColor = colorResource(id = R.color.blue2),
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.h6, color = Color.White
+                style = MaterialTheme.typography.h6, color = colorResource(id = R.color.white)
             )
         },
         navigationIcon = {
@@ -23,7 +24,7 @@ fun HomeAppBar(title: String, openDrawer: () -> Unit, openFilters: () -> Unit) {
                 openDrawer()
             }) {
                 Icon(Icons.Default.Menu, "Menu",
-                    tint = Color.White)
+                    tint = colorResource(id = R.color.white))
             }
         },
         /*actions = {

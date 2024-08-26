@@ -49,11 +49,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -76,8 +76,7 @@ import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
+import com.alef.souqleader.ui.theme.*
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -92,8 +91,18 @@ import java.io.File
 fun TimelineScreen(navController: NavController, modifier: Modifier) {
     val viewModel: TimeLineViewModel = hiltViewModel()
     val posts = remember { mutableStateListOf<Post>() }
-  //  val posts = mutableStateListOf<Post>()
-
+    var visibleMeda by remember { mutableStateOf(false) }
+    //  val posts = mutableStateListOf<Post>()
+    var imageUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+    val launcher = rememberLauncherForActivityResult(
+        contract =
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+        visibleMeda = true
+    }
     var likedPost: Post? = null
     LaunchedEffect(key1 = true) {
         viewModel.getPosts()
@@ -117,22 +126,49 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
 
 
     Column {
-        WriteTextPost {
-            val images: ArrayList<MultipartBody.Part> = arrayListOf()
-            val requestFile: RequestBody =
-                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), it)
+        WriteTextPost(onSelectImage = {
+            launcher.launch("image/*")
+
+        },
+            onPostClick = {
+                val images: ArrayList<MultipartBody.Part> = arrayListOf()
+                val requestFile: RequestBody =
+                    RequestBody.create("multipart/form-data".toMediaTypeOrNull(), it)
 //            val filePath = getPathFromUri(this, fileUri)
 //
 //            if (filePath != null) {
 //                // Create File instance from file path
 //                val file = File(filePath)
 //            }
-            val body: MultipartBody.Part =
-                MultipartBody.Part.createFormData("file", "", requestFile)
+                val body: MultipartBody.Part =
+                    MultipartBody.Part.createFormData("file", "", requestFile)
 
-            images.add(body)
-            viewModel.addPost(requestFile, images)
-        }
+                images.add(body)
+
+                viewModel.addPost(requestFile, images)
+                visibleMeda = false
+            }, onOpenCamera = {
+            }
+        )
+        if (visibleMeda)
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .padding(horizontal = 36.dp)
+            ) {
+                AsyncImage(
+                    model = imageUri,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxHeight()
+                        .width(100.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+
         LazyColumn(Modifier.padding(horizontal = 24.dp)) {
             items(posts) { post ->
                 TimelineItem(
@@ -155,42 +191,18 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
             }
         }
     }
-    //  Camera()
+   // Camera()
+
 }
 
-
-@Preview
-@Composable
-fun gallrry() {
-    var imageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-    val launcher = rememberLauncherForActivityResult(
-        contract =
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUri = uri
-    }
-    AsyncImage(
-        model = imageUri,
-        contentDescription = null,
-        modifier = Modifier
-            .padding(4.dp)
-            .fillMaxHeight()
-            .width(100.dp)
-            .clip(RoundedCornerShape(12.dp)),
-        contentScale = ContentScale.Crop,
-    )
-    Button(onClick = {
-        launcher.launch("image/*")
-    }) {
-        Text(text = "select image")
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WriteTextPost(onPostClick: (String) -> Unit) {
+fun WriteTextPost(
+    onPostClick: (String) -> Unit,
+    onSelectImage: () -> Unit,
+    onOpenCamera: () -> Unit
+) {
     var textState by remember { mutableStateOf("") }
     Column {
         Card(
@@ -211,13 +223,13 @@ fun WriteTextPost(onPostClick: (String) -> Unit) {
                     modifier = Modifier.weight(3f),
                     value = textState,
                     placeholder = {
-                        Text(text = "Write your post")
+                        Text(text = stringResource(R.string.write_your_post))
                     },
                     colors = TextFieldDefaults.textFieldColors(
-                        cursorColor = Color.Black,
-                        disabledLabelColor = Blue,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                        cursorColor = colorResource(id = R.color.black),
+                        disabledLabelColor = colorResource(id = R.color.blue),
+                        focusedIndicatorColor = colorResource(id = R.color.transparent),
+                        unfocusedIndicatorColor = colorResource(id = R.color.transparent)
                     ),
                     onValueChange = {
                         textState = it
@@ -228,15 +240,24 @@ fun WriteTextPost(onPostClick: (String) -> Unit) {
 
             }
         }
-        MediaPost {
+        MediaPost(onPostClick = {
             onPostClick(textState)
-        }
+        },
+            onSelectImage = {
+                onSelectImage()
+            },
+            onOpenCamera = {
+
+            })
     }
 }
 
 
 @Composable
-fun MediaPost(onPostClick: () -> Unit) {
+fun MediaPost(
+    onPostClick: () -> Unit, onSelectImage: () -> Unit,
+    onOpenCamera: () -> Unit
+) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -256,6 +277,10 @@ fun MediaPost(onPostClick: () -> Unit) {
             Image(
                 painterResource(R.drawable.gallery),
                 modifier = Modifier
+                    .clickable {
+                        onSelectImage()
+                        //   onFilterClick.invoke()
+                    }
                     .weight(0.5f),
                 contentDescription = "",
             )
@@ -266,7 +291,7 @@ fun MediaPost(onPostClick: () -> Unit) {
                 Modifier
                     .weight(0.5f)
                     .clickable {
-                        //   onFilterClick.invoke()
+                        onOpenCamera()
                     }
             )
             Image(
@@ -292,7 +317,7 @@ fun MediaPost(onPostClick: () -> Unit) {
             .weight(1.2f)
             .padding(horizontal = 8.dp),
             shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(Blue2),
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
             onClick = {
                 onPostClick()
             }) {
@@ -337,7 +362,7 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                     .padding(top = 12.dp),
                 text = post.post,
                 style = TextStyle(
-                    color = Blue,
+                    color = colorResource(id = R.color.blue),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -432,7 +457,7 @@ fun Camera() {
                 onClick = {
                     localView.playSoundEffect(SoundEffectConstants.CLICK)
                     startCamera(context, lifecycleOwner, previewView) { value ->
-                        Log.e("sss", "kk")
+
                     }
                 }
             ) {

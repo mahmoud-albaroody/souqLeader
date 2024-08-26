@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -44,9 +45,7 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
 import com.alef.souqleader.ui.presentation.meetingReport.MeetingLeads
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
-import com.alef.souqleader.ui.theme.Blue
-import com.alef.souqleader.ui.theme.Blue2
-import com.alef.souqleader.ui.theme.White
+
 
 @Composable
 fun CancellationsReport(navController: NavController, modifier: Modifier) {
@@ -83,8 +82,8 @@ fun CancellationsReport(navController: NavController, modifier: Modifier) {
                 ) {
                     Text(
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-                        text = "Cancellation Leads",
-                        fontSize = 18.sp, color = Color.Black,
+                        text = stringResource(R.string.cancellation_leads),
+                        fontSize = 18.sp, color = colorResource(id = R.color.black),
                         fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
                     )
                     LazyColumn(
@@ -158,12 +157,12 @@ fun CancellationsReportItem(lead: Lead) {
                         .padding(top = 4.dp)
                 ) {
                     Text(
-                        text = lead.name, style = TextStyle(
-                            fontSize = 15.sp, color = Blue
+                        text = lead.name?:"", style = TextStyle(
+                            fontSize = 15.sp, color = colorResource(id = R.color.blue)
                         )
                     )
                     Text(
-                        text = lead.phone, style = TextStyle(
+                        text = lead.phone?:"", style = TextStyle(
                             fontSize = 13.sp,
                         )
                     )
@@ -187,7 +186,7 @@ fun CancellationsReportItem(lead: Lead) {
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = lead.sales_name,
+                        text = lead.sales_name?:"",
                         style = TextStyle(
                             fontSize = 12.sp,
                         ),
@@ -204,7 +203,7 @@ fun CancellationsReportItem(lead: Lead) {
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = lead.project_name,
+                        text = lead.project_name?:"",
                         style = TextStyle(
                             fontSize = 12.sp,
                         ),
@@ -245,7 +244,7 @@ fun CancellationsReportItem(lead: Lead) {
                         .fillMaxHeight()
                         .padding(bottom = 6.dp, top = 4.dp)
                         .padding(start = 16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Blue2),
+                    colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.blue2)),
                     elevation = CardDefaults.cardElevation(8.dp)
                 ) {
                     Row(
@@ -259,7 +258,7 @@ fun CancellationsReportItem(lead: Lead) {
                             modifier = Modifier.padding(end = 4.dp),
                             text = "PERMISSION", style = TextStyle(
                                 fontSize = 11.sp,
-                                color = White
+                                color = colorResource(id = R.color.white)
                             )
                         )
                         Image(
@@ -290,7 +289,7 @@ fun Cancellations(cancelationReport: CancelationReport) {
             Text(
                 text = cancelationReport.total_canceled,
                 style = TextStyle(
-                    fontSize = 20.sp, color = Blue, fontWeight = FontWeight.Bold
+                    fontSize = 20.sp, color = colorResource(id = R.color.blue), fontWeight = FontWeight.Bold
                 ),
             )
             Text(

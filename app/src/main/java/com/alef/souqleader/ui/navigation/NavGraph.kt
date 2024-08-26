@@ -28,6 +28,7 @@ import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.delaysReports.DelaysReports
 import com.alef.souqleader.ui.presentation.filter.FilterScreen
 import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
+import com.alef.souqleader.ui.presentation.filterResult.FilterResultScreen
 import com.alef.souqleader.ui.presentation.projects.ProjectsScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
 import com.alef.souqleader.ui.presentation.login.LoginScreen
@@ -42,6 +43,7 @@ import com.alef.souqleader.ui.presentation.rolesPremissions.RolesPermissionsScre
 import com.alef.souqleader.ui.presentation.salesProfileReport.SalesProfileReportScreen
 import com.alef.souqleader.ui.presentation.simplifyWorkflow.SimplifyScreen
 import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
+import org.json.JSONObject
 
 @Composable
 fun Navigation(
@@ -62,7 +64,7 @@ fun Navigation(
         composable(Screen.DashboardScreen.route) {
             modifier?.let { it1 ->
                 DashboardScreen(
-                    navController = navController
+                    navController = navController, viewModel
                 )
             }
         }
@@ -80,17 +82,38 @@ fun Navigation(
             listOf(navArgument("s") {
                 type = NavType.StringType
             })
-        ) {
-            val leadId = it.arguments?.getString(Screen.ProjectsScreen.objectName)
-            leadId?.let {
+        ) { backStackEntry ->
+            var leadId = backStackEntry.arguments?.getString(Screen.ProjectsScreen.objectName)
+            leadId.let {
                 if (modifier != null) {
                     AllLeadsScreen(
                         navController, modifier, leadId = leadId
                     )
+                    leadId = null
                 }
-
             }
         }
+
+        composable(
+            Screen.FilterResultScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            var obj = backStackEntry.arguments?.getString(Screen.ProjectsScreen.objectName)
+
+            if (modifier != null) {
+                FilterResultScreen(
+                    navController = navController,
+                    modifier = modifier, obj = JSONObject(obj)
+                )
+            }
+            backStackEntry.savedStateHandle.remove<String>("filterObject")
+        }
+
+
+
+
 
         composable(
             Screen.LeadUpdateScreen.route.plus("/{s}"), arguments =
@@ -187,6 +210,7 @@ fun Navigation(
         composable(Screen.FilterScreen.route) {
             modifier?.let { it1 ->
                 FilterScreen(
+                    navController,
                     modifier
                 )
             }
@@ -317,6 +341,17 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.AllLeadsScreen.route -> {
             title
         }
+        Screen.CRMScreen.route.plus("?" + Screen.CRMScreen.objectName + "={CRMS}") -> {
+            ""
+        }
+
+        Screen.FilterResultScreen.route -> {
+            stringResource(id = R.string.filter_result)
+        }
+
+        Screen.FilterScreen.route -> {
+            stringResource(id = R.string.filter)
+        }
 
         Screen.ProjectsDetailsScreen.route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "={product}") -> {
             stringResource(R.string.project_details)
@@ -337,9 +372,7 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.ProjectsScreen.route -> {
             title
         }
-        Screen.ProjectsScreen.route -> {
-            title
-        }
+
 
         else -> {
             title
