@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="channels">Channels</string>
-    <string name="meeting_leads">Meeting Leads</string>
-    <string name="cancellation_report">Cancellation Report</string>
-    <string name="ready_to_explore">Ready to explore?</string>
-    <string name="don_t_have_an_access">Don’t have an access?</string>
-    <string name="contact_us">Contact us</string>
-</resources>
