@@ -18,18 +18,16 @@ class ForgetPasswordViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val _changePassword =
+    private val _forgetPassword =
         MutableSharedFlow<StatusResponse>()
-    val changePassword: MutableSharedFlow<StatusResponse>
-        get() = _changePassword
+    val forgetPassword: MutableSharedFlow<StatusResponse>
+        get() = _forgetPassword
     private val job = Job()
-    fun changePassword(password: String, newPassword: String, confirmPassword: String) {
+    fun forgetPassword(email: String) {
         viewModelScope.launch(job) {
-            _changePassword.emit(
-                loginUseCase.changePassword(
-                    password,
-                    newPassword,
-                    confirmPassword
+            _forgetPassword.emit(
+                loginUseCase.forgetPassword(
+                    email
                 ).data!!
             )
         }

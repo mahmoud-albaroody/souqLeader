@@ -17,7 +17,6 @@ import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.MeetingReportResponse
-import com.alef.souqleader.data.remote.dto.MultiResponse
 import com.alef.souqleader.data.remote.dto.PlanResponse
 import com.alef.souqleader.data.remote.dto.PostResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
@@ -38,11 +37,17 @@ interface APIs {
 
 
     @GET("api/leadsByStatus")
-    suspend fun leadsByStatus(@Query("id") id: String): Response<LeadsByStatusResponse>
+    suspend fun leadsByStatus(@Query("status") status: String): Response<LeadsByStatusResponse>
 
     @FormUrlEncoded
     @POST("api/updateMulti")
-    suspend fun updateMulti(@Field("ids[]") ids: ArrayList<String>): Response<MultiResponse>
+    suspend fun updateMulti(
+        @Field("ids[]") ids: Array<String>,
+        @Field("status") status: String?,
+        @Field("note") note: String?,
+        @Field("reminder_time") reminder_time: String?,
+        @Field("cancel_reason") cancel_reason: String?,
+    ): Response<UpdateLeadResponse>
 
     @GET("api/cancelationReason")
     suspend fun cancelationReason(): Response<CancelationReasonResponse>
@@ -193,6 +198,36 @@ interface APIs {
 
     @GET("api/AllUsers")
     suspend fun allUsers(): Response<AllUserResponse>
+
+    @FormUrlEncoded
+    @POST("api/change-password")
+    suspend fun changePassword(
+        @Field("current_password") current_password: String?,
+        @Field("new_password") new_password: String?,
+        @Field("new_password_confirmation") new_password_confirmation: String?,
+    ): Response<StatusResponse>
+
+    @FormUrlEncoded
+    @POST("api/reset-password")
+    suspend fun resetPassword(
+        @Field("email") email: String?,
+        @Field("password") password: String?,
+        @Field("password_confirmation") password_confirmation: String?,
+        @Field("code") code: String?,
+    ): Response<StatusResponse>
+
+    @FormUrlEncoded
+    @POST("api/checkcode")
+    suspend fun checkCode(
+        @Field("code") code: String?,
+    ): Response<StatusResponse>
+    @FormUrlEncoded
+    @POST("api/forget-password")
+    suspend fun forgetPassword(
+        @Field("email") email: String?,
+    ): Response<StatusResponse>
+
+
 
 
     @GET("api/Leadsfilter")

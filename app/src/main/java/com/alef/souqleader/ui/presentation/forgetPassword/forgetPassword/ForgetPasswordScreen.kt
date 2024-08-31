@@ -51,12 +51,12 @@ import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun ChangePasswordScreen() {
-    val changePasswordViewModel: ChangePasswordViewModel = hiltViewModel()
+fun ForgetPasswordScreen() {
+    val changePasswordViewModel: ForgetPasswordViewModel = hiltViewModel()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         changePasswordViewModel.viewModelScope.launch {
-            changePasswordViewModel.changePassword.collect {
+            changePasswordViewModel.forgetPassword.collect {
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
@@ -79,7 +79,7 @@ fun ChangePasswordScreen() {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = stringResource(R.string.change_password),
+                text = stringResource(R.string.forgot_password),
                 style = TextStyle(
                     fontSize = 26.sp,
                     color = colorResource(id = R.color.blue2),
@@ -94,42 +94,27 @@ fun ChangePasswordScreen() {
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
-        ChangePass(onChangePasswordClick = { password, newPassword, confirmPassword ->
+        ChangePass(onChangePasswordClick = { email ->
             changePasswordViewModel
-                .changePassword(
-                    password,
-                    newPassword,
-                    confirmPassword
+                .forgetPassword(
+                    email
                 )
         })
     }
 }
 
 @Composable
-fun ChangePass(onChangePasswordClick: (String, String, String) -> Unit) {
+fun ChangePass(onChangePasswordClick: (String) -> Unit) {
     val context = LocalContext.current
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        var isPasswordNotValid by remember { mutableStateOf(true) }
-        var isNewPasswordNotValid by remember { mutableStateOf(true) }
-        var isConfirmPasswordNotValid by remember { mutableStateOf(true) }
-        var password by remember { mutableStateOf("") }
-        var newPassword by remember { mutableStateOf("") }
-        var confirmPassword by remember { mutableStateOf("") }
-        ChangePassItem(stringResource(R.string.password),
+        var isEmailNotValid by remember { mutableStateOf(true) }
+        var email by remember { mutableStateOf("") }
+        ChangePassItem(stringResource(R.string.e_mail),
             onTextChange = { pass, isNotValid ->
-                password = pass
-                isPasswordNotValid = isNotValid
+                email = pass
+                isEmailNotValid = isNotValid
             })
-        ChangePassItem(stringResource(R.string.new_password),
-            onTextChange = { pass, isNotValid ->
-                newPassword = pass
-                isNewPasswordNotValid = isNotValid
-            })
-        ChangePassItem(stringResource(R.string.confirm_password),
-            onTextChange = { pass, isNotValid ->
-                confirmPassword = pass
-                isConfirmPasswordNotValid = isNotValid
-            })
+
 
         Button(modifier = Modifier
             .fillMaxWidth()
@@ -138,17 +123,17 @@ fun ChangePass(onChangePasswordClick: (String, String, String) -> Unit) {
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
             onClick = {
-                if (isPasswordNotValid || isNewPasswordNotValid || isConfirmPasswordNotValid) {
+                if (isEmailNotValid) {
                     Toast.makeText(
                         context,
                         context.getString(R.string.invalid_data), Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    onChangePasswordClick(password, newPassword, confirmPassword)
+                    onChangePasswordClick(email)
                 }
             }) {
             Text(
-                text = stringResource(R.string.change_password),
+                text = stringResource(R.string.forgot_password),
                 Modifier.padding(vertical = 8.dp),
                 style = TextStyle(textAlign = TextAlign.Center, fontSize = 15.sp)
             )
@@ -162,12 +147,10 @@ fun ChangePass(onChangePasswordClick: (String, String, String) -> Unit) {
 fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
-    var keyboardOptions =
-        KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Number)
-    if (text == stringResource(id = R.string.confirm_password)) {
-        keyboardOptions =
-            KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number)
-    }
+    val keyboardOptions =
+        KeyboardOptions(imeAction = ImeAction.Done,
+            keyboardType = KeyboardType.Text)
+
     TextField(
         modifier = Modifier
             .fillMaxWidth()

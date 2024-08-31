@@ -1,11 +1,17 @@
 package com.alef.souqleader.ui.presentation.timeline
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
+import android.os.Build
 import android.view.SoundEffectConstants
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.LifecycleCameraController
@@ -23,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,11 +70,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -80,32 +89,82 @@ import com.alef.souqleader.ui.theme.*
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun TimelineScreen(navController: NavController, modifier: Modifier) {
     val viewModel: TimeLineViewModel = hiltViewModel()
     val posts = remember { mutableStateListOf<Post>() }
     var visibleMeda by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     //  val posts = mutableStateListOf<Post>()
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
     }
+    var vedioPath by remember {
+        mutableStateOf<Uri?>(null)
+    }
+    var videoUrl: Uri? = null
+
     val launcher = rememberLauncherForActivityResult(
         contract =
-        ActivityResultContracts.GetContent()
+        ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
-        imageUri = uri
-        visibleMeda = true
+        if (uri != null) {
+            imageUri = uri
+            vedioPath = null
+            visibleMeda = true
+        } else {
+            visibleMeda = false
+        }
     }
+
+    val pickVedioLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+            vedioPath = it
+            imageUri = null
+            visibleMeda = false
+        }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        bitmap?.let {
+            // Save the Bitmap to a file and get the Uri
+            val uri = saveBitmapToFile(context, bitmap)
+            imageUri = uri
+            visibleMeda = true
+            vedioPath = null
+        }
+    }
+    val videoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CaptureVideo()
+    ) {
+        vedioPath = videoUrl
+        visibleMeda = false
+        imageUri = null
+    }
+
+
     var likedPost: Post? = null
     LaunchedEffect(key1 = true) {
         viewModel.getPosts()
+        viewModel.viewModelScope.launch {
+            viewModel.statePosts.collect {
+                posts.clear()
+                it.let { it1 -> posts.addAll(it1) }
+            }
+        }
     }
     viewModel.addLike.observe(LocalLifecycleOwner.current) {
         if (it.status) {
@@ -119,38 +178,110 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
             }
         }
     }
-    viewModel.statePosts.observe(LocalLifecycleOwner.current) {
-        posts.clear()
-        it?.let { it1 -> posts.addAll(it1) }
-    }
+
+
 
 
     Column {
         WriteTextPost(onSelectImage = {
-            launcher.launch("image/*")
+            launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 
         },
             onPostClick = {
                 val images: ArrayList<MultipartBody.Part> = arrayListOf()
-                val requestFile: RequestBody =
-                    RequestBody.create("multipart/form-data".toMediaTypeOrNull(), it)
-//            val filePath = getPathFromUri(this, fileUri)
+
+                imageUri?.let { uri ->
+                    val parcelFileDescriptor =
+                        context.contentResolver.openFileDescriptor(uri, "r", null)
+                    parcelFileDescriptor?.let { pfd ->
+                        val inputStream = FileInputStream(pfd.fileDescriptor)
+                        val file = File(context.cacheDir, "temp_image_file")
+                        val outputStream = FileOutputStream(file)
+                        inputStream.copyTo(outputStream)
+
+                        // Close streams
+                        inputStream.close()
+                        outputStream.close()
+                        pfd.close()
+                        val requestFile: RequestBody =
+                            RequestBody.create("image/*".toMediaType(), file)
+                        val imagePart =
+                            MultipartBody.Part.createFormData("images[]", file.name, requestFile)
+
+                        images.add(imagePart)
+                        val name: RequestBody = RequestBody.create(
+                            "text/plain".toMediaType(),
+                            "post2"
+                        )
+                        // Call the ViewModel's addPost function with the necessary parameters
+                        viewModel.addPost(name, images)
+                    }
+                }
+//                imageUri?.let { uri ->
+//                    // Create a File object from the URI
+//                    val file = File(uri.path ?: "")
 //
-//            if (filePath != null) {
-//                // Create File instance from file path
-//                val file = File(filePath)
-//            }
-                val body: MultipartBody.Part =
-                    MultipartBody.Part.createFormData("file", "", requestFile)
-
-                images.add(body)
-
-                viewModel.addPost(requestFile, images)
+//                    // Convert the file to RequestBody
+//                    val requestFile: RequestBody = RequestBody.create(
+//                        "image/*".toMediaType(),
+//                        file
+//                    )
+//                    val name: RequestBody = RequestBody.create(
+//                      "text/plain".toMediaType(),
+//                   "post"
+//                    )
+//                    // Create MultipartBody.Part using the file's name and the request body
+//                    val body: MultipartBody.Part =
+//                        MultipartBody.Part.createFormData("file", file.name, requestFile)
+//
+//                    // Add the body to the images list
+//                    images.add(body)
+//
+//                    // Call the ViewModel's addPost function with the necessary parameters
+//                    viewModel.addPost(name, images)
+//                }
                 visibleMeda = false
             }, onOpenCamera = {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CAMERA
+                    ) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+
+                    ActivityCompat.requestPermissions(
+                        context as Activity,
+                        arrayOf(
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ),
+                        2
+                    )
+                }
+                cameraLauncher.launch(null)
+            }, onVedio = {
+                // Create file and URI using FileProvider
+                val videoFile = File(context.getExternalFilesDir(null), "video.mp4")
+                val videoUri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    videoFile
+                )
+                videoUrl = videoUri
+
+                // Launch the camera to record video
+                videoLauncher.launch(videoUri)
+            },
+            onPickVideo = {
+                pickVedioLauncher.launch(
+                    PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.VideoOnly)
+                )
             }
         )
-        if (visibleMeda)
+        if (visibleMeda && imageUri != null)
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -168,6 +299,15 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
                     contentScale = ContentScale.Crop,
                 )
             }
+
+        if (vedioPath != null)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = 36.dp),
+                text = vedioPath?.path.toString()
+            )
 
         LazyColumn(Modifier.padding(horizontal = 24.dp)) {
             items(posts) { post ->
@@ -191,8 +331,6 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
             }
         }
     }
-   // Camera()
-
 }
 
 
@@ -201,7 +339,9 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
 fun WriteTextPost(
     onPostClick: (String) -> Unit,
     onSelectImage: () -> Unit,
-    onOpenCamera: () -> Unit
+    onOpenCamera: () -> Unit,
+    onVedio: () -> Unit,
+    onPickVideo: () -> Unit
 ) {
     var textState by remember { mutableStateOf("") }
     Column {
@@ -247,7 +387,12 @@ fun WriteTextPost(
                 onSelectImage()
             },
             onOpenCamera = {
-
+                onOpenCamera()
+            },
+            onVideo = {
+                onVedio()
+            }, onPickVideo = {
+                onPickVideo()
             })
     }
 }
@@ -256,7 +401,7 @@ fun WriteTextPost(
 @Composable
 fun MediaPost(
     onPostClick: () -> Unit, onSelectImage: () -> Unit,
-    onOpenCamera: () -> Unit
+    onOpenCamera: () -> Unit, onVideo: () -> Unit, onPickVideo: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -279,7 +424,6 @@ fun MediaPost(
                 modifier = Modifier
                     .clickable {
                         onSelectImage()
-                        //   onFilterClick.invoke()
                     }
                     .weight(0.5f),
                 contentDescription = "",
@@ -300,7 +444,7 @@ fun MediaPost(
                 Modifier
                     .weight(0.5f)
                     .clickable {
-                        //   onFilterClick.invoke()
+                        onVideo()
                     }
             )
             Image(
@@ -309,7 +453,8 @@ fun MediaPost(
                 Modifier
                     .weight(0.5f)
                     .clickable {
-                        //   onFilterClick.invoke()
+                        onPickVideo()
+
                     }
             )
         }
@@ -499,4 +644,18 @@ private fun startCamera(
     )
     cameraController.bindToLifecycle(lifecycleOwner)
     previewView.controller = cameraController
+}// Function to save the Bitmap to a file and return the Uri
+
+fun saveBitmapToFile(context: Context, bitmap: Bitmap): Uri? {
+    val file = File(context.cacheDir, "captured_image_${System.currentTimeMillis()}.jpg")
+    return try {
+        val outputStream = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream.flush()
+        outputStream.close()
+        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
+    }
 }

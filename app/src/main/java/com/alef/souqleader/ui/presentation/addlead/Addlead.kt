@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AddLead
 import com.alef.souqleader.domain.model.Campaign
@@ -69,18 +70,20 @@ fun AddLeadScreen(modifier: Modifier) {
     val context = LocalContext.current
     val campaignList = remember { mutableStateListOf<Campaign>() }
     val projectList = remember { mutableStateListOf<Project>() }
+    val allLead = remember { mutableStateListOf<AllLeadStatus>() }
     val channelList = remember { mutableStateListOf<Channel>() }
     val salesList = remember { mutableStateListOf<Sales>() }
     val marketerList = remember { mutableStateListOf<Marketer>() }
     val communicationWayList = remember { mutableStateListOf<CommunicationWay>() }
     LaunchedEffect(key1 = true) {
-
+        addLeadViewModel.getLeads()
         addLeadViewModel.allMarketer()
         addLeadViewModel.allSales()
         addLeadViewModel.campaign()
         addLeadViewModel.communicationWay()
         addLeadViewModel.channel()
         addLeadViewModel.getProject()
+
         addLeadViewModel.viewModelScope.launch {
             addLeadViewModel.campaignResponse.collect {
                 it.data?.let { it1 -> campaignList.addAll(it1) }
@@ -99,8 +102,14 @@ fun AddLeadScreen(modifier: Modifier) {
             }
         }
         addLeadViewModel.viewModelScope.launch {
+            addLeadViewModel.allLead.collect {
+                it.let { it1 -> allLead.addAll(it1) }
+            }
+        }
+
+        addLeadViewModel.viewModelScope.launch {
             addLeadViewModel.addLead.collect {
-                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
 
@@ -121,7 +130,8 @@ fun AddLeadScreen(modifier: Modifier) {
         }
     }
     AddLead(
-        campaignList, marketerList, salesList, channelList, communicationWayList, projectList
+        campaignList, marketerList, salesList, channelList, communicationWayList, projectList,
+        allLead
     ) {
         addLeadViewModel.lead(it)
     }
@@ -136,6 +146,7 @@ fun AddLead(
     channelList: SnapshotStateList<Channel>,
     communicationWayList: SnapshotStateList<CommunicationWay>,
     projectList: SnapshotStateList<Project>,
+    statusList: SnapshotStateList<AllLeadStatus>,
     onAddClick: (AddLead) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -144,9 +155,15 @@ fun AddLead(
     val hasChannel = remember { mutableStateOf(false) }
     val hasMarketer = remember { mutableStateOf(false) }
     val hasSales = remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
     val addLead = AddLead(is_fresh = true)
-
+    val status = arrayListOf<String>()
+    status.add(stringResource(R.string.cold))
+    status.add(stringResource(R.string.fresh))
+//    if (statusList.isNotEmpty()) statusList.forEach {
+//        if (it.title_en?.uppercase() == "Cold".uppercase() || it.title_en?.uppercase() == "Fresh".uppercase())
+//            status.add(it.getTitle())
+//    }
     val channels = arrayListOf<String>()
     channels.add(stringResource(R.string.lead_source))
     if (channelList.isNotEmpty()) channelList.forEach {
@@ -192,6 +209,13 @@ fun AddLead(
                 .verticalScroll(scrollState)
                 .weight(12f)
         ) {
+
+            DynamicSelectTextField(status) { status ->
+                addLead.is_fresh =
+                    status.uppercase() == context.getString(R.string.fresh).uppercase()
+            }
+
+
             TextFiledItem(stringResource(R.string.name), true) {
                 addLead.name = it
                 hasName.value = false
@@ -293,7 +317,6 @@ fun AddLead(
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
-                addLead.is_fresh = true
                 if (addLead.name.isNullOrEmpty()) {
                     hasName.value = true
                 }
@@ -330,37 +353,38 @@ fun TextFiledItem(
 
     var textValue by remember { mutableStateOf("") }
 
-    val keyboardOptions: KeyboardOptions = when (text) {
-        stringResource(id = R.string.mobile) -> {
-            KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
-            )
-        }
+    val keyboardOptions: KeyboardOptions =
+        when (text) {
+            stringResource(id = R.string.mobile) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                )
+            }
 
-        stringResource(id = R.string.budget) -> {
-            KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
-            )
-        }
+            stringResource(id = R.string.budget) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+                )
+            }
 
-        stringResource(id = R.string.name) -> {
-            KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
-            )
-        }
+            stringResource(id = R.string.name) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+                )
+            }
 
-        stringResource(id = R.string.e_mail) -> {
-            KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
-            )
-        }
+            stringResource(id = R.string.e_mail) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
+                )
+            }
 
-        else -> {
-            KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
-            )
+            else -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                )
+            }
         }
-    }
 
     OutlinedTextField(
         modifier = Modifier

@@ -10,7 +10,7 @@ import com.alef.souqleader.domain.model.Sales
 
 open class StatusResponse(
     val status: Boolean = false,
-    val message: String? = ""
+    val message: Any? = ""
 )
 
 data class LeadsByStatusResponse(
@@ -55,9 +55,7 @@ data class CommunicationWayResponse(
     var data: ArrayList<CommunicationWay>? = null
 ) : StatusResponse()
 
-data class MultiResponse(
-    var data: Boolean
-) : StatusResponse()
+
 data class UpdateLeadResponse(
     var data: Boolean
 ) : StatusResponse()

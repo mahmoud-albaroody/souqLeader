@@ -26,6 +26,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -118,7 +119,7 @@ fun Screen(navController: NavController, stateListOfLeads: List<Lead>) {
     var selectedId by remember { mutableStateOf("") }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-
+    val selectedIdList = remember { mutableStateListOf<String>() }
     Box(
         Modifier
             .background(colorResource(id = R.color.white))
@@ -133,23 +134,28 @@ fun Screen(navController: NavController, stateListOfLeads: List<Lead>) {
             ) {
                 items(stateListOfLeads) {
                     AllLeadsItem(it) { lead ->
-                        stateListOfLeads.forEach {
-                            it.selected = false
+//                        stateListOfLeads.forEach {
+//                            it.selected = false
+//                        }
+                        if (selectedIdList.find { it.toInt() == lead.id } == null) {
+                            selectedIdList.add(lead.id.toString())
+                        } else {
+                            selectedIdList.remove(lead.id.toString())
                         }
-                        stateListOfLeads.find { it.id == lead.id }?.selected = true
-                        selectedId = lead.id.toString()
                     }
                 }
             }
         }
-        if (selectedId.isNotEmpty())
+        if (selectedIdList.isNotEmpty())
             Button(modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
                 onClick = {
-                    navController.navigate(Screen.LeadUpdateScreen.route.plus("/${selectedId}"))
+
+                    val joinedString = selectedIdList.joinToString(separator = ",")
+                    navController.navigate(Screen.LeadUpdateScreen.route.plus("/${joinedString}"))
                 }) {
                 Text(
                     text = stringResource(R.string.add_action),
@@ -172,9 +178,9 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
             .height(screenHeight / 3f)
             .padding(6.dp)
             .clickable {
+                lead.selected = !lead.selected
+                selected = lead.selected
                 onItemClick(lead)
-
-
             },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -234,20 +240,18 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    lead.sales_name.let {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                painterResource(R.drawable.sales_name_icon),
-                                contentDescription = "",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = lead.sales_name ?: "", style = TextStyle(
-                                    fontSize = 14.sp,
-                                ), modifier = Modifier.padding(start = 4.dp)
-                            )
-                        }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painterResource(R.drawable.sales_name_icon),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = lead.sales_name ?: "", style = TextStyle(
+                                fontSize = 14.sp,
+                            ), modifier = Modifier.padding(start = 4.dp)
+                        )
                     }
                 }
                 Row(

@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.forgetPassword.checkCode
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -28,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -45,18 +42,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.R
-import com.alef.souqleader.ui.presentation.login.isValidText
 import com.alef.souqleader.ui.theme.White
 import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun ForgetPasswordScreen() {
-    val changePasswordViewModel: ForgetPasswordViewModel = hiltViewModel()
+fun CheckCodeScreen() {
+    val checkPasswordViewModel: CheckPasswordViewModel = hiltViewModel()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        changePasswordViewModel.viewModelScope.launch {
-            changePasswordViewModel.forgetPassword.collect {
+        checkPasswordViewModel.viewModelScope.launch {
+            checkPasswordViewModel.checkCode.collect {
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
@@ -79,7 +75,7 @@ fun ForgetPasswordScreen() {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = stringResource(R.string.change_password),
+                text = stringResource(R.string.verify_code),
                 style = TextStyle(
                     fontSize = 26.sp,
                     color = colorResource(id = R.color.blue2),
@@ -94,10 +90,10 @@ fun ForgetPasswordScreen() {
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
-        ChangePass(onChangePasswordClick = { email ->
-            changePasswordViewModel
-                .forgetPassword(
-                    email
+        ChangePass(onChangePasswordClick = { code ->
+            checkPasswordViewModel
+                .checkCode(
+                    code
                 )
         })
     }
@@ -107,12 +103,12 @@ fun ForgetPasswordScreen() {
 fun ChangePass(onChangePasswordClick: (String) -> Unit) {
     val context = LocalContext.current
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        var isEmailNotValid by remember { mutableStateOf(true) }
-        var email by remember { mutableStateOf("") }
+        var isCodeNotValid by remember { mutableStateOf(true) }
+        var code by remember { mutableStateOf("") }
         ChangePassItem(stringResource(R.string.password),
             onTextChange = { pass, isNotValid ->
-                email = pass
-                isEmailNotValid = isNotValid
+                code = pass
+                isCodeNotValid = isNotValid
             })
 
 
@@ -123,17 +119,17 @@ fun ChangePass(onChangePasswordClick: (String) -> Unit) {
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
             onClick = {
-                if (isEmailNotValid) {
+                if (isCodeNotValid) {
                     Toast.makeText(
                         context,
                         context.getString(R.string.invalid_data), Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    onChangePasswordClick(email)
+                    onChangePasswordClick(code)
                 }
             }) {
             Text(
-                text = stringResource(R.string.forgot_password),
+                text = stringResource(R.string.verify_code),
                 Modifier.padding(vertical = 8.dp),
                 style = TextStyle(textAlign = TextAlign.Center, fontSize = 15.sp)
             )
@@ -147,9 +143,12 @@ fun ChangePass(onChangePasswordClick: (String) -> Unit) {
 fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
-    var keyboardOptions =
-        KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number)
-   
+    val keyboardOptions =
+        KeyboardOptions(
+            imeAction = ImeAction.Done,
+            keyboardType = KeyboardType.Number
+        )
+
     TextField(
         modifier = Modifier
             .fillMaxWidth()

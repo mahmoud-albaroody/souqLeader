@@ -21,7 +21,6 @@ import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.MeetingReportResponse
-import com.alef.souqleader.data.remote.dto.MultiResponse
 import com.alef.souqleader.data.remote.dto.PlanResponse
 import com.alef.souqleader.data.remote.dto.PostResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
@@ -98,9 +97,17 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
     suspend fun updateMulti(
-        ids: ArrayList<String>
-    ): Resource<MultiResponse> {
-        val response = APIs.updateMulti(ids)
+        ids: Array<String>, status: String?,
+        note: String?,
+        reminderTime: String?,
+        cancelReason: String?
+    ): Resource<UpdateLeadResponse> {
+        val response = APIs.updateMulti(
+            ids, status,
+            note,
+            reminderTime,
+            cancelReason
+        )
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -398,11 +405,69 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
+    suspend fun changePassword(
+        password: String,
+        newPassword: String,
+        confirmPassword: String
+    ): Resource<StatusResponse> {
+        val response = APIs.changePassword(password, newPassword, confirmPassword)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun resetPassword(
+        email: String,
+        password: String,
+        passwordConfirmation: String,
+        code: String
+    ): Resource<StatusResponse> {
+        val response = APIs.resetPassword(email, password, passwordConfirmation, code)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
+    suspend fun checkCode(code: String): Resource<StatusResponse> {
+        val response = APIs.checkCode(code)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
+    suspend fun forgetPassword(email: String): Resource<StatusResponse> {
+        val response = APIs.forgetPassword(email)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
     suspend fun leadsFilter(filterRequest: FilterRequest): Resource<LeadsByStatusResponse> {
-        val response = APIs.leadsFilter(filterRequest.phone,filterRequest.status,
-            filterRequest.name,filterRequest.note,filterRequest.channel,
-            filterRequest.sales,filterRequest.project,filterRequest.budget,filterRequest.marketer,
-            filterRequest.communication_way,filterRequest.region)
+        val response = APIs.leadsFilter(
+            filterRequest.phone,
+            filterRequest.status,
+            filterRequest.name,
+            filterRequest.note,
+            filterRequest.channel,
+            filterRequest.sales,
+            filterRequest.project,
+            filterRequest.budget,
+            filterRequest.marketer,
+            filterRequest.communication_way,
+            filterRequest.region
+        )
         return if (response.isSuccessful) {
 
             Resource.Success(response.body()!!, response.errorBody())

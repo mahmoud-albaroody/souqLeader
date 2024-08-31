@@ -72,6 +72,7 @@ fun MyApp(modifier: Modifier) {
         viewModel.getLeads()
         viewModel.viewModelScope.launch {
             viewModel.allLead.collect {
+                allLead.clear()
                 allLead.add(AllLeadStatus(title_ar = "Add Lead", title_en = "Add Lead"))
                 allLead.addAll(it)
                 allLead.add(
@@ -213,16 +214,19 @@ fun CustomModalDrawer(
                         }
 
                         8 -> {
-                            navController.navigate(Screen.RoleScreen.route) {
-                                launchSingleTop = true
-                            }
-                        }
-
-                        9 -> {
+//                            navController.navigate(Screen.RoleScreen.route) {
+//                                launchSingleTop = true
+//                            }
                             navController.navigate(Screen.LoginScreen.route) {
                                 launchSingleTop = true
                             }
                         }
+
+//                        9 -> {
+//                            navController.navigate(Screen.LoginScreen.route) {
+//                                launchSingleTop = true
+//                            }
+//                        }
                     }
                 }
             }
@@ -231,7 +235,8 @@ fun CustomModalDrawer(
             Scaffold(
                 topBar = {
                     when (currentRoute(navController)) {
-                        Screen.DashboardScreen.route, Screen.Timeline.route, Screen.SalesProfileReportScreen.route, Screen.PaymentPlansScreen.route, Screen.ProfileScreen.route, Screen.RoleScreen.route -> {
+                        Screen.DashboardScreen.route, Screen.Timeline.route, Screen.SalesProfileReportScreen.route,
+                        Screen.PaymentPlansScreen.route, Screen.ProfileScreen.route, Screen.RoleScreen.route -> {
 //                            if (isAppBarVisible.value) {
                             val appTitle: String =
                                 if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
@@ -240,8 +245,23 @@ fun CustomModalDrawer(
                                 else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
                                     R.string.timeline
                                 )
+                                else if (currentRoute(navController) == Screen.AllLeadsScreen.route) stringResource(
+                                    R.string.timeline
+                                )
                                 else if (currentRoute(navController) == Screen.AddLeadScreen.route) stringResource(
                                     R.string.add_lead
+                                )
+                                else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) stringResource(
+                                    R.string.change_password
+                                )
+                                else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route) stringResource(
+                                    R.string.forgot_password
+                                )
+                                else if (currentRoute(navController) == Screen.ResetPasswordScreen.route) stringResource(
+                                    R.string.reset_password
+                                )
+                                else if (currentRoute(navController) == Screen.CheckCodeScreen.route) stringResource(
+                                    R.string.verify_code
                                 )
                                 else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
                                     R.string.filter_result

@@ -37,19 +37,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.UserDate
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
-import com.alef.souqleader.ui.theme.*
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.updateLocale
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 
 @Composable
-fun ProfileScreen(modifier: Modifier) {
+fun ProfileScreen(modifier: Modifier, navController: NavController) {
     val profileViewModel: ProfileViewModel = hiltViewModel()
     var userDate by remember { mutableStateOf(UserDate()) }
     LaunchedEffect(key1 = true) {
@@ -60,11 +61,21 @@ fun ProfileScreen(modifier: Modifier) {
         }
     }
 
-    ProfileItem(userDate)
+    ProfileItem(userDate, onChangePasswordClick = {
+        navController.navigate(Screen.ChangePasswordScreen.route)
+    }, onSignOutClick = {
+        navController.navigate(Screen.LoginScreen.route) {
+            launchSingleTop = true
+        }
+    })
 }
 
 @Composable
-fun ProfileItem(userDate: UserDate) {
+fun ProfileItem(
+    userDate: UserDate,
+    onChangePasswordClick: () -> Unit,
+    onSignOutClick: () -> Unit
+) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -267,6 +278,9 @@ fun ProfileItem(userDate: UserDate) {
             Card(
                 Modifier
                     .fillMaxWidth()
+                    .clickable {
+                        onChangePasswordClick()
+                    }
                     .padding(top = 8.dp),
             ) {
                 Row(
@@ -301,6 +315,9 @@ fun ProfileItem(userDate: UserDate) {
                 Row(
                     Modifier
                         .fillMaxWidth()
+                        .clickable {
+                            onSignOutClick()
+                        }
                         .padding(vertical = 10.dp, horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -310,6 +327,7 @@ fun ProfileItem(userDate: UserDate) {
                         contentScale = ContentScale.Crop
                     )
                     Text(
+
                         text = stringResource(R.string.sign_out),
                         style = TextStyle(
                             fontSize = 16.sp

@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.presentation.login
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -94,7 +95,9 @@ fun LoginScreen(
         if (AccountData.auth_token != null)
             navController.navigate(Screen.DashboardScreen.route)
     }
-    LoginItem(modifier, navController, viewModel)
+    LoginItem(modifier, navController, viewModel, onForgetClick = {
+        navController.navigate(Screen.ForgetPasswordScreen.route)
+    })
 
 
 }
@@ -110,7 +113,7 @@ class SampleNameProvider(override val values: Sequence<NavController>) :
 fun LoginItem(
     modifier: Modifier,
     @PreviewParameter(SampleNameProvider::class) navController: NavController,
-    viewModel: LoginViewModel
+    viewModel: LoginViewModel, onForgetClick: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     var email by rememberSaveable { mutableStateOf("") }
@@ -142,7 +145,9 @@ fun LoginItem(
             Text(
                 text = stringResource(R.string.let_s_login),
                 style = TextStyle(
-                    fontSize = 26.sp, color = colorResource(id = R.color.blue2), fontWeight = FontWeight.Bold
+                    fontSize = 26.sp,
+                    color = colorResource(id = R.color.blue2),
+                    fontWeight = FontWeight.Bold
                 ),
             )
             Text(
@@ -184,12 +189,14 @@ fun LoginItem(
             )
 
             if (isNotValid) {
-                Text(text = stringResource(R.string.please_enter_valid_text),
+                Text(
+                    text = stringResource(R.string.please_enter_valid_text),
                     fontSize = 12.sp,
-                    color = colorResource(id = R.color.red))
+                    color = colorResource(id = R.color.red)
+                )
             }
-            TextField(
 
+            TextField(
                 modifier = modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
@@ -236,14 +243,20 @@ fun LoginItem(
             )
 
             if (isValidNotPassword) {
-                Text(text = stringResource(R.string.please_enter_valid_text),
+                Text(
+                    text = stringResource(R.string.please_enter_valid_text),
                     color = colorResource(id = R.color.red),
-                    fontSize = 12.sp)
+                    fontSize = 12.sp
+                )
             }
             Text(
                 text = stringResource(R.string.forgot_password), style = TextStyle(
                     fontSize = 15.sp, color = colorResource(id = R.color.blue2)
-                ), modifier = modifier.align(Alignment.End)
+                ), modifier = modifier
+                    .align(Alignment.End)
+                    .clickable {
+                        onForgetClick()
+                    }
             )
         }
 

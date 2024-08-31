@@ -127,5 +127,13 @@
     <string name="souqleader_com">.SouqLeader.com</string>
     <string name="company_name">Company Name</string>
     <string name="users">Users</string>
+    <string name="cold">Cold</string>
+    <string name="fresh">Fresh</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="invalid_data">Invalid Input</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="verify_code">Verify Code</string>
+    <string name="code">Code</string>
 
 </resources>

@@ -1,10 +1,10 @@
 package com.alef.souqleader.ui
 
+import android.app.UiModeManager
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -13,10 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.theme.AndroidCookiesTheme
 import com.alef.souqleader.ui.presentation.mainScreen.MyApp
+import com.alef.souqleader.ui.theme.AndroidCookiesTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,17 +25,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Determine the layout direction based on the current locale
+      //  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         val layoutDirection = if (AccountData.lang == "ar") {
             LayoutDirection.Rtl
         } else {
             LayoutDirection.Ltr
         }
-        this.window.setSoftInputMode(
-            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
-        )
+//        this.window.setSoftInputMode(
+//            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
+//        )
         updateLocale(this, Locale(AccountData.lang))
-       // AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
 
+
+
+        //     setForceDarkAllowed()
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         setContent {

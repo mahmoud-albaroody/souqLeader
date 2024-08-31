@@ -1,5 +1,7 @@
 package com.alef.souqleader.ui.presentation.changePassword
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -7,21 +9,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,30 +29,39 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.login.isValidText
 import com.alef.souqleader.ui.theme.White
+import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun ChangePassword(
+fun ChangePasswordScreen() {
+    val changePasswordViewModel: ChangePasswordViewModel = hiltViewModel()
+    val context = LocalContext.current
+    LaunchedEffect(key1 = true) {
+        changePasswordViewModel.viewModelScope.launch {
+            changePasswordViewModel.changePassword.collect {
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
-) {
     Column(
         Modifier
             .fillMaxSize()
@@ -85,26 +94,41 @@ fun ChangePassword(
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
-        ChangePass()
+        ChangePass(onChangePasswordClick = { password, newPassword, confirmPassword ->
+            changePasswordViewModel
+                .changePassword(
+                    password,
+                    newPassword,
+                    confirmPassword
+                )
+        })
     }
 }
 
 @Composable
-fun ChangePass() {
-    Column(
-
-    ) {
+fun ChangePass(onChangePasswordClick: (String, String, String) -> Unit) {
+    val context = LocalContext.current
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        var isPasswordNotValid by remember { mutableStateOf(true) }
+        var isNewPasswordNotValid by remember { mutableStateOf(true) }
+        var isConfirmPasswordNotValid by remember { mutableStateOf(true) }
+        var password by remember { mutableStateOf("") }
+        var newPassword by remember { mutableStateOf("") }
+        var confirmPassword by remember { mutableStateOf("") }
         ChangePassItem(stringResource(R.string.password),
-            onTextChange = {
-
+            onTextChange = { pass, isNotValid ->
+                password = pass
+                isPasswordNotValid = isNotValid
             })
         ChangePassItem(stringResource(R.string.new_password),
-            onTextChange = {
-
+            onTextChange = { pass, isNotValid ->
+                newPassword = pass
+                isNewPasswordNotValid = isNotValid
             })
         ChangePassItem(stringResource(R.string.confirm_password),
-            onTextChange = {
-
+            onTextChange = { pass, isNotValid ->
+                confirmPassword = pass
+                isConfirmPasswordNotValid = isNotValid
             })
 
         Button(modifier = Modifier
@@ -114,7 +138,14 @@ fun ChangePass() {
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
             onClick = {
-
+                if (isPasswordNotValid || isNewPasswordNotValid || isConfirmPasswordNotValid) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.invalid_data), Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    onChangePasswordClick(password, newPassword, confirmPassword)
+                }
             }) {
             Text(
                 text = stringResource(R.string.change_password),
@@ -128,10 +159,15 @@ fun ChangePass() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChangePassItem(text: String, onTextChange: (String) -> Unit) {
-    val (focusRequester) = FocusRequester.createRefs()
+fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
+    var keyboardOptions =
+        KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Number)
+    if (text == stringResource(id = R.string.confirm_password)) {
+        keyboardOptions =
+            KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number)
+    }
     TextField(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,14 +189,14 @@ fun ChangePassItem(text: String, onTextChange: (String) -> Unit) {
         ),
         onValueChange = {
             password = it
-            onTextChange(password)
-            isNotValid = !isValidText(it)
+            isNotValid = it.isEmpty()
+            onTextChange(password, isNotValid)
+
         },
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
         isError = isNotValid,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() })
+        keyboardOptions = keyboardOptions,
     )
 
     if (isNotValid) {

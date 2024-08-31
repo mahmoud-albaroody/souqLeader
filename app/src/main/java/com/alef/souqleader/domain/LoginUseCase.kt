@@ -20,6 +20,34 @@ class LoginUseCase @Inject constructor(
         return repository.updateFcmToken(token)
     }
 
+    suspend fun changePassword(
+        password: String,
+        newPassword: String,
+        confirmPassword: String
+    ): Resource<StatusResponse> {
+        return repository.changePassword(password, newPassword, confirmPassword)
+    }
+
+    suspend fun resetPassword(
+        email: String,
+        password: String,
+        passwordConfirmation: String,
+        code: String
+    ): Resource<StatusResponse> {
+        return repository.resetPassword(email, password, passwordConfirmation,code)
+    }
+
+    suspend fun checkCode(
+        code: String
+    ): Resource<StatusResponse> {
+        return repository.checkCode(code)
+    }
+
+    suspend fun forgetPassword(
+        email:String
+    ): Resource<StatusResponse> {
+        return repository.forgetPassword(email)
+    }
 
 
 }

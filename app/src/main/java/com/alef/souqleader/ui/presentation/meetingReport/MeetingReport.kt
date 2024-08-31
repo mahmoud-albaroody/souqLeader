@@ -1,7 +1,6 @@
 package com.alef.souqleader.ui.presentation.meetingReport
 
 import android.graphics.Typeface
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.compose.animation.Crossfade
@@ -50,11 +49,9 @@ import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.CustomBarChartRender
-import com.alef.souqleader.ui.theme.*
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -63,6 +60,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 
 
@@ -188,7 +186,9 @@ fun MeetingItem(meetingReport: MeetingReport) {
                     Text(
                         text = meetingReport.the_best.meetings_count,
                         style = TextStyle(
-                            fontSize = 20.sp, color = colorResource(id = R.color.blue), fontWeight = FontWeight.Bold
+                            fontSize = 20.sp,
+                            color = colorResource(id = R.color.blue),
+                            fontWeight = FontWeight.Bold
                         ),
                     )
                     Text(
@@ -267,8 +267,6 @@ fun MeetingItem(meetingReport: MeetingReport) {
         ) {
             PieChart(meetingReport, stringResource(R.string.channels))
         }
-
-
     }
 
 }
@@ -324,25 +322,32 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 xAxis.textSize = 10f
                 xAxis.axisLineColor = android.graphics.Color.WHITE
                 xAxis.granularity = 1f
+
+
                 //  xAxis.isGranularityEnabled = true
                 //   xAxis.setCenterAxisLabels(true)
-                //  xAxis.setAvoidFirstLastClipping(true)
+              //  xAxis.setAvoidFirstLastClipping(true)
+                xAxis.labelRotationAngle = 60f
+              //  xAxis.granularity = 1f;
                 // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
                 legend.isEnabled = false
                 xAxis.valueFormatter = IndexAxisValueFormatter(labels);
+
                 //   xAxis.valueFormatter = CustomValueFormatter(labels)
                 // data.barWidth = 0.5f
                 //   data.isHighlightEnabled = true
                 setScaleEnabled(false)
                 setVisibleXRangeMaximum(4f)
+              //  extraBottomOffset = 100F
                 val barChartRender = CustomBarChartRender(
                     this,
                     animator,
                     viewPortHandler
                 )
-                barChartRender.setRadius(30)
 
+                barChartRender.setRadius(30)
+              //  xAxis.valueFormatter = MultiLineValueFormatter()
                 renderer = barChartRender
                 // Create bar data set
                 val barDataSet = BarDataSet(barEntries, "Sample Data").apply {
@@ -371,7 +376,7 @@ fun PieChart(meetingReport: MeetingReport, title: String) {
 
     val arr: ArrayList<PieChartData> = arrayListOf()
 
-    if (title ==  stringResource(R.string.meeting_report)) {
+    if (title == stringResource(R.string.meeting_report)) {
         meetingReport.project_chart.forEachIndexed { index, projectChart ->
             arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
         }
@@ -380,8 +385,7 @@ fun PieChart(meetingReport: MeetingReport, title: String) {
         meetingReport.projectChart.forEachIndexed { index, projectChart ->
             arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
         }
-    }
-    else {
+    } else {
         meetingReport.channel_chart.forEachIndexed { index, channelChart ->
             arr.add(PieChartData(channelChart.title(), channelChart.lead_count))
         }
@@ -454,7 +458,7 @@ fun PieChart(meetingReport: MeetingReport, title: String) {
                             // on below line we are specifying entry label color as white.
                             this.setEntryLabelColor(resources.getColor(R.color.white))
 
-                            val l: Legend =this.legend
+                            val l: Legend = this.legend
 
 
                             l.setDrawInside(false);
@@ -581,9 +585,9 @@ fun MeetingLeads(lead: Lead) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = lead.name?:"", style = TextStyle(), modifier = Modifier.weight(1f))
+            Text(text = lead.name ?: "", style = TextStyle(), modifier = Modifier.weight(1f))
             Text(
-                text = lead.phone?:"",
+                text = lead.phone ?: "",
                 style = TextStyle(color = colorResource(id = R.color.blue2)),
                 modifier = Modifier.weight(1f)
             )
@@ -608,7 +612,7 @@ fun MeetingLeads(lead: Lead) {
                 lead.project_name = "Un Specified"
             }
             Text(
-                text = lead.project_name?:"",
+                text = lead.project_name ?: "",
                 style = TextStyle(textAlign = TextAlign.End),
                 modifier = Modifier.weight(1f)
             )
@@ -620,5 +624,17 @@ fun MeetingLeads(lead: Lead) {
                 .background(colorResource(id = R.color.blue2))
                 .padding(top = 16.dp) // Set the color of the vertical line
         )
+    }
+}
+
+
+class MultiLineValueFormatter : ValueFormatter() {
+    override fun getFormattedValue(value: Float): String {
+        val label = "Your label here" // Replace with your label logic
+        // Split the label into two lines
+        return if (label.length > 10) """
+     ${label.substring(0, 10)}
+     ${label.substring(10)}
+     """.trimIndent() else label
     }
 }

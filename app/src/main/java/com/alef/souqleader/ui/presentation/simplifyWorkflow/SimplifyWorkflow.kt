@@ -72,8 +72,8 @@ fun SimplifyScreen(modifier: Modifier, navController: NavController) {
                 }
             }
         } else {
-            if (!it.message.isNullOrEmpty()) {
-                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+            if (!it.message.toString().isNullOrEmpty()) {
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             } else {
 
             }

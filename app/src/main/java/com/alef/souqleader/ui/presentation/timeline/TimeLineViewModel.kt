@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
+import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.Plan
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.StatusResponse
@@ -19,6 +20,7 @@ import com.alef.souqleader.domain.PaymentPlanUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -41,8 +43,10 @@ class TimeLineViewModel @Inject constructor(
     private val _addLike = MutableLiveData<AddLikeResponse>()
     val addLike: LiveData<AddLikeResponse> = _addLike
 
-    private val _statePosts = MutableLiveData<ArrayList<Post>?>()
-    val statePosts: MutableLiveData<ArrayList<Post>?> = _statePosts
+    private val _statePosts =
+        MutableSharedFlow<ArrayList<Post>>()
+    val statePosts: MutableSharedFlow<ArrayList<Post>>
+        get() = _statePosts
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -51,7 +55,7 @@ class TimeLineViewModel @Inject constructor(
 
     fun getPosts() {
         viewModelScope.launch(job) {
-            _statePosts.value = getPostsUseCase.getPosts().data?.data!!.data
+            getPostsUseCase.getPosts().data?.data!!.data?.let { _statePosts.emit(it) }
         }
     }
 

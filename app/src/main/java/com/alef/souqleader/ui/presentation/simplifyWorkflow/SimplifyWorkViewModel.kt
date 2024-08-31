@@ -29,7 +29,6 @@ class SimplifyWorkViewModel @Inject constructor(
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        Log.e("ddd",throwable.printStackTrace().toString())
         throwable.printStackTrace()
     }
 

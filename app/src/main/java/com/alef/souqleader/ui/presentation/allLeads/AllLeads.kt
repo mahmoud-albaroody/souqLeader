@@ -66,7 +66,6 @@ fun AllLeadsScreen(
     modifier: Modifier,
     leadId: String?
 ) {
-    Log.e("ssss", AccountData.permissionList.toString())
     val viewModel: AllLeadViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
     val leadList = remember { mutableStateListOf<Lead>() }
@@ -118,7 +117,7 @@ fun Screen(
     setKeyword: (String) -> Unit,
     stateListOfLeads: List<Lead>
 ) {
-    var selectedId by remember { mutableStateOf("") }
+    val selectedIdList = remember { mutableStateListOf<String>() }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     Box(
@@ -139,23 +138,25 @@ fun Screen(
             ) {
                 items(stateListOfLeads) {
                     AllLeadsItem(it) { lead ->
-                        stateListOfLeads.forEach {
-                            it.selected = false
+                        if (selectedIdList.find { it.toInt() == lead.id } == null) {
+                            selectedIdList.add(lead.id.toString())
+                            Log.e("ddd","sdfdsfs")
+                        } else {
+                            selectedIdList.remove(lead.id.toString())
                         }
-                        stateListOfLeads.find { it.id == lead.id }?.selected = true
-                        selectedId = lead.id.toString()
                     }
                 }
             }
         }
-        if (selectedId.isNotEmpty())
+        if (selectedIdList.isNotEmpty())
             Button(modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
                 onClick = {
-                    navController.navigate(Screen.LeadUpdateScreen.route.plus("/${selectedId}"))
+                    val joinedString = selectedIdList.joinToString(separator = ",")
+                    navController.navigate(Screen.LeadUpdateScreen.route.plus("/${joinedString}"))
                 }) {
                 Text(
                     text = stringResource(R.string.add_action),
@@ -179,6 +180,8 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
             .height(screenHeight / 3f)
             .padding(6.dp)
             .clickable {
+                lead.selected = !lead.selected
+                selected = lead.selected
                 onItemClick(lead)
             },
         elevation = CardDefaults.cardElevation(4.dp)

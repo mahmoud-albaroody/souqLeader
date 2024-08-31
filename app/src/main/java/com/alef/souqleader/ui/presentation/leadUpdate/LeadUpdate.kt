@@ -71,12 +71,15 @@ import java.util.Date
 @Composable
 fun LeadUpdateScreen(
     navController: NavController,
-    modifier: Modifier, leadId: String
+    modifier: Modifier, leadIds: Array<String>
 ) {
     val viewModel: LeadUpdateViewModel = hiltViewModel()
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
     val cancelationReason = remember { mutableStateListOf<CancelationReason>() }
     val cancelationTitleReason = remember { mutableStateListOf<String>() }
+
+        Log.e("ddd", leadIds.size.toString())
+
     val mContext = LocalContext.current
     LaunchedEffect(key1 = true) {
         viewModel.getLeads()
@@ -103,10 +106,10 @@ fun LeadUpdateScreen(
         }
         viewModel.viewModelScope.launch {
             viewModel.updateLead.collect {
-                Toast.makeText(mContext, it.message, Toast.LENGTH_LONG).show()
+                Toast.makeText(mContext, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
-        // viewModel.updateMulti()
+
     }
     LeadUpdate(
         allLead,
@@ -130,8 +133,15 @@ fun LeadUpdateScreen(
                 leadNote = null
             }
 
-            viewModel.updateLead(
-                id = leadId,
+//            viewModel.updateLead(
+//                id = leadId,
+//                status = status,
+//                note = leadNote,
+//                reminderTime = date,
+//                cancelReason = cancelReason
+//            )
+            viewModel.updateMulti(
+                ids = leadIds,
                 status = status,
                 note = leadNote,
                 reminderTime = date,
@@ -415,6 +425,7 @@ fun DatePickerModal(
             onDateSelected(mDate.value)
         }, mYear, mMonth, mDay
     )
+    mDatePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
     mDatePickerDialog.setOnDismissListener {
         onDismiss.invoke()
     }

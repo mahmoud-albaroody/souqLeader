@@ -22,6 +22,7 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
+import com.alef.souqleader.ui.presentation.changePassword.ChangePasswordScreen
 import com.alef.souqleader.ui.presentation.channelReport.ChannelReport
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
@@ -29,6 +30,9 @@ import com.alef.souqleader.ui.presentation.delaysReports.DelaysReports
 import com.alef.souqleader.ui.presentation.filter.FilterScreen
 import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
 import com.alef.souqleader.ui.presentation.filterResult.FilterResultScreen
+import com.alef.souqleader.ui.presentation.forgetPassword.checkCode.CheckCodeScreen
+import com.alef.souqleader.ui.presentation.forgetPassword.forgetPassword.ForgetPasswordScreen
+import com.alef.souqleader.ui.presentation.forgetPassword.resetPassword.ResetPasswordScreen
 import com.alef.souqleader.ui.presentation.projects.ProjectsScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
 import com.alef.souqleader.ui.presentation.login.LoginScreen
@@ -121,11 +125,13 @@ fun Navigation(
                 type = NavType.StringType
             })
         ) {
-            val leadId = it.arguments?.getString(Screen.LeadUpdateScreen.objectName)
-            leadId?.let {
+
+            val joinedString = it.arguments?.getString(Screen.LeadUpdateScreen.objectName)
+            val stringArray = joinedString?.split(",")?.toTypedArray()
+            stringArray?.let {
                 if (modifier != null) {
                     LeadUpdateScreen(
-                        navController, modifier, leadId = leadId
+                        navController, modifier, leadIds = stringArray
                     )
                 }
 
@@ -139,6 +145,38 @@ fun Navigation(
                 )
             }
         }
+
+        composable(Screen.ChangePasswordScreen.route) {
+            modifier?.let { it1 ->
+                ChangePasswordScreen(
+
+                )
+            }
+        }
+
+        composable(Screen.ForgetPasswordScreen.route) {
+            modifier?.let { it1 ->
+                ForgetPasswordScreen(
+
+                )
+            }
+        }
+
+        composable(Screen.ResetPasswordScreen.route) {
+            modifier?.let { it1 ->
+                ResetPasswordScreen(
+
+                )
+            }
+        }
+        composable(Screen.CheckCodeScreen.route) {
+            modifier?.let { it1 ->
+                CheckCodeScreen(
+
+                )
+            }
+        }
+
 
         composable(Screen.Timeline.route) {
             modifier?.let { it1 ->
@@ -178,7 +216,7 @@ fun Navigation(
         composable(Screen.InventoryScreen.route) {
             modifier?.let { it1 ->
                 ProfileScreen(
-                    modifier
+                    modifier, navController
                 )
             }
         }
@@ -202,7 +240,7 @@ fun Navigation(
         composable(Screen.ProfileScreen.route) {
             modifier?.let { it1 ->
                 ProfileScreen(
-                    modifier
+                    modifier, navController
                 )
             }
         }
@@ -341,6 +379,8 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.AllLeadsScreen.route -> {
             title
         }
+
+
         Screen.CRMScreen.route.plus("?" + Screen.CRMScreen.objectName + "={CRMS}") -> {
             ""
         }
@@ -348,6 +388,22 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.FilterResultScreen.route -> {
             stringResource(id = R.string.filter_result)
         }
+
+        Screen.ChangePasswordScreen.route -> {
+            stringResource(id = R.string.change_password)
+        }
+
+        Screen.ForgetPasswordScreen.route -> {
+            stringResource(id = R.string.forgot_password)
+        }
+
+        Screen.ResetPasswordScreen.route -> {
+            stringResource(R.string.reset_password)
+        }
+        Screen.CheckCodeScreen.route -> {
+            stringResource(R.string.verify_code)
+        }
+
 
         Screen.FilterScreen.route -> {
             stringResource(id = R.string.filter)

@@ -126,6 +126,14 @@
     <string name="cancellation_leads">إلغاء العملاء</string>
     <string name="souqleader_com">.سوق ليدر.كوم</string>
     <string name="company_name">اسم الشركة</string>
-    <string name="users">Users</string>
+    <string name="users">العملاء</string>
+    <string name="cold">قديم</string>
+    <string name="fresh">جديد</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="invalid_data">Invalid Data</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="verify_code">Verify Code</string>
+    <string name="code">Code</string>
 
 </resources>

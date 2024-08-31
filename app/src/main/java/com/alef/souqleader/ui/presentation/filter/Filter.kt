@@ -101,7 +101,7 @@ fun FilterScreen(navController: NavController, modifier: Modifier) {
         }
         filterViewModel.viewModelScope.launch {
             filterViewModel.addLead.collect {
-                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
 

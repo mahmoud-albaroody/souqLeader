@@ -26,7 +26,6 @@ class LeadUpdateViewModel @Inject constructor(
     private val saveMultiUseCase: SaveMultiUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private var stateUpdateMulti by mutableStateOf(true)
 
     val stateListOfLeads: MutableState<ArrayList<Lead>?> = mutableStateOf(null)
     private val job = Job()
@@ -57,9 +56,22 @@ class LeadUpdateViewModel @Inject constructor(
         }
     }
 
-    fun updateMulti(ids: ArrayList<String>) {
+    fun updateMulti(
+        ids: Array<String>, status: String?,
+        note: String?,
+        reminderTime: String?,
+        cancelReason: String?
+    ) {
         viewModelScope.launch(job) {
-            stateUpdateMulti = saveMultiUseCase.updateMulti(ids).data?.data!!
+            _updateLead.emit(
+                saveMultiUseCase.updateMulti(
+                    ids,
+                    status,
+                    note,
+                    reminderTime,
+                    cancelReason
+                ).data!!
+            )
         }
     }
 

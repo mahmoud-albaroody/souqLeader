@@ -32,6 +32,16 @@ sealed class Screen(
     object SalesProfileReportScreen : Screen("salesProfileReportScreen")
     object AddLeadScreen : Screen("addLeadScreen")
 
+    object ChangePasswordScreen : Screen("changePasswordScreen", objectName = "s", objectPath = "/{s}")
+
+    object ForgetPasswordScreen : Screen("forgetPasswordScreen", objectName = "s", objectPath = "/{s}")
+
+    object ResetPasswordScreen : Screen("resetPasswordScreen", objectName = "s", objectPath = "/{s}")
+
+    object CheckCodeScreen : Screen("checkCodeScreen", objectName = "s", objectPath = "/{s}")
+
+
+
 
     object InventoryScreen : Screen("inventory")
 

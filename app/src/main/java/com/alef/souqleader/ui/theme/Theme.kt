@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.theme
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.darkColors
@@ -62,14 +63,20 @@ fun AndroidCookiesTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+
+    Configuration.UI_MODE_NIGHT_NO
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme)
+                dynamicDarkColorScheme(context)
+            else
+                dynamicLightColorScheme(context)
         }
 
         darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else ->
+            LightColorScheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -81,7 +88,7 @@ fun AndroidCookiesTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+//        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

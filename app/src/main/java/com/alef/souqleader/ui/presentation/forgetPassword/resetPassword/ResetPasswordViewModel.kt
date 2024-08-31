@@ -18,18 +18,24 @@ class ResetPasswordViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val _changePassword =
+    private val _resetPassword =
         MutableSharedFlow<StatusResponse>()
-    val changePassword: MutableSharedFlow<StatusResponse>
-        get() = _changePassword
+    val resetPassword: MutableSharedFlow<StatusResponse>
+        get() = _resetPassword
     private val job = Job()
-    fun changePassword(password: String, newPassword: String, confirmPassword: String) {
+    fun resetPassword(
+        email: String,
+        password: String,
+        passwordConfirmation: String,
+        code: String
+    ) {
         viewModelScope.launch(job) {
-            _changePassword.emit(
-                loginUseCase.changePassword(
+            _resetPassword.emit(
+                loginUseCase.resetPassword(
+                    email,
                     password,
-                    newPassword,
-                    confirmPassword
+                    passwordConfirmation,
+                    code
                 ).data!!
             )
         }

@@ -128,7 +128,6 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideHeaderInterceptor(): Interceptor {
-        Log.e("ddd", "dsfdsfdsf")
         return Interceptor {
 
             val requestBuilder = it.request().newBuilder()
