@@ -1,5 +1,10 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
+import android.annotation.SuppressLint
+import android.os.Build
+import android.util.Log
+import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Snackbar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -35,8 +42,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,9 +60,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.SideMenuItem
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.CircularIndeterminateProgressBar
+import com.alef.souqleader.ui.MainActivity
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.Start
 import com.alef.souqleader.ui.appbar.HomeAppBar
 import com.alef.souqleader.ui.navigation.Navigation
 import com.alef.souqleader.ui.navigation.Screen
@@ -62,36 +76,70 @@ import com.alef.souqleader.ui.navigation.navigationTitle
 import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.theme.*
 import com.alef.souqleader.ui.appbar.AppBarWithArrow
+import com.alef.souqleader.ui.navigation.Navigation1
 import kotlinx.coroutines.launch
 
 @Composable
-fun MyApp(modifier: Modifier) {
+fun MyApp(modifier: Modifier, navController: NavHostController, mainViewModel: MainViewModel) {
     val viewModel: SharedViewModel = hiltViewModel()
-    val allLead = remember { mutableStateListOf<AllLeadStatus>() }
-    LaunchedEffect(key1 = true) {
-        viewModel.getLeads()
-        viewModel.viewModelScope.launch {
-            viewModel.allLead.collect {
-                allLead.clear()
-                allLead.add(AllLeadStatus(title_ar = "Add Lead", title_en = "Add Lead"))
-                allLead.addAll(it)
-                allLead.add(
-                    AllLeadStatus(
-                        title_ar = "Duplicated Leads",
-                        title_en = "Duplicated Leads", id = 100
+
+
+
+}
+
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun MainScreen(
+    modifier: Modifier,
+    navController: NavHostController,
+    viewModel: SharedViewModel,
+    mainViewModel: MainViewModel
+) {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val isAppBarVisible = remember { mutableStateOf(true) }
+    var title = ""
+    val scope = rememberCoroutineScope()
+//    val connection by connectivityState()
+//    val context = LocalContext.current
+//    val isConnected = connection === ConnectionState.Available
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+//        snackbarHost = {
+//            if (isConnected.not()) {
+//                Snackbar(
+//                    action = {}, modifier = Modifier.padding(8.dp)
+//                ) {
+//                    androidx.compose.material.Text(text = stringResource(R.string.there_is_no_internet))
+//                }
+//            }
+//        },
+        content = { innerPadding ->
+            Box {
+                if (AccountData.isFirstTime && AccountData.auth_token == null) {
+                    Navigation1(
+                        navController = navController,
+                        modifier = modifier,
+                        Screen.SimplifyWorkFlowScreen.route,
+                        viewModel, mainViewModel = mainViewModel
                     )
-                )
-                allLead.add(
-                    AllLeadStatus(
-                        title_ar = "Delay Leads", title_en = "Delay Leads",
-                        id = 200
+                    //    AccountData.isFirstTime = false
+                } else if (AccountData.auth_token == null) {
+                    Navigation1(
+                        navController = navController,
+                        modifier = modifier,
+                        Screen.LoginScreen.route,
+                        viewModel, mainViewModel = mainViewModel
                     )
+                }
+                CircularIndeterminateProgressBar(
+                    isDisplayed = mainViewModel.showLoader,
+                    0.4f, Color.Black.copy(alpha = 0.5f)
                 )
             }
         }
-    }
-    val navController = rememberNavController()
-    CustomModalDrawer(modifier, navController, viewModel, allLead)
+    )
 }
 
 @Composable
@@ -99,16 +147,61 @@ fun CustomModalDrawer(
     modifier: Modifier,
     navController: NavHostController,
     viewModel: SharedViewModel,
-    allLead: SnapshotStateList<AllLeadStatus>
+    allLead: SnapshotStateList<AllLeadStatus>,
+    mainViewModel: MainViewModel
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val isAppBarVisible = remember { mutableStateOf(true) }
     var title = ""
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
+    val allLead = remember { mutableStateListOf<AllLeadStatus>() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getLeads()
+        viewModel.viewModelScope.launch {
+            viewModel.allLead.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        allLead.clear()
+                        allLead.add(AllLeadStatus(title_ar = "Add Lead", title_en = "Add Lead"))
+                        it.data?.data?.let { it1 -> allLead.addAll(it1) }
+                        allLead.add(
+                            AllLeadStatus(
+                                title_ar = "Duplicated Leads",
+                                title_en = "Duplicated Leads", id = 100
+                            )
+                        )
+                        allLead.add(
+                            AllLeadStatus(
+                                title_ar = "Delay Leads", title_en = "Delay Leads",
+                                id = 200
+                            )
+                        )
+                        mainViewModel.showLoader = false
+                    }
+
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                           // Start()
+                        }
+                        mainViewModel.showLoader = false
+                    }
+                }
+            }
+        }
+    }
     ModalNavigationDrawer(
         drawerState = drawerState,
         scrimColor = colorResource(id = R.color.transparent),
+
         drawerContent = {
             ModalDrawerSheet(
                 drawerShape = RectangleShape,
@@ -217,8 +310,9 @@ fun CustomModalDrawer(
 //                            navController.navigate(Screen.RoleScreen.route) {
 //                                launchSingleTop = true
 //                            }
-                            navController.navigate(Screen.LoginScreen.route) {
-                                launchSingleTop = true
+                            AccountData.clear()
+                            (context as MainActivity).setContent {
+                                Start()
                             }
                         }
 
@@ -323,33 +417,23 @@ fun CustomModalDrawer(
                         .fillMaxWidth()
                         .padding(paddingValues)
                 ) {
-                    if (AccountData.isFirstTime && AccountData.auth_token == null) {
-                        Navigation(
-                            navController = navController,
-                            modifier = modifier,
-                            Screen.SimplifyWorkFlowScreen.route,
-                            viewModel
-                        )
-                        //    AccountData.isFirstTime = false
-                    } else if (AccountData.auth_token == null) {
-                        Navigation(
-                            navController = navController,
-                            modifier = modifier,
-                            Screen.LoginScreen.route,
-                            viewModel
-                        )
-                    } else {
-                        Navigation(
-                            navController = navController,
-                            modifier = modifier,
-                            Screen.DashboardScreen.route,
-                            viewModel
-                        )
-                    }
-                }
+                    Navigation(
+                        navController = navController,
+                        modifier = modifier,
+                        Screen.DashboardScreen.route,
+                        viewModel, mainViewModel = mainViewModel
+                    )
 
+
+                    CircularIndeterminateProgressBar(
+                        isDisplayed = mainViewModel.showLoader,
+                        0.4f, Color.Black.copy(alpha = 0.5f)
+                    )
+                }
             }
         })
+
+
 }
 
 @Composable

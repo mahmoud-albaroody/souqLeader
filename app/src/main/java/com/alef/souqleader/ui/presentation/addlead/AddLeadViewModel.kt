@@ -3,11 +3,13 @@ package com.alef.souqleader.ui.presentation.addlead
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
+import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
@@ -18,6 +20,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -64,8 +69,8 @@ class AddLeadViewModel @Inject constructor(
         throwable.printStackTrace()
     }
     private val _allLead =
-        MutableSharedFlow<ArrayList<AllLeadStatus>>()
-    val allLead: MutableSharedFlow<ArrayList<AllLeadStatus>>
+        MutableSharedFlow<Resource<LeadsStatusResponse>>()
+    val allLead: MutableSharedFlow<Resource<LeadsStatusResponse>>
         get() = _allLead
 
     fun communicationWay() {
@@ -109,10 +114,15 @@ class AddLeadViewModel @Inject constructor(
             _project.emit(addLeadUseCase.project().data!!)
         }
     }
+
     fun getLeads() {
         viewModelScope.launch(job) {
-            _allLead.emit(getLeadUseCase.getLeadStatus().data?.data!!)
+            getLeadUseCase.getLeadStatus().catch { }
+                .onStart {
+                    _allLead.emit(Resource.Loading())
+                }.buffer().collect {
+                    _allLead.emit(it)
+                }
         }
     }
-
 }

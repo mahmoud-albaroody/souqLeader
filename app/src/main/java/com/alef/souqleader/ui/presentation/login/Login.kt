@@ -1,6 +1,8 @@
 package com.alef.souqleader.ui.presentation.login
 
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,18 +28,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -55,46 +60,96 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.util.PatternsCompat.EMAIL_ADDRESS
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.Start
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
+import com.alef.souqleader.ui.presentation.mainScreen.CustomModalDrawer
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier, navController: NavController,
-    sharedViewModel: SharedViewModel
+    modifier: Modifier, navController: NavHostController,
+    sharedViewModel: SharedViewModel, mainViewModel: MainViewModel
 ) {
+    val context = LocalContext.current
 
     val viewModel: LoginViewModel = hiltViewModel()
     AccountData.auth_token = null
     AccountData.isFirstTime = true
-    val loginState by viewModel.loginState.collectAsState()
-    viewModel.updateBaseUrl(AccountData.BASE_URL)
-    loginState.let {
-        if (!it.access_token.isNullOrEmpty()) {
-            AccountData.auth_token = "Bearer " + it.access_token
-            AccountData.name = it.name.toString()
-            AccountData.role_name = it.role_name.toString()
-            AccountData.role_id = it.role_id ?: 0
-            AccountData.userId = it.id ?: 0
-            AccountData.photo = it.photo.toString()
-            AccountData.email = it.email.toString()
-            it.permissions?.let {
-                AccountData.permissionList = it
-            }
-            AccountData.firebase_token?.let { it1 -> viewModel.updateFcmToken(it1) }
-            sharedViewModel.updateSalesNameState(it.role_name.toString())
-            sharedViewModel.updatePhotoState(it.photo.toString())
-            sharedViewModel.updateNameState(it.name.toString())
-        }
+    LaunchedEffect(key1 = true) {
+        viewModel.updateBaseUrl(AccountData.BASE_URL)
+        viewModel.viewModelScope.launch {
+            viewModel.loginState.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data?.status == true) {
+                            it.data.data?.let {
+                                if (!it.access_token.isNullOrEmpty()) {
+                                    AccountData.auth_token = "Bearer " + it.access_token
+                                    AccountData.name = it.name.toString()
+                                    AccountData.role_name = it.role_name.toString()
+                                    AccountData.role_id = it.role_id ?: 0
+                                    AccountData.userId = it.id ?: 0
+                                    AccountData.photo = it.photo.toString()
+                                    AccountData.email = it.email.toString()
+                                    it.permissions?.let {
+                                        AccountData.permissionList = it
+                                    }
+                                    AccountData.firebase_token?.let { it1 ->
+                                        viewModel.updateFcmToken(
+                                            it1
+                                        )
+                                    }
+                                    sharedViewModel.updateSalesNameState(it.role_name.toString())
+                                    sharedViewModel.updatePhotoState(it.photo.toString())
+                                    sharedViewModel.updateNameState(it.name.toString())
+                                }
 
-        if (AccountData.auth_token != null)
-            navController.navigate(Screen.DashboardScreen.route)
+                                if (AccountData.auth_token != null)
+                                    (context as MainActivity).setContent {
+                                        Start()
+                                    }
+                            }
+                        } else {
+                            Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
+                                .show()
+                        }
+                        mainViewModel.showLoader = false
+                    }
+
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
+                        }
+                        mainViewModel.showLoader = false
+                    }
+                }
+
+            }
+
+        }
     }
+
+
+
+
     LoginItem(modifier, navController, viewModel, onForgetClick = {
         navController.navigate(Screen.ForgetPasswordScreen.route)
     })

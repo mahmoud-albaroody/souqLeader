@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,40 +45,70 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.dto.AllLeadStatus
+import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
 
 import com.alef.souqleader.ui.navigation.Screen
-
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun SimplifyScreen(modifier: Modifier, navController: NavController) {
+fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel, navController: NavController) {
     val simplifyWorkViewModel: SimplifyWorkViewModel = hiltViewModel()
 
     val context = LocalContext.current
     SimplifyItem(navController) { companyName ->
         simplifyWorkViewModel.getClient(companyName)
     }
-    simplifyWorkViewModel.getClientState.let {
-        if (it.status) {
-            it.data?.let {
-                if (!it.domain.isNullOrEmpty()) {
-                    AccountData.name = it.name ?: ""
-                    AccountData.domain = it.domain
-                    AccountData.BASE_URL = ("https://" + AccountData.domain + "/")
-                    AccountData.log = it.logo ?: ""
-                    navController.navigate(Screen.LoginScreen.route)
+    LaunchedEffect(key1 = true) {
+        simplifyWorkViewModel.viewModelScope.launch {
+            simplifyWorkViewModel.getClientState.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        (it.data as GetClientResponse).run {
+                            if (this.status) {
+                                this.data?.let {
+                                    if (!it.domain.isNullOrEmpty()) {
+                                        AccountData.name = it.name ?: ""
+                                        AccountData.domain = it.domain
+                                        AccountData.BASE_URL = ("https://" + AccountData.domain + "/")
+                                        AccountData.log = it.logo ?: ""
+                                        navController.navigate(Screen.LoginScreen.route)
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(context, this.message.toString(), Toast.LENGTH_LONG)
+                                    .show()
+                            }
+                        }
+
+                        mainViewModel.showLoader = false
+                    }
+
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
+                        }
+                        mainViewModel.showLoader = false
+                    }
                 }
             }
-        } else {
-            if (!it.message.toString().isNullOrEmpty()) {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
-            } else {
-
-            }
         }
+
+
     }
 
 
@@ -328,7 +359,9 @@ fun SimplifyItemP() {
             text = cs,
             minLines = 2,
             style = TextStyle(
-                fontSize = 25.sp, color = colorResource(id = R.color.blue), fontWeight = FontWeight.Bold
+                fontSize = 25.sp,
+                color = colorResource(id = R.color.blue),
+                fontWeight = FontWeight.Bold
             ),
             modifier = Modifier
                 .padding(horizontal = 40.dp)
@@ -374,7 +407,10 @@ fun SimplifyItemP() {
                                 modifier = Modifier,
                                 fontSize = 12.sp,
                                 text = stringResource(R.string.company_name),
-                                style = TextStyle(textAlign = TextAlign.End, color = colorResource(id = R.color.gray))
+                                style = TextStyle(
+                                    textAlign = TextAlign.End,
+                                    color = colorResource(id = R.color.gray)
+                                )
                             )
                         },
                         colors = TextFieldDefaults.textFieldColors(

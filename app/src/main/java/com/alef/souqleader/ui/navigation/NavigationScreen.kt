@@ -40,8 +40,9 @@ sealed class Screen(
 
     object CheckCodeScreen : Screen("checkCodeScreen", objectName = "s", objectPath = "/{s}")
 
+    object MainScreen2 : Screen("MainScreen2", 0)
 
-
+    object MainScreen1 : Screen("MainScreen1", 0)
 
     object InventoryScreen : Screen("inventory")
 

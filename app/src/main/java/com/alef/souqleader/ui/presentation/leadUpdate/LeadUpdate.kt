@@ -60,8 +60,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.CancelationReason
+import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -71,14 +75,14 @@ import java.util.Date
 @Composable
 fun LeadUpdateScreen(
     navController: NavController,
-    modifier: Modifier, leadIds: Array<String>
+    modifier: Modifier, mainViewModel: MainViewModel, leadIds: Array<String>
 ) {
     val viewModel: LeadUpdateViewModel = hiltViewModel()
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
     val cancelationReason = remember { mutableStateListOf<CancelationReason>() }
     val cancelationTitleReason = remember { mutableStateListOf<String>() }
 
-        Log.e("ddd", leadIds.size.toString())
+    Log.e("ddd", leadIds.size.toString())
 
     val mContext = LocalContext.current
     LaunchedEffect(key1 = true) {
@@ -86,13 +90,33 @@ fun LeadUpdateScreen(
         viewModel.cancelationReason()
         viewModel.viewModelScope.launch {
             viewModel.allLead.collect {
-                allLead.add(
-                    AllLeadStatus(
-                        title_ar = "Lead Stage",
-                        title_en = "Lead Stage"
-                    )
-                )
-                allLead.addAll(it)
+                when (it) {
+                    is Resource.Success -> {
+                        allLead.clear()
+                        allLead.add(
+                            AllLeadStatus(
+                                title_ar = "Lead Stage",
+                                title_en = "Lead Stage"
+                            )
+                        )
+                        it.data?.data?.let { it1 -> allLead.addAll(it1) }
+                        mainViewModel.showLoader = false
+                    }
+
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
+                        }
+                        mainViewModel.showLoader = false
+                    }
+                }
+
             }
 
         }

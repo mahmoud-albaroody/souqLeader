@@ -13,8 +13,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.compose.runtime.State
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AddLike
+import com.alef.souqleader.data.remote.dto.GetClientResponse
+import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,9 +33,11 @@ class LoginViewModel @Inject constructor(
 
     //  var loginState: Login? by mutableStateOf(null)
 
-    private val _loginState = MutableStateFlow(Login())
-    val loginState: StateFlow<Login> get() = _loginState
 
+    private val _loginState =
+        MutableSharedFlow<Resource<LoginResponse>>()
+    val loginState: MutableSharedFlow<Resource<LoginResponse>>
+        get() = _loginState
 
     private val _updateFcmToken = MutableStateFlow(StatusResponse())
     val updateFcmToken: StateFlow<StatusResponse> get() = _updateFcmToken
@@ -40,7 +49,12 @@ class LoginViewModel @Inject constructor(
 
     fun login(username: String, password: String) {
         viewModelScope.launch(job) {
-            _loginState.value = loginUseCase.login(username, password).data!!.data!!
+            loginUseCase.login(username, password).catch { }
+                .onStart {
+                    _loginState.emit(Resource.Loading())
+                }.buffer().collect {
+                    _loginState.emit(it)
+                }
         }
     }
 

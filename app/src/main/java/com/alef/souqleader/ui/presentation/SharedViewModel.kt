@@ -4,8 +4,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.ChannelResponse
+import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.domain.AddLeadUseCase
 import com.alef.souqleader.domain.GetLeadUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +16,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +34,8 @@ class SharedViewModel @Inject constructor(
     }
 
     private val _allLead =
-        MutableSharedFlow<ArrayList<AllLeadStatus>>()
-    val allLead: MutableSharedFlow<ArrayList<AllLeadStatus>>
+        MutableSharedFlow<Resource<LeadsStatusResponse>>()
+    val allLead: MutableSharedFlow<Resource<LeadsStatusResponse>>
         get() = _allLead
 
     private val _nameState = MutableStateFlow(String())
@@ -52,9 +57,15 @@ class SharedViewModel @Inject constructor(
     fun updateNameState(newState: String) {
         _nameState.value = newState
     }
+
     fun getLeads() {
         viewModelScope.launch(job) {
-            getLeadUseCase.getLeadStatus().data?.data?.let { _allLead.emit(it) }
+            getLeadUseCase.getLeadStatus().catch { }
+                .onStart {
+                    _allLead.emit(Resource.Loading())
+                }.buffer().collect {
+                    _allLead.emit(it)
+                }
         }
     }
 

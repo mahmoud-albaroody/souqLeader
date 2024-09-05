@@ -51,21 +51,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.Project
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.AddLead
 import com.alef.souqleader.domain.model.Campaign
 import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.CommunicationWay
 import com.alef.souqleader.domain.model.Marketer
 import com.alef.souqleader.domain.model.Sales
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun AddLeadScreen(modifier: Modifier) {
+fun AddLeadScreen(modifier: Modifier,navController:NavController, mainViewModel: MainViewModel) {
     val addLeadViewModel: AddLeadViewModel = hiltViewModel()
     val context = LocalContext.current
     val campaignList = remember { mutableStateListOf<Campaign>() }
@@ -103,7 +108,26 @@ fun AddLeadScreen(modifier: Modifier) {
         }
         addLeadViewModel.viewModelScope.launch {
             addLeadViewModel.allLead.collect {
-                it.let { it1 -> allLead.addAll(it1) }
+                when (it) {
+                    is Resource.Success -> {
+                        it.data?.data?.let { it1 -> allLead.addAll(it1) }
+                        mainViewModel.showLoader = false
+                    }
+
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
+                        }
+                        mainViewModel.showLoader = false
+                    }
+                }
+
             }
         }
 

@@ -3,8 +3,13 @@ package com.alef.souqleader.domain
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.ApiRepoImpl
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
+import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 
 import javax.inject.Inject
@@ -12,8 +17,10 @@ import javax.inject.Inject
 class LoginUseCase @Inject constructor(
     private val repository: ApiRepoImpl
 ) {
-    suspend fun login(username: String, password: String): Resource<LoginResponse> {
-        return repository.login(username, password)
+    suspend fun login(username: String, password: String): Flow<Resource<LoginResponse>> {
+        return flow {
+            emit(repository.login(username, password))
+        }.flowOn(Dispatchers.IO)
     }
 
     suspend fun updateFcmToken(token: String): Resource<StatusResponse> {

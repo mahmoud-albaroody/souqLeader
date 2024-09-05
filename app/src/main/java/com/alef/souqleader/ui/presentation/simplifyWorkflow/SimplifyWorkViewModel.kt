@@ -7,11 +7,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.GetClientResponse
+import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.domain.SimplifyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,13 +26,11 @@ class SimplifyWorkViewModel @Inject constructor(
     private val simplifyUseCase: SimplifyUseCase,
 ) : ViewModel() {
 
-    //  var loginState: Login? by mutableStateOf(null)
 
-  //  private val _getClientState = MutableState(GetClientResponse())
-    //val getClientState: MutableState<GetClientResponse> get() = _getClientState
-
-    var getClientState by mutableStateOf(GetClientResponse())
-
+    private val _getClientState =
+        MutableSharedFlow<Resource<GetClientResponse>>()
+    val getClientState: MutableSharedFlow<Resource<GetClientResponse>>
+        get() = _getClientState
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
@@ -34,9 +38,12 @@ class SimplifyWorkViewModel @Inject constructor(
 
     fun getClient(username: String) {
         viewModelScope.launch(job) {
-            simplifyUseCase.getClient(username).data?.let {
-                getClientState =it
-            }
+            simplifyUseCase.getClient(username).catch { }
+                .onStart {
+                    _getClientState.emit(Resource.Loading())
+                }.buffer().collect {
+                    _getClientState.emit(it)
+                }
         }
     }
 

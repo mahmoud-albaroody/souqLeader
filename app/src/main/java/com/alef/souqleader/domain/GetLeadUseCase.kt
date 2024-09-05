@@ -6,13 +6,19 @@ import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 
 import javax.inject.Inject
 
 class GetLeadUseCase @Inject constructor(private val repository: ApiRepoImpl) {
-    suspend fun getLeadStatus(): Resource<LeadsStatusResponse> {
-        return repository.leadsStatus()
+    suspend fun getLeadStatus(): Flow<Resource<LeadsStatusResponse>> {
+        return flow {
+            emit(repository.leadsStatus())
+        }.flowOn(Dispatchers.IO)
     }
 
     suspend fun coldLeadStatus(): Resource<LeadsByStatusResponse> {

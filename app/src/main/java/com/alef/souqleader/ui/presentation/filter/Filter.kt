@@ -41,14 +41,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Project
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.Campaign
 import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.CommunicationWay
 import com.alef.souqleader.domain.model.Marketer
 import com.alef.souqleader.domain.model.Sales
+import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.addlead.AddLeadViewModel
@@ -60,7 +63,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun FilterScreen(navController: NavController, modifier: Modifier) {
+fun FilterScreen(navController: NavController, modifier: Modifier,mainViewModel:MainViewModel) {
     val context = LocalContext.current
     val filterViewModel: AddLeadViewModel = hiltViewModel()
     val leadsFilterViewModel: LeadsFilterViewModel = hiltViewModel()
@@ -86,7 +89,25 @@ fun FilterScreen(navController: NavController, modifier: Modifier) {
         }
         filterViewModel.viewModelScope.launch {
             filterViewModel.allLead.collect {
-                allLead.addAll(it)
+                when (it) {
+                    is Resource.Success -> {
+                        it.data?.data?.let { it1 -> allLead.addAll(it1) }
+                        mainViewModel.showLoader = false
+                    }
+
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
+                        }
+                        mainViewModel.showLoader = false
+                    }
+                }
             }
         }
         filterViewModel.viewModelScope.launch {

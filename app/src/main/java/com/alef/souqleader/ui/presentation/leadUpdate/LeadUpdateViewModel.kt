@@ -7,9 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.domain.SaveMultiUseCase
@@ -17,6 +19,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,8 +39,8 @@ class LeadUpdateViewModel @Inject constructor(
     }
 
     private val _allLead =
-        MutableSharedFlow<ArrayList<AllLeadStatus>>()
-    val allLead: MutableSharedFlow<ArrayList<AllLeadStatus>>
+        MutableSharedFlow<Resource<LeadsStatusResponse>>()
+    val allLead: MutableSharedFlow<Resource<LeadsStatusResponse>>
         get() = _allLead
 
 
@@ -50,9 +55,15 @@ class LeadUpdateViewModel @Inject constructor(
         get() = _cancelationReason
 
 
+
     fun getLeads() {
         viewModelScope.launch(job) {
-            _allLead.emit(getLeadUseCase.getLeadStatus().data?.data!!)
+            getLeadUseCase.getLeadStatus().catch { }
+                .onStart {
+                    _allLead.emit(Resource.Loading())
+                }.buffer().collect {
+                    _allLead.emit(it)
+                }
         }
     }
 
