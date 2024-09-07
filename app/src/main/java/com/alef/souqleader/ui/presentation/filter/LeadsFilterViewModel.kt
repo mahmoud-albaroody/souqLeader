@@ -29,10 +29,10 @@ class LeadsFilterViewModel @Inject constructor(
         get() = _allLead
 
 
-    fun leadsFilter(filterRequest: FilterRequest) {
-        viewModelScope.launch(job) {
-            _allLead.emit(filterUseCase.leadsFilter(filterRequest).data?.data!!)
-        }
-    }
+//    fun leadsFilter(filterRequest: FilterRequest) {
+//        viewModelScope.launch(job) {
+//            _allLead.emit(filterUseCase.leadsFilter(filterRequest)?.data!!)
+//        }
+//    }
 
 }

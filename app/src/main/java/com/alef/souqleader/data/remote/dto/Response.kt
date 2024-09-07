@@ -1,6 +1,7 @@
 package com.alef.souqleader.data.remote.dto
 
 import com.alef.souqleader.data.UsersItem
+import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.domain.model.Campaign
 import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.Client
@@ -14,19 +15,22 @@ open class StatusResponse(
 )
 
 data class LeadsByStatusResponse(
-    var data: ArrayList<Lead>? = null
+    val data: ArrayList<Lead>? = null,
+    val info: Info?=null
 ) : StatusResponse()
 
 data class DelayReportResponse(
     var data: ArrayList<DelayReport>? = null
 ) : StatusResponse()
+
 data class AllUserResponse(
-    var data: ArrayList<UsersItem>?=null
+    var data: ArrayList<UsersItem>? = null
 ) : StatusResponse()
 
 data class ProjectsReportResponse(
     var data: MeetingReport? = null
 ) : StatusResponse()
+
 data class UserDateResponse(
     var data: UserDate? = null
 ) : StatusResponse()
@@ -35,9 +39,11 @@ data class UserDateResponse(
 data class ChannelResponse(
     var data: ArrayList<Channel>? = null
 ) : StatusResponse()
+
 data class AddLeadResponse(
     var data: Boolean
 ) : StatusResponse()
+
 data class CampaignResponse(
     var data: ArrayList<Campaign>? = null
 ) : StatusResponse()
@@ -73,7 +79,7 @@ data class PlanResponse(
 ) : StatusResponse()
 
 data class PostResponse(
-    var data: PostData
+    var data: PostData,
 ) : StatusResponse()
 
 data class AllRolesAndAllPermissionsResponse(

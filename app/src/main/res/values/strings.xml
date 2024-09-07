@@ -135,5 +135,6 @@
     <string name="reset_password">Reset Password</string>
     <string name="verify_code">Verify Code</string>
     <string name="code">Code</string>
+    <string name="there_is_no_internet">There is no internet</string>
 
 </resources>

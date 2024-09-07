@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,13 +26,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,9 +56,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
+import com.alef.souqleader.data.remote.dto.PostData
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
 import kotlinx.coroutines.launch
@@ -64,40 +72,76 @@ import kotlinx.coroutines.launch
 fun AllLeadsScreen(
     navController: NavController,
     modifier: Modifier,
-    leadId: String?
+    leadId: String?,
+    mainViewModel: MainViewModel
 ) {
     val viewModel: AllLeadViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
-    val leadList = remember { mutableStateListOf<Lead>() }
+    var lead by remember { mutableStateOf(LeadsByStatusResponse()) }
+    var page by remember { mutableIntStateOf(1) }
 
     LaunchedEffect(key1 = true) {
-
         when (leadId) {
             "100" -> {
-                viewModel.delayLeads()
+                viewModel.delayLeads(page)
             }
 
             "200" -> {
-                viewModel.duplicated()
+                viewModel.duplicated(page)
             }
 
             else -> {
-                leadId?.let { viewModel.getLeadByStatus(it) }
+                leadId?.let {
+                    viewModel.getLeadByStatus(it, page) }
             }
         }
 
 
         viewModel.viewModelScope.launch {
             viewModel.stateListOfLeads.collect {
-                leadList.clear()
-                leadList.addAll(it)
+                when (it) {
+                    is Resource.Success -> {
+                        lead = it.data!!
+                        mainViewModel.showLoader = false
+                    }
+
+                    is Resource.Loading -> {
+                        if (page == 1 )
+                            mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        mainViewModel.showLoader = false
+                    }
+                }
             }
         }
+        viewModel.viewModelScope.launch {
+            viewModel.stateFilterLeads.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        lead = it.data!!
+                        mainViewModel.showLoader = false
+                    }
+
+                    is Resource.Loading -> {
+
+                    }
+
+                    is Resource.DataError -> {
+                        mainViewModel.showLoader = false
+                    }
+                }
+
+            }
+        }
+
     }
 
     Screen(navController, setKeyword = {
         if (it.isEmpty()) {
-            leadId?.let { viewModel.getLeadByStatus(it) }
+            page = 1
+            leadId?.let { viewModel.getLeadByStatus(it, page = page) }
         } else {
             if (it.length > 3)
                 viewModel.leadsFilter(
@@ -106,7 +150,10 @@ fun AllLeadsScreen(
                     )
                 )
         }
-    }, leadList)
+    }, lead, page, loadMore = {
+        leadId?.let {
+            viewModel.getLeadByStatus(it, ++page) }
+    })
 
 }
 
@@ -115,11 +162,22 @@ fun AllLeadsScreen(
 fun Screen(
     navController: NavController,
     setKeyword: (String) -> Unit,
-    stateListOfLeads: List<Lead>
+    lead: LeadsByStatusResponse,
+    page: Int,
+    loadMore: () -> Unit
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
+    val leadList = remember { mutableStateListOf<Lead>() }
+    lead.data?.let { it1 ->
+        if (it1.isEmpty() && page == 1) {
+            leadList.clear()
+            leadList.addAll(it1)
+        } else {
+            leadList.addAll(it1)
+        }
+    }
     Box(
         Modifier
             .background(colorResource(id = R.color.white))
@@ -136,16 +194,33 @@ fun Screen(
             LazyColumn(
                 Modifier.fillMaxWidth()
             ) {
-                items(stateListOfLeads) {
+                items(leadList) {
                     AllLeadsItem(it) { lead ->
                         if (selectedIdList.find { it.toInt() == lead.id } == null) {
                             selectedIdList.add(lead.id.toString())
-                            Log.e("ddd","sdfdsfs")
                         } else {
                             selectedIdList.remove(lead.id.toString())
                         }
                     }
                 }
+                if (lead.info?.pages != null && lead.info.pages != 0)
+                    if (lead.info.pages > page) {
+                        item {
+                            if (leadList.isNotEmpty()) {
+                                   loadMore()
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
             }
         }
         if (selectedIdList.isNotEmpty())

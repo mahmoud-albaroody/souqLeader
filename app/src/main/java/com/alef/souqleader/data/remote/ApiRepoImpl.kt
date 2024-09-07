@@ -48,8 +48,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun duplicated(): Resource<LeadsByStatusResponse> {
-        val response = APIs.duplicated()
+    suspend fun duplicated(page: Int): Resource<LeadsByStatusResponse> {
+        val response = APIs.duplicated(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -66,8 +66,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun delayLeads(): Resource<LeadsByStatusResponse> {
-        val response = APIs.delayLeads()
+    suspend fun delayLeads(page: Int): Resource<LeadsByStatusResponse> {
+        val response = APIs.delayLeads(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -86,9 +86,9 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
 
 
     suspend fun leadsByStatus(
-        id: String
+        id: String, page: Int
     ): Resource<LeadsByStatusResponse> {
-        val response = APIs.leadsByStatus(id)
+        val response = APIs.leadsByStatus(id, page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -144,8 +144,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun getPost(): Resource<PostResponse> {
-        val response = APIs.getPost()
+    suspend fun getPost(page: Int): Resource<PostResponse> {
+        val response = APIs.getPost(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {

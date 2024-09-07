@@ -70,7 +70,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun AddLeadScreen(modifier: Modifier,navController:NavController, mainViewModel: MainViewModel) {
+fun AddLeadScreen(modifier: Modifier, navController: NavController, mainViewModel: MainViewModel) {
     val addLeadViewModel: AddLeadViewModel = hiltViewModel()
     val context = LocalContext.current
     val campaignList = remember { mutableStateListOf<Campaign>() }
@@ -133,7 +133,21 @@ fun AddLeadScreen(modifier: Modifier,navController:NavController, mainViewModel:
 
         addLeadViewModel.viewModelScope.launch {
             addLeadViewModel.addLead.collect {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                when (it) {
+                    is Resource.Success -> {
+                        Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
+                            .show()
+                    }
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        mainViewModel.showLoader = false
+                    }
+                }
+
             }
         }
 

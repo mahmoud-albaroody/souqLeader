@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.presentation.dashboardScreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +58,7 @@ fun DashboardScreen(
     val viewModel: DashboardViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
+    Log.e("ddddd",AccountData.auth_token.toString())
     LaunchedEffect(key1 = true) {
         sharedViewModel.updateSalesNameState(AccountData.role_name)
         sharedViewModel.updatePhotoState(AccountData.photo)

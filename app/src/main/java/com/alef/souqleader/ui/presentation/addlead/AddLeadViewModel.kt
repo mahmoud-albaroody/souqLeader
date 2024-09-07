@@ -37,8 +37,8 @@ class AddLeadViewModel @Inject constructor(
         get() = _channel
 
     private val _addLead =
-        MutableSharedFlow<AddLeadResponse>()
-    val addLead: MutableSharedFlow<AddLeadResponse>
+        MutableSharedFlow<Resource<AddLeadResponse>>()
+    val addLead: MutableSharedFlow<Resource<AddLeadResponse>>
         get() = _addLead
 
     private val _campaignResponse =
@@ -105,7 +105,12 @@ class AddLeadViewModel @Inject constructor(
 
     fun lead(addLead: AddLead) {
         viewModelScope.launch(job) {
-            _addLead.emit(addLeadUseCase.lead(addLead).data!!)
+            addLeadUseCase.lead(addLead).catch { }
+                .onStart {
+                    _addLead.emit(Resource.Loading())
+                }.buffer().collect {
+                    _addLead.emit(it)
+                }
         }
     }
 

@@ -77,12 +77,13 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.theme.*
 import com.alef.souqleader.ui.appbar.AppBarWithArrow
 import com.alef.souqleader.ui.navigation.Navigation1
+import com.alef.souqleader.ui.networkconnection.ConnectionState
+import com.alef.souqleader.ui.networkconnection.connectivityState
 import kotlinx.coroutines.launch
 
 @Composable
 fun MyApp(modifier: Modifier, navController: NavHostController, mainViewModel: MainViewModel) {
     val viewModel: SharedViewModel = hiltViewModel()
-
 
 
 }
@@ -100,46 +101,45 @@ fun MainScreen(
     val isAppBarVisible = remember { mutableStateOf(true) }
     var title = ""
     val scope = rememberCoroutineScope()
-//    val connection by connectivityState()
-//    val context = LocalContext.current
-//    val isConnected = connection === ConnectionState.Available
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
-//        snackbarHost = {
-//            if (isConnected.not()) {
-//                Snackbar(
-//                    action = {}, modifier = Modifier.padding(8.dp)
-//                ) {
-//                    androidx.compose.material.Text(text = stringResource(R.string.there_is_no_internet))
-//                }
-//            }
-//        },
-        content = { innerPadding ->
-            Box {
-                if (AccountData.isFirstTime && AccountData.auth_token == null) {
-                    Navigation1(
-                        navController = navController,
-                        modifier = modifier,
-                        Screen.SimplifyWorkFlowScreen.route,
-                        viewModel, mainViewModel = mainViewModel
-                    )
-                    //    AccountData.isFirstTime = false
-                } else if (AccountData.auth_token == null) {
-                    Navigation1(
-                        navController = navController,
-                        modifier = modifier,
-                        Screen.LoginScreen.route,
-                        viewModel, mainViewModel = mainViewModel
-                    )
-                }
-                CircularIndeterminateProgressBar(
-                    isDisplayed = mainViewModel.showLoader,
-                    0.4f, Color.Black.copy(alpha = 0.5f)
-                )
+
+    val connection by connectivityState()
+    val context = LocalContext.current
+    val isConnected = connection === ConnectionState.Available
+    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
+        if (isConnected.not()) {
+            Snackbar(
+                action = {}, modifier = Modifier.padding(8.dp)
+            ) {
+              Text(text = stringResource(R.string.there_is_no_internet), color = colorResource(
+                  id = R.color.white
+              ))
             }
         }
-    )
+    }, content = { innerPadding ->
+        Box {
+            if (AccountData.isFirstTime && AccountData.auth_token == null) {
+                Navigation1(
+                    navController = navController,
+                    modifier = modifier,
+                    Screen.SimplifyWorkFlowScreen.route,
+                    viewModel,
+                    mainViewModel = mainViewModel
+                )
+                //    AccountData.isFirstTime = false
+            } else if (AccountData.auth_token == null) {
+                Navigation1(
+                    navController = navController,
+                    modifier = modifier,
+                    Screen.LoginScreen.route,
+                    viewModel,
+                    mainViewModel = mainViewModel
+                )
+            }
+            CircularIndeterminateProgressBar(
+                isDisplayed = mainViewModel.showLoader, 0.4f, Color.Black.copy(alpha = 0.5f)
+            )
+        }
+    })
 }
 
 @Composable
@@ -155,285 +155,299 @@ fun CustomModalDrawer(
     var title = ""
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
+    val connection by connectivityState()
+    val isConnected = connection === ConnectionState.Available
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
-
-    LaunchedEffect(key1 = true) {
-        viewModel.getLeads()
-        viewModel.viewModelScope.launch {
-            viewModel.allLead.collect {
-                when (it) {
-                    is Resource.Success -> {
-                        allLead.clear()
-                        allLead.add(AllLeadStatus(title_ar = "Add Lead", title_en = "Add Lead"))
-                        it.data?.data?.let { it1 -> allLead.addAll(it1) }
-                        allLead.add(
-                            AllLeadStatus(
-                                title_ar = "Duplicated Leads",
-                                title_en = "Duplicated Leads", id = 100
+    Scaffold(
+        modifier = Modifier,
+        snackbarHost = {
+            if (isConnected.not()) {
+                Snackbar(
+                    action = {}, modifier = Modifier.padding(8.dp)
+                ) {
+                    Text(text = stringResource(R.string.there_is_no_internet), color = colorResource(
+                        id = R.color.white
+                    ))
+                }
+            }
+        },
+        content = { innerPadding ->
+        innerPadding
+        LaunchedEffect(key1 = true) {
+            viewModel.getLeads()
+            viewModel.viewModelScope.launch {
+                viewModel.allLead.collect {
+                    when (it) {
+                        is Resource.Success -> {
+                            allLead.clear()
+                            allLead.add(AllLeadStatus(title_ar = "Add Lead", title_en = "Add Lead"))
+                            it.data?.data?.let { it1 -> allLead.addAll(it1) }
+                            allLead.add(
+                                AllLeadStatus(
+                                    title_ar = "Duplicated Leads",
+                                    title_en = "Duplicated Leads",
+                                    id = 100
+                                )
                             )
-                        )
-                        allLead.add(
-                            AllLeadStatus(
-                                title_ar = "Delay Leads", title_en = "Delay Leads",
-                                id = 200
+                            allLead.add(
+                                AllLeadStatus(
+                                    title_ar = "Delay Leads", title_en = "Delay Leads", id = 200
+                                )
                             )
-                        )
-                        mainViewModel.showLoader = false
-                    }
-
-
-                    is Resource.Loading -> {
-                        mainViewModel.showLoader = true
-                    }
-
-                    is Resource.DataError -> {
-                        if (it.errorCode == 401) {
-                            AccountData.clear()
-                           // Start()
+                            mainViewModel.showLoader = false
                         }
-                        mainViewModel.showLoader = false
+
+
+                        is Resource.Loading -> {
+                            mainViewModel.showLoader = true
+                        }
+
+                        is Resource.DataError -> {
+                            if (it.errorCode == 401) {
+                                AccountData.clear()
+                                // Start()
+                            }
+                            mainViewModel.showLoader = false
+                        }
                     }
                 }
             }
         }
-    }
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        scrimColor = colorResource(id = R.color.transparent),
+        ModalNavigationDrawer(drawerState = drawerState,
+            scrimColor = colorResource(id = R.color.transparent),
+            drawerContent = {
+                ModalDrawerSheet(
+                    drawerShape = RectangleShape,
+                    drawerContainerColor = colorResource(id = R.color.transparent)
+                ) {
+                    DrawerContent(navController, modifier, viewModel, allLead) { position, s ->
+                        title = s.toString()
 
-        drawerContent = {
-            ModalDrawerSheet(
-                drawerShape = RectangleShape,
-                drawerContainerColor = colorResource(id = R.color.transparent)
-            ) {
-                DrawerContent(navController, modifier, viewModel, allLead) { position, s ->
-                    title = s.toString()
-
-                    scope.launch {
-                        drawerState.close()
-                    }
-                    when (position) {
-                        0 -> {
-                            navController.navigate(Screen.DashboardScreen.route) {
-                                launchSingleTop = true
-                            }
+                        scope.launch {
+                            drawerState.close()
                         }
-
-                        1 -> {
-                            navController.navigate(Screen.Timeline.route) {
-                                launchSingleTop = true
-                            }
-                        }
-
-                        2 -> {
-                            if (s == "Add Lead") {
-                                navController.navigate(Screen.AddLeadScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else {
-                                navController.navigate(
-                                    Screen.AllLeadsScreen.route
-                                        .plus("/${allLead.find { it.getTitle() == s }?.id}")
-                                ) {
+                        when (position) {
+                            0 -> {
+                                navController.navigate(Screen.DashboardScreen.route) {
                                     launchSingleTop = true
                                 }
                             }
-                        }
 
-                        3 -> {
-                            navController.navigate(Screen.SalesProfileReportScreen.route) {
-                                launchSingleTop = true
-                            }
-                        }
-
-                        4 -> {
-                            if (s == "Projects") {
-                                navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
-                                    launchSingleTop = true
-                                }
-                            } else {
-                                navController.navigate(Screen.PropertyScreen.route) {
+                            1 -> {
+                                navController.navigate(Screen.Timeline.route) {
                                     launchSingleTop = true
                                 }
                             }
-                        }
 
-                        5 -> {
-                            when (s) {
-                                "meetingReport" -> {
-                                    navController.navigate(Screen.ReportsScreen.route) {
+                            2 -> {
+                                if (s == "Add Lead") {
+                                    navController.navigate(Screen.AddLeadScreen.route) {
                                         launchSingleTop = true
                                     }
-                                }
-
-                                "CancellationReport" -> {
-                                    navController.navigate(Screen.CancellationsReportScreen.route) {
-                                        launchSingleTop = true
-                                    }
-                                }
-
-                                "ProjectReport" -> {
-                                    navController.navigate(Screen.ProjectReport.route) {
-                                        launchSingleTop = true
-                                    }
-                                }
-
-                                "DelayReport" -> {
-                                    navController.navigate(Screen.DelayReport.route) {
-                                        launchSingleTop = true
-                                    }
-                                }
-
-                                else -> {
-                                    navController.navigate(Screen.ChannelReport.route) {
+                                } else {
+                                    navController.navigate(
+                                        Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
+                                    ) {
                                         launchSingleTop = true
                                     }
                                 }
                             }
 
-                        }
-
-                        6 -> {
-                            navController.navigate(Screen.PaymentPlansScreen.route) {
-                                launchSingleTop = true
+                            3 -> {
+                                navController.navigate(Screen.SalesProfileReportScreen.route) {
+                                    launchSingleTop = true
+                                }
                             }
-                        }
 
-                        7 -> {
-                            navController.navigate(Screen.ProfileScreen.route) {
-                                launchSingleTop = true
+                            4 -> {
+                                if (s == "Projects") {
+                                    navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    navController.navigate(Screen.PropertyScreen.route) {
+                                        launchSingleTop = true
+                                    }
+                                }
                             }
-                        }
 
-                        8 -> {
+                            5 -> {
+                                when (s) {
+                                    "meetingReport" -> {
+                                        navController.navigate(Screen.ReportsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+
+                                    "CancellationReport" -> {
+                                        navController.navigate(Screen.CancellationsReportScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+
+                                    "ProjectReport" -> {
+                                        navController.navigate(Screen.ProjectReport.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+
+                                    "DelayReport" -> {
+                                        navController.navigate(Screen.DelayReport.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+
+                                    else -> {
+                                        navController.navigate(Screen.ChannelReport.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+
+                            }
+
+                            6 -> {
+                                navController.navigate(Screen.PaymentPlansScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+
+                            7 -> {
+                                navController.navigate(Screen.ProfileScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+
+                            8 -> {
 //                            navController.navigate(Screen.RoleScreen.route) {
 //                                launchSingleTop = true
 //                            }
-                            AccountData.clear()
-                            (context as MainActivity).setContent {
-                                Start()
+                                AccountData.clear()
+                                (context as MainActivity).setContent {
+                                    Start()
+                                }
                             }
-                        }
 
 //                        9 -> {
 //                            navController.navigate(Screen.LoginScreen.route) {
 //                                launchSingleTop = true
 //                            }
 //                        }
+                        }
                     }
                 }
-            }
-        },
-        content = {
-            Scaffold(
-                topBar = {
-                    when (currentRoute(navController)) {
-                        Screen.DashboardScreen.route, Screen.Timeline.route, Screen.SalesProfileReportScreen.route,
-                        Screen.PaymentPlansScreen.route, Screen.ProfileScreen.route, Screen.RoleScreen.route -> {
+            },
+            content = {
+                Scaffold(
+                    topBar = {
+                        when (currentRoute(navController)) {
+                            Screen.DashboardScreen.route, Screen.Timeline.route, Screen.SalesProfileReportScreen.route, Screen.PaymentPlansScreen.route, Screen.ProfileScreen.route, Screen.RoleScreen.route -> {
 //                            if (isAppBarVisible.value) {
-                            val appTitle: String =
-                                if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
-                                    R.string.dashboard
-                                )
-                                else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
-                                    R.string.timeline
-                                )
-                                else if (currentRoute(navController) == Screen.AllLeadsScreen.route) stringResource(
-                                    R.string.timeline
-                                )
-                                else if (currentRoute(navController) == Screen.AddLeadScreen.route) stringResource(
-                                    R.string.add_lead
-                                )
-                                else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) stringResource(
-                                    R.string.change_password
-                                )
-                                else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route) stringResource(
-                                    R.string.forgot_password
-                                )
-                                else if (currentRoute(navController) == Screen.ResetPasswordScreen.route) stringResource(
-                                    R.string.reset_password
-                                )
-                                else if (currentRoute(navController) == Screen.CheckCodeScreen.route) stringResource(
-                                    R.string.verify_code
-                                )
-                                else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
-                                    R.string.filter_result
-                                )
-                                else if (currentRoute(navController) == Screen.FilterScreen.route)
-                                    stringResource(R.string.filter)
-                                else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route) stringResource(
-                                    R.string.sales_profile_report
-                                )
-                                else if (currentRoute(navController) == Screen.ReportsScreen.route) stringResource(
-                                    R.string.reports
-                                )
-                                else if (currentRoute(navController) == Screen.PaymentPlansScreen.route) stringResource(
-                                    R.string.payment_plans
-                                )
-                                else if (currentRoute(navController) == Screen.ProfileScreen.route) stringResource(
-                                    R.string.profile
-                                )
-                                else if (currentRoute(navController) == Screen.RoleScreen.route) stringResource(
-                                    R.string.roles_premmisions
-                                )
-                                else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
-                                    R.string.project_details
-                                )
-                                else if (currentRoute(navController) == Screen.CRMScreen.route) stringResource(
-                                    R.string.project_details
-                                )
-                                else stringResource(R.string.dashboard)
-                            HomeAppBar(title = appTitle, openDrawer = {
-                                scope.launch {
-                                    if (drawerState.isClosed) {
-                                        drawerState.open()
+                                val appTitle: String =
+                                    if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
+                                        R.string.dashboard
+                                    )
+                                    else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
+                                        R.string.timeline
+                                    )
+                                    else if (currentRoute(navController) == Screen.AllLeadsScreen.route) stringResource(
+                                        R.string.timeline
+                                    )
+                                    else if (currentRoute(navController) == Screen.AddLeadScreen.route) stringResource(
+                                        R.string.add_lead
+                                    )
+                                    else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) stringResource(
+                                        R.string.change_password
+                                    )
+                                    else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route) stringResource(
+                                        R.string.forgot_password
+                                    )
+                                    else if (currentRoute(navController) == Screen.ResetPasswordScreen.route) stringResource(
+                                        R.string.reset_password
+                                    )
+                                    else if (currentRoute(navController) == Screen.CheckCodeScreen.route) stringResource(
+                                        R.string.verify_code
+                                    )
+                                    else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
+                                        R.string.filter_result
+                                    )
+                                    else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
+                                        R.string.filter
+                                    )
+                                    else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route) stringResource(
+                                        R.string.sales_profile_report
+                                    )
+                                    else if (currentRoute(navController) == Screen.ReportsScreen.route) stringResource(
+                                        R.string.reports
+                                    )
+                                    else if (currentRoute(navController) == Screen.PaymentPlansScreen.route) stringResource(
+                                        R.string.payment_plans
+                                    )
+                                    else if (currentRoute(navController) == Screen.ProfileScreen.route) stringResource(
+                                        R.string.profile
+                                    )
+                                    else if (currentRoute(navController) == Screen.RoleScreen.route) stringResource(
+                                        R.string.roles_premmisions
+                                    )
+                                    else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
+                                        R.string.project_details
+                                    )
+                                    else if (currentRoute(navController) == Screen.CRMScreen.route) stringResource(
+                                        R.string.project_details
+                                    )
+                                    else stringResource(R.string.dashboard)
+                                HomeAppBar(title = appTitle, openDrawer = {
+                                    scope.launch {
+                                        if (drawerState.isClosed) {
+                                            drawerState.open()
+                                        }
                                     }
-                                }
-                            }, openFilters = {
-                                isAppBarVisible.value = false
-                            })
-                        }
+                                }, openFilters = {
+                                    isAppBarVisible.value = false
+                                })
+                            }
 //                        }
 
-                        Screen.LoginScreen.route -> {
+                            Screen.LoginScreen.route -> {
 
-                        }
+                            }
 
-                        Screen.SimplifyWorkFlowScreen.route -> {
+                            Screen.SimplifyWorkFlowScreen.route -> {
 
-                        }
+                            }
 
-                        else -> {
-                            AppBarWithArrow(navigationTitle(navController, title)) {
-                                navController.popBackStack()
+                            else -> {
+                                AppBarWithArrow(navigationTitle(navController, title)) {
+                                    navController.popBackStack()
+                                }
                             }
                         }
+                    },
+                ) { paddingValues ->
+                    Box(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .padding(paddingValues)
+                    ) {
+                        Navigation(
+                            navController = navController,
+                            modifier = modifier,
+                            Screen.DashboardScreen.route,
+                            viewModel,
+                            mainViewModel = mainViewModel
+                        )
+
+
+                        CircularIndeterminateProgressBar(
+                            isDisplayed = mainViewModel.showLoader,
+                            0.4f,
+                            Color.Black.copy(alpha = 0.5f)
+                        )
                     }
-                },
-            ) { paddingValues ->
-                Box(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(paddingValues)
-                ) {
-                    Navigation(
-                        navController = navController,
-                        modifier = modifier,
-                        Screen.DashboardScreen.route,
-                        viewModel, mainViewModel = mainViewModel
-                    )
-
-
-                    CircularIndeterminateProgressBar(
-                        isDisplayed = mainViewModel.showLoader,
-                        0.4f, Color.Black.copy(alpha = 0.5f)
-                    )
                 }
-            }
-        })
+            })
 
-
+    })
 }
 
 @Composable
@@ -453,27 +467,25 @@ fun DrawerContent(
     sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
     sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
 
-    if (AccountData.permissionList.find { it.module_name == "lead" && it.permissions.read } != null)
-        sideMenuItem.add(SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads)))
-    if (AccountData.permissionList.find { it.module_name == "reports" && it.permissions.read } != null)
-        sideMenuItem.add(
-            SideMenuItem(
-                R.drawable.sales_name_icon, stringResource(R.string.sales_profile_report)
-            )
+    if (AccountData.permissionList.find { it.module_name == "lead" && it.permissions.read } != null) sideMenuItem.add(
+        SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads))
+    )
+    if (AccountData.permissionList.find { it.module_name == "reports" && it.permissions.read } != null) sideMenuItem.add(
+        SideMenuItem(
+            R.drawable.sales_name_icon, stringResource(R.string.sales_profile_report)
         )
-    if (AccountData.permissionList.find { it.module_name == "inventory" && it.permissions.read } != null)
-        sideMenuItem.add(
-            SideMenuItem(
-                R.drawable.inventory_menu_icon, stringResource(R.string.inventory)
-            )
+    )
+    if (AccountData.permissionList.find { it.module_name == "inventory" && it.permissions.read } != null) sideMenuItem.add(
+        SideMenuItem(
+            R.drawable.inventory_menu_icon, stringResource(R.string.inventory)
         )
+    )
     sideMenuItem.add(SideMenuItem(R.drawable.repots_menu_icon, stringResource(R.string.reports)))
-    if (AccountData.permissionList.find { it.module_name == "Users" && it.permissions.read } != null)
-        sideMenuItem.add(
-            SideMenuItem(
-                R.drawable.profile_menu_icon, stringResource(R.string.users)
-            )
+    if (AccountData.permissionList.find { it.module_name == "Users" && it.permissions.read } != null) sideMenuItem.add(
+        SideMenuItem(
+            R.drawable.profile_menu_icon, stringResource(R.string.users)
         )
+    )
     sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, stringResource(R.string.profile)))
     // sideMenuItem.add(SideMenuItem(R.drawable.book, stringResource(R.string.roles_premmisions)))
     sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, stringResource(R.string.logout)))

@@ -25,20 +25,28 @@ class GetLeadUseCase @Inject constructor(private val repository: ApiRepoImpl) {
         return repository.coldLeadStatus()
     }
 
-    suspend fun delayLeads(): Resource<LeadsByStatusResponse> {
-        return repository.delayLeads()
+    suspend fun delayLeads(page: Int): Flow<Resource<LeadsByStatusResponse>> {
+        return flow {
+            emit(repository.delayLeads(page))
+        }.flowOn(Dispatchers.IO)
     }
+
 
     suspend fun freshLeadStatus(): Resource<LeadsByStatusResponse> {
         return repository.freshLeadStatus()
     }
 
-    suspend fun duplicated(): Resource<LeadsByStatusResponse> {
-        return repository.duplicated()
+    suspend fun duplicated(page: Int): Flow<Resource<LeadsByStatusResponse>> {
+        return flow {
+            emit(repository.duplicated(page))
+        }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun getLeadByStatus(id: String): Resource<LeadsByStatusResponse> {
-        return repository.leadsByStatus(id)
+
+    suspend fun getLeadByStatus(id: String, page: Int): Flow<Resource<LeadsByStatusResponse>> {
+        return flow {
+            emit(repository.leadsByStatus(id, page))
+        }.flowOn(Dispatchers.IO)
     }
 
     suspend fun updateLead(

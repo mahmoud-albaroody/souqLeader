@@ -37,7 +37,8 @@ interface APIs {
 
 
     @GET("api/leadsByStatus")
-    suspend fun leadsByStatus(@Query("status") status: String): Response<LeadsByStatusResponse>
+    suspend fun leadsByStatus(@Query("status") status: String,@Query("page") page: Int
+    ): Response<LeadsByStatusResponse>
 
     @FormUrlEncoded
     @POST("api/updateMulti")
@@ -67,7 +68,7 @@ interface APIs {
     suspend fun plans(): Response<PlanResponse>
 
     @GET("api/post")
-    suspend fun getPost(): Response<PostResponse>
+    suspend fun getPost(@Query("page") page: Int? = null): Response<PostResponse>
 
     @GET("api/AllRoles")
     suspend fun getAllRoles(): Response<AllRolesAndAllPermissionsResponse>
@@ -165,13 +166,13 @@ interface APIs {
     suspend fun coldLeadStatus(): Response<LeadsByStatusResponse>
 
     @GET("api/duplicated")
-    suspend fun duplicated(): Response<LeadsByStatusResponse>
+    suspend fun duplicated(@Query("page") page: Int? = null): Response<LeadsByStatusResponse>
 
     @GET("api/FreshLeadStatus")
     suspend fun freshLeadStatus(): Response<LeadsByStatusResponse>
 
     @GET("api/DelayLeads")
-    suspend fun delayLeads(): Response<LeadsByStatusResponse>
+    suspend fun delayLeads(@Query("page") page: Int? = null): Response<LeadsByStatusResponse>
 
     @FormUrlEncoded
     @POST("api/lead/{id}?_method=put")
@@ -221,13 +222,12 @@ interface APIs {
     suspend fun checkCode(
         @Field("code") code: String?,
     ): Response<StatusResponse>
+
     @FormUrlEncoded
     @POST("api/forget-password")
     suspend fun forgetPassword(
         @Field("email") email: String?,
     ): Response<StatusResponse>
-
-
 
 
     @GET("api/Leadsfilter")

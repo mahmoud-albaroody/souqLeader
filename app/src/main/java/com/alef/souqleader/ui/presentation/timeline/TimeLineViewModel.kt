@@ -8,10 +8,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.Plan
 import com.alef.souqleader.data.remote.dto.Post
+import com.alef.souqleader.data.remote.dto.PostData
+import com.alef.souqleader.data.remote.dto.PostResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.AddLikeUseCase
 import com.alef.souqleader.domain.AddPostUseCase
@@ -21,6 +24,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -44,8 +50,8 @@ class TimeLineViewModel @Inject constructor(
     val addLike: LiveData<AddLikeResponse> = _addLike
 
     private val _statePosts =
-        MutableSharedFlow<ArrayList<Post>>()
-    val statePosts: MutableSharedFlow<ArrayList<Post>>
+        MutableSharedFlow<Resource<PostResponse>>(replay = 1)
+    val statePosts: MutableSharedFlow<Resource<PostResponse>>
         get() = _statePosts
 
     private val job = Job()
@@ -53,9 +59,14 @@ class TimeLineViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    fun getPosts() {
+    fun getPosts(page:Int) {
         viewModelScope.launch(job) {
-            getPostsUseCase.getPosts().data?.data!!.data?.let { _statePosts.emit(it) }
+            getPostsUseCase.getPosts(page).catch { }
+                .onStart {
+                    _statePosts.emit(Resource.Loading())
+                }.buffer().collect {
+                    _statePosts.emit(it)
+                }
         }
     }
 

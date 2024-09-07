@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.view.SoundEffectConstants
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -32,6 +33,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
@@ -39,6 +41,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,6 +52,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,11 +85,13 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.Post
+import com.alef.souqleader.data.remote.dto.PostData
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.theme.*
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -102,12 +108,15 @@ import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun TimelineScreen(navController: NavController, modifier: Modifier) {
+fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewModel: MainViewModel) {
     val viewModel: TimeLineViewModel = hiltViewModel()
     val posts = remember { mutableStateListOf<Post>() }
     var visibleMeda by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    var page = 1
+    var postData by remember { mutableStateOf(PostData()) }
 
+    val context = LocalContext.current
+    val listState = rememberLazyListState()
     //  val posts = mutableStateListOf<Post>()
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -158,11 +167,21 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
 
     var likedPost: Post? = null
     LaunchedEffect(key1 = true) {
-        viewModel.getPosts()
+        viewModel.getPosts(page)
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
-                posts.clear()
-                it.let { it1 -> posts.addAll(it1) }
+                if (it is Resource.Success) {
+                    it.data?.let {
+                        postData = it.data
+                        it.data.data?.let { it1 -> posts.addAll(it1) }
+                    }
+                    mainViewModel.showLoader = false
+                } else if (it is Resource.Loading) {
+                    if (page == 1)
+                        mainViewModel.showLoader = true
+                } else if (it is Resource.DataError) {
+                    mainViewModel.showLoader = false
+                }
             }
         }
     }
@@ -309,7 +328,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
                 text = vedioPath?.path.toString()
             )
 
-        LazyColumn(Modifier.padding(horizontal = 24.dp)) {
+        LazyColumn(state = listState, modifier = Modifier.padding(horizontal = 24.dp)) {
             items(posts) { post ->
                 TimelineItem(
                     post, onTimelineCLick = {
@@ -329,6 +348,21 @@ fun TimelineScreen(navController: NavController, modifier: Modifier) {
                         }
                     })
             }
+            if (postData.current_page != null)
+                if (postData.last_page!! > postData.current_page!!) {
+                    item {
+                        if (posts.isNotEmpty()) {
+                            viewModel.getPosts(++page)
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(16.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+                }
         }
     }
 }

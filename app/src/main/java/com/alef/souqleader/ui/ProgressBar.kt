@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.alef.souqleader.ui.theme.Blue2
 
 @Composable
 fun CircularIndeterminateProgressBar(isDisplayed: Boolean,
@@ -28,7 +29,7 @@ fun CircularIndeterminateProgressBar(isDisplayed: Boolean,
                     end.linkTo(parent.end)
                     start.linkTo(parent.start)
                 },
-                color = MaterialTheme.colors.primary
+                color = Blue2
             )
         }
 

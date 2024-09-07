@@ -105,7 +105,7 @@ fun FilterResultScreen(
         viewModel.viewModelScope.launch {
             viewModel.stateListOfLeads.collect {
                 leadList.clear()
-                leadList.addAll(it)
+                it.data?.data?.let { it1 -> leadList.addAll(it1) }
             }
         }
     }

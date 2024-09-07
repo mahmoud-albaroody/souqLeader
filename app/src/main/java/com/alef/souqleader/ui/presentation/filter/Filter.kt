@@ -122,7 +122,20 @@ fun FilterScreen(navController: NavController, modifier: Modifier,mainViewModel:
         }
         filterViewModel.viewModelScope.launch {
             filterViewModel.addLead.collect {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                when (it) {
+                    is Resource.Success -> {
+                        Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
+                            .show()
+                    }
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        mainViewModel.showLoader = false
+                    }
+                }
             }
         }
 

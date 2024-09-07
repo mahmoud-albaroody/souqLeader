@@ -79,7 +79,7 @@ fun Navigation(
             leadId.let {
                 if (modifier != null) {
                     AllLeadsScreen(
-                        navController, modifier, leadId = leadId
+                        navController, modifier, leadId = leadId,mainViewModel
                     )
                     leadId = null
                 }
@@ -169,7 +169,7 @@ fun Navigation(
         composable(Screen.Timeline.route) {
             modifier?.let { it1 ->
                 TimelineScreen(
-                    navController, modifier
+                    navController, modifier,mainViewModel
                 )
             }
         }
