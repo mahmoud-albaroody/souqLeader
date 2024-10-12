@@ -88,7 +88,9 @@ class AllLeadViewModel @Inject constructor(
 
     fun leadsFilter(filterRequest: FilterRequest) {
         viewModelScope.launch(job) {
-            filterUseCase.leadsFilter(filterRequest).catch { }
+            filterUseCase.leadsFilter(filterRequest).catch {
+
+            }
                 .onStart {
                     _stateFilterLeads.emit(Resource.Loading())
                 }.buffer().collect {

@@ -69,7 +69,7 @@ fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
     var comment by remember { mutableStateOf("") }
 
     postList.clear()
-    postList.addAll(post.comment)
+    post.comment?.let { postList.addAll(it) }
     val viewModel: CRMViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
@@ -127,30 +127,6 @@ fun CRMScreenItem(
                 Modifier
                     .fillMaxWidth()
             ) {
-                Text(
-                    text = post.post,
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        color = colorResource(id = R.color.blue),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-
-                Text(
-                    text = post.post,
-                    modifier = Modifier.padding(top = 8.dp),
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = colorResource(id = R.color.gray),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-            }
-
-            Column(
-                Modifier
-                    .fillMaxWidth()
-            ) {
                 Image(
                     painter = rememberAsyncImagePainter(
                         if (!post.images.isNullOrEmpty()) {
@@ -168,10 +144,35 @@ fun CRMScreenItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(screenHeight / 4)
-                        .padding(top = 8.dp)
+                        .padding(bottom = 8.dp)
                         .clip(RoundedCornerShape(16.dp))
 
                 )
+                Text(
+                    text = post.post ?: "",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        color = colorResource(id = R.color.blue),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+
+                Text(
+                    text = post.post ?: "",
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        color = colorResource(id = R.color.gray),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -191,7 +192,7 @@ fun CRMScreenItem(
 
                         )
                         Text(
-                            text = post.likes_count +
+                            text = post.likes_count.toString() +
                                     stringResource(id = R.string.like),
                             modifier = Modifier.padding(start = 8.dp),
                             style = TextStyle(

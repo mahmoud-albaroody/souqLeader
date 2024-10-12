@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.presentation.filterResult
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,13 +21,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +53,7 @@ import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadViewModel
@@ -63,7 +69,9 @@ fun FilterResultScreen(
 
     val viewModel: AllLeadViewModel = hiltViewModel()
     //   viewModel.updateBaseUrl(AccountData.BASE_URL)
-    val leadList by remember { mutableStateOf(ArrayList<Lead>()) }
+
+    var lead by remember { mutableStateOf(LeadsByStatusResponse()) }
+    var page by remember { mutableIntStateOf(1) }
     var name: String? = null
     var status: String? = null
     var channel: String? = null
@@ -97,29 +105,51 @@ fun FilterResultScreen(
             FilterRequest(
                 name = name, status = status,
                 project = project, communication_way = communicationWay,
-                channel = channel, budget = budget
+                channel = channel, budget = budget, page = page
             )
         )
 
 
         viewModel.viewModelScope.launch {
-            viewModel.stateListOfLeads.collect {
-                leadList.clear()
-                it.data?.data?.let { it1 -> leadList.addAll(it1) }
+            viewModel.stateFilterLeads.collect {
+                it.data?.let { leadResponse ->
+                    lead = leadResponse
+                }
             }
         }
     }
-    Screen(navController, leadList)
+    Screen(navController, lead, page, loadMore = {
+        viewModel.leadsFilter(
+            FilterRequest(
+                name = name, status = status,
+                project = project, communication_way = communicationWay,
+                channel = channel, budget = budget, page = ++page
+            )
+        )
+    })
 
 }
 
 
 @Composable
-fun Screen(navController: NavController, stateListOfLeads: List<Lead>) {
+fun Screen(
+    navController: NavController, lead: LeadsByStatusResponse,
+    page: Int,
+    loadMore: () -> Unit
+) {
     var selectedId by remember { mutableStateOf("") }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val selectedIdList = remember { mutableStateListOf<String>() }
+    val leadList = remember { mutableStateListOf<Lead>() }
+    lead.data?.let { it1 ->
+        if (page == 1) {
+            leadList.clear()
+            leadList.addAll(it1)
+        } else {
+            leadList.addAll(it1)
+        }
+    }
     Box(
         Modifier
             .background(colorResource(id = R.color.white))
@@ -132,7 +162,7 @@ fun Screen(navController: NavController, stateListOfLeads: List<Lead>) {
             LazyColumn(
                 Modifier.fillMaxWidth()
             ) {
-                items(stateListOfLeads) {
+                items(leadList) {
                     AllLeadsItem(it) { lead ->
 //                        stateListOfLeads.forEach {
 //                            it.selected = false
@@ -144,6 +174,24 @@ fun Screen(navController: NavController, stateListOfLeads: List<Lead>) {
                         }
                     }
                 }
+                if (lead.info?.pages != null && lead.info.pages != 0)
+                    if (lead.info.pages > page) {
+                        item {
+                            if (leadList.isNotEmpty()) {
+                                loadMore()
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
             }
         }
         if (selectedIdList.isNotEmpty())
@@ -170,7 +218,7 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
     var selected by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    selected = lead.selected
+    selected = lead.selected == true
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -178,8 +226,8 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
             .height(screenHeight / 3f)
             .padding(6.dp)
             .clickable {
-                lead.selected = !lead.selected
-                selected = lead.selected
+                lead.selected = !lead.selected!!
+                selected = lead.selected!!
                 onItemClick(lead)
             },
         elevation = CardDefaults.cardElevation(4.dp)

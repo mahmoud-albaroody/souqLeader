@@ -92,7 +92,8 @@ fun AllLeadsScreen(
 
             else -> {
                 leadId?.let {
-                    viewModel.getLeadByStatus(it, page) }
+                    viewModel.getLeadByStatus(it, page)
+                }
             }
         }
 
@@ -106,7 +107,7 @@ fun AllLeadsScreen(
                     }
 
                     is Resource.Loading -> {
-                        if (page == 1 )
+                        if (page == 1)
                             mainViewModel.showLoader = true
                     }
 
@@ -152,7 +153,8 @@ fun AllLeadsScreen(
         }
     }, lead, page, loadMore = {
         leadId?.let {
-            viewModel.getLeadByStatus(it, ++page) }
+            viewModel.getLeadByStatus(it, ++page)
+        }
     })
 
 }
@@ -171,7 +173,7 @@ fun Screen(
     val screenHeight = configuration.screenHeightDp.dp
     val leadList = remember { mutableStateListOf<Lead>() }
     lead.data?.let { it1 ->
-        if (it1.isEmpty() && page == 1) {
+        if (page == 1) {
             leadList.clear()
             leadList.addAll(it1)
         } else {
@@ -207,7 +209,7 @@ fun Screen(
                     if (lead.info.pages > page) {
                         item {
                             if (leadList.isNotEmpty()) {
-                                   loadMore()
+                                loadMore()
                             }
                             Row(
                                 Modifier.fillMaxWidth(),

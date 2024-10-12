@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.addlead
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
@@ -63,14 +65,17 @@ import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.CommunicationWay
 import com.alef.souqleader.domain.model.Marketer
 import com.alef.souqleader.domain.model.Sales
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.SharedViewModel
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun AddLeadScreen(modifier: Modifier, navController: NavController, mainViewModel: MainViewModel) {
+fun AddLeadScreen(modifier: Modifier, navController: NavHostController, mainViewModel: MainViewModel,sharedViewModel: SharedViewModel) {
     val addLeadViewModel: AddLeadViewModel = hiltViewModel()
     val context = LocalContext.current
     val campaignList = remember { mutableStateListOf<Campaign>() }
@@ -122,8 +127,11 @@ fun AddLeadScreen(modifier: Modifier, navController: NavController, mainViewMode
                     is Resource.DataError -> {
                         if (it.errorCode == 401) {
                             AccountData.clear()
-                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
-                        }
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                }
+                            }                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -137,6 +145,7 @@ fun AddLeadScreen(modifier: Modifier, navController: NavController, mainViewMode
                     is Resource.Success -> {
                         Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
                             .show()
+                        mainViewModel.showLoader = false
                     }
 
                     is Resource.Loading -> {
@@ -194,7 +203,7 @@ fun AddLead(
     val hasMarketer = remember { mutableStateOf(false) }
     val hasSales = remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val addLead = AddLead(is_fresh = true)
+    val addLead by remember { mutableStateOf(AddLead(is_fresh = false)) }
     val status = arrayListOf<String>()
     status.add(stringResource(R.string.cold))
     status.add(stringResource(R.string.fresh))
@@ -314,9 +323,9 @@ fun AddLead(
                 addLead.communication_way =
                     communicationWayList.find { it.getTitle() == communicationWays }?.id
             }
-            TextFiledItem(stringResource(R.string.cancel_reason), true) {
-                addLead.cancel_reason = it
-            }
+//            TextFiledItem(stringResource(R.string.cancel_reason), true) {
+//                addLead.cancel_reason = it
+//            }
             DynamicSelectTextField(marketers) { marketer ->
                 addLead.marketer_id = marketerList.find { it.name == marketer }?.id
                 hasMarketer.value = false
@@ -357,24 +366,17 @@ fun AddLead(
             onClick = {
                 if (addLead.name.isNullOrEmpty()) {
                     hasName.value = true
-                }
-                if (addLead.phone.isNullOrEmpty()) {
+                } else if (addLead.phone.isNullOrEmpty()) {
                     hasPhone.value = true
-                }
-
-                if (addLead.marketer_id == null) {
+                } else if (addLead.marketer_id == null) {
                     hasMarketer.value = true
-                }
-
-                if (addLead.channel == null) {
+                } else if (addLead.channel == null) {
                     hasChannel.value = true
-                }
-
-                if (addLead.sales_id == null) {
+                } else if (addLead.sales_id == null) {
                     hasSales.value = true
+                } else {
+                    onAddClick(addLead)
                 }
-
-                onAddClick(addLead)
             }) {
             Text(
                 text = stringResource(R.string.add_lead), Modifier.padding(vertical = 8.dp)

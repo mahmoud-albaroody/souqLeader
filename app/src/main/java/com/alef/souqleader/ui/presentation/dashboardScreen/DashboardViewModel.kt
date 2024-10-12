@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.dashboardScreen
 
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -50,7 +51,8 @@ class DashboardViewModel @Inject constructor(
 //
     fun getLeads() {
         viewModelScope.launch(job) {
-            getLeadUseCase.getLeadStatus().catch { }
+            getLeadUseCase.getLeadStatus().catch {
+            }
                 .onStart {
                     _allLead.emit(Resource.Loading())
                 }.buffer().collect {

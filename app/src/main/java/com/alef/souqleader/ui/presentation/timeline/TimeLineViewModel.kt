@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.timeline
 
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -61,10 +62,13 @@ class TimeLineViewModel @Inject constructor(
 
     fun getPosts(page:Int) {
         viewModelScope.launch(job) {
-            getPostsUseCase.getPosts(page).catch { }
+            getPostsUseCase.getPosts(page).catch {
+                Log.e("dddddd",it.toString())
+            }
                 .onStart {
                     _statePosts.emit(Resource.Loading())
                 }.buffer().collect {
+
                     _statePosts.emit(it)
                 }
         }

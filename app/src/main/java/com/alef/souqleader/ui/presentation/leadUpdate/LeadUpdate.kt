@@ -1,9 +1,11 @@
 package com.alef.souqleader.ui.presentation.leadUpdate
 
+import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,13 +61,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.CancelationReason
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.SharedViewModel
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -74,17 +80,16 @@ import java.util.Date
 
 @Composable
 fun LeadUpdateScreen(
-    navController: NavController,
-    modifier: Modifier, mainViewModel: MainViewModel, leadIds: Array<String>
+    navController: NavHostController,
+    modifier: Modifier, mainViewModel: MainViewModel,sharedViewModel:SharedViewModel, leadIds: Array<String>
 ) {
     val viewModel: LeadUpdateViewModel = hiltViewModel()
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
     val cancelationReason = remember { mutableStateListOf<CancelationReason>() }
     val cancelationTitleReason = remember { mutableStateListOf<String>() }
-
+    val context = LocalContext.current
     Log.e("ddd", leadIds.size.toString())
 
-    val mContext = LocalContext.current
     LaunchedEffect(key1 = true) {
         viewModel.getLeads()
         viewModel.cancelationReason()
@@ -111,8 +116,11 @@ fun LeadUpdateScreen(
                     is Resource.DataError -> {
                         if (it.errorCode == 401) {
                             AccountData.clear()
-                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
-                        }
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                }
+                            }                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -130,7 +138,7 @@ fun LeadUpdateScreen(
         }
         viewModel.viewModelScope.launch {
             viewModel.updateLead.collect {
-                Toast.makeText(mContext, it.message.toString(), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
 
@@ -150,7 +158,7 @@ fun LeadUpdateScreen(
             if (selectedDate == "Date / Time") {
                 date = null
             }
-            if (cancelReason.isNullOrEmpty()) {
+            if (cancelReason.isNullOrEmpty() || cancelReason == "null") {
                 cancelReason = null
             }
             if (note.isEmpty()) {
@@ -188,6 +196,10 @@ fun LeadUpdate(
     var showDatePicker by remember {
         mutableStateOf(false)
     }
+    var showCancllation by remember {
+        mutableStateOf(false)
+    }
+
 
     var showTimerPicker by remember {
         mutableStateOf(false)
@@ -204,8 +216,14 @@ fun LeadUpdate(
             .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
         if (!leads.isEmpty())
-            DynamicSelectTextField(leads, onOptionSelected = {
-                leadSelected = it
+            DynamicSelectTextField(leads, onOptionSelected = { selectedDate ->
+                if (leads.find { it.getTitle() == selectedDate }?.id == 8) {
+                    showCancllation = true
+                } else {
+                    cancelationTitle =""
+                    showCancllation = false
+                }
+                leadSelected = selectedDate
             })
         TextField(
             modifier = Modifier
@@ -265,20 +283,20 @@ fun LeadUpdate(
                 )
             }
         }
+        if (showCancllation)
+            Column {
+                Text(
+                    text = stringResource(R.string.cancellation_reason), modifier =
+                    Modifier.padding(top = 16.dp),
+                    style = TextStyle(fontSize = 14.sp)
+                )
+                if (!cancelationTitleReason.isEmpty())
+                    RadioButtonGroup(cancelationTitleReason, onCancelationResionSelect = {
+                        cancelationTitle = it
+                    })
+            }
 
-        Text(
-            text = stringResource(R.string.cancellation_reason), modifier =
-            Modifier.padding(top = 16.dp, bottom = 8.dp),
-            style = TextStyle(fontSize = 14.sp)
-        )
-        if (!cancelationTitleReason.isEmpty())
-            RadioButtonGroup(cancelationTitleReason, onCancelationResionSelect = {
-                cancelationTitle = it
-            })
-
-
-        Button(modifier = Modifier
-            .fillMaxWidth(),
+        Button(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
@@ -442,8 +460,8 @@ fun DatePickerModal(
     mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
     mCalendar.time = Date()
     val mDate = remember { mutableStateOf("") }
-    val mDatePickerDialog = android.app.DatePickerDialog(
-        mContext,
+    val mDatePickerDialog = DatePickerDialog(
+        mContext,R.style.DialogTheme,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
             mDate.value = "$mYear/${mMonth + 1}/$mDayOfMonth"
             onDateSelected(mDate.value)
@@ -468,7 +486,7 @@ fun TimePickerDialog(
     val mMinute = mCalendar[Calendar.MINUTE]
     val mTime = remember { mutableStateOf("") }
     val timePickerDialog = TimePickerDialog(
-        mContext,
+        mContext,R.style.DialogTheme,
         { _, mHour: Int, mMinute: Int ->
             mTime.value = "$mHour:$mMinute"
             onTimeSelected(mTime.value)

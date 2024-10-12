@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
 //        this.window.setSoftInputMode(
 //            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
 //        )
+
         updateLocale(this, Locale(AccountData.lang))
 
 
@@ -74,7 +75,6 @@ fun Start() {
         ) {
             val navController = rememberNavController()
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                //   MyApp(modifier = modifier,navController,mainViewModel)
                 if (AccountData.auth_token == null) {
                     MainScreen(modifier, navController, viewModel, mainViewModel)
                 } else {

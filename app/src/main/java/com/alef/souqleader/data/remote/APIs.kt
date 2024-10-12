@@ -7,6 +7,7 @@ import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
+import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
@@ -37,7 +38,8 @@ interface APIs {
 
 
     @GET("api/leadsByStatus")
-    suspend fun leadsByStatus(@Query("status") status: String,@Query("page") page: Int
+    suspend fun leadsByStatus(
+        @Query("status") status: String, @Query("page") page: Int
     ): Response<LeadsByStatusResponse>
 
     @FormUrlEncoded
@@ -206,7 +208,7 @@ interface APIs {
         @Field("current_password") current_password: String?,
         @Field("new_password") new_password: String?,
         @Field("new_password_confirmation") new_password_confirmation: String?,
-    ): Response<StatusResponse>
+    ): Response<ChangePasswordResponse>
 
     @FormUrlEncoded
     @POST("api/reset-password")
@@ -246,7 +248,8 @@ interface APIs {
         @Query("created_from") created_from: String? = null,
         @Query("created_to") created_to: Boolean? = null,
         @Query("action_date_from") action_date_from: Boolean? = null,
-        @Query("action_date_to") action_date_to: Boolean? = null
+        @Query("action_date_to") action_date_to: Boolean? = null,
+        @Query("page") page: Int? = null
     ): Response<LeadsByStatusResponse>
 
 

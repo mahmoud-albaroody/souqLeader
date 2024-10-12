@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.filter
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
@@ -51,19 +53,22 @@ import com.alef.souqleader.domain.model.Channel
 import com.alef.souqleader.domain.model.CommunicationWay
 import com.alef.souqleader.domain.model.Marketer
 import com.alef.souqleader.domain.model.Sales
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.AddLeadViewModel
 import com.alef.souqleader.ui.presentation.addlead.DynamicSelectTextField
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun FilterScreen(navController: NavController, modifier: Modifier,mainViewModel:MainViewModel) {
+fun FilterScreen(navController: NavHostController, modifier: Modifier,mainViewModel:MainViewModel,sharedViewModel: SharedViewModel) {
     val context = LocalContext.current
     val filterViewModel: AddLeadViewModel = hiltViewModel()
     val leadsFilterViewModel: LeadsFilterViewModel = hiltViewModel()
@@ -103,8 +108,11 @@ fun FilterScreen(navController: NavController, modifier: Modifier,mainViewModel:
                     is Resource.DataError -> {
                         if (it.errorCode == 401) {
                             AccountData.clear()
-                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
-                        }
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                }
+                            }                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -126,6 +134,7 @@ fun FilterScreen(navController: NavController, modifier: Modifier,mainViewModel:
                     is Resource.Success -> {
                         Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
                             .show()
+                        mainViewModel.showLoader = false
                     }
 
                     is Resource.Loading -> {

@@ -3,6 +3,7 @@ package com.alef.souqleader.domain
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.ApiRepoImpl
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
+import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
@@ -31,7 +32,7 @@ class LoginUseCase @Inject constructor(
         password: String,
         newPassword: String,
         confirmPassword: String
-    ): Resource<StatusResponse> {
+    ): Resource<ChangePasswordResponse> {
         return repository.changePassword(password, newPassword, confirmPassword)
     }
 

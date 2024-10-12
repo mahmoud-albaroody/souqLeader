@@ -157,12 +157,12 @@ fun CancellationsReportItem(lead: Lead) {
                         .padding(top = 4.dp)
                 ) {
                     Text(
-                        text = lead.name?:"", style = TextStyle(
+                        text = lead.name ?: "", style = TextStyle(
                             fontSize = 15.sp, color = colorResource(id = R.color.blue)
                         )
                     )
                     Text(
-                        text = lead.phone?:"", style = TextStyle(
+                        text = lead.phone ?: "", style = TextStyle(
                             fontSize = 13.sp,
                         )
                     )
@@ -186,7 +186,7 @@ fun CancellationsReportItem(lead: Lead) {
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = lead.sales_name?:"",
+                        text = lead.sales_name ?: "",
                         style = TextStyle(
                             fontSize = 12.sp,
                         ),
@@ -203,7 +203,7 @@ fun CancellationsReportItem(lead: Lead) {
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = lead.project_name?:"",
+                        text = lead.project_name ?: "",
                         style = TextStyle(
                             fontSize = 12.sp,
                         ),
@@ -289,7 +289,9 @@ fun Cancellations(cancelationReport: CancelationReport) {
             Text(
                 text = cancelationReport.total_canceled,
                 style = TextStyle(
-                    fontSize = 20.sp, color = colorResource(id = R.color.blue), fontWeight = FontWeight.Bold
+                    fontSize = 20.sp,
+                    color = colorResource(id = R.color.blue),
+                    fontWeight = FontWeight.Bold
                 ),
             )
             Text(

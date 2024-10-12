@@ -28,9 +28,9 @@ class SalesProfileReportViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    fun getSalesProfileReport() {
+    fun getSalesProfileReport(userId:String) {
         viewModelScope.launch(job) {
-            salesProfileReport = salesProfileReportUseCase.getSalesProfileReport().data?.data!!
+            salesProfileReport = salesProfileReportUseCase.getSalesProfileReport(userId).data?.data!!
         }
     }
 

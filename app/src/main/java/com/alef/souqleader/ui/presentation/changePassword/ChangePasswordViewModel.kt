@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.changePassword
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.CancelationUseCase
@@ -19,8 +20,8 @@ class ChangePasswordViewModel @Inject constructor(
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _changePassword =
-        MutableSharedFlow<StatusResponse>()
-    val changePassword: MutableSharedFlow<StatusResponse>
+        MutableSharedFlow<ChangePasswordResponse>()
+    val changePassword: MutableSharedFlow<ChangePasswordResponse>
         get() = _changePassword
     private val job = Job()
     fun changePassword(password: String, newPassword: String, confirmPassword: String) {

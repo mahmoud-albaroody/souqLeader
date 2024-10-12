@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.login
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -29,13 +28,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -65,15 +62,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
-import com.alef.souqleader.data.remote.dto.GetClientResponse
-import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.Start
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
-import com.alef.souqleader.ui.presentation.mainScreen.CustomModalDrawer
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
+import com.alef.souqleader.ui.theme.AndroidCookiesTheme
 import kotlinx.coroutines.launch
 
 
@@ -136,7 +132,17 @@ fun LoginScreen(
                     is Resource.DataError -> {
                         if (it.errorCode == 401) {
                             AccountData.clear()
-                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                }
+                            }                        }
+                        if (it.errorCode == 500) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.something_error), Toast.LENGTH_LONG
+                            )
+                                .show()
                         }
                         mainViewModel.showLoader = false
                     }

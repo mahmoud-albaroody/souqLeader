@@ -10,6 +10,7 @@ import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
+import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
@@ -171,8 +172,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun getSalesProfileReport(): Resource<SalesProfileReportResponse> {
-        val response = APIs.getSalesProfileReport("5")
+    suspend fun getSalesProfileReport(userId: String): Resource<SalesProfileReportResponse> {
+        val response = APIs.getSalesProfileReport(user_id = userId)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -410,7 +411,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         password: String,
         newPassword: String,
         confirmPassword: String
-    ): Resource<StatusResponse> {
+    ): Resource<ChangePasswordResponse> {
         val response = APIs.changePassword(password, newPassword, confirmPassword)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -466,7 +467,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             filterRequest.budget,
             filterRequest.marketer,
             filterRequest.communication_way,
-            filterRequest.region
+            filterRequest.region,
+            page = filterRequest.page
         )
         return if (response.isSuccessful) {
 

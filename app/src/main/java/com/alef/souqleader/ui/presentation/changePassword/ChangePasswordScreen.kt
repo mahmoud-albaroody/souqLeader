@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.changePassword
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -44,20 +45,37 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.alef.souqleader.R
+import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.login.isValidText
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
+import com.alef.souqleader.ui.theme.AndroidCookiesTheme
 import com.alef.souqleader.ui.theme.White
 import kotlinx.coroutines.launch
 
-@Preview
+
 @Composable
-fun ChangePasswordScreen() {
+fun ChangePasswordScreen(navController: NavHostController, mainViewModel: MainViewModel, sharedViewModel: SharedViewModel) {
     val changePasswordViewModel: ChangePasswordViewModel = hiltViewModel()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         changePasswordViewModel.viewModelScope.launch {
             changePasswordViewModel.changePassword.collect {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                if (it.data == false) {
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                    AccountData.clear()
+                    (context as MainActivity).setContent {
+                        AndroidCookiesTheme {
+                            MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                        }
+                    }
+                }
             }
         }
     }
@@ -163,10 +181,10 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     var keyboardOptions =
-        KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Number)
+        KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Text)
     if (text == stringResource(id = R.string.confirm_password)) {
         keyboardOptions =
-            KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number)
+            KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Text)
     }
     TextField(
         modifier = Modifier

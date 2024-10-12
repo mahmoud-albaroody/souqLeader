@@ -86,6 +86,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.PostData
 import com.alef.souqleader.domain.model.AccountData
@@ -113,8 +114,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     val posts = remember { mutableStateListOf<Post>() }
     var visibleMeda by remember { mutableStateOf(false) }
     var page = 1
-    var postData by remember { mutableStateOf(PostData()) }
-
+    var info by remember { mutableStateOf(Info()) }
+    var likedPost by remember { mutableStateOf<Post?>(null) }
     val context = LocalContext.current
     val listState = rememberLazyListState()
     //  val posts = mutableStateListOf<Post>()
@@ -165,15 +166,19 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     }
 
 
-    var likedPost: Post? = null
+
     LaunchedEffect(key1 = true) {
         viewModel.getPosts(page)
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
+
                 if (it is Resource.Success) {
+
+
                     it.data?.let {
-                        postData = it.data
-                        it.data.data?.let { it1 -> posts.addAll(it1) }
+                        if (it.info != null)
+                            info = it.info
+                        it.data.let { it1 -> posts.addAll(it1) }
                     }
                     mainViewModel.showLoader = false
                 } else if (it is Resource.Loading) {
@@ -188,11 +193,14 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     viewModel.addLike.observe(LocalLifecycleOwner.current) {
         if (it.status) {
             if (likedPost != null) {
-                val index = posts.indexOf(likedPost)
+                val index = posts.indexOf(posts.find { it.id == likedPost!!.id })
                 if (likedPost?.isLiked == 1) {
                     posts[index] = posts[index].copy(isLiked = 0)
+                    posts[index] = posts[index].copy(likes_count = posts[index].likes_count!! - 1)
+
                 } else {
                     posts[index] = posts[index].copy(isLiked = 1)
+                    posts[index] = posts[index].copy(likes_count = posts[index].likes_count!! + 1)
                 }
             }
         }
@@ -340,7 +348,6 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     },
                     onLikeClick = {
                         likedPost = post
-
                         if (post.isLiked == 1) {
                             viewModel.addLike("0", post.id.toString())
                         } else {
@@ -348,8 +355,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                         }
                     })
             }
-            if (postData.current_page != null)
-                if (postData.last_page!! > postData.current_page!!) {
+            if (info.pages != null)
+                if (info.pages!! > info.count!!) {
                     item {
                         if (posts.isNotEmpty()) {
                             viewModel.getPosts(++page)
@@ -523,29 +530,16 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(screenHeight * 0.38f)
             .padding(vertical = 6.dp)
             .clickable { onTimelineCLick.invoke() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
             Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .weight(6f),
+                .fillMaxSize(),
+
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
-            Text(
-                modifier = Modifier
-                    .padding(top = 12.dp),
-                text = post.post,
-                style = TextStyle(
-                    color = colorResource(id = R.color.blue),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
             Image(
                 painter = rememberAsyncImagePainter(
                     if (post.images?.isNotEmpty() == true) {
@@ -555,18 +549,32 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                     }
                 ),
                 contentDescription = "",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillWidth,
                 modifier = Modifier
                     .height(screenHeight * 0.22f)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(percent = 10))
-                    .padding(vertical = 4.dp),
             )
+            post.post?.let {
+                Text(
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .padding(horizontal = 16.dp),
+                    text = it,
+                    style = TextStyle(
+                        color = colorResource(id = R.color.blue),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+
 
             Row(
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

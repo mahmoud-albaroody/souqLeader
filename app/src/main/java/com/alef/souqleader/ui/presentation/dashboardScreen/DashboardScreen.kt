@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.dashboardScreen
 
 import android.util.Log
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,27 +40,33 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.navigation.Navigation1
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
 fun DashboardScreen(
-    navController: NavController,
-    sharedViewModel: SharedViewModel, mainViewModel: MainViewModel
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel,
+    mainViewModel: MainViewModel
 ) {
     val viewModel: DashboardViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
-    Log.e("ddddd",AccountData.auth_token.toString())
+    Log.e("ddddd", AccountData.auth_token.toString())
+    val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         sharedViewModel.updateSalesNameState(AccountData.role_name)
         sharedViewModel.updatePhotoState(AccountData.photo)
@@ -66,8 +74,10 @@ fun DashboardScreen(
         viewModel.getLeads()
         viewModel.viewModelScope.launch {
             viewModel.allLead.collect {
+
                 when (it) {
                     is Resource.Success -> {
+
                         allLead.clear()
                         it.data?.data?.let { it1 -> allLead.addAll(it1) }
                         mainViewModel.showLoader = false
@@ -81,7 +91,11 @@ fun DashboardScreen(
                     is Resource.DataError -> {
                         if (it.errorCode == 401) {
                             AccountData.clear()
-                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                }
+                            }
                         }
                         mainViewModel.showLoader = false
                     }
@@ -98,6 +112,7 @@ fun DashboardScreen(
     ) {
         items(allLead) {
             MyCardItem(it) {
+                Screen.AllLeadsScreen.title = it.getTitle()
                 navController.navigate(
                     Screen.AllLeadsScreen.route.plus("/${it.id}")
                 )

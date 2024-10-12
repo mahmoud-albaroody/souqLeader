@@ -60,7 +60,7 @@ fun SalesProfileReportScreen(modifier: Modifier) {
     val viewModel: SalesProfileReportViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
-        viewModel.getSalesProfileReport()
+        viewModel.getSalesProfileReport(AccountData.userId.toString())
     }
     viewModel.salesProfileReport?.let { SalesProfileReportItem(it) }
 }
@@ -114,7 +114,7 @@ fun SalesProfileReportItem(
                                     }
                                 ),
                                 contentDescription = "",
-                                contentScale = ContentScale.Fit,
+                                contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .size(50.dp)
                                     .clip(CircleShape)

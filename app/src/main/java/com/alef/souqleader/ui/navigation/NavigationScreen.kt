@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.navigation
 
-import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -9,7 +8,7 @@ import com.alef.souqleader.R
 
 sealed class Screen(
     val route: String,
-    @StringRes val title: Int = R.string.app_name,
+    var title: String = "souqleader",
     val navIcon: (@Composable () -> Unit) = {
         Icon(
             Icons.Filled.Home, contentDescription = "gym_details_screen"
@@ -26,23 +25,25 @@ sealed class Screen(
     object FilterResultScreen : Screen("filterResultScreen", objectName = "s", objectPath = "/{s}")
 
 
-
     object LeadUpdateScreen : Screen("leadUpdateScreen", objectName = "s", objectPath = "/{s}")
     object Timeline : Screen("timeline")
     object SalesProfileReportScreen : Screen("salesProfileReportScreen")
     object AddLeadScreen : Screen("addLeadScreen")
 
-    object ChangePasswordScreen : Screen("changePasswordScreen", objectName = "s", objectPath = "/{s}")
+    object ChangePasswordScreen :
+        Screen("changePasswordScreen", objectName = "s", objectPath = "/{s}")
 
-    object ForgetPasswordScreen : Screen("forgetPasswordScreen", objectName = "s", objectPath = "/{s}")
+    object ForgetPasswordScreen :
+        Screen("forgetPasswordScreen", objectName = "s", objectPath = "/{s}")
 
-    object ResetPasswordScreen : Screen("resetPasswordScreen", objectName = "s", objectPath = "/{s}")
+    object ResetPasswordScreen :
+        Screen("resetPasswordScreen", objectName = "s", objectPath = "/{s}")
 
     object CheckCodeScreen : Screen("checkCodeScreen", objectName = "s", objectPath = "/{s}")
 
-    object MainScreen2 : Screen("MainScreen2", 0)
+    object MainScreen2 : Screen("MainScreen2", "")
 
-    object MainScreen1 : Screen("MainScreen1", 0)
+    object MainScreen1 : Screen("MainScreen1", "")
 
     object InventoryScreen : Screen("inventory")
 

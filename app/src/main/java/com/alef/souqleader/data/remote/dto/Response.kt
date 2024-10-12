@@ -19,6 +19,12 @@ data class LeadsByStatusResponse(
     val info: Info?=null
 ) : StatusResponse()
 
+
+data class ChangePasswordResponse(
+    val data: Boolean? = null,
+) : StatusResponse()
+
+
 data class DelayReportResponse(
     var data: ArrayList<DelayReport>? = null
 ) : StatusResponse()
@@ -71,7 +77,7 @@ data class ProjectResponse(
 )
 
 data class AddLikeResponse(
-    var data: AddLike? = null
+    var data: Boolean? = null
 ) : StatusResponse()
 
 data class PlanResponse(
@@ -79,7 +85,8 @@ data class PlanResponse(
 ) : StatusResponse()
 
 data class PostResponse(
-    var data: PostData,
+   var data: ArrayList<Post>,
+    val info: Info?=null
 ) : StatusResponse()
 
 data class AllRolesAndAllPermissionsResponse(

@@ -8,7 +8,7 @@ import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
 import javax.inject.Inject
 
 class SalesProfileReportUseCase @Inject constructor(private val repository: ApiRepoImpl) {
-    suspend fun getSalesProfileReport(): Resource<SalesProfileReportResponse> {
-        return repository.getSalesProfileReport()
+    suspend fun getSalesProfileReport(userId:String): Resource<SalesProfileReportResponse> {
+        return repository.getSalesProfileReport(userId = userId)
     }
 }

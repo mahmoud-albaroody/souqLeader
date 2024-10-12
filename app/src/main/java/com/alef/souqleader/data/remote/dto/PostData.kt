@@ -1,9 +1,10 @@
 package com.alef.souqleader.data.remote.dto
 
+import com.alef.souqleader.data.remote.Info
+
 data class PostData(
-    val current_page: Int?=null,
+    val info: Info?=null,
     var data: ArrayList<Post>? = null,
-    val last_page: Int?=null
 
 
 )

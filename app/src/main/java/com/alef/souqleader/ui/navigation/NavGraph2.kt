@@ -1,6 +1,8 @@
 package com.alef.souqleader.ui.navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -52,6 +54,7 @@ import com.alef.souqleader.ui.presentation.simplifyWorkflow.SimplifyScreen
 import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
 import org.json.JSONObject
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun Navigation(
     navController: NavHostController, modifier: Modifier? = null,
@@ -79,7 +82,7 @@ fun Navigation(
             leadId.let {
                 if (modifier != null) {
                     AllLeadsScreen(
-                        navController, modifier, leadId = leadId,mainViewModel
+                        navController, modifier, leadId = leadId, mainViewModel
                     )
                     leadId = null
                 }
@@ -119,7 +122,7 @@ fun Navigation(
             stringArray?.let {
                 if (modifier != null) {
                     LeadUpdateScreen(
-                        navController, modifier, mainViewModel, leadIds = stringArray
+                        navController, modifier, mainViewModel,viewModel, leadIds = stringArray
                     )
                 }
 
@@ -129,7 +132,7 @@ fun Navigation(
         composable(Screen.AddLeadScreen.route) {
             modifier?.let { it1 ->
                 AddLeadScreen(
-                    modifier, navController, mainViewModel
+                    modifier, navController, mainViewModel, sharedViewModel = viewModel
                 )
             }
         }
@@ -137,7 +140,7 @@ fun Navigation(
         composable(Screen.ChangePasswordScreen.route) {
             modifier?.let { it1 ->
                 ChangePasswordScreen(
-
+                    navController, mainViewModel, sharedViewModel = viewModel
                 )
             }
         }
@@ -169,7 +172,7 @@ fun Navigation(
         composable(Screen.Timeline.route) {
             modifier?.let { it1 ->
                 TimelineScreen(
-                    navController, modifier,mainViewModel
+                    navController, modifier, mainViewModel
                 )
             }
         }
@@ -237,7 +240,7 @@ fun Navigation(
             modifier?.let { it1 ->
                 FilterScreen(
                     navController,
-                    modifier, mainViewModel
+                    modifier, mainViewModel, viewModel
                 )
             }
         }
@@ -334,7 +337,10 @@ fun Navigation(
         composable(Screen.MainScreen1.route) {
             modifier?.let { it1 ->
                 MainScreen(
-                    modifier, navController = navController, viewModel, mainViewModel = mainViewModel
+                    modifier,
+                    navController = navController,
+                    viewModel,
+                    mainViewModel = mainViewModel
                 )
             }
         }

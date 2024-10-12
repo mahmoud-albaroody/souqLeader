@@ -63,7 +63,10 @@ fun Navigation1(
         composable(Screen.SimplifyWorkFlowScreen.route) {
             modifier?.let { it1 ->
                 SimplifyScreen(
-                    modifier, mainViewModel, navController = navController
+                    modifier,
+                    mainViewModel,
+                    sharedViewModel = viewModel,
+                    navController = navController
                 )
             }
         }
@@ -112,7 +115,11 @@ fun Navigation1(
         composable(Screen.MainScreen2.route) {
             modifier?.let { it1 ->
                 CustomModalDrawer(
-                   modifier, navController = navController, viewModel,allLead= SnapshotStateList(), mainViewModel = mainViewModel
+                    modifier,
+                    navController = navController,
+                    viewModel,
+                    allLead = SnapshotStateList(),
+                    mainViewModel = mainViewModel
                 )
             }
         }

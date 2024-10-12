@@ -2,6 +2,9 @@ package com.alef.souqleader.ui.presentation.simplifyWorkflow
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,11 +27,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,20 +50,23 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
-import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
-
 import com.alef.souqleader.ui.navigation.Screen
-import kotlinx.coroutines.flow.collect
+import com.alef.souqleader.ui.presentation.SharedViewModel
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
+import com.alef.souqleader.ui.theme.AndroidCookiesTheme
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel, navController: NavController) {
+fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel,sharedViewModel:SharedViewModel, navController: NavHostController) {
     val simplifyWorkViewModel: SimplifyWorkViewModel = hiltViewModel()
 
     val context = LocalContext.current
@@ -78,7 +84,8 @@ fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel, navControll
                                     if (!it.domain.isNullOrEmpty()) {
                                         AccountData.name = it.name ?: ""
                                         AccountData.domain = it.domain
-                                        AccountData.BASE_URL = ("https://" + AccountData.domain + "/")
+                                        AccountData.BASE_URL =
+                                            ("https://" + AccountData.domain + "/")
                                         AccountData.log = it.logo ?: ""
                                         navController.navigate(Screen.LoginScreen.route)
                                     }
@@ -100,8 +107,11 @@ fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel, navControll
                     is Resource.DataError -> {
                         if (it.errorCode == 401) {
                             AccountData.clear()
-                            navController.navigate(Screen.SimplifyWorkFlowScreen.route)
-                        }
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                }
+                            }                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -113,7 +123,6 @@ fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel, navControll
 
 
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,6 +137,27 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
     var skip = stringResource(R.string.skip)
     var image = R.drawable.walkthrow1
     var next = stringResource(id = R.string.next)
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    var backPressHandled by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    BackHandler(enabled = !backPressHandled) {
+        backPressHandled = true
+        coroutineScope.launch {
+            awaitFrame()
+            when (stat) {
+                0 -> {
+                    onBackPressedDispatcher?.onBackPressed()
+                }
+                1 -> {
+                    stat = 0
+                }
+                2 -> {
+                    stat = 1
+                }
+            }
+            backPressHandled = false
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -150,7 +180,8 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                 .align(Alignment.End)
                 .padding(end = 32.dp, top = 32.dp)
                 .clickable {
-                    navController.navigate(Screen.LoginScreen.route)
+                    stat = 2
+                    //  navController.navigate(Screen.LoginScreen.route)
                 }
         ) {
             Text(
