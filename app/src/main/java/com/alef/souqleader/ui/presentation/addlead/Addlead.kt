@@ -75,7 +75,12 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun AddLeadScreen(modifier: Modifier, navController: NavHostController, mainViewModel: MainViewModel,sharedViewModel: SharedViewModel) {
+fun AddLeadScreen(
+    modifier: Modifier,
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
+    sharedViewModel: SharedViewModel
+) {
     val addLeadViewModel: AddLeadViewModel = hiltViewModel()
     val context = LocalContext.current
     val campaignList = remember { mutableStateListOf<Campaign>() }
@@ -92,7 +97,7 @@ fun AddLeadScreen(modifier: Modifier, navController: NavHostController, mainView
         addLeadViewModel.campaign()
         addLeadViewModel.communicationWay()
         addLeadViewModel.channel()
-        addLeadViewModel.getProject()
+        addLeadViewModel.getProject(1)
 
         addLeadViewModel.viewModelScope.launch {
             addLeadViewModel.campaignResponse.collect {
@@ -129,9 +134,15 @@ fun AddLeadScreen(modifier: Modifier, navController: NavHostController, mainView
                             AccountData.clear()
                             (context as MainActivity).setContent {
                                 AndroidCookiesTheme {
-                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        sharedViewModel,
+                                        mainViewModel
+                                    )
                                 }
-                            }                        }
+                            }
+                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -388,10 +399,11 @@ fun AddLead(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TextFiledItem(
-    text: String, click: Boolean, onTextChange: (String) -> Unit
+    text: String, click: Boolean, value: String? = null, onTextChange: (String) -> Unit
 ) {
 
     var textValue by remember { mutableStateOf("") }
+    var hint by remember { mutableStateOf(text) }
 
     val keyboardOptions: KeyboardOptions =
         when (text) {
@@ -400,7 +412,11 @@ fun TextFiledItem(
                     keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
                 )
             }
-
+            stringResource(id = R.string.filter) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
+                )
+            }
             stringResource(id = R.string.budget) -> {
                 KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
@@ -426,6 +442,9 @@ fun TextFiledItem(
             }
         }
 
+    if (value != null)
+        hint = value
+
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
@@ -433,7 +452,7 @@ fun TextFiledItem(
         value = textValue,
         placeholder = {
             Text(
-                text = text, style = TextStyle(fontSize = 13.sp)
+                text = hint, style = TextStyle(fontSize = 13.sp)
             )
         },
         keyboardOptions = keyboardOptions,

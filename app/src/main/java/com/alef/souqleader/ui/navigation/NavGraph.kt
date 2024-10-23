@@ -26,6 +26,7 @@ import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
 import com.alef.souqleader.ui.presentation.changePassword.ChangePasswordScreen
 import com.alef.souqleader.ui.presentation.channelReport.ChannelReport
+import com.alef.souqleader.ui.presentation.contactUs.ContactUScreen
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.delaysReports.DelaysReports
@@ -85,7 +86,7 @@ fun Navigation1(
         composable(Screen.ForgetPasswordScreen.route) {
             modifier?.let { it1 ->
                 ForgetPasswordScreen(
-
+                    navController
                 )
             }
         }
@@ -93,22 +94,21 @@ fun Navigation1(
         composable(Screen.ResetPasswordScreen.route) {
             modifier?.let { it1 ->
                 ResetPasswordScreen(
-
+                    navController
                 )
             }
         }
         composable(Screen.CheckCodeScreen.route) {
             modifier?.let { it1 ->
                 CheckCodeScreen(
-
+                    navController
                 )
             }
         }
-
-        composable(Screen.CheckCodeScreen.route) {
+        composable(Screen.ContactUsScreen.route) {
             modifier?.let { it1 ->
-                CheckCodeScreen(
-
+                ContactUScreen(
+                    navController
                 )
             }
         }

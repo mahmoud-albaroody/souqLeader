@@ -10,11 +10,11 @@ import com.alef.souqleader.data.remote.dto.PropertyResponse
 import javax.inject.Inject
 
 class ProjectsUseCase @Inject constructor(private val repository: ApiRepoImpl) {
-    suspend fun project(): Resource<ProjectResponse> {
-        return repository.projects()
+    suspend fun project(page:Int): Resource<ProjectResponse> {
+        return repository.projects(page)
     }
 
-    suspend fun property(): Resource<PropertyResponse> {
-        return repository.property()
+    suspend fun property(page:Int): Resource<PropertyResponse> {
+        return repository.property(page)
     }
 }

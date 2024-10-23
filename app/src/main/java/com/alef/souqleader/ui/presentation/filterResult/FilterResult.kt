@@ -77,7 +77,8 @@ fun FilterResultScreen(
     var channel: String? = null
     var project: String? = null
     var communicationWay: String? = null
-    var budget: String? = null
+    var budgetFrom: String? = null
+    var budgetTo: String? = null
 
     obj?.let {
         if (obj.has("name")) {
@@ -95,17 +96,19 @@ fun FilterResultScreen(
         if (obj.has("communication_way")) {
             communicationWay = obj.getString("communication_way")
         }
-        if (obj.has("budget")) {
-            budget = obj.getString("budget")
+        if (obj.has("budget_from")) {
+            budgetFrom = obj.getString("budget_from")
         }
-
+        if (obj.has("budget_to")) {
+            budgetTo = obj.getString("budget_to")
+        }
     }
     LaunchedEffect(key1 = true) {
         viewModel.leadsFilter(
             FilterRequest(
                 name = name, status = status,
                 project = project, communication_way = communicationWay,
-                channel = channel, budget = budget, page = page
+                channel = channel, budget_from = budgetFrom, budget_to = budgetTo, page = page
             )
         )
 
@@ -123,7 +126,7 @@ fun FilterResultScreen(
             FilterRequest(
                 name = name, status = status,
                 project = project, communication_way = communicationWay,
-                channel = channel, budget = budget, page = ++page
+                channel = channel, budget_from = budgetFrom, budget_to = budgetTo,  page = ++page
             )
         )
     })

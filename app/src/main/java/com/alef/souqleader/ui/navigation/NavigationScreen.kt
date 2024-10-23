@@ -27,6 +27,9 @@ sealed class Screen(
 
     object LeadUpdateScreen : Screen("leadUpdateScreen", objectName = "s", objectPath = "/{s}")
     object Timeline : Screen("timeline")
+
+    object CompanyTimelineScreen : Screen("companyTimelineScreen")
+
     object SalesProfileReportScreen : Screen("salesProfileReportScreen")
     object AddLeadScreen : Screen("addLeadScreen")
 
@@ -51,8 +54,10 @@ sealed class Screen(
 
     object PaymentPlansScreen : Screen("paymentPlans")
 
+    object ContactUsScreen : Screen("contactUsScreen")
+
     object ProfileScreen : Screen("profile")
-    object FilterScreen : Screen("filter")
+    object FilterScreen : Screen("filter", objectName = "s", objectPath = "/{s}")
     object Filter2Screen : Screen("filter2")
     object RoleScreen : Screen("Roles")
     object ProjectsScreen : Screen("projectsScreen", objectName = "s", objectPath = "/{s}")

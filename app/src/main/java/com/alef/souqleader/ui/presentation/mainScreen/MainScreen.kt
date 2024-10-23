@@ -238,8 +238,14 @@ fun CustomModalDrawer(
                                 }
 
                                 1 -> {
-                                    navController.navigate(Screen.Timeline.route) {
-                                        launchSingleTop = true
+                                    if (s == "Timeline") {
+                                        navController.navigate(Screen.Timeline.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else {
+                                        navController.navigate(Screen.CompanyTimelineScreen.route) {
+                                            launchSingleTop = true
+                                        }
                                     }
                                 }
 
@@ -346,6 +352,7 @@ fun CustomModalDrawer(
                         topBar = {
                             when (currentRoute(navController)) {
                                 Screen.DashboardScreen.route, Screen.Timeline.route,
+                                Screen.CompanyTimelineScreen.route,
                                 Screen.SalesProfileReportScreen.route,
                                 Screen.PaymentPlansScreen.route,
                                 Screen.ProfileScreen.route,
@@ -356,6 +363,9 @@ fun CustomModalDrawer(
                                         )
                                         else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
                                             R.string.timeline
+                                        )
+                                        else if (currentRoute(navController) == Screen.CompanyTimelineScreen.route) stringResource(
+                                            R.string.company_timeline
                                         )
                                         else if (currentRoute(navController) == Screen.AllLeadsScreen.route) stringResource(
                                             R.string.timeline
@@ -478,6 +488,7 @@ fun DrawerContent(
     sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
     sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
 
+
     if (AccountData.permissionList.find { it.module_name == "lead" && it.permissions.read } != null) sideMenuItem.add(
         SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads))
     )
@@ -594,6 +605,10 @@ fun Item(
                 .height(45.dp)
                 .clickable {
                     when (position) {
+                        1 -> {
+                            isVisible = !isVisible
+                        }
+
                         2 -> {
                             isVisible = !isVisible
                         }
@@ -635,6 +650,46 @@ fun Item(
                     .weight(1f)
                     .fillMaxWidth()
             )
+        }
+        if (position == 1 && isVisible) {
+
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .padding(start = 60.dp, end = 16.dp)
+                    .clickable {
+                        onItemClick("Timeline")
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    stringResource(id = R.string.timeline), fontSize = 14.sp, style = TextStyle(
+                        textAlign = TextAlign.Start,
+                    ), modifier = modifier.fillMaxWidth()
+                )
+            }
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .padding(start = 60.dp, end = 16.dp)
+                    .clickable {
+                        onItemClick("CompanyTimeline")
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    stringResource(R.string.company_timeline), fontSize = 14.sp, style = TextStyle(
+                        textAlign = TextAlign.Start,
+                    ), modifier = modifier.fillMaxWidth()
+                )
+            }
+
         }
         if (position == 2 && isVisible) {
             allLead.forEach {

@@ -28,7 +28,8 @@ import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.data.remote.dto.ProjectChart
-import com.alef.souqleader.ui.presentation.meetingReport.PieChart
+import com.alef.souqleader.ui.presentation.meetingReport.PieChartData
+import com.alef.souqleader.ui.presentation.meetingReport.PieChartView
 
 
 @Composable
@@ -53,8 +54,12 @@ fun ProjectReport(navController: NavController, modifier: Modifier) {
                             .padding(top = 16.dp),
                         colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.grey100))
                     ) {
-                        PieChart(
-                            it,
+                        val arr1: ArrayList<PieChartData> = arrayListOf()
+                        it.projectChart.forEachIndexed { index, projectChart ->
+                            arr1.add(PieChartData(projectChart.title, projectChart.lead_percentage))
+                        }
+                        PieChartView(
+                            arr1,
                             stringResource(R.string.projects)
                         )
                     }

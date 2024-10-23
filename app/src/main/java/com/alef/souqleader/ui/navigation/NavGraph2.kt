@@ -28,6 +28,8 @@ import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
 import com.alef.souqleader.ui.presentation.changePassword.ChangePasswordScreen
 import com.alef.souqleader.ui.presentation.channelReport.ChannelReport
+import com.alef.souqleader.ui.presentation.companyTimeline.CompanyTimelineScreen
+import com.alef.souqleader.ui.presentation.contactUs.ContactUScreen
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.delaysReports.DelaysReports
@@ -122,7 +124,7 @@ fun Navigation(
             stringArray?.let {
                 if (modifier != null) {
                     LeadUpdateScreen(
-                        navController, modifier, mainViewModel,viewModel, leadIds = stringArray
+                        navController, modifier, mainViewModel, viewModel, leadIds = stringArray
                     )
                 }
 
@@ -145,33 +147,40 @@ fun Navigation(
             }
         }
 
-        composable(Screen.ForgetPasswordScreen.route) {
-            modifier?.let { it1 ->
-                ForgetPasswordScreen(
+//        composable(Screen.ForgetPasswordScreen.route) {
+//            modifier?.let { it1 ->
+//                ForgetPasswordScreen(
+//
+//                )
+//            }
+//        }
 
-                )
-            }
-        }
-
-        composable(Screen.ResetPasswordScreen.route) {
-            modifier?.let { it1 ->
-                ResetPasswordScreen(
-
-                )
-            }
-        }
-        composable(Screen.CheckCodeScreen.route) {
-            modifier?.let { it1 ->
-                CheckCodeScreen(
-
-                )
-            }
-        }
+//        composable(Screen.ResetPasswordScreen.route) {
+//            modifier?.let { it1 ->
+//                ResetPasswordScreen(
+//
+//                )
+//            }
+//        }
+//        composable(Screen.CheckCodeScreen.route) {
+//            modifier?.let { it1 ->
+//                CheckCodeScreen(
+//
+//                )
+//            }
+//        }
 
 
         composable(Screen.Timeline.route) {
             modifier?.let { it1 ->
                 TimelineScreen(
+                    navController, modifier, mainViewModel
+                )
+            }
+        }
+        composable(Screen.CompanyTimelineScreen.route) {
+            modifier?.let { it1 ->
+                CompanyTimelineScreen(
                     navController, modifier, mainViewModel
                 )
             }
@@ -228,6 +237,8 @@ fun Navigation(
             }
         }
 
+
+
         composable(Screen.ProfileScreen.route) {
             modifier?.let { it1 ->
                 ProfileScreen(
@@ -236,12 +247,24 @@ fun Navigation(
             }
         }
 
-        composable(Screen.FilterScreen.route) {
-            modifier?.let { it1 ->
+
+
+
+
+        composable(
+            Screen.FilterScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val obj = backStackEntry.arguments?.getString(Screen.FilterScreen.objectName)
+
+
+            if (obj != null) {
                 FilterScreen(
-                    navController,
-                    modifier, mainViewModel, viewModel
+                    navController, mainViewModel, viewModel, obj
                 )
+
             }
         }
 
@@ -330,7 +353,7 @@ fun Navigation(
         composable(Screen.PropertyScreen.route) {
             modifier?.let { it1 ->
                 PropertyScreen(
-                    navController, modifier
+                    navController, modifier, mainViewModel
                 )
             }
         }
@@ -355,7 +378,7 @@ fun Navigation(
             typeScreen?.let {
                 if (modifier != null) {
                     ProjectsScreen(
-                        navController, modifier
+                        navController, modifier, mainViewModel
                     )
                 }
 

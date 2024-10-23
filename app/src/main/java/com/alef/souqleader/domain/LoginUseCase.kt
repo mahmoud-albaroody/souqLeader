@@ -4,6 +4,7 @@ import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.ApiRepoImpl
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
 import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
+import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
@@ -41,19 +42,29 @@ class LoginUseCase @Inject constructor(
         password: String,
         passwordConfirmation: String,
         code: String
-    ): Resource<StatusResponse> {
-        return repository.resetPassword(email, password, passwordConfirmation,code)
+    ): Resource<ForgetPasswordResponse> {
+        return repository.resetPassword(email, password, passwordConfirmation, code)
+    }
+
+    suspend fun contactus(
+        name: String?,
+        email: String?,
+        phone: String?,
+        organizationName: String?,
+        message: String?
+    ): Resource<ForgetPasswordResponse> {
+        return repository.contactus(name, email, phone, organizationName, message)
     }
 
     suspend fun checkCode(
         code: String
-    ): Resource<StatusResponse> {
+    ): Resource<ForgetPasswordResponse> {
         return repository.checkCode(code)
     }
 
     suspend fun forgetPassword(
-        email:String
-    ): Resource<StatusResponse> {
+        email: String
+    ): Resource<ForgetPasswordResponse> {
         return repository.forgetPassword(email)
     }
 

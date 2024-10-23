@@ -41,19 +41,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.White
 import kotlinx.coroutines.launch
 
-@Preview
 @Composable
-fun CheckCodeScreen() {
+fun CheckCodeScreen(navController: NavController) {
     val checkPasswordViewModel: CheckPasswordViewModel = hiltViewModel()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         checkPasswordViewModel.viewModelScope.launch {
             checkPasswordViewModel.checkCode.collect {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                if(it.data){
+                    navController.navigate(Screen.ResetPasswordScreen.route)
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                }else{
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -105,7 +111,7 @@ fun ChangePass(onChangePasswordClick: (String) -> Unit) {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         var isCodeNotValid by remember { mutableStateOf(true) }
         var code by remember { mutableStateOf("") }
-        ChangePassItem(stringResource(R.string.password),
+        ChangePassItem(stringResource(R.string.code),
             onTextChange = { pass, isNotValid ->
                 code = pass
                 isCodeNotValid = isNotValid

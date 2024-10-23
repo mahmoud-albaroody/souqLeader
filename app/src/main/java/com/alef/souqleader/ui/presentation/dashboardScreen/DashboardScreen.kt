@@ -65,7 +65,6 @@ fun DashboardScreen(
     val viewModel: DashboardViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
-    Log.e("ddddd", AccountData.auth_token.toString())
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         sharedViewModel.updateSalesNameState(AccountData.role_name)

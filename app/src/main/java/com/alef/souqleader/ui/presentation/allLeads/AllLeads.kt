@@ -144,14 +144,13 @@ fun AllLeadsScreen(
             page = 1
             leadId?.let { viewModel.getLeadByStatus(it, page = page) }
         } else {
-            if (it.length > 3)
                 viewModel.leadsFilter(
                     FilterRequest(
-                        name = it
+                        name = it,status = leadId
                     )
                 )
         }
-    }, lead, page, loadMore = {
+    }, lead, leadId,page, loadMore = {
         leadId?.let {
             viewModel.getLeadByStatus(it, ++page)
         }
@@ -165,6 +164,7 @@ fun Screen(
     navController: NavController,
     setKeyword: (String) -> Unit,
     lead: LeadsByStatusResponse,
+    leadId:String?,
     page: Int,
     loadMore: () -> Unit
 ) {
@@ -190,7 +190,10 @@ fun Screen(
             Search(stringResource(R.string.search), setKeyword = {
                 setKeyword(it)
             }, onFilterClick = {
-                navController.navigate(Screen.FilterScreen.route)
+                Log.e("ss",leadId.toString())
+                navController.navigate(Screen.FilterScreen.route.plus("/${leadId}")) {
+                    launchSingleTop = true
+                }
             })
 
             LazyColumn(

@@ -24,6 +24,10 @@ data class ChangePasswordResponse(
     val data: Boolean? = null,
 ) : StatusResponse()
 
+data class ForgetPasswordResponse(
+    val data: Boolean = false,
+) : StatusResponse()
+
 
 data class DelayReportResponse(
     var data: ArrayList<DelayReport>? = null
@@ -73,7 +77,8 @@ data class UpdateLeadResponse(
 ) : StatusResponse()
 
 data class ProjectResponse(
-    var data: ArrayList<Project>? = null
+    var data: ArrayList<Project>? = null,
+    val info: Info?=null
 )
 
 data class AddLikeResponse(
@@ -124,7 +129,8 @@ data class ChannelReportResponse(
 ) : StatusResponse()
 
 data class PropertyResponse(
-    var data: ArrayList<Property>? = null
+    var data: ArrayList<Property>? = null,
+    var info:Info? = null,
 ) : StatusResponse()
 
 data class SalesProfileReportRequest(var user_id: String) {

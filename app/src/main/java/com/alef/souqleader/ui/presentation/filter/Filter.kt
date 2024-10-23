@@ -68,7 +68,11 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun FilterScreen(navController: NavHostController, modifier: Modifier,mainViewModel:MainViewModel,sharedViewModel: SharedViewModel) {
+fun FilterScreen(
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
+    sharedViewModel: SharedViewModel, status: String
+) {
     val context = LocalContext.current
     val filterViewModel: AddLeadViewModel = hiltViewModel()
     val leadsFilterViewModel: LeadsFilterViewModel = hiltViewModel()
@@ -79,6 +83,7 @@ fun FilterScreen(navController: NavHostController, modifier: Modifier,mainViewMo
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
     val marketerList = remember { mutableStateListOf<Marketer>() }
     val communicationWayList = remember { mutableStateListOf<CommunicationWay>() }
+
     LaunchedEffect(key1 = true) {
         filterViewModel.getLeads()
         filterViewModel.allMarketer()
@@ -86,7 +91,7 @@ fun FilterScreen(navController: NavHostController, modifier: Modifier,mainViewMo
         filterViewModel.campaign()
         filterViewModel.communicationWay()
         filterViewModel.channel()
-        filterViewModel.getProject()
+        filterViewModel.getProject(1)
         filterViewModel.viewModelScope.launch {
             filterViewModel.campaignResponse.collect {
                 it.data?.let { it1 -> campaignList.addAll(it1) }
@@ -110,9 +115,15 @@ fun FilterScreen(navController: NavHostController, modifier: Modifier,mainViewMo
                             AccountData.clear()
                             (context as MainActivity).setContent {
                                 AndroidCookiesTheme {
-                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        sharedViewModel,
+                                        mainViewModel
+                                    )
                                 }
-                            }                        }
+                            }
+                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -175,7 +186,8 @@ fun FilterScreen(navController: NavHostController, modifier: Modifier,mainViewMo
             allLead,
             channelList,
             communicationWayList,
-            projectList
+            projectList,
+            status
         ) {
             val jsonObject = JsonObject()
             jsonObject.addProperty("name", it.name)
@@ -183,8 +195,9 @@ fun FilterScreen(navController: NavHostController, modifier: Modifier,mainViewMo
             jsonObject.addProperty("channel", it.channel)
             jsonObject.addProperty("project", it.project)
             jsonObject.addProperty("communication_way", it.communication_way)
-            jsonObject.addProperty("budget", it.budget)
-            navController.navigate(Screen.FilterResultScreen.route+"/${jsonObject.toJson()}")
+            jsonObject.addProperty("budget_from", it.budget_from)
+            jsonObject.addProperty("budget_to", it.budget_to)
+            navController.navigate(Screen.FilterResultScreen.route + "/${jsonObject.toJson()}")
         }
 
     }
@@ -197,13 +210,18 @@ fun Filter(
     channelList: SnapshotStateList<Channel>,
     communicationWayList: SnapshotStateList<CommunicationWay>,
     projectList: SnapshotStateList<Project>,
+    statusId: String,
     onShowClick: (FilterRequest) -> Unit
 ) {
 
-    var fromAmount by remember { mutableStateOf("") }
+    var fromAmount by remember { mutableStateOf("0") }
     var toAmount by remember { mutableStateOf("10000") }
-    val filterRequest = FilterRequest()
+    val filterRequest by remember { mutableStateOf(FilterRequest()) }
 
+    LaunchedEffect(key1 = true) {
+        filterRequest.budget_from = fromAmount
+        filterRequest.budget_to = toAmount
+    }
 
     val channels = arrayListOf<String>()
     channels.add(stringResource(R.string.channel))
@@ -223,9 +241,14 @@ fun Filter(
     }
 
     val status = arrayListOf<String>()
-    status.add(stringResource(R.string.status))
-    if (statusList.isNotEmpty()) statusList.forEach {
-        status.add(it.getTitle())
+    // statusList.find { it.id.toString() == statusId }?.getTitle()
+    if(!statusList.isEmpty()) {
+
+        statusList.find { it.id.toString() == statusId }?.getTitle()?.let { status.add(it) }
+        filterRequest.status = statusId
+        if (statusList.isNotEmpty()) statusList.forEach {
+            status.add(it.getTitle())
+        }
     }
     Column(
         Modifier
@@ -238,9 +261,12 @@ fun Filter(
             TextFiledItem(stringResource(R.string.name), true) {
                 filterRequest.name = it
             }
-
+            if(!statusList.isEmpty()) {
             DynamicSelectTextField(status) { status ->
-                filterRequest.status = statusList.find { it.getTitle() == status }?.id.toString()
+
+                    filterRequest.status =
+                        statusList.find { it.getTitle() == status }?.id.toString()
+                }
             }
 
             DynamicSelectTextField(channels) { channel ->
@@ -271,8 +297,12 @@ fun Filter(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Box(Modifier.weight(2f)) {
-                    TextFiledItem(fromAmount, false) {
-
+                    TextFiledItem(
+                        text = stringResource(id = R.string.filter),
+                        value = fromAmount, click = true
+                    ) {
+                        fromAmount = it
+                        filterRequest.budget_from = it
                     }
                 }
                 Box(
@@ -286,15 +316,21 @@ fun Filter(
                     )
                 }
                 Box(Modifier.weight(2f)) {
-                    TextFiledItem(toAmount, false) {
+                    TextFiledItem(
+                        text = stringResource(id = R.string.filter),
+                        value = toAmount, click = true
+                    ) {
 
+                        toAmount = it
+                        filterRequest.budget_to = it
                     }
                 }
             }
             RangeSliderExample(onSelectedValue = { from, to ->
                 fromAmount = from
                 toAmount = to
-                filterRequest.budget = toAmount
+                filterRequest.budget_from = from
+                filterRequest.budget_to = to
             })
         }
         Row(
@@ -345,18 +381,26 @@ fun RangeSliderExample(onSelectedValue: (String, String) -> Unit) {
             onValueChange = { range -> sliderPosition = range },
             valueRange = 0f..100f,
             onValueChangeFinished = {
-
+                val from =
+                    String.format(
+                        "%.2f",
+                        sliderPosition.toString().substringBefore("..").toDouble() * 100
+                    )
+                val to =
+                    String.format(
+                        "%.2f",
+                        sliderPosition.toString().substringAfter("..").toDouble() * 100
+                    )
+                onSelectedValue(from, to)
             },
             colors = SliderDefaults.colors(
                 thumbColor = colorResource(id = R.color.blue),
                 activeTrackColor = colorResource(id = R.color.blue),
-                activeTickColor = colorResource(id = R.color.blue), inactiveTickColor = colorResource(id = R.color.lightGray),
+                activeTickColor = colorResource(id = R.color.blue),
+                inactiveTickColor = colorResource(id = R.color.lightGray),
                 inactiveTrackColor = colorResource(id = R.color.lightGray)
             )
         )
-        val from = String.format("%.2f", sliderPosition.toString().substringBefore("..").toDouble()*100)
-        val to = String.format("%.2f", sliderPosition.toString().substringAfter("..").toDouble()*100)
-        onSelectedValue(from, to)
 
 
     }

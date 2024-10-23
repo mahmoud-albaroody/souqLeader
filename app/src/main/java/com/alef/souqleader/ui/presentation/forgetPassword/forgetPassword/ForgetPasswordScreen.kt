@@ -44,20 +44,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.isValidText
 import com.alef.souqleader.ui.theme.White
 import kotlinx.coroutines.launch
 
-@Preview
 @Composable
-fun ForgetPasswordScreen() {
+fun ForgetPasswordScreen(navController: NavController) {
     val changePasswordViewModel: ForgetPasswordViewModel = hiltViewModel()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         changePasswordViewModel.viewModelScope.launch {
             changePasswordViewModel.forgetPassword.collect {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                if (it.data) {
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                    navController.navigate(Screen.ResetPasswordScreen.route)
+                } else {
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -148,8 +154,10 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     val keyboardOptions =
-        KeyboardOptions(imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Text)
+        KeyboardOptions(
+            imeAction = ImeAction.Done,
+            keyboardType = KeyboardType.Text
+        )
 
     TextField(
         modifier = Modifier

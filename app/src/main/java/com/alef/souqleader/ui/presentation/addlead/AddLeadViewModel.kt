@@ -114,9 +114,9 @@ class AddLeadViewModel @Inject constructor(
         }
     }
 
-    fun getProject() {
+    fun getProject(page:Int) {
         viewModelScope.launch(job) {
-            _project.emit(addLeadUseCase.project().data!!)
+            _project.emit(addLeadUseCase.project(page = page).data!!)
         }
     }
 

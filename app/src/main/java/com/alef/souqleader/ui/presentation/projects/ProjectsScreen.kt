@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.presentation.projects
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,9 +16,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -31,45 +42,103 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.Project
+import com.alef.souqleader.data.remote.dto.Property
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.property.Property
+import com.alef.souqleader.ui.presentation.property.PropertyScreenViewModel
 import com.alef.souqleader.ui.presentation.salesProfileReport.VerticalDivider
 import com.alef.souqleader.ui.theme.*
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
 
 @Composable
-fun ProjectsScreen(navController: NavController, modifier: Modifier) {
+fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewModel: MainViewModel) {
     val viewModel: ProjectsScreenViewModel = hiltViewModel()
-
+    var info by remember { mutableStateOf(Info()) }
+    val projects = remember { mutableStateListOf<Project>() }
 
     LaunchedEffect(key1 = true) {
-        viewModel.getProject()
-    }
+        viewModel.getProject(viewModel.page)
+        viewModel.viewModelScope.launch {
+            viewModel.stateListOfProjects.collect {
+                if (it is Resource.Success) {
+                    it.data?.let {
+                        if (it.info != null)
+                            info = it.info
+                        if (viewModel.page == 1) {
+                            projects.clear()
+                        }
+                        it.data?.let { it1 -> projects.addAll(it1) }
 
-
-
-    Column {
-        Filter()
-        LazyColumn(Modifier.padding(top = 8.dp)) {
-            items(viewModel.stateListOfProjects) { item ->
-                ProjectsItem(item) { project ->
-                    val projectJson = project.toJson()
-                    navController.navigate(
-                        Screen.ProjectsDetailsScreen
-                            .route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "=${projectJson}")
-                    )
+                    }
+                    mainViewModel.showLoader = false
+                } else if (it is Resource.Loading) {
+                    if (viewModel.page == 1)
+                        mainViewModel.showLoader = true
+                } else if (it is Resource.DataError) {
+                    mainViewModel.showLoader = false
                 }
             }
         }
     }
+
+
+    Projects(projects, info, viewModel.page, onItemClick = {
+        viewModel.page = 1
+        projects.clear()
+        val projectJson = it.toJson()
+        navController.navigate(
+            Screen.ProjectsDetailsScreen
+                .route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "=${projectJson}")
+        )
+    }, onPage = {
+        if (projects.isNotEmpty()) {
+            Log.e("aaaaaaaaaaaaa", viewModel.page.toString())
+            viewModel.getProject(++viewModel.page)
+        }
+    })
 }
 
+@Composable
+fun Projects(
+    projects: SnapshotStateList<Project>,
+    info: Info, page: Int, onPage: () -> Unit, onItemClick: (Project) -> Unit
+) {
+    Column {
+        Filter()
+        LazyColumn(Modifier.padding(top = 8.dp)) {
+            items(projects) { item ->
+                ProjectsItem(item) { project ->
+                    onItemClick(project)
+                }
+            }
+            if (info.pages != null)
+                if (info.pages > page && projects.size>10) {
+                    item {
+                        onPage()
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(16.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+                }
+        }
+    }
+}
 
 @Preview
 @Composable
@@ -77,7 +146,8 @@ fun Filter() {
     Card(
         Modifier
             .padding(top = 16.dp)
-            .padding(horizontal = 16.dp)) {
+            .padding(horizontal = 16.dp)
+    ) {
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

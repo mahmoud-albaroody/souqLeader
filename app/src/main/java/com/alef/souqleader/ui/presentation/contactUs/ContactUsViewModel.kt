@@ -1,9 +1,8 @@
-package com.alef.souqleader.ui.presentation.forgetPassword.checkCode
+package com.alef.souqleader.ui.presentation.contactUs
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
-import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -12,20 +11,30 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CheckPasswordViewModel @Inject constructor(
+class ContactUsViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val _checkCode =
+    private val _contactUs =
         MutableSharedFlow<ForgetPasswordResponse>()
-    val checkCode: MutableSharedFlow<ForgetPasswordResponse>
-        get() = _checkCode
+    val contactUs: MutableSharedFlow<ForgetPasswordResponse>
+        get() = _contactUs
     private val job = Job()
-    fun checkCode(code: String) {
+    fun contactus(
+        name: String?,
+        email: String?,
+        phone: String?,
+        organizationName: String?,
+        message: String?
+    ) {
         viewModelScope.launch(job) {
-            _checkCode.emit(
-                loginUseCase.checkCode(
-                    code
+            _contactUs.emit(
+                loginUseCase.contactus(
+                    name,
+                    email,
+                    phone,
+                    organizationName,
+                    message
                 ).data!!
             )
         }

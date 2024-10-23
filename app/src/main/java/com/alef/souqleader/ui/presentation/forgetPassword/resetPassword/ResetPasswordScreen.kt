@@ -14,9 +14,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -25,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,26 +44,34 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.isValidText
 import com.alef.souqleader.ui.theme.White
 import kotlinx.coroutines.launch
 
-@Preview
 @Composable
-fun ResetPasswordScreen() {
+fun ResetPasswordScreen(navController: NavController) {
     val resetPasswordViewModel: ResetPasswordViewModel = hiltViewModel()
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         resetPasswordViewModel.viewModelScope.launch {
             resetPasswordViewModel.resetPassword.collect {
-                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                if (it.data) {
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                    navController.navigate(Screen.LoginScreen.route)
+                } else {
+                    Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -120,11 +134,11 @@ fun ChangePass(onChangePasswordClick: (String, String, String, String) -> Unit) 
             isEmailNotValid = isNotValid
         })
 
-        ChangePassItem(stringResource(R.string.password), onTextChange = { pass, isNotValid ->
+        ChangePassItem2(stringResource(R.string.password), onTextChange = { pass, isNotValid ->
             password = pass
             isPasswordNotValid = isNotValid
         })
-        ChangePassItem(
+        ChangePassItem2(
             stringResource(R.string.confirm_password),
             onTextChange = { pass, isNotValid ->
                 confirmPassword = pass
@@ -167,8 +181,8 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     var keyboardOptions =
-        KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Number)
-    if (text == stringResource(id = R.string.confirm_password)) {
+        KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Text)
+    if (text == stringResource(id = R.string.code)) {
         keyboardOptions =
             KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number)
     }
@@ -182,6 +196,68 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
                 text = text, style = TextStyle(color = colorResource(id = R.color.gray))
             )
         },
+
+        colors = TextFieldDefaults.textFieldColors(
+            cursorColor = colorResource(id = R.color.blue2),
+            disabledLabelColor = colorResource(id = R.color.blue2),
+            focusedIndicatorColor = colorResource(id = R.color.transparent),
+            unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+            errorIndicatorColor = colorResource(id = R.color.transparent),
+            errorCursorColor = colorResource(id = R.color.transparent)
+        ),
+        onValueChange = {
+            password = it
+            isNotValid = it.isEmpty()
+            onTextChange(password, isNotValid)
+
+        },
+        shape = RoundedCornerShape(8.dp),
+        singleLine = true,
+        isError = isNotValid,
+        keyboardOptions = keyboardOptions,
+    )
+
+    if (isNotValid) {
+        Text(
+            text = stringResource(R.string.please_enter_valid_text),
+            fontSize = 12.sp,
+            color = colorResource(id = R.color.red)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChangePassItem2(text: String, onTextChange: (String, Boolean) -> Unit) {
+    var isNotValid by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var keyboardOptions =
+        KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Text)
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        value = password,
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+
+        trailingIcon = {
+            val image = if (passwordVisible) Icons.Filled.Visibility
+            else Icons.Filled.VisibilityOff
+
+            // Please provide localized description for accessibility services
+            val description = if (passwordVisible) "Hide password" else "Show password"
+
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(imageVector = image, description)
+            }
+        },
+        placeholder = {
+            Text(
+                text = text, style = TextStyle(color = colorResource(id = R.color.gray))
+            )
+        },
+
         colors = TextFieldDefaults.textFieldColors(
             cursorColor = colorResource(id = R.color.blue2),
             disabledLabelColor = colorResource(id = R.color.blue2),

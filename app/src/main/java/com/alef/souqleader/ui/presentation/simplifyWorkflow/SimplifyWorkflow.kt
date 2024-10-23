@@ -66,7 +66,12 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel,sharedViewModel:SharedViewModel, navController: NavHostController) {
+fun SimplifyScreen(
+    modifier: Modifier,
+    mainViewModel: MainViewModel,
+    sharedViewModel: SharedViewModel,
+    navController: NavHostController
+) {
     val simplifyWorkViewModel: SimplifyWorkViewModel = hiltViewModel()
 
     val context = LocalContext.current
@@ -109,9 +114,15 @@ fun SimplifyScreen(modifier: Modifier, mainViewModel: MainViewModel,sharedViewMo
                             AccountData.clear()
                             (context as MainActivity).setContent {
                                 AndroidCookiesTheme {
-                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        sharedViewModel,
+                                        mainViewModel
+                                    )
                                 }
-                            }                        }
+                            }
+                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -148,9 +159,11 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                 0 -> {
                     onBackPressedDispatcher?.onBackPressed()
                 }
+
                 1 -> {
                     stat = 0
                 }
+
                 2 -> {
                     stat = 1
                 }
@@ -333,6 +346,9 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                     text = stringResource(R.string.don_t_have_an_access),
                 )
                 Text(
+                    modifier = Modifier.clickable {
+                        navController.navigate(Screen.ContactUsScreen.route)
+                    },
                     text = stringResource(R.string.contact_us),
                     style = TextStyle(
                         fontSize = 12.sp,

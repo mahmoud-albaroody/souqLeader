@@ -50,7 +50,7 @@ fun Channel(channelReportList: ArrayList<Chart>) {
                 .padding(top = 8.dp)
 
         ) {
-            MyBarChart(channelReportList, stringResource(R.string.cancellation_report))
+            MyBarChart(channelReportList, stringResource(R.string.channel_report))
         }
 //            Card(
 //                Modifier

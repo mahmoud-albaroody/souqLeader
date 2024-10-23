@@ -1,4 +1,4 @@
-package com.alef.souqleader.ui.presentation.timeline
+package com.alef.souqleader.ui.presentation.companyTimeline
 
 import android.Manifest
 import android.app.Activity
@@ -13,7 +13,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.camera.mlkit.vision.MlKitAnalyzer
-import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
+import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
@@ -90,6 +90,7 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.timeline.TimeLineViewModel
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -102,11 +103,14 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 
-
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewModel: MainViewModel) {
-    val viewModel: TimeLineViewModel = hiltViewModel()
+fun CompanyTimelineScreen(
+    navController: NavController,
+    modifier: Modifier,
+    mainViewModel: MainViewModel
+) {
+    val viewModel: CompanyTimeLineViewModel = hiltViewModel()
     val posts = remember { mutableStateListOf<Post>() }
     var visibleMeda by remember { mutableStateOf(false) }
     var page = 1
@@ -164,7 +168,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
 
 
     LaunchedEffect(key1 = true) {
-        viewModel.getPosts(page)
+        viewModel.getCompanyPost(page)
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
 
@@ -355,7 +359,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 if (info.pages!! > info.count!!) {
                     item {
                         if (posts.isNotEmpty()) {
-                            viewModel.getPosts(++page)
+                            viewModel.getCompanyPost(++page)
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                             CircularProgressIndicator(
@@ -669,7 +673,7 @@ private fun startCamera(
     val barcodeScanner = BarcodeScanning.getClient(options)
     val mlKitAnalyzer = MlKitAnalyzer(
         listOf(barcodeScanner),
-        COORDINATE_SYSTEM_VIEW_REFERENCED,
+        CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED,
         ContextCompat.getMainExecutor(context)
     ) { result ->
         val barcodeResult = result?.getValue(barcodeScanner)

@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.meetingReport
 
 import android.graphics.Typeface
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.compose.animation.Crossfade
@@ -25,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -256,7 +258,11 @@ fun MeetingItem(meetingReport: MeetingReport) {
                 .padding(top = 8.dp)
 
         ) {
-            PieChart(meetingReport, stringResource(R.string.meeting_report))
+            val arr: ArrayList<PieChartData> = arrayListOf()
+            meetingReport.project_chart.forEachIndexed { index, projectChart ->
+                arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
+            }
+            PieChartView(arr, stringResource(R.string.meeting_report))
         }
         Card(
             Modifier
@@ -265,7 +271,11 @@ fun MeetingItem(meetingReport: MeetingReport) {
 
 
         ) {
-            PieChart(meetingReport, stringResource(R.string.channels))
+            val arr1: ArrayList<PieChartData> = arrayListOf()
+            meetingReport.channel_chart.forEachIndexed { index, projectChart ->
+                arr1.add(PieChartData(projectChart.title(), projectChart.lead_count))
+            }
+            PieChartView(arr1, stringResource(R.string.channels))
         }
     }
 
@@ -326,20 +336,20 @@ fun MyBarChart(chart: List<Chart>, title: String) {
 
                 //  xAxis.isGranularityEnabled = true
                 //   xAxis.setCenterAxisLabels(true)
-              //  xAxis.setAvoidFirstLastClipping(true)
-                xAxis.labelRotationAngle = 60f
-              //  xAxis.granularity = 1f;
+                //  xAxis.setAvoidFirstLastClipping(true)
+                xAxis.labelRotationAngle = 80f
+                //  xAxis.granularity = 1f;
                 // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
                 legend.isEnabled = false
                 xAxis.valueFormatter = IndexAxisValueFormatter(labels);
-
+                xAxis.labelCount = labels.size
                 //   xAxis.valueFormatter = CustomValueFormatter(labels)
                 // data.barWidth = 0.5f
                 //   data.isHighlightEnabled = true
                 setScaleEnabled(false)
                 setVisibleXRangeMaximum(4f)
-              //  extraBottomOffset = 100F
+                //  extraBottomOffset = 100F
                 val barChartRender = CustomBarChartRender(
                     this,
                     animator,
@@ -347,7 +357,7 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 )
 
                 barChartRender.setRadius(30)
-              //  xAxis.valueFormatter = MultiLineValueFormatter()
+                //  xAxis.valueFormatter = MultiLineValueFormatter()
                 renderer = barChartRender
                 // Create bar data set
                 val barDataSet = BarDataSet(barEntries, "Sample Data").apply {
@@ -370,26 +380,28 @@ fun MyBarChart(chart: List<Chart>, title: String) {
 }
 
 @Composable
-fun PieChart(meetingReport: MeetingReport, title: String) {
+fun PieChartView(arr: ArrayList<PieChartData>, title: String) {
     // on below line we are creating a column
     // and specifying a modifier as max size.
 
-    val arr: ArrayList<PieChartData> = arrayListOf()
 
-    if (title == stringResource(R.string.meeting_report)) {
-        meetingReport.project_chart.forEachIndexed { index, projectChart ->
-            arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
-        }
-    }
-    if (title == stringResource(R.string.projects)) {
-        meetingReport.projectChart.forEachIndexed { index, projectChart ->
-            arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
-        }
-    } else {
-        meetingReport.channel_chart.forEachIndexed { index, channelChart ->
-            arr.add(PieChartData(channelChart.title(), channelChart.lead_count))
-        }
-    }
+//    if (title == stringResource(R.string.meeting_report)) {
+//        arr.clear()
+//        meetingReport.project_chart.forEachIndexed { index, projectChart ->
+//            arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
+//        }
+//    }
+//    if (title == stringResource(R.string.projects)) {
+//        arr.clear()
+//        meetingReport.projectChart.forEachIndexed { index, projectChart ->
+//            arr.add(PieChartData(projectChart.title, projectChart.lead_percentage))
+//        }
+//    } else {
+//        arr.clear()
+//        meetingReport.channel_chart.forEachIndexed { index, channelChart ->
+//            arr.add(PieChartData(channelChart.title(), channelChart.lead_count))
+//        }
+//    }
     Column(modifier = Modifier.fillMaxSize()) {
         // on below line we are again creating a column
         // with modifier and horizontal and vertical arrangement

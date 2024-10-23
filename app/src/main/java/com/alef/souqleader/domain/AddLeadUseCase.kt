@@ -52,8 +52,8 @@ class AddLeadUseCase @Inject constructor(private val repository: ApiRepoImpl) {
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun project(): Resource<ProjectResponse> {
-        return repository.projects()
+    suspend fun project(page:Int): Resource<ProjectResponse> {
+        return repository.projects(page = page)
     }
 
 }

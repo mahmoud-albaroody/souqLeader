@@ -137,5 +137,9 @@
     <string name="code">Code</string>
     <string name="there_is_no_internet">There is no internet</string>
     <string name="something_error">Something error</string>
+    <string name="company_timeline">Company Timeline</string>
+    <string name="phone">Phone</string>
+    <string name="message">Message</string>
+    <string name="organization_name">Organization Name</string>
 
 </resources>

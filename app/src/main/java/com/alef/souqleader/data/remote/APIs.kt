@@ -12,6 +12,7 @@ import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
+import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
@@ -61,16 +62,21 @@ interface APIs {
 
 
     @GET("api/project")
-    suspend fun project(): Response<ProjectResponse>
+    suspend fun project(@Query("page") page: Int? = null): Response<ProjectResponse>
 
     @GET("api/property")
-    suspend fun getProperty(): Response<PropertyResponse>
+    suspend fun getProperty(@Query("page") page: Int? = null): Response<PropertyResponse>
 
     @GET("api/plans")
     suspend fun plans(): Response<PlanResponse>
 
     @GET("api/post")
     suspend fun getPost(@Query("page") page: Int? = null): Response<PostResponse>
+
+
+    @GET("api/CompanyPost")
+    suspend fun getCompanyPost(@Query("page") page: Int? = null): Response<PostResponse>
+
 
     @GET("api/AllRoles")
     suspend fun getAllRoles(): Response<AllRolesAndAllPermissionsResponse>
@@ -217,19 +223,30 @@ interface APIs {
         @Field("password") password: String?,
         @Field("password_confirmation") password_confirmation: String?,
         @Field("code") code: String?,
-    ): Response<StatusResponse>
+    ): Response<ForgetPasswordResponse>
+
+
+    @FormUrlEncoded
+    @POST("api/contactus")
+    suspend fun contactus(
+        @Field("name") name: String?,
+        @Field("email") email: String?,
+        @Field("phone") phone: String?,
+        @Field("organization_name") organization_name: String?,
+        @Field("message") message: String?,
+    ): Response<ForgetPasswordResponse>
 
     @FormUrlEncoded
     @POST("api/checkcode")
     suspend fun checkCode(
         @Field("code") code: String?,
-    ): Response<StatusResponse>
+    ): Response<ForgetPasswordResponse>
 
     @FormUrlEncoded
     @POST("api/forget-password")
     suspend fun forgetPassword(
         @Field("email") email: String?,
-    ): Response<StatusResponse>
+    ): Response<ForgetPasswordResponse>
 
 
     @GET("api/Leadsfilter")
@@ -241,7 +258,8 @@ interface APIs {
         @Query("channel") channel: String? = null,
         @Query("sales") sales: String? = null,
         @Query("project") project: String? = null,
-        @Query("budget") budget: String? = null,
+        @Query("budget_from") budget_from: String? = null,
+        @Query("budget_to") budget_to: String? = null,
         @Query("marketer") marketer: String? = null,
         @Query("communication_way") communication_way: String? = null,
         @Query("region") region: String? = null,

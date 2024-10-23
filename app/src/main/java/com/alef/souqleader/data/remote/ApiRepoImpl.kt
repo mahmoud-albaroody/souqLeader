@@ -16,6 +16,7 @@ import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
+import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
@@ -117,8 +118,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
 
-    suspend fun projects(): Resource<ProjectResponse> {
-        val response = APIs.project()
+    suspend fun projects(page:Int): Resource<ProjectResponse> {
+        val response = APIs.project(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -126,8 +127,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun property(): Resource<PropertyResponse> {
-        val response = APIs.getProperty()
+    suspend fun property(page:Int): Resource<PropertyResponse> {
+        val response = APIs.getProperty(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -153,6 +154,16 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun getCompanyPost(page: Int): Resource<PostResponse> {
+        val response = APIs.getCompanyPost(page)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
 
     suspend fun getAllRoles(): Resource<AllRolesAndAllPermissionsResponse> {
         val response = APIs.getAllRoles()
@@ -425,8 +436,22 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         password: String,
         passwordConfirmation: String,
         code: String
-    ): Resource<StatusResponse> {
+    ): Resource<ForgetPasswordResponse> {
         val response = APIs.resetPassword(email, password, passwordConfirmation, code)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun contactus(
+        name:String?,
+        email: String?,
+        phone: String?,
+        organizationName: String?,
+        message: String?
+    ): Resource<ForgetPasswordResponse> {
+        val response = APIs.contactus(name,email, phone, organizationName, message)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -435,7 +460,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
 
-    suspend fun checkCode(code: String): Resource<StatusResponse> {
+    suspend fun checkCode(code: String): Resource<ForgetPasswordResponse> {
         val response = APIs.checkCode(code)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -445,7 +470,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
 
-    suspend fun forgetPassword(email: String): Resource<StatusResponse> {
+    suspend fun forgetPassword(email: String): Resource<ForgetPasswordResponse> {
         val response = APIs.forgetPassword(email)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -464,7 +489,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             filterRequest.channel,
             filterRequest.sales,
             filterRequest.project,
-            filterRequest.budget,
+            filterRequest.budget_from,
+            filterRequest.budget_to,
             filterRequest.marketer,
             filterRequest.communication_way,
             filterRequest.region,

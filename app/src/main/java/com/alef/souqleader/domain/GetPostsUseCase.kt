@@ -19,4 +19,12 @@ class GetPostsUseCase @Inject constructor(private val repository: ApiRepoImpl) {
             emit(repository.getPost(page))
         }.flowOn(Dispatchers.IO)
     }
+    suspend fun getCompanyPost(page: Int)
+            : Flow<Resource<PostResponse>> {
+        return flow {
+            emit(repository.getCompanyPost(page))
+        }.flowOn(Dispatchers.IO)
+    }
+
+
 }

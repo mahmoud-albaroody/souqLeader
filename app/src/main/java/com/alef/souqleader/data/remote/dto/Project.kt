@@ -3,19 +3,19 @@ package com.alef.souqleader.data.remote.dto
 import java.io.Serializable
 
 data class Project(
-    val category_id: String?,
-    val created_at: String?,
-    val created_by: Int?,
-    val description: String?,
-    val id: Int?,
-    val images: List<Image>?,
-    val map: String?,
-    val region: Int?,
-    val region_name: String?,
-    val regions: Regions?,
-    val start_price: String?,
-    val status: String?,
-    val title: String?,
-    val updated_at: String?,
-    val video: String?
+    val category_id: String?=null,
+    val created_at: String?=null,
+    val created_by: Int?=null,
+    val description: String?=null,
+    val id: Int?=null,
+    val images: List<Image>?=null,
+    val map: String?=null,
+    val region: Int?=null,
+    val region_name: String?=null,
+    val regions: Regions?=null,
+    val start_price: String?=null,
+    val status: String?=null,
+    val title: String?=null,
+    val updated_at: String?=null,
+    val video: String?=null
 )

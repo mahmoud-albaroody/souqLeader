@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.forgetPassword.forgetPassword
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.CancelationUseCase
@@ -19,17 +20,19 @@ class ForgetPasswordViewModel @Inject constructor(
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _forgetPassword =
-        MutableSharedFlow<StatusResponse>()
-    val forgetPassword: MutableSharedFlow<StatusResponse>
+        MutableSharedFlow<ForgetPasswordResponse>()
+    val forgetPassword: MutableSharedFlow<ForgetPasswordResponse>
         get() = _forgetPassword
     private val job = Job()
     fun forgetPassword(email: String) {
         viewModelScope.launch(job) {
-            _forgetPassword.emit(
-                loginUseCase.forgetPassword(
-                    email
-                ).data!!
-            )
+            loginUseCase.forgetPassword(
+                email
+            ).data?.let {
+                _forgetPassword.emit(
+                    it
+                )
+            }
         }
     }
 }

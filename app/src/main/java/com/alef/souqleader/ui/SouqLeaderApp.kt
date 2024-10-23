@@ -26,7 +26,7 @@ class SouqLeaderApp: MultiDexApplication() {
        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         Kotpref.init(this)
         Kotpref.gson = Gson()
-        Log.e("sss",AppCompatDelegate.getDefaultNightMode().toString())
+
 
     }
 }
