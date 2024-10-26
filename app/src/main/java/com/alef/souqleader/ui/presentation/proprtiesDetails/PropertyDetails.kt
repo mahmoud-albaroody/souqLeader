@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -28,8 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
-import com.alef.souqleader.data.remote.dto.Project
-import com.alef.souqleader.data.remote.dto.Property
+import com.alef.souqleader.data.remote.dto.PropertyObject
 import com.alef.souqleader.domain.model.AccountData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -37,13 +35,13 @@ import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 
 @Composable
-fun PropertyDetailsScreen(navController: NavController, modifier: Modifier, property: Property?) {
+fun PropertyDetailsScreen(navController: NavController, modifier: Modifier, property: PropertyObject?) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
     Item(property)
 }
 
 @Composable
-fun Item(property: Property?) {
+fun Item(property: PropertyObject?) {
     Column(
         Modifier
             .background(colorResource(id = R.color.white))
@@ -59,7 +57,7 @@ fun Item(property: Property?) {
 }
 
 @Composable
-fun DetailsItem(property: Property) {
+fun DetailsItem(property: PropertyObject) {
     Column(
         Modifier
             .padding(horizontal = 24.dp, vertical = 8.dp)
@@ -117,7 +115,7 @@ fun DetailsItem(property: Property) {
 
 
 @Composable
-fun DetailsProduct(property: Property) {
+fun DetailsProduct(property: PropertyObject) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -176,7 +174,7 @@ fun ReminderItem(text: String, text1: String) {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ImageSliderExample(property: Property) {
+fun ImageSliderExample(property: PropertyObject) {
     val images = listOf(
         "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
         "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",

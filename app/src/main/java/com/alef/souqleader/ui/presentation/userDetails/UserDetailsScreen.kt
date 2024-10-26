@@ -1,10 +1,7 @@
-package com.alef.souqleader.ui.presentation.profile
+package com.alef.souqleader.ui.presentation.userDetails
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,8 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +30,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,39 +40,77 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
-import com.alef.souqleader.data.remote.dto.UserDate
+import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.dto.Permission
+import com.alef.souqleader.data.remote.dto.UserDetails
+import com.alef.souqleader.data.remote.dto.UserDetailsResponse
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.MainActivity
-import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.updateLocale
+import com.alef.souqleader.ui.MainViewModel
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 
 @Composable
-fun ProfileScreen(modifier: Modifier, navController: NavController) {
-    val profileViewModel: ProfileViewModel = hiltViewModel()
-    var userDate by remember { mutableStateOf(UserDate()) }
+fun UserDetailsScreen(navController: NavController, userId: String?, mainViewModel: MainViewModel) {
+    val userDetailsViewModel: UserDetailsViewModel = hiltViewModel()
+    var userDetails by remember { mutableStateOf(UserDetailsResponse()) }
+
+
     LaunchedEffect(key1 = true) {
-        profileViewModel.viewModelScope.launch {
-            profileViewModel.userDate.collect {
-                it.data?.let { userDate = it }
+        userId?.let { userDetailsViewModel.userDetails(it) }
+        userDetailsViewModel.viewModelScope.launch {
+            userDetailsViewModel.userDetailsState.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        userDetails = it.data!!
+                        mainViewModel.showLoader = false
+                    }
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        mainViewModel.showLoader = false
+                    }
+                }
             }
         }
     }
+    Column {
+        userDetails.data?.let {
+            ProfileItem(it, onChangePasswordClick = {
 
-    ProfileItem(userDate, onChangePasswordClick = {
-        navController.navigate(Screen.ChangePasswordScreen.route)
-    }, onSignOutClick = {
-        navController.navigate(Screen.LoginScreen.route) {
-            launchSingleTop = true
+            }, onSignOutClick = {
+
+            })
         }
-    })
+        Text(
+            modifier = Modifier
+                .padding(start = 24.dp),
+            style = TextStyle(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 18.sp
+            ),
+            text = stringResource(R.string.permissions)
+        )
+        LazyColumn(
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            userDetails.data?.permissions?.let {
+                items(it) { permission ->
+                    Permission(permission)
+                }
+            }
+        }
+    }
 }
+
 
 @Composable
 fun ProfileItem(
-    userDate: UserDate,
+    userDetails: UserDetails,
     onChangePasswordClick: () -> Unit,
     onSignOutClick: () -> Unit
 ) {
@@ -83,7 +121,7 @@ fun ProfileItem(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .background(colorResource(id = R.color.white))
             .padding(vertical = 16.dp, horizontal = 24.dp),
     ) {
@@ -95,9 +133,9 @@ fun ProfileItem(
             Column(Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
                 Image(
                     painter = rememberAsyncImagePainter(
-                        if (AccountData.photo.isNotEmpty()) {
-                            if (AccountData.photo.isNotEmpty()) {
-                                AccountData.BASE_URL + AccountData.photo
+                        if (userDetails.photo.isNotEmpty()) {
+                            if (userDetails.photo.isNotEmpty()) {
+                                AccountData.BASE_URL + userDetails.photo
                             } else {
                                 R.drawable.user_profile_placehoder
                             }
@@ -114,7 +152,7 @@ fun ProfileItem(
 
                 Text(
                     modifier = Modifier.padding(top = 16.dp),
-                    text = AccountData.name,
+                    text = userDetails.name,
                     style = TextStyle(
                         fontSize = 18.sp, color = colorResource(id = R.color.blue)
                     ),
@@ -125,13 +163,13 @@ fun ProfileItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = AccountData.role_name,
+                        text = userDetails.role_name,
                         style = TextStyle(
                             fontSize = 14.sp
                         ),
                     )
                     Text(
-                        text = AccountData.email,
+                        text = userDetails.email,
                         style = TextStyle(
                             fontSize = 15.sp, color = colorResource(id = R.color.blue)
                         )
@@ -158,7 +196,7 @@ fun ProfileItem(
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
-                        text = userDate.activities_count ?: "0",
+                        text = userDetails.activity_count ?: "0",
                         style = TextStyle(
                             fontSize = 20.sp, color = colorResource(id = R.color.blue),
                             fontWeight = FontWeight.Bold
@@ -167,7 +205,7 @@ fun ProfileItem(
                     Text(
                         modifier = Modifier
                             .padding(top = 8.dp),
-                        text = stringResource(R.string.recent_activities),
+                        text = stringResource(R.string.activity_count),
                         style = TextStyle(
                             fontSize = 15.sp
                         )
@@ -181,7 +219,7 @@ fun ProfileItem(
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
-                        text = userDate.actions_count ?: "0",
+                        text = userDetails.actions_count ?: "0",
                         style = TextStyle(
                             fontSize = 20.sp, color = colorResource(id = R.color.blue),
                             fontWeight = FontWeight.Bold
@@ -190,7 +228,7 @@ fun ProfileItem(
                     Text(
                         modifier = Modifier
                             .padding(top = 8.dp),
-                        text = stringResource(R.string.my_actions),
+                        text = stringResource(R.string.actions_count),
                         style = TextStyle(
                             fontSize = 15.sp
                         )
@@ -205,7 +243,7 @@ fun ProfileItem(
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
-                        text =userDate.sales_report_count ?: "0",
+                        text = userDetails.sales_report_count ?: "0",
                         style = TextStyle(
                             fontSize = 20.sp, color = colorResource(id = R.color.blue),
                             fontWeight = FontWeight.Bold
@@ -214,133 +252,47 @@ fun ProfileItem(
                     Text(
                         modifier = Modifier
                             .padding(top = 8.dp),
-                        text = stringResource(R.string.my_sales_report),
+                        text = stringResource(R.string.sales_report_count),
                         style = TextStyle(
                             fontSize = 15.sp
                         )
                     )
 
-                }
-            }
-        }
-
-
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-
-        ) {
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        if (AccountData.lang == "en") {
-                            AccountData.lang = "ar"
-                        } else {
-                            AccountData.lang = "en"
-                        }
-                        updateLocale(context, Locale(AccountData.lang))
-                        (context as? Activity)?.finish()
-                        (context as? Activity)?.startActivity(
-                            Intent(
-                                context,
-                                MainActivity::class.java
-                            )
-                        )
-                    }
-
-            ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.language_icon),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
-                    Text(
-                        text = stringResource(R.string.language),
-                        style = TextStyle(
-                            fontSize = 16.sp
-                        ),
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.next_menu_icon),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
-                }
-            }
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onChangePasswordClick()
-                    }
-                    .padding(top = 8.dp),
-            ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.change_password_icon),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
-                    Text(
-                        text = stringResource(R.string.change_password),
-                        style = TextStyle(
-                            fontSize = 16.sp
-                        ),
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.next_menu_icon),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
-                }
-            }
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-            ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onSignOutClick()
-                        }
-                        .padding(vertical = 10.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.sign_out_icon),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
-                    Text(
-
-                        text = stringResource(R.string.sign_out),
-                        style = TextStyle(
-                            fontSize = 16.sp
-                        ),
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.next_menu_icon),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop
-                    )
                 }
             }
         }
     }
 }
 
+
+@Composable
+fun Permission(permission: Permission) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp, horizontal = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.grey100)),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                text = permission.module_name, style = TextStyle(
+                    fontSize = 13.sp,
+                    color = colorResource(id = R.color.black)
+                )
+            )
+//            Image(
+//                painterResource(R.drawable.drop_menu_icon_white),
+//                contentDescription = "",
+//                modifier = Modifier.padding(horizontal = 4.dp),
+//            )
+        }
+    }
+}

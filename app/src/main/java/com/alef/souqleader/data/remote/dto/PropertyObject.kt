@@ -2,7 +2,7 @@ package com.alef.souqleader.data.remote.dto
 
 import com.alef.souqleader.domain.model.AccountData
 
-data class Property(
+data class PropertyObject(
     val bathrooms: Int?=null,
     val bedrooms: Int?=null,
     val bua: Int?=null,

@@ -26,7 +26,21 @@ sealed class Screen(
 
 
     object LeadUpdateScreen : Screen("leadUpdateScreen", objectName = "s", objectPath = "/{s}")
+
+    object LeadDetailsScreen : Screen("leadDetailsScreen", objectName = "s", objectPath = "/{s}")
+
+    object MapScreen : Screen("mapScreen", objectName = "s", objectPath = "/{s}")
+
+    object ProductFilterResultScreen : Screen("productFilterResultScreen", objectName = "s", objectPath = "/{s}")
+
+    object UserDetailsScreen : Screen("userDetailsScreen", objectName = "s", objectPath = "/{s}")
+
+    object InventoryFilterScreen : Screen("inventoryFilterScreen", objectName = "s", objectPath = "/{s}")
+
+
+
     object Timeline : Screen("timeline")
+
 
     object CompanyTimelineScreen : Screen("companyTimelineScreen")
 

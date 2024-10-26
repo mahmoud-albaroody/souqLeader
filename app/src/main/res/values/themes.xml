@@ -7,7 +7,7 @@
     </style>
     <style name="Theme.Souqleader" parent="Theme.SplashScreen" >
     <item name="windowSplashScreenBackground">@color/light_blue_600</item>
-    <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    <item name="windowSplashScreenAnimatedIcon">@drawable/souq_leader_logo_3</item>
     <item name="postSplashScreenTheme">@style/Theme.AppCompat.Light.NoActionBar</item>
     </style>
 </resources>

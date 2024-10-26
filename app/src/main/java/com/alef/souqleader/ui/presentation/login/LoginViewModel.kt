@@ -18,6 +18,7 @@ import com.alef.souqleader.data.remote.dto.AddLike
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.UserDetailsResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.catch
@@ -38,6 +39,8 @@ class LoginViewModel @Inject constructor(
         MutableSharedFlow<Resource<LoginResponse>>()
     val loginState: MutableSharedFlow<Resource<LoginResponse>>
         get() = _loginState
+
+
 
     private val _updateFcmToken = MutableStateFlow(StatusResponse())
     val updateFcmToken: StateFlow<StatusResponse> get() = _updateFcmToken

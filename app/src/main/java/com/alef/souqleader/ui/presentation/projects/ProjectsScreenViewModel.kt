@@ -2,15 +2,11 @@ package com.alef.souqleader.ui.presentation.projects
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.Resource
-import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.ProjectResponse
-import com.alef.souqleader.data.remote.dto.Property
-import com.alef.souqleader.data.remote.dto.PropertyResponse
 import com.alef.souqleader.domain.ProjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler

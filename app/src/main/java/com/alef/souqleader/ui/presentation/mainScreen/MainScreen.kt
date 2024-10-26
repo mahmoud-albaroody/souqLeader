@@ -154,6 +154,7 @@ fun CustomModalDrawer(
     val connection by connectivityState()
     val isConnected = connection === ConnectionState.Available
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
+    Log.e("dddddd", AccountData.auth_token.toString())
     Scaffold(
         modifier = Modifier,
         snackbarHost = {
@@ -350,6 +351,7 @@ fun CustomModalDrawer(
                 content = {
                     Scaffold(
                         topBar = {
+                            Log.e("ddddfd",currentRoute(navController).toString())
                             when (currentRoute(navController)) {
                                 Screen.DashboardScreen.route, Screen.Timeline.route,
                                 Screen.CompanyTimelineScreen.route,
@@ -434,10 +436,28 @@ fun CustomModalDrawer(
 
 
                                 else -> {
-
                                     if (currentRoute(navController) == Screen.AllLeadsScreen.route) {
                                         title = Screen.AllLeadsScreen.title
+                                    } else if (currentRoute(navController) ==
+                                        Screen.LeadDetailsScreen.route
+                                    ) {
+                                        title = stringResource(
+                                            R.string.lead_details
+                                        )
+                                    } else if (currentRoute(navController) ==
+                                        Screen.UserDetailsScreen.route
+                                    ) {
+                                        title = stringResource(R.string.user_details)
+                                    } else if (currentRoute(navController) ==
+                                        Screen.MapScreen.route
+                                    ) {
+                                        title = stringResource(R.string.leads)
+                                    } else if (currentRoute(navController) ==
+                                        Screen.ProductFilterResultScreen.route.plus("?s={s}")
+                                    ) {
+                                        title = stringResource(R.string.filter_result)
                                     }
+
                                     AppBarWithArrow(navigationTitle(navController, title)) {
                                         navController.popBackStack()
                                     }
@@ -577,7 +597,7 @@ fun DrawerContent(
                     position,
                     allLead
                 ) {
-                     Screen.AllLeadsScreen.title = it.toString()
+                    Screen.AllLeadsScreen.title = it.toString()
                     onItemClick(position, it)
                 }
             }

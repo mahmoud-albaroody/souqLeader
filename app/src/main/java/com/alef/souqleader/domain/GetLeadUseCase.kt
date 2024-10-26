@@ -3,6 +3,7 @@ package com.alef.souqleader.domain
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.ApiRepoImpl
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
+import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
@@ -46,6 +47,11 @@ class GetLeadUseCase @Inject constructor(private val repository: ApiRepoImpl) {
     suspend fun getLeadByStatus(id: String, page: Int): Flow<Resource<LeadsByStatusResponse>> {
         return flow {
             emit(repository.leadsByStatus(id, page))
+        }.flowOn(Dispatchers.IO)
+    }
+    suspend fun leadDetails(id: String): Flow<Resource<LeadDetailsResponse>> {
+        return flow {
+            emit(repository.leadDetails(id))
         }.flowOn(Dispatchers.IO)
     }
 

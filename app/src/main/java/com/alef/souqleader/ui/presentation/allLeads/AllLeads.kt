@@ -6,9 +6,12 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -144,13 +148,13 @@ fun AllLeadsScreen(
             page = 1
             leadId?.let { viewModel.getLeadByStatus(it, page = page) }
         } else {
-                viewModel.leadsFilter(
-                    FilterRequest(
-                        name = it,status = leadId
-                    )
+            viewModel.leadsFilter(
+                FilterRequest(
+                    name = it, status = leadId
                 )
+            )
         }
-    }, lead, leadId,page, loadMore = {
+    }, lead, leadId, page, loadMore = {
         leadId?.let {
             viewModel.getLeadByStatus(it, ++page)
         }
@@ -164,7 +168,7 @@ fun Screen(
     navController: NavController,
     setKeyword: (String) -> Unit,
     lead: LeadsByStatusResponse,
-    leadId:String?,
+    leadId: String?,
     page: Int,
     loadMore: () -> Unit
 ) {
@@ -190,7 +194,6 @@ fun Screen(
             Search(stringResource(R.string.search), setKeyword = {
                 setKeyword(it)
             }, onFilterClick = {
-                Log.e("ss",leadId.toString())
                 navController.navigate(Screen.FilterScreen.route.plus("/${leadId}")) {
                     launchSingleTop = true
                 }
@@ -200,13 +203,17 @@ fun Screen(
                 Modifier.fillMaxWidth()
             ) {
                 items(leadList) {
-                    AllLeadsItem(it) { lead ->
+                    AllLeadsItem(it, onItemClick = { lead ->
+                        navController.navigate(Screen.LeadDetailsScreen.route
+                            .plus("/${lead.id.toString()}"))
+
+                    }, onLongPress = { lead ->
                         if (selectedIdList.find { it.toInt() == lead.id } == null) {
                             selectedIdList.add(lead.id.toString())
                         } else {
                             selectedIdList.remove(lead.id.toString())
                         }
-                    }
+                    })
                 }
                 if (lead.info?.pages != null && lead.info.pages != 0)
                     if (lead.info.pages > page) {
@@ -246,8 +253,13 @@ fun Screen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
+fun AllLeadsItem(
+    lead: Lead,
+    onItemClick: (Lead) -> Unit,
+    onLongPress: (Lead) -> Unit
+) {
     var selected by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -259,11 +271,19 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
             .fillMaxWidth()
             .height(screenHeight / 3f)
             .padding(6.dp)
-            .clickable {
-                lead.selected = !lead.selected
-                selected = lead.selected
-                onItemClick(lead)
-            },
+            .combinedClickable(
+                onLongClick = {
+                    lead.selected = !lead.selected
+                    selected = lead.selected
+                    onLongPress(lead)
+                },
+                onDoubleClick = { /*....*/ },
+                onClick = {     onItemClick(lead)}),
+//            .clickable {
+////                lead.selected = !lead.selected
+////                selected = lead.selected
+//                onItemClick(lead)
+//            },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(Modifier.fillMaxSize()) {

@@ -7,6 +7,7 @@ import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
+import com.alef.souqleader.data.remote.dto.CategoryResponse
 import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
@@ -14,6 +15,7 @@ import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
+import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
@@ -24,11 +26,13 @@ import com.alef.souqleader.data.remote.dto.PostResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.ProjectsReportResponse
 import com.alef.souqleader.data.remote.dto.PropertyResponse
+import com.alef.souqleader.data.remote.dto.RegionsResponse
 import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
+import com.alef.souqleader.data.remote.dto.UserDetailsResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -67,6 +71,44 @@ interface APIs {
     @GET("api/property")
     suspend fun getProperty(@Query("page") page: Int? = null): Response<PropertyResponse>
 
+    @GET("api/userDetails")
+    suspend fun userDetails(@Query("user") user: String? = null): Response<UserDetailsResponse>
+
+    @GET("api/regions")
+    suspend fun regions(): Response<RegionsResponse>
+
+    @GET("api/propertyView")
+    suspend fun propertyView(): Response<RegionsResponse>
+
+    @GET("api/propertyCategory")
+    suspend fun propertyCategory(): Response<CategoryResponse>
+
+    @GET("api/propertyFinishing")
+    suspend fun propertyFinishing(): Response<RegionsResponse>
+
+
+    @GET("api/propertyfilter")
+    suspend fun propertyFilter(
+        @Query("finishing") finishing: String? = null,
+        @Query("region") region: String? = null,
+        @Query("name") name: String? = null,
+        @Query("view") view: String? = null,
+        @Query("category") category: String? = null
+    ): Response<PropertyResponse>
+
+
+    @GET("api/productFilter")
+    suspend fun projectFilter(
+        @Query("title") title: String? = null,
+        @Query("region") region: String? = null,
+        @Query("status") status: String? = null
+    ): Response<ProjectResponse>
+
+    @FormUrlEncoded
+    @POST("api/leadDetails")
+    suspend fun leadDetails(@Field("lead_id") leadId: String? = null): Response<LeadDetailsResponse>
+
+
     @GET("api/plans")
     suspend fun plans(): Response<PlanResponse>
 
@@ -87,8 +129,7 @@ interface APIs {
 
     @FormUrlEncoded
     @POST("api/SalesProfileReport")
-    suspend fun getSalesProfileReport(@Field("user_id") user_id: String):
-            Response<SalesProfileReportResponse>
+    suspend fun getSalesProfileReport(@Field("user_id") user_id: String): Response<SalesProfileReportResponse>
 
 
     @POST("api/MeetingReport")
@@ -97,8 +138,7 @@ interface APIs {
     @FormUrlEncoded
     @POST("api/login")
     suspend fun login(
-        @Field("email") email: String,
-        @Field("password") password: String
+        @Field("email") email: String, @Field("password") password: String
     ): Response<LoginResponse>
 
     @GET("api/getClient/{name}")
@@ -110,22 +150,19 @@ interface APIs {
     @FormUrlEncoded
     @POST("api/comment")
     suspend fun comment(
-        @Field("comment") comment: String,
-        @Field("post_id") post_id: String
+        @Field("comment") comment: String, @Field("post_id") post_id: String
     ): Response<StatusResponse>
 
     @Multipart
     @POST("api/post")
     suspend fun addPost(
-        @Part("post") post: RequestBody?,
-        @Part images: ArrayList<MultipartBody.Part>?
+        @Part("post") post: RequestBody?, @Part images: ArrayList<MultipartBody.Part>?
     ): Response<StatusResponse>
 
     @FormUrlEncoded
     @POST("api/like")
     suspend fun like(
-        @Field("like") like: String,
-        @Field("post_id") post_id: String
+        @Field("like") like: String, @Field("post_id") post_id: String
     ): Response<AddLikeResponse>
 
     @FormUrlEncoded

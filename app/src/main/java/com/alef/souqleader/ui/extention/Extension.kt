@@ -1,7 +1,5 @@
 package com.alef.souqleader.ui.extention
 
-import com.alef.souqleader.data.remote.dto.Project
-import com.alef.souqleader.data.remote.dto.Property
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

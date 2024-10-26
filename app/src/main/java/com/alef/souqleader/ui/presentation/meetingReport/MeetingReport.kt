@@ -314,6 +314,8 @@ fun MyBarChart(chart: List<Chart>, title: String) {
             .padding(vertical = 8.dp),
         factory = { context ->
             BarChart(context).apply {
+
+                axisLeft.granularity = 1f
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
@@ -324,10 +326,9 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 this.setDrawGridBackground(false)
 
                 animateXY(2000, 2000)
-                //
+
                 xAxis.position = XAxis.XAxisPosition.BOTTOM
                 xAxis.setDrawGridLines(false)
-
                 xAxis.textColor = android.graphics.Color.BLACK
                 xAxis.textSize = 10f
                 xAxis.axisLineColor = android.graphics.Color.WHITE
@@ -338,7 +339,7 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 //   xAxis.setCenterAxisLabels(true)
                 //  xAxis.setAvoidFirstLastClipping(true)
                 xAxis.labelRotationAngle = 80f
-                //  xAxis.granularity = 1f;
+                  xAxis.granularity = 1f;
                 // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
                 legend.isEnabled = false

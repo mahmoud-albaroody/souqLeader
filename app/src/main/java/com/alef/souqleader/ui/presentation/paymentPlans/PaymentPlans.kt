@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.presentation.paymentPlans
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,16 +40,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.User
 import com.alef.souqleader.data.UsersItem
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun PaymentPlansScreen(modifier: Modifier) {
+fun PaymentPlansScreen(navController: NavController, modifier: Modifier) {
     val viewModel: PaymentPlanViewModel = hiltViewModel()
     val userList = remember { mutableStateListOf<UsersItem>() }
     LaunchedEffect(key1 = true) {
@@ -73,8 +76,9 @@ fun PaymentPlansScreen(modifier: Modifier) {
                 .padding(vertical = 16.dp, horizontal = 16.dp)
         ) {
             items(userList) {
-                //PaymentPlansItem(it)
-                UserItemList(it)
+                UserItemList(it, onItemClick = {
+                    navController.navigate(Screen.UserDetailsScreen.route.plus("/${it.toString()}"))
+                })
             }
         }
     }
@@ -155,7 +159,7 @@ fun PaymentPlansScreen(modifier: Modifier) {
 //}
 
 @Composable
-fun UserItemList(usersItem: UsersItem) {
+fun UserItemList(usersItem: UsersItem, onItemClick: (Int) -> Unit) {
     Column(Modifier.padding(vertical = 8.dp)) {
         Text(
             modifier = Modifier
@@ -174,9 +178,11 @@ fun UserItemList(usersItem: UsersItem) {
             Modifier.height((h * usersItem.users.size)),
             content = {
                 items(usersItem.users) {
-                    UserItem(it) {
+                    UserItem(it, onItemClick = {
+                        onItemClick(it)
+                    }, high = {
                         h = it
-                    }
+                    })
                 }
             }, userScrollEnabled = false
         )
@@ -186,7 +192,7 @@ fun UserItemList(usersItem: UsersItem) {
 
 
 @Composable
-fun UserItem(user: User, high: (Dp) -> Unit) {
+fun UserItem(user: User, high: (Dp) -> Unit, onItemClick: (Int) -> Unit) {
     val localDensity = LocalDensity.current
     var heightIs by remember {
         mutableStateOf(0.dp)
@@ -194,6 +200,9 @@ fun UserItem(user: User, high: (Dp) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onItemClick(user.id)
+            }
             .background(colorResource(id = R.color.white))
             .onGloballyPositioned { coordinates ->
                 heightIs = with(localDensity) { coordinates.size.height.toDp() }

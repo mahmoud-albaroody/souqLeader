@@ -13,10 +13,13 @@ open class StatusResponse(
     val status: Boolean = false,
     val message: Any? = ""
 )
-
+open class StatusFilterResponse(
+    val status: Int ?=null,
+    val message: Any? = ""
+)
 data class LeadsByStatusResponse(
     val data: ArrayList<Lead>? = null,
-    val info: Info?=null
+    val info: Info? = null
 ) : StatusResponse()
 
 
@@ -78,7 +81,7 @@ data class UpdateLeadResponse(
 
 data class ProjectResponse(
     var data: ArrayList<Project>? = null,
-    val info: Info?=null
+    val info: Info? = null
 )
 
 data class AddLikeResponse(
@@ -90,8 +93,8 @@ data class PlanResponse(
 ) : StatusResponse()
 
 data class PostResponse(
-   var data: ArrayList<Post>,
-    val info: Info?=null
+    var data: ArrayList<Post>,
+    val info: Info? = null
 ) : StatusResponse()
 
 data class AllRolesAndAllPermissionsResponse(
@@ -120,6 +123,18 @@ data class LoginResponse(
     var data: Login? = null
 ) : StatusResponse()
 
+data class UserDetailsResponse(
+    var data: UserDetails? = null
+) : StatusResponse()
+
+data class RegionsResponse(
+    var data: ArrayList<Regions>? = null
+) : StatusResponse()
+data class CategoryResponse(
+    var data: ArrayList<Regions>? = null
+) : StatusFilterResponse()
+
+
 data class MeetingReportResponse(
     var data: MeetingReport? = null
 ) : StatusResponse()
@@ -129,9 +144,14 @@ data class ChannelReportResponse(
 ) : StatusResponse()
 
 data class PropertyResponse(
-    var data: ArrayList<Property>? = null,
-    var info:Info? = null,
+    var data: ArrayList<PropertyObject>? = null,
+    var info: Info? = null,
 ) : StatusResponse()
+
+data class LeadDetailsResponse(
+    var data: LeadDetails? = null
+) : StatusResponse()
+
 
 data class SalesProfileReportRequest(var user_id: String) {
 

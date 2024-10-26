@@ -8,6 +8,7 @@ import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.UserDetailsResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -22,6 +23,12 @@ class LoginUseCase @Inject constructor(
     suspend fun login(username: String, password: String): Flow<Resource<LoginResponse>> {
         return flow {
             emit(repository.login(username, password))
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun userDetails(user: String): Flow<Resource<UserDetailsResponse>> {
+        return flow {
+            emit(repository.userDetails(user))
         }.flowOn(Dispatchers.IO)
     }
 

@@ -20,3 +20,15 @@ data class FilterRequest(
     var page: Int? = null
 
 )
+
+data class ProjectFilterRequest(
+    var finishing: String? = null,
+    var region: String? = null,
+    var name: String? = null,
+    var view: String? = null,
+    var category: String? = null,
+    var title: String? = null,
+    var status: String? = null,
+    var type: String? = null
+)
+

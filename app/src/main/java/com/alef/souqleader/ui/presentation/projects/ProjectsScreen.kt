@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.projects
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +22,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +36,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,17 +46,15 @@ import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.Project
-import com.alef.souqleader.data.remote.dto.Property
+import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
-import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.presentation.property.Property
-import com.alef.souqleader.ui.presentation.property.PropertyScreenViewModel
+import com.alef.souqleader.ui.presentation.map.PopupBox
+
 import com.alef.souqleader.ui.presentation.salesProfileReport.VerticalDivider
-import com.alef.souqleader.ui.theme.*
-import com.google.gson.Gson
+
 import kotlinx.coroutines.launch
 
 @Composable
@@ -67,13 +62,16 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
     val viewModel: ProjectsScreenViewModel = hiltViewModel()
     var info by remember { mutableStateOf(Info()) }
     val projects = remember { mutableStateListOf<Project>() }
-
+    var projectResponse by remember { mutableStateOf(ProjectResponse()) }
+    var viewPopup by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {
         viewModel.getProject(viewModel.page)
         viewModel.viewModelScope.launch {
             viewModel.stateListOfProjects.collect {
                 if (it is Resource.Success) {
+
                     it.data?.let {
+                        projectResponse = it
                         if (it.info != null)
                             info = it.info
                         if (viewModel.page == 1) {
@@ -94,7 +92,7 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
     }
 
 
-    Projects(projects, info, viewModel.page, onItemClick = {
+    Projects(projects,true, info, viewModel.page, onItemClick = {
         viewModel.page = 1
         projects.clear()
         val projectJson = it.toJson()
@@ -102,21 +100,49 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
             Screen.ProjectsDetailsScreen
                 .route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "=${projectJson}")
         )
-    }, onPage = {
+    },
+        onPage = {
         if (projects.isNotEmpty()) {
-            Log.e("aaaaaaaaaaaaa", viewModel.page.toString())
             viewModel.getProject(++viewModel.page)
         }
+    }, onMapClick = {
+        Screen.MapScreen.title = "prooooo"
+        val projectJson = projectResponse.toJson()
+        navController.navigate(
+            Screen.MapScreen.route.plus(
+                "?" + Screen.MapScreen.objectName + "=${projectJson}"
+            )
+        )
+    }, onSortClick = {
+        viewPopup = true
+    }, onFilterClick = {
+        navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Product"}"))
+    })
+    PopupBox(150f, 150f, viewPopup, onClickOutside = {
+
+    }, content = {
+        Text(text = "sdfdsfdsfds")
     })
 }
 
 @Composable
 fun Projects(
-    projects: SnapshotStateList<Project>,
-    info: Info, page: Int, onPage: () -> Unit, onItemClick: (Project) -> Unit
+    projects: SnapshotStateList<Project>,showFilter:Boolean,
+    info: Info, page: Int, onPage: () -> Unit,
+    onItemClick: (Project) -> Unit,
+    onMapClick: () -> Unit,
+    onSortClick: () -> Unit,
+    onFilterClick: () -> Unit
 ) {
     Column {
-        Filter()
+        if(showFilter)
+        Filter(onMapClick = {
+            onMapClick()
+        }, onSortClick = {
+            onSortClick()
+        }, onFilterClick = {
+            onFilterClick()
+        })
         LazyColumn(Modifier.padding(top = 8.dp)) {
             items(projects) { item ->
                 ProjectsItem(item) { project ->
@@ -124,7 +150,7 @@ fun Projects(
                 }
             }
             if (info.pages != null)
-                if (info.pages > page && projects.size>10) {
+                if (info.pages > page && projects.size > 10) {
                     item {
                         onPage()
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -140,9 +166,11 @@ fun Projects(
     }
 }
 
-@Preview
+
 @Composable
-fun Filter() {
+fun Filter(
+    onMapClick: () -> Unit, onSortClick: () -> Unit, onFilterClick: () -> Unit
+) {
     Card(
         Modifier
             .padding(top = 16.dp)
@@ -156,6 +184,9 @@ fun Filter() {
 
             Row(
                 Modifier
+                    .clickable {
+                        onFilterClick()
+                    }
                     .padding(horizontal = 12.dp)
                     .weight(1f),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -164,11 +195,6 @@ fun Filter() {
                 Image(
                     painterResource(R.drawable.filter_icon),
                     contentDescription = "",
-                    Modifier
-
-                        .clickable {
-                            //   onFilterClick.invoke()
-                        }
                 )
                 Text(
                     text = stringResource(id = R.string.filter),
@@ -194,7 +220,7 @@ fun Filter() {
                     Modifier
 
                         .clickable {
-                            //   onFilterClick.invoke()
+                            onSortClick()
                         }
                 )
                 Text(
@@ -210,18 +236,18 @@ fun Filter() {
             Row(
                 Modifier
                     .padding(horizontal = 12.dp)
-                    .weight(1f),
+                    .weight(1f)
+                    .clickable {
+                        onMapClick()
+                    },
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
                     painterResource(R.drawable.map_icon),
                     contentDescription = "",
-                    Modifier
-                        .clickable {
-                            //   onFilterClick.invoke()
-                        }
-                )
+
+                    )
                 Text(
                     text = stringResource(R.string.map),
                     style = TextStyle(

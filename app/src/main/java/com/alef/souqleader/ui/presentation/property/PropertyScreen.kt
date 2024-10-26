@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.property
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +22,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,13 +43,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.Info
-import com.alef.souqleader.data.remote.dto.Post
-import com.alef.souqleader.data.remote.dto.Project
-import com.alef.souqleader.data.remote.dto.Property
+import com.alef.souqleader.data.remote.dto.PropertyObject
 import com.alef.souqleader.data.remote.dto.PropertyResponse
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
-import com.alef.souqleader.ui.constants.Constants
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.projects.Filter
@@ -62,7 +57,8 @@ import kotlinx.coroutines.launch
 fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewModel: MainViewModel) {
     val viewModel: PropertyScreenViewModel = hiltViewModel()
     var info by remember { mutableStateOf(Info()) }
-    val properties = remember { mutableStateListOf(Property()) }
+    val properties = remember { mutableStateListOf(PropertyObject()) }
+    var propertyResponse by remember { mutableStateOf(PropertyResponse()) }
     LaunchedEffect(key1 = true) {
 
         viewModel.getProperty(viewModel.page)
@@ -70,6 +66,7 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
             viewModel.stateListOfProperty.collect {
                 if (it is Resource.Success) {
                     it.data?.let {
+                        propertyResponse=it
                         if (it.info != null)
                             info = it.info!!
                         if (viewModel.page == 1) {
@@ -89,19 +86,31 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
         }
     }
 
-    Property(properties, info, viewModel, navController)
+    Property(propertyResponse,properties, info, viewModel, navController,true)
 
 }
 
 @Composable
 fun Property(
-    properties: SnapshotStateList<Property>,
+    propertyResponse:PropertyResponse,
+    properties: SnapshotStateList<PropertyObject>,
     info: Info,
     viewModel: PropertyScreenViewModel,
-    navController: NavController
+    navController: NavController,showFilter:Boolean
 ) {
     Column {
-        Filter()
+        if(showFilter)
+        Filter(onMapClick = {
+            val projectJson = propertyResponse.toJson()
+            Screen.MapScreen.title = "pro"
+            navController.navigate(
+                Screen.MapScreen.route.plus(
+                    "?" + Screen.MapScreen.objectName + "=${projectJson}"))
+        }, onSortClick = {
+
+        }, onFilterClick = {
+            navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Property"}"))
+        })
         LazyColumn(Modifier.padding(top = 8.dp)) {
             items(properties) {
                 PropertyItem(it) { property ->
@@ -136,7 +145,7 @@ fun Property(
 
 
 @Composable
-fun PropertyItem(property: Property, onProjectClick: (Property) -> Unit) {
+fun PropertyItem(property: PropertyObject, onProjectClick: (PropertyObject) -> Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp

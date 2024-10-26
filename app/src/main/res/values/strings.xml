@@ -141,5 +141,18 @@
     <string name="phone">Phone</string>
     <string name="message">Message</string>
     <string name="organization_name">Organization Name</string>
+    <string name="lead_details">Lead Details</string>
+    <string name="sales_man">Sales Man</string>
+    <string name="previous_actions">Previous Actions</string>
+    <string name="activity_count">Activity Count</string>
+    <string name="actions_count">Actions Count</string>
+    <string name="sales_report_count">Sales Report Count</string>
+    <string name="permissions">Permissions</string>
+    <string name="user_details">User Details</string>
+    <string name="region">Region</string>
+    <string name="view">View</string>
+    <string name="category">Category</string>
+    <string name="finishing">Finishing</string>
+    <string name="title">Title</string>
 
 </resources>

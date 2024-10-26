@@ -10,6 +10,7 @@ import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
+import com.alef.souqleader.data.remote.dto.CategoryResponse
 import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
@@ -18,6 +19,7 @@ import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
+import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
@@ -25,15 +27,18 @@ import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.MeetingReportResponse
 import com.alef.souqleader.data.remote.dto.PlanResponse
 import com.alef.souqleader.data.remote.dto.PostResponse
+import com.alef.souqleader.data.remote.dto.ProjectFilterRequest
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.ProjectsReportResponse
 import com.alef.souqleader.data.remote.dto.PropertyResponse
+import com.alef.souqleader.data.remote.dto.RegionsResponse
 import com.alef.souqleader.data.remote.dto.SalesProfileReportRequest
 import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
+import com.alef.souqleader.data.remote.dto.UserDetailsResponse
 import com.alef.souqleader.domain.model.AddLead
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -98,6 +103,17 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
+    suspend fun leadDetails(
+        id: String
+    ): Resource<LeadDetailsResponse> {
+        val response = APIs.leadDetails(id)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
     suspend fun updateMulti(
         ids: Array<String>, status: String?,
         note: String?,
@@ -118,7 +134,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
 
-    suspend fun projects(page:Int): Resource<ProjectResponse> {
+    suspend fun projects(page: Int): Resource<ProjectResponse> {
         val response = APIs.project(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -127,7 +143,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun property(page:Int): Resource<PropertyResponse> {
+    suspend fun property(page: Int): Resource<PropertyResponse> {
         val response = APIs.getProperty(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -154,6 +170,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
     suspend fun getCompanyPost(page: Int): Resource<PostResponse> {
         val response = APIs.getCompanyPost(page)
         return if (response.isSuccessful) {
@@ -162,7 +179,6 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
-
 
 
     suspend fun getAllRoles(): Resource<AllRolesAndAllPermissionsResponse> {
@@ -239,6 +255,15 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
 
     suspend fun login(username: String, password: String): Resource<LoginResponse> {
         val response = APIs.login(username, password)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun userDetails(user: String): Resource<UserDetailsResponse> {
+        val response = APIs.userDetails(user)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -444,14 +469,15 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
     suspend fun contactus(
-        name:String?,
+        name: String?,
         email: String?,
         phone: String?,
         organizationName: String?,
         message: String?
     ): Resource<ForgetPasswordResponse> {
-        val response = APIs.contactus(name,email, phone, organizationName, message)
+        val response = APIs.contactus(name, email, phone, organizationName, message)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -496,6 +522,77 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             filterRequest.region,
             page = filterRequest.page
         )
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun regions(): Resource<RegionsResponse> {
+        val response = APIs.regions()
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun propertyView(): Resource<RegionsResponse> {
+        val response = APIs.propertyView()
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun propertyCategory(): Resource<CategoryResponse> {
+        val response = APIs.propertyCategory()
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun propertyFinishing(): Resource<RegionsResponse> {
+        val response = APIs.propertyFinishing()
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun projectFilter(filterRequest: ProjectFilterRequest): Resource<ProjectResponse> {
+        val response = APIs.projectFilter(
+            filterRequest.title,
+            filterRequest.region,
+            filterRequest.status,
+        )
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun propertyFilter(filterRequest: ProjectFilterRequest): Resource<PropertyResponse> {
+        val response = APIs.propertyFilter(
+            filterRequest.finishing,
+            filterRequest.region,
+            filterRequest.name,
+            filterRequest.view,
+            filterRequest.category,
+
+            )
         return if (response.isSuccessful) {
 
             Resource.Success(response.body()!!, response.errorBody())
