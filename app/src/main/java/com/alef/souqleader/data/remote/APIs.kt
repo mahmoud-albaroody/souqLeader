@@ -97,7 +97,7 @@ interface APIs {
     ): Response<PropertyResponse>
 
 
-    @GET("api/productFilter")
+    @GET("api/projectsfilter")
     suspend fun projectFilter(
         @Query("title") title: String? = null,
         @Query("region") region: String? = null,
@@ -229,7 +229,6 @@ interface APIs {
         @Field("cancel_reason") cancel_reason: String?,
     ): Response<UpdateLeadResponse>
 
-    @FormUrlEncoded
     @GET("api/userData/{id}")
     suspend fun userData(@Path("id") id: String): Response<UserDateResponse>
 
@@ -304,7 +303,8 @@ interface APIs {
         @Query("created_to") created_to: Boolean? = null,
         @Query("action_date_from") action_date_from: Boolean? = null,
         @Query("action_date_to") action_date_to: Boolean? = null,
-        @Query("page") page: Int? = null
+        @Query("page") page: Int? = null,
+        @Query("searchField") searchField:String?=null
     ): Response<LeadsByStatusResponse>
 
 

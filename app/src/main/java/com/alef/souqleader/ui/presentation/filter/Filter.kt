@@ -190,7 +190,7 @@ fun FilterScreen(
             status
         ) {
             val jsonObject = JsonObject()
-            jsonObject.addProperty("name", it.name)
+            jsonObject.addProperty("name", it.searchField)
             jsonObject.addProperty("status", it.status)
             jsonObject.addProperty("channel", it.channel)
             jsonObject.addProperty("project", it.project)
@@ -213,14 +213,22 @@ fun Filter(
     statusId: String,
     onShowClick: (FilterRequest) -> Unit
 ) {
-
+    val context = LocalContext.current
     var fromAmount by remember { mutableStateOf("0") }
-    var toAmount by remember { mutableStateOf("10000") }
+    var toAmount by remember { mutableStateOf("10000000") }
     val filterRequest by remember { mutableStateOf(FilterRequest()) }
 
     LaunchedEffect(key1 = true) {
-        filterRequest.budget_from = fromAmount
-        filterRequest.budget_to = toAmount
+        if(fromAmount==context.getString(R.string.amount)) {
+            filterRequest.budget_from = null
+        }else{
+            filterRequest.budget_from=fromAmount
+        }
+        if(toAmount==context.getString(R.string.amount)) {
+            filterRequest.budget_to = null
+        }else{
+            filterRequest.budget_to=toAmount
+        }
     }
 
     val channels = arrayListOf<String>()
@@ -242,7 +250,7 @@ fun Filter(
 
     val status = arrayListOf<String>()
     // statusList.find { it.id.toString() == statusId }?.getTitle()
-    if(!statusList.isEmpty()) {
+    if (!statusList.isEmpty()) {
 
         statusList.find { it.id.toString() == statusId }?.getTitle()?.let { status.add(it) }
         filterRequest.status = statusId
@@ -258,11 +266,11 @@ fun Filter(
     ) {
 
         Column {
-            TextFiledItem(stringResource(R.string.name), true) {
-                filterRequest.name = it
+            TextFiledItem(stringResource(R.string.name_phone), true) {
+                filterRequest.searchField = it
             }
-            if(!statusList.isEmpty()) {
-            DynamicSelectTextField(status) { status ->
+            if (!statusList.isEmpty()) {
+                DynamicSelectTextField(status) { status ->
 
                     filterRequest.status =
                         statusList.find { it.getTitle() == status }?.id.toString()

@@ -337,10 +337,12 @@ fun LeadItem(action: Action) {
                 Image(
                     painter = painterResource(id = R.drawable.element_1), contentDescription = ""
                 )
-                Text(
-                    modifier = Modifier.padding(start = 8.dp),
-                    text = action.status, fontSize = 11.sp
-                )
+                action.status?.let {
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = it, fontSize = 11.sp
+                    )
+                }
             }
             Row(
                 modifier = Modifier
@@ -353,10 +355,12 @@ fun LeadItem(action: Action) {
                     painter = painterResource(id = R.drawable.sales_name_icon),
                     contentDescription = ""
                 )
-                Text(
-                    modifier = Modifier.padding(start = 8.dp),
-                    text = action.sales, fontSize = 11.sp
-                )
+                action.sales?.let {
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = it, fontSize = 11.sp
+                    )
+                }
             }
             Row(
                 modifier = Modifier
@@ -368,10 +372,12 @@ fun LeadItem(action: Action) {
                 Image(
                     painter = painterResource(id = R.drawable.message_text), contentDescription = ""
                 )
-                Text(
-                    modifier = Modifier.padding(start = 8.dp),
-                    text = action.note, fontSize = 11.sp
-                )
+                action.note?.let {
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = it, fontSize = 11.sp
+                    )
+                }
             }
             Row(
                 modifier = Modifier
@@ -384,10 +390,12 @@ fun LeadItem(action: Action) {
                     painter = painterResource(id = R.drawable.vuesax_linear_calendar),
                     contentDescription = ""
                 )
-                Text(
-                    modifier = Modifier.padding(start = 8.dp),
-                    text = action.created_at, fontSize = 11.sp
-                )
+                action.created_at?.let {
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = it, fontSize = 11.sp
+                    )
+                }
             }
 
         }

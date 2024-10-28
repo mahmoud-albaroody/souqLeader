@@ -87,6 +87,7 @@ import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
@@ -165,6 +166,12 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
 
     LaunchedEffect(key1 = true) {
         viewModel.getPosts(page)
+        viewModel.addPosts.observe(context as MainActivity) {
+            if (it.status) {
+                page = 1
+                viewModel.getPosts(page)
+            }
+        }
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
 
@@ -174,7 +181,13 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     it.data?.let {
                         if (it.info != null)
                             info = it.info
-                        it.data.let { it1 -> posts.addAll(it1) }
+
+                        it.data.let { it1 ->
+                            if (page == 1) {
+                                posts.clear()
+                            }
+                            posts.addAll(it1)
+                        }
                     }
                     mainViewModel.showLoader = false
                 } else if (it is Resource.Loading) {
@@ -205,6 +218,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
 
 
 
+
+
     Column {
         WriteTextPost(onSelectImage = {
             launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -212,10 +227,15 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
         },
             onPostClick = {
                 val images: ArrayList<MultipartBody.Part> = arrayListOf()
-
-                imageUri?.let { uri ->
+                if (imageUri == null) {
+                    val name: RequestBody = RequestBody.create(
+                        "text/plain".toMediaType(),
+                        it
+                    )
+                    viewModel.addPost(name, null)
+                } else {
                     val parcelFileDescriptor =
-                        context.contentResolver.openFileDescriptor(uri, "r", null)
+                        context.contentResolver.openFileDescriptor(imageUri!!, "r", null)
                     parcelFileDescriptor?.let { pfd ->
                         val inputStream = FileInputStream(pfd.fileDescriptor)
                         val file = File(context.cacheDir, "temp_image_file")
@@ -229,16 +249,21 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                         val requestFile: RequestBody =
                             RequestBody.create("image/*".toMediaType(), file)
                         val imagePart =
-                            MultipartBody.Part.createFormData("images[]", file.name, requestFile)
+                            MultipartBody.Part.createFormData(
+                                "images[]",
+                                file.name,
+                                requestFile
+                            )
 
                         images.add(imagePart)
                         val name: RequestBody = RequestBody.create(
                             "text/plain".toMediaType(),
-                            "post2"
+                            it
                         )
                         // Call the ViewModel's addPost function with the necessary parameters
                         viewModel.addPost(name, images)
                     }
+
                 }
 //                imageUri?.let { uri ->
 //                    // Create a File object from the URI
@@ -419,6 +444,7 @@ fun WriteTextPost(
         }
         MediaPost(onPostClick = {
             onPostClick(textState)
+            textState = ""
         },
             onSelectImage = {
                 onSelectImage()

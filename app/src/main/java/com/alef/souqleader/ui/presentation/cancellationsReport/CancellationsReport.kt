@@ -230,13 +230,15 @@ fun CancellationsReportItem(lead: Lead) {
                             .size(20.dp)
                             .padding(start = 4.dp)
                     )
-                    Text(
-                        text = lead.action_date,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                        ),
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+                    lead.action_date?.let {
+                        Text(
+                            text = it,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                            ),
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
                 }
                 Card(
                     shape = RoundedCornerShape(8.dp),

@@ -134,9 +134,15 @@ fun LoginScreen(
                             AccountData.clear()
                             (context as MainActivity).setContent {
                                 AndroidCookiesTheme {
-                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        sharedViewModel,
+                                        mainViewModel
+                                    )
                                 }
-                            }                        }
+                            }
+                        }
                         if (it.errorCode == 500) {
                             Toast.makeText(
                                 context,
@@ -212,7 +218,7 @@ fun LoginItem(
                 ),
             )
             Text(
-                text = stringResource(R.string.lorem_ipsum_dolor_sit_amet_cons_ectetur_adipisici_elit),
+                text = stringResource(R.string.please_enter_your_credentials_to_access_your_account),
                 style = TextStyle(
                     fontSize = 15.sp
                 ),

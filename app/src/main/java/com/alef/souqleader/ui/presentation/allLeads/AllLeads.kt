@@ -1,17 +1,22 @@
 package com.alef.souqleader.ui.presentation.allLeads
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,9 +48,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -56,19 +61,24 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
-import com.alef.souqleader.data.remote.dto.PostData
+import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.presentation.SharedViewModel
 import kotlinx.coroutines.launch
 
 
@@ -81,22 +91,22 @@ fun AllLeadsScreen(
 ) {
     val viewModel: AllLeadViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
-    var lead by remember { mutableStateOf(LeadsByStatusResponse()) }
-    var page by remember { mutableIntStateOf(1) }
 
+    var totalElementsCount by remember { mutableIntStateOf(0) }
+    val leads = remember { mutableStateListOf<Lead>() }
     LaunchedEffect(key1 = true) {
         when (leadId) {
             "100" -> {
-                viewModel.delayLeads(page)
+                viewModel.delayLeads(viewModel.page)
             }
 
             "200" -> {
-                viewModel.duplicated(page)
+                viewModel.duplicated(viewModel.page)
             }
 
             else -> {
                 leadId?.let {
-                    viewModel.getLeadByStatus(it, page)
+                    viewModel.getLeadByStatus(it, viewModel.page)
                 }
             }
         }
@@ -106,12 +116,25 @@ fun AllLeadsScreen(
             viewModel.stateListOfLeads.collect {
                 when (it) {
                     is Resource.Success -> {
-                        lead = it.data!!
+                        it.data?.info?.let {
+                            it.count?.let {
+                                totalElementsCount = it
+                            }
+                        }
+                        it.data?.data?.let { it1 ->
+
+                            if (viewModel.page == 1) {
+                                leads.clear()
+                                leads.addAll(it1)
+                            } else {
+                                leads.addAll(it1)
+                            }
+                        }
                         mainViewModel.showLoader = false
                     }
 
                     is Resource.Loading -> {
-                        if (page == 1)
+                        if (viewModel.page == 1)
                             mainViewModel.showLoader = true
                     }
 
@@ -125,7 +148,10 @@ fun AllLeadsScreen(
             viewModel.stateFilterLeads.collect {
                 when (it) {
                     is Resource.Success -> {
-                        lead = it.data!!
+                        it.data?.data?.let { it1 ->
+                            leads.clear()
+                            leads.addAll(it1)
+                        }
                         mainViewModel.showLoader = false
                     }
 
@@ -145,8 +171,8 @@ fun AllLeadsScreen(
 
     Screen(navController, setKeyword = {
         if (it.isEmpty()) {
-            page = 1
-            leadId?.let { viewModel.getLeadByStatus(it, page = page) }
+            viewModel.page = 1
+            leadId?.let { viewModel.getLeadByStatus(it, page = viewModel.page) }
         } else {
             viewModel.leadsFilter(
                 FilterRequest(
@@ -154,9 +180,10 @@ fun AllLeadsScreen(
                 )
             )
         }
-    }, lead, leadId, page, loadMore = {
+    }, leads, leadId, totalElementsCount, loadMore = {
         leadId?.let {
-            viewModel.getLeadByStatus(it, ++page)
+
+            viewModel.getLeadByStatus(it, ++viewModel.page)
         }
     })
 
@@ -167,23 +194,15 @@ fun AllLeadsScreen(
 fun Screen(
     navController: NavController,
     setKeyword: (String) -> Unit,
-    lead: LeadsByStatusResponse,
+    leads: List<Lead>,
     leadId: String?,
-    page: Int,
+    totalElementsCount: Int,
     loadMore: () -> Unit
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val leadList = remember { mutableStateListOf<Lead>() }
-    lead.data?.let { it1 ->
-        if (page == 1) {
-            leadList.clear()
-            leadList.addAll(it1)
-        } else {
-            leadList.addAll(it1)
-        }
-    }
+
     Box(
         Modifier
             .background(colorResource(id = R.color.white))
@@ -202,10 +221,12 @@ fun Screen(
             LazyColumn(
                 Modifier.fillMaxWidth()
             ) {
-                items(leadList) {
+                items(leads) {
                     AllLeadsItem(it, onItemClick = { lead ->
-                        navController.navigate(Screen.LeadDetailsScreen.route
-                            .plus("/${lead.id.toString()}"))
+                        navController.navigate(
+                            Screen.LeadDetailsScreen.route
+                                .plus("/${lead.id.toString()}")
+                        )
 
                     }, onLongPress = { lead ->
                         if (selectedIdList.find { it.toInt() == lead.id } == null) {
@@ -215,25 +236,22 @@ fun Screen(
                         }
                     })
                 }
-                if (lead.info?.pages != null && lead.info.pages != 0)
-                    if (lead.info.pages > page) {
-                        item {
-                            if (leadList.isNotEmpty()) {
-                                loadMore()
-                            }
-                            Row(
-                                Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(16.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
-                            }
+                if (totalElementsCount > leads.size && leads.isNotEmpty())
+                    item {
+                        loadMore()
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(16.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
                         }
                     }
             }
+
         }
         if (selectedIdList.isNotEmpty())
             Button(modifier = Modifier
@@ -278,7 +296,7 @@ fun AllLeadsItem(
                     onLongPress(lead)
                 },
                 onDoubleClick = { /*....*/ },
-                onClick = {     onItemClick(lead)}),
+                onClick = { onItemClick(lead) }),
 //            .clickable {
 ////                lead.selected = !lead.selected
 ////                selected = lead.selected
@@ -454,8 +472,18 @@ fun AllLeadsItem(
                     Image(
                         painterResource(R.drawable.sms_icon),
                         contentDescription = "",
-                        Modifier.size(60.dp, 40.dp)
-                    )
+                        Modifier
+                            .size(60.dp, 40.dp)
+                            .clickable {
+
+                                openSMSApp(
+                                    phoneNumber = lead.phone.toString(),
+                                    message = ctx.getString(R.string.enter_your_message),
+                                    context = ctx
+                                )
+
+                            })
+
                     Image(
                         painterResource(R.drawable.mail_icon),
                         contentDescription = "",
@@ -463,7 +491,7 @@ fun AllLeadsItem(
                             .size(60.dp, 40.dp)
                             .clickable {
                                 ctx.sendMail(
-                                    to = lead.email,
+                                    to = lead.email ?: "",
                                     subject = ""
                                 )
 
@@ -570,3 +598,14 @@ fun Context.sendMail(to: String, subject: String) {
     }
 }
 
+fun openSMSApp(phoneNumber: String, message: String, context: Context) {
+    val uri = Uri.parse("smsto:$phoneNumber")
+    val intent = Intent(Intent.ACTION_SENDTO, uri)
+    intent.putExtra("sms_body", message)
+    try {
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // Handle the error if SMS app is not available
+    }
+}

@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -69,6 +70,7 @@ fun FilterResultScreen(
 
     val viewModel: AllLeadViewModel = hiltViewModel()
     //   viewModel.updateBaseUrl(AccountData.BASE_URL)
+    val context = LocalContext.current
 
     var lead by remember { mutableStateOf(LeadsByStatusResponse()) }
     var page by remember { mutableIntStateOf(1) }
@@ -104,9 +106,15 @@ fun FilterResultScreen(
         }
     }
     LaunchedEffect(key1 = true) {
+        if (budgetFrom == context.getString(R.string.amount)) {
+            budgetFrom = null
+        }
+        if (budgetTo == context.getString(R.string.amount)) {
+            budgetTo = null
+        }
         viewModel.leadsFilter(
             FilterRequest(
-                name = name, status = status,
+                searchField = name, status = status,
                 project = project, communication_way = communicationWay,
                 channel = channel, budget_from = budgetFrom, budget_to = budgetTo, page = page
             )
@@ -124,9 +132,10 @@ fun FilterResultScreen(
     Screen(navController, lead, page, loadMore = {
         viewModel.leadsFilter(
             FilterRequest(
-                name = name, status = status,
+                status = status,
                 project = project, communication_way = communicationWay,
-                channel = channel, budget_from = budgetFrom, budget_to = budgetTo,  page = ++page
+                channel = channel, budget_from = budgetFrom, budget_to = budgetTo, page = ++page,
+                searchField = name
             )
         )
     })

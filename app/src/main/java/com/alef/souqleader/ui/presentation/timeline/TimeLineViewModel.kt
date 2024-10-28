@@ -41,11 +41,11 @@ class TimeLineViewModel @Inject constructor(
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-  //  var statePosts by mutableStateOf(emptyList<Post>())
+    //  var statePosts by mutableStateOf(emptyList<Post>())
 
-    var addPosts by mutableStateOf(StatusResponse())
 
-    //  var addLike by mutableStateOf(AddLikeResponse())
+    private val _addPosts = MutableLiveData<StatusResponse>()
+    val addPosts: LiveData<StatusResponse> = _addPosts
 
     private val _addLike = MutableLiveData<AddLikeResponse>()
     val addLike: LiveData<AddLikeResponse> = _addLike
@@ -60,10 +60,10 @@ class TimeLineViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    fun getPosts(page:Int) {
+    fun getPosts(page: Int) {
         viewModelScope.launch(job) {
             getPostsUseCase.getPosts(page).catch {
-                Log.e("dddddd",it.toString())
+                Log.e("dddddd", it.toString())
             }
                 .onStart {
                     _statePosts.emit(Resource.Loading())
@@ -79,7 +79,7 @@ class TimeLineViewModel @Inject constructor(
         images: ArrayList<MultipartBody.Part>?
     ) {
         viewModelScope.launch(job) {
-            addPosts = addPostUseCase.addPost(post, images).data!!
+            _addPosts.value = addPostUseCase.addPost(post, images).data!!
         }
     }
 

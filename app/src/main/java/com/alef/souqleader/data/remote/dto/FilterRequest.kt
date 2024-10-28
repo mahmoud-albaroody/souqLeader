@@ -17,7 +17,8 @@ data class FilterRequest(
     var created_to: String? = null,
     var action_date_from: String? = null,
     var action_date_to: String? = null,
-    var page: Int? = null
+    var page: Int? = null,
+    var searchField:String?=null
 
 )
 

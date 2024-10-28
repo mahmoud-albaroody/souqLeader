@@ -154,5 +154,8 @@
     <string name="category">Category</string>
     <string name="finishing">Finishing</string>
     <string name="title">Title</string>
+    <string name="amount">Amount</string>
+    <string name="please_enter_your_credentials_to_access_your_account">Please enter your credentials to access your account</string>
+    <string name="enter_your_message">Enter your message</string>
 
 </resources>

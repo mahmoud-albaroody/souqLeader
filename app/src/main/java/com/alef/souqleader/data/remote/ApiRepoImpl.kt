@@ -520,6 +520,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             filterRequest.marketer,
             filterRequest.communication_way,
             filterRequest.region,
+            searchField = filterRequest.searchField,
             page = filterRequest.page
         )
         return if (response.isSuccessful) {

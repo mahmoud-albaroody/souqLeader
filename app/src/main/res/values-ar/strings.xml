@@ -24,7 +24,7 @@
     <string name="add_comment">إضافة تعليق</string>
     <string name="notes">ملاحظات</string>
     <string name="all_leads">جميع العملاء المحتملين</string>
-    <string name="name_phone">الاسم / الهاتف</string>
+    <string name="name_phone">الاسم / الجوال</string>
     <string name="channel">القناة</string>
     <string name="communicate_way">طريقة التواصل</string>
     <string name="budget">الميزانية</string>
@@ -154,6 +154,9 @@
     <string name="category">الفئة</string>
     <string name="finishing">التشطيب</string>
     <string name="title">العنوان</string>
+    <string name="amount">Amount</string>
+    <string name="please_enter_your_credentials_to_access_your_account">الرجاء إدخال بيانات الاعتماد الخاصة بك للوصول إلى حسابك</string>
+    <string name="enter_your_message">Enter your message</string>
 
 
 </resources>

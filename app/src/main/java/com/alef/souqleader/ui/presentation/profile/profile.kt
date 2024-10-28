@@ -54,6 +54,7 @@ fun ProfileScreen(modifier: Modifier, navController: NavController) {
     val profileViewModel: ProfileViewModel = hiltViewModel()
     var userDate by remember { mutableStateOf(UserDate()) }
     LaunchedEffect(key1 = true) {
+        profileViewModel.userDate(AccountData.userId.toString())
         profileViewModel.viewModelScope.launch {
             profileViewModel.userDate.collect {
                 it.data?.let { userDate = it }
@@ -205,7 +206,7 @@ fun ProfileItem(
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
-                        text =userDate.sales_report_count ?: "0",
+                        text = userDate.sales_report_count ?: "0",
                         style = TextStyle(
                             fontSize = 20.sp, color = colorResource(id = R.color.blue),
                             fontWeight = FontWeight.Bold

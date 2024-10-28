@@ -3,7 +3,10 @@ package com.alef.souqleader.ui.presentation.allLeads
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,6 +40,7 @@ class AllLeadViewModel @Inject constructor(
     val stateListOfLeads: MutableSharedFlow<Resource<LeadsByStatusResponse>>
         get() = _stateListOfLeads
 
+    var page by mutableIntStateOf(1)
 
     private val _stateFilterLeads =
         MutableSharedFlow<Resource<LeadsByStatusResponse>>(replay = 1)
