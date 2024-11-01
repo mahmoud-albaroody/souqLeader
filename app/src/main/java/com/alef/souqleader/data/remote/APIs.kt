@@ -104,6 +104,12 @@ interface APIs {
         @Query("status") status: String? = null
     ): Response<ProjectResponse>
 
+    @GET("api/projectSort")
+    suspend fun projectSort(@Query("page") page: Int? = null): Response<ProjectResponse>
+
+    @GET("api/propertySort")
+    suspend fun propertySort(@Query("page") page: Int? = null): Response<PropertyResponse>
+
     @FormUrlEncoded
     @POST("api/leadDetails")
     suspend fun leadDetails(@Field("lead_id") leadId: String? = null): Response<LeadDetailsResponse>
@@ -230,13 +236,16 @@ interface APIs {
     ): Response<UpdateLeadResponse>
 
     @GET("api/userData/{id}")
-    suspend fun userData(@Path("id") id: String): Response<UserDateResponse>
+    suspend fun userData(@Path("id") id: String
+                         ,@Query("action_page") action_page:String,
+                          @Query("activity_page") activity_page:String): Response<UserDateResponse>
 
     @GET("api/channelStatistics")
     suspend fun channelStatistics(): Response<ChannelReportResponse>
 
     @POST("api/ProjectsReport")
     suspend fun projectsReport(): Response<ProjectsReportResponse>
+
 
     @POST("api/DelayReport")
     suspend fun delayReport(): Response<DelayReportResponse>
@@ -304,7 +313,7 @@ interface APIs {
         @Query("action_date_from") action_date_from: Boolean? = null,
         @Query("action_date_to") action_date_to: Boolean? = null,
         @Query("page") page: Int? = null,
-        @Query("searchField") searchField:String?=null
+        @Query("searchField") searchField: String? = null
     ): Response<LeadsByStatusResponse>
 
 

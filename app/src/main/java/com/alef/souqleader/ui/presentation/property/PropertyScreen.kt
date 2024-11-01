@@ -59,6 +59,7 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
     var info by remember { mutableStateOf(Info()) }
     val properties = remember { mutableStateListOf(PropertyObject()) }
     var propertyResponse by remember { mutableStateOf(PropertyResponse()) }
+
     LaunchedEffect(key1 = true) {
 
         viewModel.getProperty(viewModel.page)
@@ -66,7 +67,7 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
             viewModel.stateListOfProperty.collect {
                 if (it is Resource.Success) {
                     it.data?.let {
-                        propertyResponse=it
+                        propertyResponse = it
                         if (it.info != null)
                             info = it.info!!
                         if (viewModel.page == 1) {
@@ -86,31 +87,39 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
         }
     }
 
-    Property(propertyResponse,properties, info, viewModel, navController,true)
+    Property(
+        propertyResponse, properties, info, viewModel,
+        navController, true
+    )
 
 }
 
 @Composable
 fun Property(
-    propertyResponse:PropertyResponse,
+    propertyResponse: PropertyResponse,
     properties: SnapshotStateList<PropertyObject>,
     info: Info,
     viewModel: PropertyScreenViewModel,
-    navController: NavController,showFilter:Boolean
+    navController: NavController, showFilter: Boolean
 ) {
+    var isSort by remember { mutableStateOf(false) }
     Column {
-        if(showFilter)
-        Filter(onMapClick = {
-            val projectJson = propertyResponse.toJson()
-            Screen.MapScreen.title = "pro"
-            navController.navigate(
-                Screen.MapScreen.route.plus(
-                    "?" + Screen.MapScreen.objectName + "=${projectJson}"))
-        }, onSortClick = {
-
-        }, onFilterClick = {
-            navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Property"}"))
-        })
+        if (showFilter)
+            Filter(onMapClick = {
+                val projectJson = propertyResponse.toJson()
+                Screen.MapScreen.title = "pro"
+                navController.navigate(
+                    Screen.MapScreen.route.plus(
+                        "?" + Screen.MapScreen.objectName + "=${projectJson}"
+                    )
+                )
+            }, onSortClick = {
+                isSort = true
+                viewModel.page = 1
+                viewModel.propertySort(page = viewModel.page)
+            }, onFilterClick = {
+                navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Property"}"))
+            })
         LazyColumn(Modifier.padding(top = 8.dp)) {
             items(properties) {
                 PropertyItem(it) { property ->
@@ -127,8 +136,14 @@ fun Property(
             if (info.pages != null)
                 if (info.pages > viewModel.page && properties.size > 10) {
                     item {
-                        if (properties.isNotEmpty()) {
-                            viewModel.getProperty(++viewModel.page)
+                        if (isSort) {
+                            if (properties.isNotEmpty()) {
+                                viewModel.propertySort(++viewModel.page)
+                            }
+                        } else {
+                            if (properties.isNotEmpty()) {
+                                viewModel.getProperty(++viewModel.page)
+                            }
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                             CircularProgressIndicator(

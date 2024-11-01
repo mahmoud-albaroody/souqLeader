@@ -154,9 +154,13 @@
     <string name="category">الفئة</string>
     <string name="finishing">التشطيب</string>
     <string name="title">العنوان</string>
-    <string name="amount">Amount</string>
+
     <string name="please_enter_your_credentials_to_access_your_account">الرجاء إدخال بيانات الاعتماد الخاصة بك للوصول إلى حسابك</string>
-    <string name="enter_your_message">Enter your message</string>
+    <string name="enter_your_message">أدخل رسالتك</string>
+    <string name="change_lead_to">تغيير العميل المحتمل إلى</string>
+    <string name="activities">أنشطة</string>
+    <string name="actions">إجراءات</string>
+    <string name="amount">المبلغ</string>
 
 
 </resources>

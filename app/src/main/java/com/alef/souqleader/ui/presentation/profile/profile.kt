@@ -53,6 +53,7 @@ import java.util.Locale
 fun ProfileScreen(modifier: Modifier, navController: NavController) {
     val profileViewModel: ProfileViewModel = hiltViewModel()
     var userDate by remember { mutableStateOf(UserDate()) }
+    val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         profileViewModel.userDate(AccountData.userId.toString())
         profileViewModel.viewModelScope.launch {
@@ -68,18 +69,29 @@ fun ProfileScreen(modifier: Modifier, navController: NavController) {
         navController.navigate(Screen.LoginScreen.route) {
             launchSingleTop = true
         }
+    }, onSalesReportClick = {
+        navController.navigate(Screen.SalesProfileReportScreen.route.plus("/${AccountData.userId}"))
+    }, onActionsClick = {
+        Screen.ActivityScreen.title = context.getString(R.string.actions)
+        navController.navigate(Screen.ActivityScreen.route.plus("/${AccountData.userId}"))
+
+    }, onActivityClick = {
+        Screen.ActivityScreen.title = context.getString(R.string.activities)
+        navController.navigate(Screen.ActivityScreen.route.plus("/${AccountData.userId}"))
+
     })
+
 }
 
 @Composable
 fun ProfileItem(
     userDate: UserDate,
     onChangePasswordClick: () -> Unit,
-    onSignOutClick: () -> Unit
+    onSignOutClick: () -> Unit,
+    onSalesReportClick: () -> Unit,
+    onActionsClick: () -> Unit,
+    onActivityClick: () -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-    val screenWidth = configuration.screenWidthDp.dp
     val context = LocalContext.current
 
     Column(
@@ -156,6 +168,9 @@ fun ProfileItem(
                 Modifier
                     .weight(1f)
                     .height(100.dp)
+                    .clickable {
+                        onActivityClick()
+                    }
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
@@ -179,6 +194,9 @@ fun ProfileItem(
                 Modifier
                     .weight(1f)
                     .height(100.dp)
+                    .clickable {
+                        onActionsClick()
+                    }
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
@@ -203,6 +221,9 @@ fun ProfileItem(
                 Modifier
                     .weight(1f)
                     .height(100.dp)
+                    .clickable {
+                        onSalesReportClick()
+                    }
             ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(

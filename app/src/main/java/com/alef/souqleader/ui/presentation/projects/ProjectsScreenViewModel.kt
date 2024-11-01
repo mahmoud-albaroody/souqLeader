@@ -38,9 +38,13 @@ class ProjectsScreenViewModel @Inject constructor(
         }
     }
 
-//    fun getProperty(page: Int) {
-//        viewModelScope.launch(job) {
-//            stateListOfProperty = projectsUseCase.property().data?.data!!
-//        }
-//    }
+    fun projectSort(page: Int) {
+        viewModelScope.launch(job) {
+            viewModelScope.launch(job) {
+              projectsUseCase.projectSort(page).collect{
+                  stateListOfProjects.emit(it)
+                }
+            }
+        }
+    }
 }

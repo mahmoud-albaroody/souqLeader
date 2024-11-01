@@ -12,8 +12,8 @@ import com.alef.souqleader.data.remote.dto.UserDateResponse
 import javax.inject.Inject
 
 class ProfileUseCase @Inject constructor(private val repository: ApiRepoImpl) {
-    suspend fun userDate(id: String): Resource<UserDateResponse> {
-        return repository.userData(id)
+    suspend fun userDate(id: String,page:Int,activityPage:Int): Resource<UserDateResponse> {
+        return repository.userData(id,page,activityPage)
     }
 
 

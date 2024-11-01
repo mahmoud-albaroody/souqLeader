@@ -63,9 +63,33 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
     var info by remember { mutableStateOf(Info()) }
     val projects = remember { mutableStateListOf<Project>() }
     var projectResponse by remember { mutableStateOf(ProjectResponse()) }
-    var viewPopup by remember { mutableStateOf(false) }
+    var isSort by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {
         viewModel.getProject(viewModel.page)
+
+        viewModel.viewModelScope.launch {
+            viewModel.stateListOfProjects.collect {
+                if (it is Resource.Success) {
+
+                    it.data?.let {
+                        projectResponse = it
+                        if (it.info != null)
+                            info = it.info
+                        if (viewModel.page == 1) {
+                            projects.clear()
+                        }
+                        it.data?.let { it1 -> projects.addAll(it1) }
+
+                    }
+                    mainViewModel.showLoader = false
+                } else if (it is Resource.Loading) {
+                    if (viewModel.page == 1)
+                        mainViewModel.showLoader = true
+                } else if (it is Resource.DataError) {
+                    mainViewModel.showLoader = false
+                }
+            }
+        }
         viewModel.viewModelScope.launch {
             viewModel.stateListOfProjects.collect {
                 if (it is Resource.Success) {
@@ -92,7 +116,7 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
     }
 
 
-    Projects(projects,true, info, viewModel.page, onItemClick = {
+    Projects(projects, true, info, viewModel.page, onItemClick = {
         viewModel.page = 1
         projects.clear()
         val projectJson = it.toJson()
@@ -102,32 +126,40 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
         )
     },
         onPage = {
-        if (projects.isNotEmpty()) {
-            viewModel.getProject(++viewModel.page)
-        }
-    }, onMapClick = {
-        Screen.MapScreen.title = "prooooo"
-        val projectJson = projectResponse.toJson()
-        navController.navigate(
-            Screen.MapScreen.route.plus(
-                "?" + Screen.MapScreen.objectName + "=${projectJson}"
+            if (isSort) {
+                if (projects.isNotEmpty()) {
+                    viewModel.projectSort(++viewModel.page)
+                }
+            } else {
+                if (projects.isNotEmpty()) {
+                    viewModel.getProject(++viewModel.page)
+                }
+            }
+        }, onMapClick = {
+            Screen.MapScreen.title = "prooooo"
+            val projectJson = projectResponse.toJson()
+            navController.navigate(
+                Screen.MapScreen.route.plus(
+                    "?" + Screen.MapScreen.objectName + "=${projectJson}"
+                )
             )
-        )
-    }, onSortClick = {
-        viewPopup = true
-    }, onFilterClick = {
-        navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Product"}"))
-    })
-    PopupBox(150f, 150f, viewPopup, onClickOutside = {
-
-    }, content = {
-        Text(text = "sdfdsfdsfds")
-    })
+        }, onSortClick = {
+            isSort = true
+            viewModel.page = 1
+            viewModel.projectSort(viewModel.page)
+        }, onFilterClick = {
+            navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Product"}"))
+        })
+//    PopupBox(150f, 150f, viewPopup, onClickOutside = {
+//
+//    }, content = {
+//        Text(text = "sdfdsfdsfds")
+//    })
 }
 
 @Composable
 fun Projects(
-    projects: SnapshotStateList<Project>,showFilter:Boolean,
+    projects: SnapshotStateList<Project>, showFilter: Boolean,
     info: Info, page: Int, onPage: () -> Unit,
     onItemClick: (Project) -> Unit,
     onMapClick: () -> Unit,
@@ -135,14 +167,14 @@ fun Projects(
     onFilterClick: () -> Unit
 ) {
     Column {
-        if(showFilter)
-        Filter(onMapClick = {
-            onMapClick()
-        }, onSortClick = {
-            onSortClick()
-        }, onFilterClick = {
-            onFilterClick()
-        })
+        if (showFilter)
+            Filter(onMapClick = {
+                onMapClick()
+            }, onSortClick = {
+                onSortClick()
+            }, onFilterClick = {
+                onFilterClick()
+            })
         LazyColumn(Modifier.padding(top = 8.dp)) {
             items(projects) { item ->
                 ProjectsItem(item) { project ->
@@ -210,7 +242,10 @@ fun Filter(
             Row(
                 Modifier
                     .padding(horizontal = 12.dp)
-                    .weight(1f),
+                    .weight(1f)
+                    .clickable {
+                        onSortClick()
+                    },
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -219,9 +254,7 @@ fun Filter(
                     contentDescription = "",
                     Modifier
 
-                        .clickable {
-                            onSortClick()
-                        }
+
                 )
                 Text(
                     text = stringResource(R.string.sort_by),

@@ -31,7 +31,7 @@ class ProfileViewModel @Inject constructor(
 
     fun userDate(id: String) {
         viewModelScope.launch(job) {
-            profileUseCase.userDate(id).data?.let { _userDate.emit(it) }
+            profileUseCase.userDate(id, page = 0, activityPage = 0).data?.let { _userDate.emit(it) }
         }
     }
 

@@ -30,6 +30,7 @@ sealed class Screen(
     object LeadDetailsScreen : Screen("leadDetailsScreen", objectName = "s", objectPath = "/{s}")
 
     object MapScreen : Screen("mapScreen", objectName = "s", objectPath = "/{s}")
+    object ActivityScreen : Screen("activityScreen", objectName = "s", objectPath = "/{s}")
 
     object ProductFilterResultScreen : Screen("productFilterResultScreen", objectName = "s", objectPath = "/{s}")
 
@@ -44,7 +45,7 @@ sealed class Screen(
 
     object CompanyTimelineScreen : Screen("companyTimelineScreen")
 
-    object SalesProfileReportScreen : Screen("salesProfileReportScreen")
+    object SalesProfileReportScreen : Screen("salesProfileReportScreen", objectName = "s", objectPath = "/{s}")
     object AddLeadScreen : Screen("addLeadScreen")
 
     object ChangePasswordScreen :

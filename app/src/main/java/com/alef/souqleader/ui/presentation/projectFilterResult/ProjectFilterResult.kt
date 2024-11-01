@@ -77,7 +77,10 @@ fun ProductFilterResultScreen(
                     }
                 }
             }
-        } else {
+
+
+        }
+        else {
             projectFilterRequest?.let { viewModel.propertyFilter(it) }
             viewModel.viewModelScope.launch {
                 viewModel.propertyFilter.collect {

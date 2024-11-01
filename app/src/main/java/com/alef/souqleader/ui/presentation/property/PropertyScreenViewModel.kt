@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,6 +37,16 @@ class PropertyScreenViewModel @Inject constructor(
     fun getProperty(page: Int) {
         viewModelScope.launch(job) {
             _stateListOfProperty.emit(projectsUseCase.property(page))
+        }
+    }
+
+    fun propertySort(page: Int) {
+        viewModelScope.launch(job) {
+            viewModelScope.launch(job) {
+                projectsUseCase.propertySort(page).collect {
+                    _stateListOfProperty.emit(it)
+                }
+            }
         }
     }
 }

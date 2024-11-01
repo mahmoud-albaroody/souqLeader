@@ -265,7 +265,7 @@ fun CustomModalDrawer(
                                 }
 
                                 3 -> {
-                                    navController.navigate(Screen.SalesProfileReportScreen.route) {
+                                    navController.navigate(Screen.SalesProfileReportScreen.route.plus("/${AccountData.userId}")) {
                                         launchSingleTop = true
                                     }
                                 }

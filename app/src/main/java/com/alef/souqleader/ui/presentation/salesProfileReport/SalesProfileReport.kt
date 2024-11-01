@@ -56,11 +56,14 @@ import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 import kotlin.system.exitProcess
 
 @Composable
-fun SalesProfileReportScreen(modifier: Modifier) {
+fun SalesProfileReportScreen( userId: String?) {
     val viewModel: SalesProfileReportViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
-        viewModel.getSalesProfileReport(AccountData.userId.toString())
+        userId?.let {
+            viewModel.getSalesProfileReport(it)
+        }
+
     }
     viewModel.salesProfileReport?.let { SalesProfileReportItem(it) }
 }

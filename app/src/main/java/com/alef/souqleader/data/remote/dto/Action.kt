@@ -8,5 +8,6 @@ data class Action(
     val other_cancel_reason: String?,
     val reminder_time: String?,
     val sales: String?,
-    val status: String?
+    val status: String?,
+    val type: String?
 )

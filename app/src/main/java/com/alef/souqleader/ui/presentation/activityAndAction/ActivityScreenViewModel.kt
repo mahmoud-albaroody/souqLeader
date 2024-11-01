@@ -1,4 +1,4 @@
-package com.alef.souqleader.ui.presentation.userDetails
+package com.alef.souqleader.ui.presentation.activityAndAction
 
 
 import android.util.Log
@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class UserDetailsViewModel @Inject constructor(
+class ActivityScreenViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val salesProfileReportUseCase: SalesProfileReportUseCase,
     private val profileUseCase: ProfileUseCase,

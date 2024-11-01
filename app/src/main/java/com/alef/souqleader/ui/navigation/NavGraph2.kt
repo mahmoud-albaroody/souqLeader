@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import com.alef.souqleader.data.remote.dto.PropertyResponse
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.fromJson
 import com.alef.souqleader.ui.presentation.SharedViewModel
+import com.alef.souqleader.ui.presentation.activityAndAction.ActivityScreen
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
@@ -179,7 +181,7 @@ fun Navigation(
 
             if (obj != null) {
                 InventoryFilterScreen(
-                    navController, mainViewModel, viewModel,obj
+                    navController, mainViewModel, viewModel, obj
                 )
             }
         }
@@ -267,11 +269,19 @@ fun Navigation(
             }
         }
 
-        composable(Screen.SalesProfileReportScreen.route) {
 
-            modifier?.let { it1 ->
+        composable(
+            Screen.SalesProfileReportScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val obj =
+                backStackEntry.arguments?.getString(Screen.SalesProfileReportScreen.objectName)
+            Log.e("ssssss", obj.toString())
+            if (obj != null) {
                 SalesProfileReportScreen(
-                    modifier
+                    obj
                 )
             }
         }
@@ -496,6 +506,23 @@ fun Navigation(
             }
         }
 
+        composable(
+            Screen.ActivityScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
+        ) { backStack ->
+            val userId = backStack.arguments?.getString(Screen.ActivityScreen.objectName)
+            userId?.let {
+                if (modifier != null) {
+                    ActivityScreen(
+                        navController, userId, mainViewModel
+                    )
+                }
+
+            }
+        }
+
     }
 }
 
@@ -522,6 +549,10 @@ fun navigationTitle(navController: NavController, title: String): String {
 
         Screen.FilterResultScreen.route -> {
             stringResource(id = R.string.filter_result)
+        }
+
+        Screen.ActivityScreen.route -> {
+            Screen.ActivityScreen.title
         }
 
         Screen.ChangePasswordScreen.route -> {

@@ -157,5 +157,8 @@
     <string name="amount">Amount</string>
     <string name="please_enter_your_credentials_to_access_your_account">Please enter your credentials to access your account</string>
     <string name="enter_your_message">Enter your message</string>
+    <string name="change_lead_to">Change Lead to</string>
+    <string name="activities">Activities</string>
+    <string name="actions">Actions</string>
 
 </resources>

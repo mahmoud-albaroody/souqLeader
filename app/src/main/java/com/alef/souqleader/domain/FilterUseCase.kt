@@ -49,6 +49,8 @@ class FilterUseCase @Inject constructor(private val repository: ApiRepoImpl) {
             emit(repository.projectFilter(filterRequest))
         }.flowOn(Dispatchers.IO)
     }
+
+
     suspend fun propertyFilter(filterRequest: ProjectFilterRequest): Flow<Resource<PropertyResponse>> {
         return flow {
             emit(repository.propertyFilter(filterRequest))

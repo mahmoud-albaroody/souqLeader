@@ -171,6 +171,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
+
     suspend fun getCompanyPost(page: Int): Resource<PostResponse> {
         val response = APIs.getCompanyPost(page)
         return if (response.isSuccessful) {
@@ -234,9 +235,9 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
     suspend fun userData(
-        id: String
+        id: String,page:Int,activityPage:Int,
     ): Resource<UserDateResponse> {
-        val response = APIs.userData(id)
+        val response = APIs.userData(id,page.toString(),activityPage.toString())
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -579,6 +580,24 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         )
         return if (response.isSuccessful) {
 
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
+    suspend fun projectSort(page:Int): Resource<ProjectResponse> {
+        val response = APIs.projectSort(page)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun propertySort(page:Int): Resource<PropertyResponse> {
+        val response = APIs.propertySort(page)
+        return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
             Resource.DataError(null, response.code(), response.errorBody())

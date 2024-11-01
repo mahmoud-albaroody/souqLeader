@@ -13,5 +13,7 @@ data class SalesProfileReport(
     val pending_fresh: String?,
     val status_counters: List<StatusCounter>,
     val total_calls: String?,
-    val user: User
+    val user: User,
+    val activities:List<Activityy>?,
+    val actions:List<Action>?
 )

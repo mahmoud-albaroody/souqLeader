@@ -54,6 +54,8 @@ class ProjectFilterResultViewModel @Inject constructor(
                 }
         }
     }
+
+
     fun propertyFilter(projectFilterRequest: ProjectFilterRequest) {
         viewModelScope.launch(job) {
             filterUseCase.propertyFilter(projectFilterRequest).catch {
