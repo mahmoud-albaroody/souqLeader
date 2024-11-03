@@ -199,7 +199,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
             }
         }
     }
-    viewModel.addLike.observe(LocalLifecycleOwner.current) {
+    viewModel.addLike.observe(context as MainActivity) {
         if (it.status) {
             if (likedPost != null) {
                 val index = posts.indexOf(posts.find { it.id == likedPost!!.id })

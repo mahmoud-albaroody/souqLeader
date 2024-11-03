@@ -332,10 +332,10 @@ private fun Filter(
             }
 
 
-            DynamicSelectTextField(status) { st ->
-                filterRequest.status =
-                    propertyStatusList.find { it.getTitle() == st }?.id.toString()
-            }
+//            DynamicSelectTextField(status) { st ->
+//                filterRequest.status =
+//                    propertyStatusList.find { it.getTitle() == st }?.id.toString()
+//            }
             if (type == "Property") {
                 DynamicSelectTextField(propertyView) { view ->
                     filterRequest.view =

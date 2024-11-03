@@ -185,7 +185,9 @@ fun CustomModalDrawer(
                                         title_en = "Add Lead"
                                     )
                                 )
-                                it.data?.data?.let { it1 -> allLead.addAll(it1) }
+                                it.data?.data?.let { it1 ->
+                                    allLead.addAll(it1)
+                                }
 //                                allLead.add(
 //                                    AllLeadStatus(
 //                                        title_ar = "Duplicated Leads",
@@ -265,7 +267,11 @@ fun CustomModalDrawer(
                                 }
 
                                 3 -> {
-                                    navController.navigate(Screen.SalesProfileReportScreen.route.plus("/${AccountData.userId}")) {
+                                    navController.navigate(
+                                        Screen.SalesProfileReportScreen.route.plus(
+                                            "/${AccountData.userId}"
+                                        )
+                                    ) {
                                         launchSingleTop = true
                                     }
                                 }
@@ -351,7 +357,7 @@ fun CustomModalDrawer(
                 content = {
                     Scaffold(
                         topBar = {
-                            Log.e("ddddfd",currentRoute(navController).toString())
+                            Log.e("ddddfd", currentRoute(navController).toString())
                             when (currentRoute(navController)) {
                                 Screen.DashboardScreen.route, Screen.Timeline.route,
                                 Screen.CompanyTimelineScreen.route,
@@ -517,12 +523,20 @@ fun DrawerContent(
             R.drawable.sales_name_icon, stringResource(R.string.sales_profile_report)
         )
     )
-    if (AccountData.permissionList.find { it.module_name == "inventory" && it.permissions.read } != null) sideMenuItem.add(
-        SideMenuItem(
-            R.drawable.inventory_menu_icon, stringResource(R.string.inventory)
+    if (AccountData.permissionList.find { it.module_name == "inventory" && it.permissions.read } != null)
+        sideMenuItem.add(
+            SideMenuItem(
+                R.drawable.inventory_menu_icon, stringResource(R.string.inventory)
+            )
         )
-    )
-    sideMenuItem.add(SideMenuItem(R.drawable.repots_menu_icon, stringResource(R.string.reports)))
+    if (AccountData.permissionList.find { it.module_name == "reports" && it.permissions.read } != null)
+        sideMenuItem.add(
+            SideMenuItem(
+                R.drawable.repots_menu_icon,
+                stringResource(R.string.reports)
+            )
+        )
+
     if (AccountData.permissionList.find { it.module_name == "Users" && it.permissions.read } != null) sideMenuItem.add(
         SideMenuItem(
             R.drawable.profile_menu_icon, stringResource(R.string.users)
@@ -713,27 +727,49 @@ fun Item(
         }
         if (position == 2 && isVisible) {
             allLead.forEach {
-                Row(
-                    modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .padding(start = 60.dp, end = 16.dp)
-                        .clickable {
-                            onItemClick(it.getTitle())
-                        },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                //Fresh
+                when {
+                    it.id == 1 &&
+                            AccountData.permissionList.find
+                            {
+                                it.module_name == "fresh_lead" &&
+                                        it.permissions.read
+                            } == null -> {
+                    }
+                    it.id == 2 &&
+                            AccountData.permissionList.find
+                            {
+                                it.module_name == "cold_lead" &&
+                                        it.permissions.read
+                            } == null -> {
 
-                    Text(
-                        it.getTitle(), fontSize = 14.sp, style = TextStyle(
-                            textAlign = TextAlign.Start,
-                        ), modifier = modifier.fillMaxWidth()
-                    )
+                    }
+                    else -> {
+
+                        Row(
+                            modifier
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .padding(start = 60.dp, end = 16.dp)
+                                .clickable {
+                                    onItemClick(it.getTitle())
+                                },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Text(
+                                it.getTitle(), fontSize = 14.sp, style = TextStyle(
+                                    textAlign = TextAlign.Start,
+                                ), modifier = modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
             }
 
         }
+
         if (position == 4 && isVisible) {
 
             Row(

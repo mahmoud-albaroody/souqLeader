@@ -1,9 +1,11 @@
 package com.alef.souqleader.ui.presentation.filterResult
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -175,16 +177,19 @@ fun Screen(
                 Modifier.fillMaxWidth()
             ) {
                 items(leadList) {
-                    AllLeadsItem(it) { lead ->
-//                        stateListOfLeads.forEach {
-//                            it.selected = false
-//                        }
+                    AllLeadsItem(it,  onItemClick = { lead ->
+                        navController.navigate(
+                            Screen.LeadDetailsScreen.route
+                                .plus("/${lead.id.toString()}")
+                        )
+
+                    }, onLongPress = { lead ->
                         if (selectedIdList.find { it.toInt() == lead.id } == null) {
                             selectedIdList.add(lead.id.toString())
                         } else {
                             selectedIdList.remove(lead.id.toString())
                         }
-                    }
+                    })
                 }
                 if (lead.info?.pages != null && lead.info.pages != 0)
                     if (lead.info.pages > page) {
@@ -225,8 +230,9 @@ fun Screen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
+fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit,  onLongPress: (Lead) -> Unit) {
     var selected by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -237,11 +243,14 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit) {
             .fillMaxWidth()
             .height(screenHeight / 3f)
             .padding(6.dp)
-            .clickable {
-                lead.selected = !lead.selected!!
-                selected = lead.selected!!
-                onItemClick(lead)
-            },
+            .combinedClickable(
+                onLongClick = {
+                    lead.selected = !lead.selected
+                    selected = lead.selected
+                    onLongPress(lead)
+                },
+                onDoubleClick = { /*....*/ },
+                onClick = { onItemClick(lead) }),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(Modifier.fillMaxSize()) {

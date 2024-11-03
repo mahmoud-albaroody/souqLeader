@@ -104,13 +104,13 @@ fun ChangePasswordScreen(navController: NavHostController, mainViewModel: MainVi
                     fontWeight = FontWeight.Bold
                 ),
             )
-            Text(
-                text = stringResource(R.string.lorem_ipsum_dolor_sit_amet_cons_ectetur_adipisici_elit),
-                style = TextStyle(
-                    fontSize = 15.sp
-                ),
-                modifier = Modifier.padding(top = 16.dp)
-            )
+//            Text(
+//                text = stringResource(R.string.please_enter_your_credentials_to_access_your_account),
+//                style = TextStyle(
+//                    fontSize = 15.sp
+//                ),
+//                modifier = Modifier.padding(top = 16.dp)
+//            )
         }
         ChangePass(onChangePasswordClick = { password, newPassword, confirmPassword ->
             changePasswordViewModel

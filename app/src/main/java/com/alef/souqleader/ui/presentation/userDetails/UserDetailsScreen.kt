@@ -350,7 +350,8 @@ fun ProfileItem(
 
                 }
             }
-            Card(
+            if (AccountData.permissionList.find { it.module_name == "sales_report" && it.permissions.read } != null)
+                Card(
                 Modifier
                     .weight(1f)
                     .height(100.dp)
