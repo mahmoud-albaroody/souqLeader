@@ -165,6 +165,12 @@ interface APIs {
         @Part("post") post: RequestBody?, @Part images: ArrayList<MultipartBody.Part>?
     ): Response<StatusResponse>
 
+    @Multipart
+    @POST("api/CompanyPost")
+    suspend fun addCompanyPost(
+        @Part("post") post: RequestBody?, @Part images: ArrayList<MultipartBody.Part>?
+    ): Response<StatusResponse>
+
     @FormUrlEncoded
     @POST("api/like")
     suspend fun like(
@@ -236,9 +242,10 @@ interface APIs {
     ): Response<UpdateLeadResponse>
 
     @GET("api/userData/{id}")
-    suspend fun userData(@Path("id") id: String
-                         ,@Query("action_page") action_page:String,
-                          @Query("activity_page") activity_page:String): Response<UserDateResponse>
+    suspend fun userData(
+        @Path("id") id: String, @Query("action_page") action_page: String,
+        @Query("activity_page") activity_page: String
+    ): Response<UserDateResponse>
 
     @GET("api/channelStatistics")
     suspend fun channelStatistics(): Response<ChannelReportResponse>

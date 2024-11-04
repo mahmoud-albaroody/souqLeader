@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.view.SoundEffectConstants
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -87,6 +89,7 @@ import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
@@ -169,16 +172,22 @@ fun CompanyTimelineScreen(
 
     LaunchedEffect(key1 = true) {
         viewModel.getCompanyPost(page)
+
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
-
+                imageUri = null
                 if (it is Resource.Success) {
 
 
                     it.data?.let {
                         if (it.info != null)
                             info = it.info
-                        it.data.let { it1 -> posts.addAll(it1) }
+                        it.data.let { it1 ->
+                            if (page == 1) {
+                                posts.clear()
+                            }
+                            posts.addAll(it1)
+                        }
                     }
                     mainViewModel.showLoader = false
                 } else if (it is Resource.Loading) {
@@ -189,18 +198,28 @@ fun CompanyTimelineScreen(
                 }
             }
         }
+        viewModel.addPosts.observe(context as MainActivity) {
+            if (it.status) {
+                page = 1
+                viewModel.getCompanyPost(page)
+            } else {
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+            }
+        }
     }
-    viewModel.addLike.observe(LocalLifecycleOwner.current) {
+    viewModel.addLike.observe(context as MainActivity) {
         if (it.status) {
             if (likedPost != null) {
                 val index = posts.indexOf(posts.find { it.id == likedPost!!.id })
                 if (likedPost?.isLiked == 1) {
                     posts[index] = posts[index].copy(isLiked = 0)
-                    posts[index] = posts[index].copy(likes_count = posts[index].likes_count!! - 1)
+                    posts[index] =
+                        posts[index].copy(likes_count = posts[index].likes_count!! - 1)
 
                 } else {
                     posts[index] = posts[index].copy(isLiked = 1)
-                    posts[index] = posts[index].copy(likes_count = posts[index].likes_count!! + 1)
+                    posts[index] =
+                        posts[index].copy(likes_count = posts[index].likes_count!! + 1)
                 }
             }
         }
@@ -217,9 +236,15 @@ fun CompanyTimelineScreen(
             onPostClick = {
                 val images: ArrayList<MultipartBody.Part> = arrayListOf()
 
-                imageUri?.let { uri ->
+                if (imageUri == null) {
+                    val name: RequestBody = RequestBody.create(
+                        "text/plain".toMediaType(),
+                        it
+                    )
+                    viewModel.addPost(name, null)
+                } else {
                     val parcelFileDescriptor =
-                        context.contentResolver.openFileDescriptor(uri, "r", null)
+                        context.contentResolver.openFileDescriptor(imageUri!!, "r", null)
                     parcelFileDescriptor?.let { pfd ->
                         val inputStream = FileInputStream(pfd.fileDescriptor)
                         val file = File(context.cacheDir, "temp_image_file")
@@ -233,16 +258,21 @@ fun CompanyTimelineScreen(
                         val requestFile: RequestBody =
                             RequestBody.create("image/*".toMediaType(), file)
                         val imagePart =
-                            MultipartBody.Part.createFormData("images[]", file.name, requestFile)
+                            MultipartBody.Part.createFormData(
+                                "images[]",
+                                file.name,
+                                requestFile
+                            )
 
                         images.add(imagePart)
                         val name: RequestBody = RequestBody.create(
                             "text/plain".toMediaType(),
-                            "post2"
+                            it
                         )
                         // Call the ViewModel's addPost function with the necessary parameters
                         viewModel.addPost(name, images)
                     }
+
                 }
 //                imageUri?.let { uri ->
 //                    // Create a File object from the URI
@@ -361,7 +391,10 @@ fun CompanyTimelineScreen(
                         if (posts.isNotEmpty()) {
                             viewModel.getCompanyPost(++page)
                         }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             CircularProgressIndicator(
                                 modifier = Modifier.width(16.dp),
                                 color = MaterialTheme.colorScheme.secondary,
@@ -423,6 +456,7 @@ fun WriteTextPost(
         }
         MediaPost(onPostClick = {
             onPostClick(textState)
+            textState = ""
         },
             onSelectImage = {
                 onSelectImage()
@@ -457,7 +491,7 @@ fun MediaPost(
     ) {
         Row(
             Modifier
-                .weight(2f)
+                .weight(0.6f)
                 .padding(horizontal = 8.dp)
         ) {
             Image(
@@ -479,28 +513,28 @@ fun MediaPost(
                         onOpenCamera()
                     }
             )
-            Image(
-                painterResource(R.drawable.video_play),
-                contentDescription = "",
-                Modifier
-                    .weight(0.5f)
-                    .clickable {
-                        onVideo()
-                    }
-            )
-            Image(
-                painterResource(R.drawable.record_upload),
-                contentDescription = "",
-                Modifier
-                    .weight(0.5f)
-                    .clickable {
-                        onPickVideo()
-
-                    }
-            )
+//            Image(
+//                painterResource(R.drawable.video_play),
+//                contentDescription = "",
+//                Modifier
+//                    .weight(0.5f)
+//                    .clickable {
+//                        onVideo()
+//                    }
+//            )
+//            Image(
+//                painterResource(R.drawable.record_upload),
+//                contentDescription = "",
+//                Modifier
+//                    .weight(0.5f)
+//                    .clickable {
+//                        onPickVideo()
+//
+//                    }
+//            )
         }
         Button(modifier = Modifier
-            .weight(1.2f)
+            .weight(1f)
             .padding(horizontal = 8.dp),
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
@@ -604,7 +638,8 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                             .padding(horizontal = 4.dp)
                             .padding(end = 8.dp),
                         text = post.commentCount()
-                            .toString() + " " + stringResource(R.string.comment), style = TextStyle(
+                            .toString() + " " + stringResource(R.string.comment),
+                        style = TextStyle(
                             fontSize = 13.sp,
                         )
                     )

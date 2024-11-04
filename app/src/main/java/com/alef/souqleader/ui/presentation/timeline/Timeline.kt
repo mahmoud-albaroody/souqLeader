@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.view.SoundEffectConstants
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -170,14 +171,14 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
             if (it.status) {
                 page = 1
                 viewModel.getPosts(page)
+            }else{
+                Toast.makeText(context,it.message.toString(),Toast.LENGTH_LONG).show()
             }
         }
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
-
+                imageUri = null
                 if (it is Resource.Success) {
-
-
                     it.data?.let {
                         if (it.info != null)
                             info = it.info
@@ -233,7 +234,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                         it
                     )
                     viewModel.addPost(name, null)
-                } else {
+                }
+                else {
                     val parcelFileDescriptor =
                         context.contentResolver.openFileDescriptor(imageUri!!, "r", null)
                     parcelFileDescriptor?.let { pfd ->
@@ -436,7 +438,6 @@ fun WriteTextPost(
                     onValueChange = {
                         textState = it
                     },
-//                shape = RoundedCornerShape(8.dp),
                     singleLine = true,
                 )
 
@@ -479,7 +480,7 @@ fun MediaPost(
     ) {
         Row(
             Modifier
-                .weight(2f)
+                .weight(1f)
                 .padding(horizontal = 8.dp)
         ) {
             Image(
@@ -501,25 +502,25 @@ fun MediaPost(
                         onOpenCamera()
                     }
             )
-            Image(
-                painterResource(R.drawable.video_play),
-                contentDescription = "",
-                Modifier
-                    .weight(0.5f)
-                    .clickable {
-                        onVideo()
-                    }
-            )
-            Image(
-                painterResource(R.drawable.record_upload),
-                contentDescription = "",
-                Modifier
-                    .weight(0.5f)
-                    .clickable {
-                        onPickVideo()
-
-                    }
-            )
+//            Image(
+//                painterResource(R.drawable.video_play),
+//                contentDescription = "",
+//                Modifier
+//                    .weight(0.5f)
+//                    .clickable {
+//                        onVideo()
+//                    }
+//            )
+//            Image(
+//                painterResource(R.drawable.record_upload),
+//                contentDescription = "",
+//                Modifier
+//                    .weight(0.5f)
+//                    .clickable {
+//                        onPickVideo()
+//
+//                    }
+//            )
         }
         Button(modifier = Modifier
             .weight(1.2f)

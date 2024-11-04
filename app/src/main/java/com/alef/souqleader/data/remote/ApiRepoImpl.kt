@@ -397,6 +397,18 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun addCompanyPost(
+        post: RequestBody, images: ArrayList<MultipartBody.Part>?
+    ): Resource<StatusResponse> {
+        val response = APIs.addCompanyPost(
+            post, images
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
 
 
     suspend fun getMeetingReport(): Resource<MeetingReportResponse> {

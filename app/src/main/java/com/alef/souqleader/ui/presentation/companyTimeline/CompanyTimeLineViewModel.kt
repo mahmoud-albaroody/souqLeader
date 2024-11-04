@@ -35,15 +35,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompanyTimeLineViewModel @Inject constructor(
-    val getPostsUseCase: GetPostsUseCase,
-    val addPostUseCase: AddPostUseCase,
-    val addLikeUseCase: AddLikeUseCase
+    private val getPostsUseCase: GetPostsUseCase,
+    private val addPostUseCase: AddPostUseCase,
+    private val addLikeUseCase: AddLikeUseCase
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-  //  var statePosts by mutableStateOf(emptyList<Post>())
+    //  var statePosts by mutableStateOf(emptyList<Post>())
 
-    var addPosts by mutableStateOf(StatusResponse())
+
+    private val _addPosts = MutableLiveData<StatusResponse>()
+    val addPosts: LiveData<StatusResponse> = _addPosts
 
     //  var addLike by mutableStateOf(AddLikeResponse())
 
@@ -60,10 +62,10 @@ class CompanyTimeLineViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    fun getCompanyPost(page:Int) {
+    fun getCompanyPost(page: Int) {
         viewModelScope.launch(job) {
             getPostsUseCase.getCompanyPost(page).catch {
-                Log.e("dddddd",it.toString())
+                Log.e("dddddd", it.toString())
             }
                 .onStart {
                     _statePosts.emit(Resource.Loading())
@@ -79,7 +81,7 @@ class CompanyTimeLineViewModel @Inject constructor(
         images: ArrayList<MultipartBody.Part>?
     ) {
         viewModelScope.launch(job) {
-            addPosts = addPostUseCase.addPost(post, images).data!!
+            _addPosts.value = addPostUseCase.addCompanyPost(post, images).data!!
         }
     }
 
