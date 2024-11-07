@@ -90,7 +90,11 @@ fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
     }
     CRMScreenItem(post, postList = postList) {
         comment = it
-        viewModel.addComment(it, post.id.toString())
+        if(post.postType=="companyType"){
+            viewModel.addCompanyComment(it, post.id.toString())
+        }else {
+            viewModel.addComment(it, post.id.toString())
+        }
     }
 }
 

@@ -11,7 +11,8 @@ data class Post(
     val tenant_id: Int? = null,
     val updated_at: String? = null,
     val user_id: Int? = null,
-    val user:User? = null
+    val user:User? = null,
+    var postType:String?=null
 ) {
     fun commentCount(): Int? {
         return comment?.size

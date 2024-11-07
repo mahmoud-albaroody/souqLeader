@@ -14,6 +14,9 @@ class AddLikeUseCase @Inject constructor(private val repository: ApiRepoImpl) {
     suspend fun addLike(like: String, postId: String): Resource<AddLikeResponse> {
         return repository.like(like,postId)
     }
+    suspend fun addCompanyLike(like: String, postId: String): Resource<AddLikeResponse> {
+        return repository.companyLike(like,postId)
+    }
 
 
 }

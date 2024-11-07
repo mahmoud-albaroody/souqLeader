@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.profile
 
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +44,7 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.UserDate
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
+import com.alef.souqleader.ui.Start
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.updateLocale
 import kotlinx.coroutines.launch
@@ -66,8 +68,13 @@ fun ProfileScreen(modifier: Modifier, navController: NavController) {
     ProfileItem(userDate, onChangePasswordClick = {
         navController.navigate(Screen.ChangePasswordScreen.route)
     }, onSignOutClick = {
-        navController.navigate(Screen.LoginScreen.route) {
-            launchSingleTop = true
+
+        val lang = AccountData.lang
+        AccountData.clear()
+        AccountData.lang = lang
+        updateLocale(context, Locale(AccountData.lang))
+        (context as MainActivity).setContent {
+            Start()
         }
     }, onSalesReportClick = {
         navController.navigate(Screen.SalesProfileReportScreen.route.plus("/${AccountData.userId}"))

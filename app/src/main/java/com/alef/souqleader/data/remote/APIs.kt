@@ -159,6 +159,12 @@ interface APIs {
         @Field("comment") comment: String, @Field("post_id") post_id: String
     ): Response<StatusResponse>
 
+    @FormUrlEncoded
+    @POST("api/CompanyComment")
+    suspend fun companyComment(
+        @Field("comment") comment: String, @Field("post_id") post_id: String
+    ): Response<StatusResponse>
+
     @Multipart
     @POST("api/post")
     suspend fun addPost(
@@ -174,6 +180,13 @@ interface APIs {
     @FormUrlEncoded
     @POST("api/like")
     suspend fun like(
+        @Field("like") like: String, @Field("post_id") post_id: String
+    ): Response<AddLikeResponse>
+
+
+    @FormUrlEncoded
+    @POST("api/CompanyLike")
+    suspend fun companyLike(
         @Field("like") like: String, @Field("post_id") post_id: String
     ): Response<AddLikeResponse>
 

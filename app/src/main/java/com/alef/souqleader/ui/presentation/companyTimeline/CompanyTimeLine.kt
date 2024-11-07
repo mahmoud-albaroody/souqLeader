@@ -370,6 +370,7 @@ fun CompanyTimelineScreen(
             items(posts) { post ->
                 TimelineItem(
                     post, onTimelineCLick = {
+                        post.postType ="companyType"
                         val postJson = post.toJson()
                         navController.navigate(
                             Screen.CRMScreen.route
@@ -608,7 +609,7 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                 Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp),
+                    .padding(top = 8.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

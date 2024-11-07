@@ -14,5 +14,9 @@ class AddCommentUseCase @Inject constructor(private val repository: ApiRepoImpl)
         return repository.comment(comment,post_id)
     }
 
+    suspend fun addCompanyComment(comment: String, post_id: String): Resource<StatusResponse> {
+        return repository.companyComment(comment,post_id)
+    }
+
 
 }

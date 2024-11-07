@@ -292,6 +292,16 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun companyComment(comment: String, post_id: String): Resource<StatusResponse> {
+        val response = APIs.companyComment(
+            comment, post_id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
 
     suspend fun like(like: String, post_id: String): Resource<AddLikeResponse> {
         val response = APIs.like(
@@ -303,6 +313,17 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun companyLike(like: String, post_id: String): Resource<AddLikeResponse> {
+        val response = APIs.companyLike(
+            like, post_id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
 
     suspend fun updateFcmToken(token: String): Resource<StatusResponse> {
         val response = APIs.updateFcmToken(

@@ -50,5 +50,11 @@ class CRMViewModel @Inject constructor(
             addCommentUseCase.addComment(comment, post_id).data?.let { _stateAddComment.emit(it) }
         }
     }
+    fun addCompanyComment(comment: String, post_id: String) {
+        viewModelScope.launch(job) {
+            addCommentUseCase.addCompanyComment(comment, post_id).data?.let { _stateAddComment.emit(it) }
+        }
+    }
+
 
 }

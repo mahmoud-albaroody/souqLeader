@@ -79,7 +79,9 @@ import com.alef.souqleader.ui.appbar.AppBarWithArrow
 import com.alef.souqleader.ui.navigation.Navigation1
 import com.alef.souqleader.ui.networkconnection.ConnectionState
 import com.alef.souqleader.ui.networkconnection.connectivityState
+import com.alef.souqleader.ui.updateLocale
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
 fun MyApp(modifier: Modifier, navController: NavHostController, mainViewModel: MainViewModel) {
@@ -154,7 +156,6 @@ fun CustomModalDrawer(
     val connection by connectivityState()
     val isConnected = connection === ConnectionState.Available
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
-    Log.e("dddddd", AccountData.auth_token.toString())
     Scaffold(
         modifier = Modifier,
         snackbarHost = {
@@ -181,8 +182,8 @@ fun CustomModalDrawer(
                                 allLead.clear()
                                 allLead.add(
                                     AllLeadStatus(
-                                        title_ar = "Add Lead",
-                                        title_en = "Add Lead"
+                                        title_ar = context.getString(R.string.add_lead),
+                                        title_en = context.getString(R.string.add_lead)
                                     )
                                 )
                                 it.data?.data?.let { it1 ->
@@ -233,123 +234,197 @@ fun CustomModalDrawer(
                             scope.launch {
                                 drawerState.close()
                             }
-                            when (position) {
-                                0 -> {
-                                    navController.navigate(Screen.DashboardScreen.route) {
-                                        launchSingleTop = true
-                                    }
+                            if (title == context.getString(R.string.dashboard)) {
+                                navController.navigate(Screen.DashboardScreen.route) {
+                                    launchSingleTop = true
                                 }
-
-                                1 -> {
-                                    if (s == "Timeline") {
-                                        navController.navigate(Screen.Timeline.route) {
-                                            launchSingleTop = true
-                                        }
-                                    } else {
-                                        navController.navigate(Screen.CompanyTimelineScreen.route) {
-                                            launchSingleTop = true
-                                        }
-                                    }
+                            } else if (s == context.getString(R.string.timeline)) {
+                                navController.navigate(Screen.Timeline.route) {
+                                    launchSingleTop = true
                                 }
-
-                                2 -> {
-                                    if (s == "Add Lead") {
-                                        navController.navigate(Screen.AddLeadScreen.route) {
-                                            launchSingleTop = true
-                                        }
-                                    } else {
-                                        navController.navigate(
-                                            Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
-                                        ) {
-                                            launchSingleTop = true
-                                        }
-                                    }
+                            } else if (s == context.getString(R.string.company_timeline)) {
+                                navController.navigate(Screen.CompanyTimelineScreen.route) {
+                                    launchSingleTop = true
                                 }
-
-                                3 -> {
-                                    navController.navigate(
-                                        Screen.SalesProfileReportScreen.route.plus(
-                                            "/${AccountData.userId}"
-                                        )
-                                    ) {
-                                        launchSingleTop = true
-                                    }
+                            } else if (title == context.getString(R.string.sales_profile_report)) {
+                                navController.navigate(
+                                    Screen.SalesProfileReportScreen.route.plus(
+                                        "/${AccountData.userId}"
+                                    )
+                                ) {
+                                    launchSingleTop = true
                                 }
-
-                                4 -> {
-                                    if (s == "Projects") {
-                                        navController.navigate(Screen.ProjectsScreen.route.plus("/${s}")) {
-                                            launchSingleTop = true
-                                        }
-                                    } else {
-                                        navController.navigate(Screen.PropertyScreen.route) {
-                                            launchSingleTop = true
-                                        }
-                                    }
+                            } else if (s == context.getString(R.string.add_lead)) {
+                                navController.navigate(Screen.AddLeadScreen.route) {
+                                    launchSingleTop = true
                                 }
-
-                                5 -> {
-                                    when (s) {
-                                        "meetingReport" -> {
-                                            navController.navigate(Screen.ReportsScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-
-                                        "CancellationReport" -> {
-                                            navController.navigate(Screen.CancellationsReportScreen.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-
-                                        "ProjectReport" -> {
-                                            navController.navigate(Screen.ProjectReport.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-
-                                        "DelayReport" -> {
-                                            navController.navigate(Screen.DelayReport.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-
-                                        else -> {
-                                            navController.navigate(Screen.ChannelReport.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
-                                    }
-
+                            } else if (s == context.getString(R.string.projects)) {
+                                navController.navigate(
+                                    Screen.ProjectsScreen.route.plus(
+                                        "/${s}"
+                                    )
+                                ) {
+                                    launchSingleTop = true
                                 }
-
-                                6 -> {
-                                    navController.navigate(Screen.PaymentPlansScreen.route) {
-                                        launchSingleTop = true
-                                    }
+                            } else if (s == context.getString(R.string.properties)) {
+                                navController.navigate(Screen.PropertyScreen.route) {
+                                    launchSingleTop = true
                                 }
-
-                                7 -> {
-                                    navController.navigate(Screen.ProfileScreen.route) {
-                                        launchSingleTop = true
-                                    }
+                            } else if (s == context.getString(R.string.meeting_report)) {
+                                navController.navigate(Screen.ReportsScreen.route) {
+                                    launchSingleTop = true
                                 }
-
-                                8 -> {
-//                            navController.navigate(Screen.RoleScreen.route) {
-//                                launchSingleTop = true
-//                            }
-                                    AccountData.clear()
-                                    (context as MainActivity).setContent {
-                                        Start()
-                                    }
+                            } else if (s == context.getString(R.string.cancellation_report)) {
+                                navController.navigate(Screen.CancellationsReportScreen.route) {
+                                    launchSingleTop = true
                                 }
-
-//                        9 -> {
-//                            navController.navigate(Screen.LoginScreen.route) {
-//                                launchSingleTop = true
-//                            }
-//                        }
+                            } else if (s == context.getString(R.string.project_report)) {
+                                navController.navigate(Screen.ProjectReport.route) {
+                                    launchSingleTop = true
+                                }
+                            } else if (s == context.getString(R.string.delay_report)) {
+                                navController.navigate(Screen.DelayReport.route) {
+                                    launchSingleTop = true
+                                }
+                            } else if (s == context.getString(R.string.channel_report)) {
+                                navController.navigate(Screen.ChannelReport.route) {
+                                    launchSingleTop = true
+                                }
+                            } else if (title == context.getString(R.string.users)) {
+                                navController.navigate(Screen.PaymentPlansScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            } else if (title == context.getString(R.string.profile)) {
+                                navController.navigate(Screen.ProfileScreen.route) {
+                                    launchSingleTop = true
+                                }
+                            } else if (title == context.getString(R.string.logout)) {
+                                val lang = AccountData.lang
+                                AccountData.clear()
+                                AccountData.lang = lang
+                                updateLocale(context, Locale(AccountData.lang))
+                                (context as MainActivity).setContent {
+                                    Start()
+                                }
+                            } else {
+                                navController.navigate(
+                                    Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
+                                ) {
+                                    launchSingleTop = true
+                                }
+//                                when (position) {
+////                                    0 -> {
+////                                        navController.navigate(Screen.DashboardScreen.route) {
+////                                            launchSingleTop = true
+////                                        }
+////                                    }
+//
+////                                    1 -> {
+////                                        if (s == context.getString(R.string.timeline)) {
+////                                            navController.navigate(Screen.Timeline.route) {
+////                                                launchSingleTop = true
+////                                            }
+////                                        } else {
+////                                            navController.navigate(Screen.CompanyTimelineScreen.route) {
+////                                                launchSingleTop = true
+////                                            }
+////                                        }
+////                                    }
+//
+////                                    2 -> {
+////                                        if (s == "Add Lead") {
+////                                            navController.navigate(Screen.AddLeadScreen.route) {
+////                                                launchSingleTop = true
+////                                            }
+////                                        } else {
+////                                            navController.navigate(
+////                                                Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
+////                                            ) {
+////                                                launchSingleTop = true
+////                                            }
+////                                        }
+////                                    }
+//
+////                                    3 -> {
+////                                        navController.navigate(
+////                                            Screen.SalesProfileReportScreen.route.plus(
+////                                                "/${AccountData.userId}"
+////                                            )
+////                                        ) {
+////                                            launchSingleTop = true
+////                                        }
+////                                    }
+//
+////                                    4 -> {
+////                                        if (s == "Projects") {
+////                                            navController.navigate(
+////                                                Screen.ProjectsScreen.route.plus(
+////                                                    "/${s}"
+////                                                )
+////                                            ) {
+////                                                launchSingleTop = true
+////                                            }
+////                                        } else {
+////                                            navController.navigate(Screen.PropertyScreen.route) {
+////                                                launchSingleTop = true
+////                                            }
+////                                        }
+////                                    }
+//
+//                                    5 -> {
+//                                        when (s) {
+//                                            "meetingReport" -> {
+//                                                navController.navigate(Screen.ReportsScreen.route) {
+//                                                    launchSingleTop = true
+//                                                }
+//                                            }
+//
+//                                            "CancellationReport" -> {
+//                                                navController.navigate(Screen.CancellationsReportScreen.route) {
+//                                                    launchSingleTop = true
+//                                                }
+//                                            }
+//
+//                                            "ProjectReport" -> {
+//                                                navController.navigate(Screen.ProjectReport.route) {
+//                                                    launchSingleTop = true
+//                                                }
+//                                            }
+//
+//                                            "DelayReport" -> {
+//                                                navController.navigate(Screen.DelayReport.route) {
+//                                                    launchSingleTop = true
+//                                                }
+//                                            }
+//
+//                                            else -> {
+//                                                navController.navigate(Screen.ChannelReport.route) {
+//                                                    launchSingleTop = true
+//                                                }
+//                                            }
+//                                        }
+//
+//                                    }
+//
+////                                    6 -> {
+////                                        navController.navigate(Screen.PaymentPlansScreen.route) {
+////                                            launchSingleTop = true
+////                                        }
+////                                    }
+////
+////                                    7 -> {
+////                                        navController.navigate(Screen.ProfileScreen.route) {
+////                                            launchSingleTop = true
+////                                        }
+////                                    }
+////
+////                                    8 -> {
+////                                        AccountData.clear()
+////                                        (context as MainActivity).setContent {
+////                                            Start()
+////                                        }
+////                                    }
+//                                }
                             }
                         }
                     }
@@ -518,7 +593,7 @@ fun DrawerContent(
     if (AccountData.permissionList.find { it.module_name == "lead" && it.permissions.read } != null) sideMenuItem.add(
         SideMenuItem(R.drawable.project_icon, stringResource(R.string.leads))
     )
-    if (AccountData.permissionList.find { it.module_name == "reports" && it.permissions.read } != null) sideMenuItem.add(
+    if (AccountData.permissionList.find { it.module_name == "sales_report" && it.permissions.read } != null) sideMenuItem.add(
         SideMenuItem(
             R.drawable.sales_name_icon, stringResource(R.string.sales_profile_report)
         )
@@ -537,11 +612,12 @@ fun DrawerContent(
             )
         )
 
-    if (AccountData.permissionList.find { it.module_name == "Users" && it.permissions.read } != null) sideMenuItem.add(
-        SideMenuItem(
-            R.drawable.profile_menu_icon, stringResource(R.string.users)
+    if (AccountData.permissionList.find { it.module_name == "Users" && it.permissions.read } != null)
+        sideMenuItem.add(
+            SideMenuItem(
+                R.drawable.profile_menu_icon, stringResource(R.string.users)
+            )
         )
-    )
     sideMenuItem.add(SideMenuItem(R.drawable.profile_menu_icon, stringResource(R.string.profile)))
     // sideMenuItem.add(SideMenuItem(R.drawable.book, stringResource(R.string.roles_premmisions)))
     sideMenuItem.add(SideMenuItem(R.drawable.sign_out_icon, stringResource(R.string.logout)))
@@ -631,34 +707,23 @@ fun Item(
     onItemClick: (s: String?) -> Unit
 ) {
     var isVisible by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
     Column {
         Row(
             modifier
                 .fillMaxWidth()
                 .height(45.dp)
                 .clickable {
-                    when (position) {
-                        1 -> {
-                            isVisible = !isVisible
-                        }
-
-                        2 -> {
-                            isVisible = !isVisible
-                        }
-
-                        4 -> {
-                            isVisible = !isVisible
-                        }
-
-                        5 -> {
-                            isVisible = !isVisible
-                        }
-
-                        else -> {
-                            onItemClick(null)
-                        }
+                    if (text == context.getString(R.string.timeline) ||
+                        text == context.getString(R.string.leads) ||
+                        text == context.getString(R.string.inventory) ||
+                        text == context.getString(R.string.reports)
+                    ) {
+                        isVisible = !isVisible
+                    } else {
+                        onItemClick(text)
                     }
+
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -685,7 +750,7 @@ fun Item(
                     .fillMaxWidth()
             )
         }
-        if (position == 1 && isVisible) {
+        if (text == stringResource(id = R.string.timeline) && isVisible) {
 
             Row(
                 modifier
@@ -693,7 +758,7 @@ fun Item(
                     .height(40.dp)
                     .padding(start = 60.dp, end = 16.dp)
                     .clickable {
-                        onItemClick("Timeline")
+                        onItemClick(context.getString(R.string.timeline))
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -711,7 +776,7 @@ fun Item(
                     .height(40.dp)
                     .padding(start = 60.dp, end = 16.dp)
                     .clickable {
-                        onItemClick("CompanyTimeline")
+                        onItemClick(context.getString(R.string.company_timeline))
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -725,7 +790,7 @@ fun Item(
             }
 
         }
-        if (position == 2 && isVisible) {
+        if (text == stringResource(id = R.string.leads) && isVisible) {
             allLead.forEach {
                 //Fresh
                 when {
@@ -736,6 +801,7 @@ fun Item(
                                         it.permissions.read
                             } == null -> {
                     }
+
                     it.id == 2 &&
                             AccountData.permissionList.find
                             {
@@ -744,6 +810,7 @@ fun Item(
                             } == null -> {
 
                     }
+
                     else -> {
 
                         Row(
@@ -770,7 +837,7 @@ fun Item(
 
         }
 
-        if (position == 4 && isVisible) {
+        if (text == stringResource(id = R.string.inventory) && isVisible) {
 
             Row(
                 modifier
@@ -778,7 +845,7 @@ fun Item(
                     .height(40.dp)
                     .padding(start = 60.dp, end = 16.dp)
                     .clickable {
-                        onItemClick("Projects")
+                        onItemClick(context.getString(R.string.projects))
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -796,7 +863,7 @@ fun Item(
                     .height(40.dp)
                     .padding(start = 60.dp, end = 16.dp)
                     .clickable {
-                        onItemClick("Properties")
+                        onItemClick(context.getString(R.string.properties))
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -809,7 +876,7 @@ fun Item(
                 )
             }
         }
-        if (position == 5 && isVisible) {
+        if (text == stringResource(id = R.string.reports) && isVisible) {
             if (AccountData.permissionList.find { it.module_name == "meeting_report" && it.permissions.read } != null)
 
                 Row(
@@ -818,7 +885,7 @@ fun Item(
                         .height(40.dp)
                         .padding(start = 60.dp, end = 16.dp)
                         .clickable {
-                            onItemClick("meetingReport")
+                            onItemClick(context.getString(R.string.meeting_report))
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -841,7 +908,7 @@ fun Item(
                         .height(40.dp)
                         .padding(start = 60.dp, end = 16.dp)
                         .clickable {
-                            onItemClick("CancellationReport")
+                            onItemClick(context.getString(R.string.cancellation_report))
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -864,7 +931,7 @@ fun Item(
                         .height(40.dp)
                         .padding(start = 60.dp, end = 16.dp)
                         .clickable {
-                            onItemClick("ChannelReport")
+                            onItemClick(context.getString(R.string.channel_report))
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -887,7 +954,7 @@ fun Item(
                         .height(40.dp)
                         .padding(start = 60.dp, end = 16.dp)
                         .clickable {
-                            onItemClick("ProjectReport")
+                            onItemClick(context.getString(R.string.project_report))
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -910,7 +977,7 @@ fun Item(
                         .height(40.dp)
                         .padding(start = 60.dp, end = 16.dp)
                         .clickable {
-                            onItemClick("DelayReport")
+                            onItemClick(context.getString(R.string.delay_report))
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically

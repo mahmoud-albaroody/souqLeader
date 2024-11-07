@@ -65,7 +65,7 @@ class CompanyTimeLineViewModel @Inject constructor(
     fun getCompanyPost(page: Int) {
         viewModelScope.launch(job) {
             getPostsUseCase.getCompanyPost(page).catch {
-                Log.e("dddddd", it.toString())
+
             }
                 .onStart {
                     _statePosts.emit(Resource.Loading())
@@ -90,7 +90,7 @@ class CompanyTimeLineViewModel @Inject constructor(
         postId: String
     ) {
         viewModelScope.launch(job) {
-            _addLike.value = addLikeUseCase.addLike(like, postId).data!!
+            _addLike.value = addLikeUseCase.addCompanyLike(like, postId).data!!
         }
     }
 
