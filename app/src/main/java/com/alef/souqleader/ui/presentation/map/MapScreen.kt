@@ -114,7 +114,8 @@ fun MapIcons(projects: ProjectResponse?, propertyResponse: PropertyResponse?) {
             }
         }
         val cameraPositionState = rememberCameraPositionState {
-            position = latLng?.let { CameraPosition.fromLatLngZoom(it, 12f) }!!
+            if (latLng?.let { CameraPosition.fromLatLngZoom(it, 12f) } != null)
+                position = latLng.let { CameraPosition.fromLatLngZoom(it, 12f) }!!
         }
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -244,20 +245,24 @@ fun MapIcons(projects: ProjectResponse?, propertyResponse: PropertyResponse?) {
 
 }
 
-private fun bitMapFromVector(context: Context, vectorResID: Int): BitmapDescriptor {
+private fun bitMapFromVector(context: Context, vectorResID: Int): BitmapDescriptor? {
     val vectorDrawable = ContextCompat.getDrawable(context, vectorResID)
-    vectorDrawable!!.setBounds(
+    vectorDrawable?.setBounds(
         0,
         0,
         vectorDrawable.intrinsicWidth,
         vectorDrawable.intrinsicHeight
     )
-    val bitmap = Bitmap.createBitmap(
-        vectorDrawable.intrinsicWidth,
-        vectorDrawable.intrinsicHeight,
-        Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(bitmap)
-    vectorDrawable.draw(canvas)
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
+    val bitmap = vectorDrawable?.intrinsicWidth?.let {
+        vectorDrawable.intrinsicHeight.let { it1 ->
+            Bitmap.createBitmap(
+                it,
+                it1,
+                Bitmap.Config.ARGB_8888
+            )
+        }
+    }
+    val canvas = bitmap?.let { Canvas(it) }
+    canvas?.let { vectorDrawable.draw(it) }
+    return bitmap?.let { BitmapDescriptorFactory.fromBitmap(it) }
 }

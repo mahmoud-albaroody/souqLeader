@@ -15,7 +15,7 @@ android {
         applicationId = "com.alef.souqleader"
         minSdk = 25
         targetSdk = 34
-        versionCode = 2
+        versionCode = 4
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
