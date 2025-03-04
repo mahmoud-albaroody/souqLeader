@@ -38,6 +38,7 @@ import com.alef.souqleader.ui.presentation.filter.FilterScreen
 import com.alef.souqleader.ui.presentation.filter2.Filter2Screen
 import com.alef.souqleader.ui.presentation.filterResult.FilterResultScreen
 import com.alef.souqleader.ui.presentation.inventoryFilter.InventoryFilterScreen
+import com.alef.souqleader.ui.presentation.jobApplication.JobApplicationScreen
 import com.alef.souqleader.ui.presentation.leadDetails.LeadDetailsScreen
 import com.alef.souqleader.ui.presentation.projects.ProjectsScreen
 import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateScreen
@@ -146,6 +147,15 @@ fun Navigation(
                 )
             }
         }
+
+        composable(Screen.JobApplicationScreen.route) {
+            modifier?.let { it1 ->
+                JobApplicationScreen(
+                    navController = navController
+                )
+            }
+        }
+
 
         composable(
             Screen.UserDetailsScreen.route.plus("/{s}"), arguments =

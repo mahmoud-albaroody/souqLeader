@@ -273,6 +273,26 @@ interface APIs {
     @GET("api/AllUsers")
     suspend fun allUsers(): Response<AllUserResponse>
 
+    @GET("api/allJobs")
+    suspend fun allJobs(): Response<AllUserResponse>
+
+    @POST("api/jobapps")
+    suspend fun jobapps(
+        @Field("job_id") job_id: String?,
+        @Field("category_id") category_id: String?,
+        @Field("type_id") type_id: String?,
+        @Field("career_level_id") career_level_id: String?,
+        @Field("workplace_id") workplace_id: String?,
+        @Field("name") name: String?,
+        @Field("country_id") country_id: String?,
+        @Field("city_id") city_id: String?,
+        @Field("area_id") area_id: String?,
+        ): Response<AllUserResponse>
+
+    @FormUrlEncoded
+    @POST("api/unlock")
+    suspend fun unlock(@Field("id") id: String?): Response<AllUserResponse>
+
     @FormUrlEncoded
     @POST("api/change-password")
     suspend fun changePassword(

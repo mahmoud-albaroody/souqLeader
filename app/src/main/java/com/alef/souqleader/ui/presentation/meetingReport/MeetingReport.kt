@@ -186,7 +186,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = meetingReport.the_best.meetings_count,
+                        text = meetingReport.total_meeting.toString(),
                         style = TextStyle(
                             fontSize = 20.sp,
                             color = colorResource(id = R.color.blue),
@@ -197,7 +197,8 @@ fun MeetingItem(meetingReport: MeetingReport) {
                         modifier = Modifier.padding(top = 4.dp),
                         text = stringResource(R.string.total_of_meeting),
                         style = TextStyle(
-                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
                         ),
                     )
                     Column(
@@ -214,7 +215,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                                 ),
                             )
                             Text(
-                                text = meetingReport.the_best.total_activity_count,
+                                text = meetingReport.total_activity.toString(),
                                 style = TextStyle(
                                     fontSize = 13.sp
                                 ),
@@ -232,7 +233,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                                 ),
                             )
                             Text(
-                                text = meetingReport.the_best.total_actions_count,
+                                text = meetingReport.total_actions.toString(),
                                 style = TextStyle(
                                     fontSize = 13.sp
                                 ),
@@ -339,7 +340,7 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 //   xAxis.setCenterAxisLabels(true)
                 //  xAxis.setAvoidFirstLastClipping(true)
                 xAxis.labelRotationAngle = 80f
-                  xAxis.granularity = 1f;
+                xAxis.granularity = 1f;
                 // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
                 legend.isEnabled = false

@@ -15,8 +15,8 @@ android {
         applicationId = "com.alef.souqleader"
         minSdk = 25
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -82,7 +82,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging:24.0.0")
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
-
+    implementation ("androidx.compose.ui:ui:1.7.8")
     // When using the BoM, you don't specify versions in Firebase library dependencies
 
     // Add the dependency for the Firebase SDK for Google Analytics

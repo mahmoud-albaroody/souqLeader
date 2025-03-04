@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.paymentPlans
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +45,6 @@ import com.alef.souqleader.data.User
 import com.alef.souqleader.data.UsersItem
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
