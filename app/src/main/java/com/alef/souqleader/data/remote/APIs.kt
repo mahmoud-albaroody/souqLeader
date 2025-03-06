@@ -2,6 +2,7 @@ package com.alef.souqleader.data.remote
 
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
+import com.alef.souqleader.data.remote.dto.AllJobResponse
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
 import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
@@ -15,6 +16,7 @@ import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
+import com.alef.souqleader.data.remote.dto.JobAppsResponse
 import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
@@ -274,8 +276,9 @@ interface APIs {
     suspend fun allUsers(): Response<AllUserResponse>
 
     @GET("api/allJobs")
-    suspend fun allJobs(): Response<AllUserResponse>
+    suspend fun allJobs(): Response<AllJobResponse>
 
+    @FormUrlEncoded
     @POST("api/jobapps")
     suspend fun jobapps(
         @Field("job_id") job_id: String?,
@@ -287,7 +290,7 @@ interface APIs {
         @Field("country_id") country_id: String?,
         @Field("city_id") city_id: String?,
         @Field("area_id") area_id: String?,
-        ): Response<AllUserResponse>
+        ): Response<JobAppsResponse>
 
     @FormUrlEncoded
     @POST("api/unlock")

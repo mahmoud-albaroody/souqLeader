@@ -266,7 +266,16 @@ fun CustomModalDrawer(
                                 ) {
                                     launchSingleTop = true
                                 }
-                            } else if (s == context.getString(R.string.properties)) {
+                            }
+
+                            else if (s == context.getString(R.string.jobs_posts) ) {
+                                navController.navigate(
+                                    Screen.JobPostScreen.route
+                                ) {
+                                    launchSingleTop = true
+                                }
+                            }
+                            else if (s == context.getString(R.string.properties)) {
                                 navController.navigate(Screen.PropertyScreen.route) {
                                     launchSingleTop = true
                                 }
@@ -609,6 +618,13 @@ fun DrawerContent(
             SideMenuItem(
                 R.drawable.repots_menu_icon,
                 stringResource(R.string.reports)
+            )
+        )
+    if (AccountData.permissionList.find { it.module_name == "job" && it.permissions.read } != null)
+        sideMenuItem.add(
+            SideMenuItem(
+                R.drawable.repots_menu_icon,
+                stringResource(R.string.jobs_posts)
             )
         )
 

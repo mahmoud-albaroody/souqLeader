@@ -21,6 +21,9 @@ sealed class Screen(
     object LoginScreen : Screen("login")
     object DashboardScreen : Screen("dashboard")
     object JobApplicationScreen : Screen("jobApplicationScreen")
+    object JobApplicationDetailsScreen : Screen("jobApplicationDetailsScreen")
+
+    object JobPostScreen : Screen("jobPostScreen")
 
     object AllLeadsScreen : Screen("allLeadsScreen", objectName = "s", objectPath = "/{s}")
 

@@ -40,6 +40,16 @@ data class AllUserResponse(
     var data: ArrayList<UsersItem>? = null
 ) : StatusResponse()
 
+data class JobAppsResponse(
+    var data: ArrayList<Jobapps>? = null
+) : StatusResponse()
+
+
+data class AllJobResponse(
+    var data: ArrayList<JopPersion>? = null
+) : StatusResponse()
+
+
 data class ProjectsReportResponse(
     var data: MeetingReport? = null
 ) : StatusResponse()

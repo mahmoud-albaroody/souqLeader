@@ -5,6 +5,7 @@ import android.util.Log
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
+import com.alef.souqleader.data.remote.dto.AllJobResponse
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
 import com.alef.souqleader.data.remote.dto.AllUserResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
@@ -19,6 +20,8 @@ import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
+import com.alef.souqleader.data.remote.dto.JobAppRequest
+import com.alef.souqleader.data.remote.dto.JobAppsResponse
 import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
@@ -235,9 +238,9 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
     suspend fun userData(
-        id: String,page:Int,activityPage:Int,
+        id: String, page: Int, activityPage: Int,
     ): Resource<UserDateResponse> {
-        val response = APIs.userData(id,page.toString(),activityPage.toString())
+        val response = APIs.userData(id, page.toString(), activityPage.toString())
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -292,6 +295,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
     suspend fun companyComment(comment: String, post_id: String): Resource<StatusResponse> {
         val response = APIs.companyComment(
             comment, post_id
@@ -313,6 +317,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
     suspend fun companyLike(like: String, post_id: String): Resource<AddLikeResponse> {
         val response = APIs.companyLike(
             like, post_id
@@ -418,6 +423,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
     suspend fun addCompanyPost(
         post: RequestBody, images: ArrayList<MultipartBody.Part>?
     ): Resource<StatusResponse> {
@@ -476,6 +482,32 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
+    suspend fun allJob(): Resource<AllJobResponse> {
+        val response = APIs.allJobs()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun jobapps(jobAppRequest: JobAppRequest): Resource<JobAppsResponse> {
+        val response = APIs.jobapps(
+            job_id = jobAppRequest.jobId,
+            category_id = jobAppRequest.categoryId,
+            type_id = jobAppRequest.typeId, career_level_id = jobAppRequest.careerLevelId,
+            workplace_id = jobAppRequest.workplaceId, name = jobAppRequest.name,
+            country_id = jobAppRequest.countryId,
+            city_id = jobAppRequest.cityId, area_id = jobAppRequest.areaId
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
 
     suspend fun changePassword(
         password: String,
@@ -620,7 +652,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
 
-    suspend fun projectSort(page:Int): Resource<ProjectResponse> {
+    suspend fun projectSort(page: Int): Resource<ProjectResponse> {
         val response = APIs.projectSort(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
@@ -628,7 +660,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
-    suspend fun propertySort(page:Int): Resource<PropertyResponse> {
+
+    suspend fun propertySort(page: Int): Resource<PropertyResponse> {
         val response = APIs.propertySort(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
