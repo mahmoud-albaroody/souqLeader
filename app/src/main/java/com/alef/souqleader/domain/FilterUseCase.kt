@@ -2,6 +2,8 @@ package com.alef.souqleader.domain
 
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.ApiRepoImpl
+import com.alef.souqleader.data.remote.dto.AddressFilterResponse
+import com.alef.souqleader.data.remote.dto.BasicDataResponse
 import com.alef.souqleader.data.remote.dto.CategoryResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
@@ -22,21 +24,25 @@ class FilterUseCase @Inject constructor(private val repository: ApiRepoImpl) {
             emit(repository.leadsFilter(filterRequest))
         }.flowOn(Dispatchers.IO)
     }
+
     suspend fun regions(): Flow<Resource<RegionsResponse>> {
         return flow {
             emit(repository.regions())
         }.flowOn(Dispatchers.IO)
     }
+
     suspend fun propertyView(): Flow<Resource<RegionsResponse>> {
         return flow {
             emit(repository.propertyView())
         }.flowOn(Dispatchers.IO)
     }
+
     suspend fun propertyCategory(): Flow<Resource<CategoryResponse>> {
         return flow {
             emit(repository.propertyCategory())
         }.flowOn(Dispatchers.IO)
     }
+
     suspend fun propertyFinishing(): Flow<Resource<RegionsResponse>> {
         return flow {
             emit(repository.propertyFinishing())
@@ -55,5 +61,13 @@ class FilterUseCase @Inject constructor(private val repository: ApiRepoImpl) {
         return flow {
             emit(repository.propertyFilter(filterRequest))
         }.flowOn(Dispatchers.IO)
+    }
+
+
+    suspend fun addressFilter(): Resource<AddressFilterResponse>{
+        return repository.addressFilter()
+    }
+    suspend fun basicData(): Resource<BasicDataResponse>{
+        return repository.basicData()
     }
 }

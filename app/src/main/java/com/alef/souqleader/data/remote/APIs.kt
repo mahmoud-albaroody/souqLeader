@@ -2,9 +2,11 @@ package com.alef.souqleader.data.remote
 
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
+import com.alef.souqleader.data.remote.dto.AddressFilterResponse
 import com.alef.souqleader.data.remote.dto.AllJobResponse
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
 import com.alef.souqleader.data.remote.dto.AllUserResponse
+import com.alef.souqleader.data.remote.dto.BasicDataResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
@@ -275,6 +277,13 @@ interface APIs {
     @GET("api/AllUsers")
     suspend fun allUsers(): Response<AllUserResponse>
 
+    @GET("api/addressFilter")
+    suspend fun addressFilter(): Response<AddressFilterResponse>
+
+    @GET("api/basicData")
+    suspend fun basicData(): Response<BasicDataResponse>
+
+
     @GET("api/allJobs")
     suspend fun allJobs(): Response<AllJobResponse>
 
@@ -290,7 +299,7 @@ interface APIs {
         @Field("country_id") country_id: String?,
         @Field("city_id") city_id: String?,
         @Field("area_id") area_id: String?,
-        ): Response<JobAppsResponse>
+    ): Response<JobAppsResponse>
 
     @FormUrlEncoded
     @POST("api/unlock")

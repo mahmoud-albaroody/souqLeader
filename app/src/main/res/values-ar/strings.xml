@@ -162,6 +162,23 @@
     <string name="actions">إجراءات</string>
     <string name="amount">المبلغ</string>
     <string name="jobs_posts">Jobs Posts</string>
+    <string name="open_cv">Open CV</string>
+    <string name="skills">Skills</string>
+    <string name="work_experience">Work experience</string>
+    <string name="years_of_experience">years of Experience</string>
+    <string name="no_work_experience_available">No work experience available</string>
+    <string name="no_work_skills_available">No work skills available</string>
+    <string name="no_work_languages_available">No work languages available</string>
+    <string name="years">Years</string>
+    <string name="exp_salary">Exp Salary</string>
+    <string name="job_category">Job Category</string>
+    <string name="country">Country</string>
+    <string name="area">Area</string>
+    <string name="job_type">Job Type</string>
+    <string name="career_level">Career Level</string>
+    <string name="city">City</string>
+    <string name="apply_filter">Apply Filter</string>
+    <string name="cancel">Cancel</string>
 
 
 </resources>

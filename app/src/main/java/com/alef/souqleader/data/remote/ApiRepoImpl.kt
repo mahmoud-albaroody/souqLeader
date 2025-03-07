@@ -5,9 +5,11 @@ import android.util.Log
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AddLeadResponse
 import com.alef.souqleader.data.remote.dto.AddLikeResponse
+import com.alef.souqleader.data.remote.dto.AddressFilterResponse
 import com.alef.souqleader.data.remote.dto.AllJobResponse
 import com.alef.souqleader.data.remote.dto.AllRolesAndAllPermissionsResponse
 import com.alef.souqleader.data.remote.dto.AllUserResponse
+import com.alef.souqleader.data.remote.dto.BasicDataResponse
 import com.alef.souqleader.data.remote.dto.CampaignResponse
 import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.CancelationReportResponse
@@ -476,6 +478,23 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
 
     suspend fun allUsers(): Resource<AllUserResponse> {
         val response = APIs.allUsers()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun addressFilter(): Resource<AddressFilterResponse> {
+        val response = APIs.addressFilter()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun basicData(): Resource<BasicDataResponse> {
+        val response = APIs.basicData()
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {

@@ -57,7 +57,7 @@ fun JobPostScreen(navController: NavController) {
         }
     }
     JobPostList(jobList, onItemClick = {
-        navController.navigate(Screen.JobApplicationScreen.route.plus("/${it.id.toString()}"))
+        navController.navigate(Screen.JobApplicationScreen.route.plus("/${it.id}"))
     })
 }
 

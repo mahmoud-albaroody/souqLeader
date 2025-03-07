@@ -12,10 +12,10 @@ data class Category(
     val updated_at: Any
 ){
     fun getCategory():String{
-        if(AccountData.lang=="ar") {
-            return title_ar
+        return if(AccountData.lang=="ar") {
+            title_ar
         }else{
-            return title_en
+            title_en
         }
     }
 }

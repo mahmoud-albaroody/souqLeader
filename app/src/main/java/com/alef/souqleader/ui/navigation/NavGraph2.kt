@@ -15,6 +15,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Jobapps
+import com.alef.souqleader.data.remote.dto.JopPersion
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.ProjectFilterRequest
@@ -150,35 +152,38 @@ fun Navigation(
             }
         }
 
-        composable(Screen.JobApplicationScreen.route.plus("/{s}"), arguments =
-        listOf(navArgument("s") {
-            type = NavType.StringType
-        })
+        composable(
+            Screen.JobApplicationScreen.route.plus("/{s}"), arguments =
+            listOf(navArgument("s") {
+                type = NavType.StringType
+            })
         ) { backStackEntry ->
-            val obj = backStackEntry.arguments?.getString(Screen.LeadDetailsScreen.objectName)
-
+            val obj = backStackEntry.arguments?.getString(Screen.JobApplicationScreen.objectName)
             if (obj != null) {
-                modifier?.let { it1 ->
-                    JobApplicationScreen(
-                        navController = navController, jobId = obj)
-                }
+                JobApplicationScreen(
+                    navController = navController, jobId = obj
+                )
+
             }
         }
-        composable(Screen.JobApplicationDetailsScreen.route.plus("/{s}"), arguments =
-        listOf(navArgument("s") {
-            type = NavType.StringType
-        })
-        ) { backStackEntry ->
-            val obj = backStackEntry.arguments?.getString(Screen.UserDetailsScreen.objectName)
 
+        composable(
+            Screen.JobApplicationDetailsScreen.route.plus("?" + Screen.JobApplicationDetailsScreen.objectName + "={jobApplicationDetailsScreen}"),
+            arguments = listOf(navArgument(Screen.JobApplicationDetailsScreen.objectName) {
+                type = NavType.StringType
+                nullable = true
+            })
+        ) {
+            it.arguments?.getString(Screen.JobApplicationDetailsScreen.objectName)
+                ?.let { jsonString ->
+                    val project = jsonString.fromJson<Jobapps>()
+                    modifier?.let { it1 ->
+                        JobApplicationDetailsScreen(
+                            navController, jobApps = project
+                        )
 
-            modifier?.let { it1 ->
-                if (obj != null) {
-                    JobApplicationDetailsScreen(
-                        navController
-                    )
+                    }
                 }
-            }
         }
 
         composable(Screen.JobPostScreen.route) {
@@ -320,7 +325,6 @@ fun Navigation(
         ) { backStackEntry ->
             val obj =
                 backStackEntry.arguments?.getString(Screen.SalesProfileReportScreen.objectName)
-            Log.e("ssssss", obj.toString())
             if (obj != null) {
                 SalesProfileReportScreen(
                     obj

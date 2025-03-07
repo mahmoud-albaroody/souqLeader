@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -399,7 +400,7 @@ fun AddLead(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TextFiledItem(
-    text: String,click: Boolean, value: String? = null, onTextChange: (String) -> Unit
+    text: String, click: Boolean, value: String? = null, onTextChange: (String) -> Unit
 ) {
 
     var textValue by remember { mutableStateOf("") }
@@ -412,11 +413,13 @@ fun TextFiledItem(
                     keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
                 )
             }
+
             stringResource(id = R.string.filter) -> {
                 KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
                 )
             }
+
             stringResource(id = R.string.budget) -> {
                 KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
@@ -493,7 +496,7 @@ fun DynamicSelectTextField(
                 .padding(top = 8.dp)
                 .menuAnchor(),
             readOnly = true,
-            textStyle = TextStyle(fontSize = 13.sp),
+            textStyle = TextStyle(fontSize = 13.sp, textAlign = TextAlign.Center),
             value = selectedOptionText,
             onValueChange = { },
             trailingIcon = {
@@ -516,7 +519,9 @@ fun DynamicSelectTextField(
             options.forEach { selectionOption ->
                 DropdownMenuItem(text = {
                     Text(
-                        text = selectionOption, style = TextStyle(fontSize = 13.sp)
+                        modifier = Modifier.fillMaxWidth(),
+                        text = selectionOption,
+                        style = TextStyle(fontSize = 13.sp, textAlign = TextAlign.Center)
                     )
                 }, onClick = {
                     selectedOptionText = selectionOption

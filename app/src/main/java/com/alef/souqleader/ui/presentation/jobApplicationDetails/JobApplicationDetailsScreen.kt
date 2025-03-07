@@ -1,33 +1,31 @@
 package com.alef.souqleader.ui.presentation.jobApplicationDetails
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarHalf
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,58 +33,67 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
-import com.alef.souqleader.data.remote.dto.JobAppsResponse
+import com.alef.souqleader.data.remote.dto.Education
 import com.alef.souqleader.data.remote.dto.Jobapps
-import com.alef.souqleader.data.remote.dto.JopPersion
-import com.alef.souqleader.domain.model.AccountData
-import kotlinx.coroutines.launch
-
+import com.alef.souqleader.data.remote.dto.Language
+import com.alef.souqleader.data.remote.dto.Skill
+import com.alef.souqleader.data.remote.dto.WorkExperience
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
+import androidx.compose.ui.platform.LocalContext
+import com.alef.souqleader.ui.constants.Constants.BASE_URL
 
 @Composable
-fun JobApplicationDetailsScreen(navController: NavController) {
-    val viewModel: JobApplicationDetailsViewModel = hiltViewModel()
-    val jobAppList = remember { mutableStateListOf<Jobapps>() }
-
-    LaunchedEffect(key1 = true) {
-        viewModel.viewModelScope.launch {
-            viewModel.jobAppResponse.collect {
-                jobAppList.addAll(it)
-            }
-        }
-    }
+fun JobApplicationDetailsScreen(
+    navController: NavController,
+    jobApps: Jobapps
+) {
+    JobApplication(jobApps)
 }
 
-@Preview
 @Composable
-fun JobApplication() {
+fun JobApplication(jobApps: Jobapps) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
-            .background(Color.White)
+            .verticalScroll(scrollState)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        PersonDetails()
-        PersonExperience()
-        PersonSkills()
-        PersonRating()
-        PersonCV()
+        PersonDetails(jobApps)
+        if (jobApps.work_experience.isNotEmpty()) {
+            PersonExperience(jobApps.work_experience)
+        } else {
+            EmptyText(stringResource(R.string.no_work_experience_available))
+        }
+        if (jobApps.skills.isNotEmpty()) {
+            PersonSkills(jobApps.skills)
+        } else {
+            EmptyText(stringResource(R.string.no_work_skills_available))
+        }
+        if (jobApps.skills.isNotEmpty()) {
+            PersonRating(jobApps.language)
+        } else {
+            EmptyText(stringResource(R.string.no_work_languages_available))
+        }
+        PersonCV(jobApps)
     }
 }
 
 
-@Preview
 @Composable
-fun PersonDetails() {
+fun PersonDetails(jobApps: Jobapps) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -103,20 +110,32 @@ fun PersonDetails() {
 
                 Column(Modifier) {
                     Text(
-                        text = "AccountData.name",
+                        text = jobApps.name,
                         style = TextStyle(
-                            fontSize = 18.sp, color = colorResource(id = R.color.grey2)
+                            fontSize = 20.sp,
+                            color = colorResource(id = R.color.grey2),
+                            fontWeight = FontWeight.Bold
                         ),
                     )
 
-                    Text(
-                        text = "AccountData.email",
-                        style = TextStyle(
-                            fontSize = 15.sp, color = colorResource(id = R.color.gray)
+                    if (jobApps.work_experience.isNotEmpty())
+                        Text(
+                            text = jobApps.work_experience[0].job_title,
+                            style = TextStyle(
+                                fontSize = 16.sp, color = colorResource(id = R.color.gray)
+                            )
                         )
-                    )
-                    Education()
+                    Column(
+                        modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
 
+                    ) {
+                        repeat(jobApps.education.size) { innerIndex ->
+                            Education(jobApps.education[innerIndex])
+                        }
+                    }
                 }
 
                 Image(
@@ -140,75 +159,141 @@ fun PersonDetails() {
                 )
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            if (jobApps.phone.isNotEmpty())
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            modifier = Modifier.size(20.dp),
+                            painter = painterResource(id = R.drawable.baseline_call_24),
+                            contentDescription = ""
+                        )
+
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 8.dp),
+                            fontSize = 12.sp,
+                            text = jobApps.phone,
+                        )
+                    }
                     Image(
-                        painter = painterResource(id = R.drawable.baseline_call_24),
+                        modifier = Modifier.size(30.dp),
+                        painter = painterResource(id = R.drawable.call_icon),
                         contentDescription = ""
                     )
 
-                    Text(
-                        modifier = Modifier
-                            .padding(start = 8.dp),
-                        text = "01020343274",
-                    )
                 }
-                Image(
-                    modifier = Modifier.size(30.dp),
-                    painter = painterResource(id = R.drawable.call_icon),
-                    contentDescription = ""
-                )
-
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            if (jobApps.email.isNotEmpty())
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            modifier = Modifier.size(20.dp),
+                            painter = painterResource(id = R.drawable.ic_email),
+                            contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 8.dp),
+                            fontSize = 12.sp,
+                            text = jobApps.email,
+                        )
+                    }
                     Image(
-                        painter = painterResource(id = R.drawable.ic_email),
+                        modifier = Modifier.size(30.dp),
+                        painter = painterResource(id = R.drawable.mail_icon),
                         contentDescription = ""
                     )
+
+                }
+            if (jobApps.work_experience.isNotEmpty())
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                ) {
                     Text(
-                        modifier = Modifier
-                            .padding(start = 8.dp),
-                        text = "mahmoud.elbaroody@gmail.com",
+                        text = stringResource(R.string.years_of_experience),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = jobApps.work_experience[0].years_of_experience.toString()+
+                                " " + stringResource(R.string.years),
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 16.sp
                     )
                 }
-                Image(
-                    modifier = Modifier.size(30.dp),
-                    painter = painterResource(id = R.drawable.mail_icon),
-                    contentDescription = ""
-                )
+        }
+    }
+}
 
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween
-            ) {
+
+@Composable
+fun PersonExperience(workExperience: List<WorkExperience>) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.white)),
+        elevation = CardDefaults.cardElevation(6.dp)
+    ) {
+
+        Column(
+            modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            repeat(workExperience.size) { innerIndex ->
+
                 Text(
-                    text = "years of Experience",
-                    fontWeight = FontWeight.SemiBold
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.work_experience),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp
                 )
-                Text(text = "Exp Salary")
+
+
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    text = workExperience[innerIndex].job_title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = workExperience[innerIndex].company_name,
+                    fontSize = 12.sp
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = workExperience[innerIndex].years_of_experience.toString() ,
+                    fontSize = 12.sp
+                )
+
             }
         }
     }
 }
 
-@Preview
 @Composable
-fun PersonExperience() {
+fun PersonSkills(skill: List<Skill>) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -222,154 +307,42 @@ fun PersonExperience() {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-
-
             Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "work experience",
+                modifier = Modifier,
+                text = stringResource(R.string.skills),
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
-            )
-
-
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                text = "marketing",
-                fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
-
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                text = "Egypt cairo",
-                fontSize = 12.sp
-            )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                text = "Exp Salary",
-                fontSize = 12.sp
-            )
-
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PersonSkills() {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.white)),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column(
-            modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-        ) {
-            Text(
-                modifier = Modifier,
-                text = "Skills",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
-            )
-
-            Row(
+            Column(
+                modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(vertical = 16.dp)
             ) {
-
-                Text(
-                    modifier = Modifier,
-                    text = "Sales",
-                    fontSize = 12.sp
-                )
-
-
-
-                ProgressBarWithPercentage(50f)
-
-            }
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                Text(
-                    modifier = Modifier,
-                    text = "Egypt cairo",
-                    fontSize = 12.sp
-                )
-                ProgressBarWithPercentage(50f)
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PersonRating() {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.white)),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column(
-            modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-        ) {
-            Text(
-                modifier = Modifier,
-                text = "Language",
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
-            )
-            LazyColumn(content = {
-                items(5) {
+                repeat(skill.size) { innerIndex ->
                     Row(
                         Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
 
                         Text(
                             modifier = Modifier,
-                            text = "Arabic",
+                            text = skill[innerIndex].name,
                             fontSize = 12.sp
                         )
-
-
-
-                        StarRating(1.2f, 5)
+                        ProgressBarWithPercentage(skill[innerIndex].progress)
 
                     }
                 }
-            })
-
+            }
         }
     }
 }
 
-@Preview
+
 @Composable
-fun PersonCV() {
+fun PersonRating(language: List<Language>) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -377,6 +350,48 @@ fun PersonCV() {
         colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.white)),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
+        Column(
+            modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            Text(
+                modifier = Modifier,
+                text = stringResource(id = R.string.language),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp
+            )
+            Column(modifier = Modifier.padding(top = 8.dp)) {
+                repeat(language.size) { innerIndex ->
+
+                    Row(
+                        Modifier
+                            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            text = language[innerIndex].name,
+                            fontSize = 12.sp
+                        )
+                        StarRating(language[innerIndex].proficiency, 5)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PersonCV(jobApps: Jobapps) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.white)),
+        elevation = CardDefaults.cardElevation(6.dp)
+    ) {
+        val context = LocalContext.current
         Column(
             modifier =
             Modifier
@@ -391,28 +406,50 @@ fun PersonCV() {
             )
 
 
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            if (jobApps.is_locked == 1) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
 
-                Text(
-                    modifier = Modifier,
-                    text = "CV is Locked,Unlocked to view ",
-                    color = Color.Red,
-                    fontSize = 13.sp
-                )
-                Text(
-                    modifier = Modifier.padding(top = 8.dp),
-                    text = "Unlocked Candidate",
-                    fontSize = 13.sp,
-                    color = Color.Blue,
-                    fontWeight = FontWeight.SemiBold
-                )
+                    Text(
+                        modifier = Modifier,
+                        text = "CV is Locked,Unlocked to view ",
+                        color = Color.Red,
+                        fontSize = 13.sp
+                    )
+                    Text(
+                        modifier = Modifier.padding(top = 8.dp),
+                        text = "Unlocked Candidate",
+                        fontSize = 13.sp,
+                        color = Color.Blue,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            } else {
+                Button(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .align(Alignment.CenterHorizontally),
+                    shape = RoundedCornerShape(15.dp),
+                    colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
+                    onClick = {
+                        val url =
+                            BASE_URL + "applicant/" + jobApps.cv
+                        val file = "downloadedFile.pdf"
+                        downloadFile(context, url, file)
+                    }) {
+                    Text(
+                        text = stringResource(R.string.open_cv),
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        style = TextStyle(textAlign = TextAlign.Center, fontSize = 15.sp)
+                    )
+                }
             }
+
         }
     }
 }
@@ -421,49 +458,65 @@ fun PersonCV() {
 fun StarRating(rating: Float, maxRating: Int = 5) {
     Row {
         for (i in 1..maxRating) {
+            val icon = when {
+                i <= rating -> Icons.Filled.Star        // Fully filled star
+                i - 1 < rating && rating < i -> Icons.Filled.StarHalf // Half-filled star
+                else -> Icons.Outlined.Star             // Empty star
+            }
+
+            val starColor =
+                if (i <= rating) Color.Yellow else Color.Gray // Ensure unfilled stars are gray
+
             Icon(
-                imageVector = if (i <= rating) Icons.Filled.Star else Icons.Outlined.Star,
+                imageVector = icon,
                 contentDescription = "Star $i",
-                tint = Color.Yellow,
+                tint = starColor,
                 modifier = Modifier.size(24.dp)
             )
         }
     }
 }
 
-@Preview
+
 @Composable
-fun EmptyText() {
+fun EmptyText(message: String) {
     Text(
-        modifier = Modifier.padding(vertical = 24.dp),
-        text = "No work experience available",
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 14.dp),
+        text = message,
         color = Color.Gray,
-        fontSize = 14.sp
+        fontSize = 14.sp,
+        textAlign = TextAlign.Center
     )
 }
 
-@Preview
+
 @Composable
-fun Education() {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+fun Education(education: Education) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+            .padding(top = 4.dp)
+    ) {
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "Degree",
+            text = education.education,
             fontWeight = FontWeight.SemiBold,
             fontSize = 15.sp
         )
         Text(
             modifier = Modifier
-                .fillMaxWidth() .padding(top = 4.dp, start = 4.dp)
-               ,
-            text = "Egypt cairo",
+                .fillMaxWidth()
+                .padding(start = 4.dp),
+            text = education.university,
             fontSize = 12.sp
         )
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp, start = 4.dp),
-            text = "Exp Salary",
+                .padding(start = 4.dp),
+            text = education.grad_year,
             fontSize = 12.sp
         )
     }
@@ -483,7 +536,7 @@ fun ProgressBarWithPercentage(progress: Float) {
             modifier = Modifier
                 .width(150.dp)
                 .height(6.dp),
-            color = Color.Blue,
+            color = colorResource(id = R.color.blue),
             trackColor = Color.LightGray
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -499,4 +552,21 @@ fun ProgressBarWithPercentage(progress: Float) {
 @Composable
 fun PreviewProgressBarWithPercentage() {
     ProgressBarWithPercentage(progress = 50f)
+}
+
+fun downloadFile(context: Context, url: String, fileName: String) {
+    val request = DownloadManager.Request(Uri.parse(url)).apply {
+        setTitle("Downloading $fileName")
+        setDescription("Downloading file...")
+        setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        setDestinationInExternalPublicDir(
+            Environment.DIRECTORY_DOWNLOADS,
+            fileName
+        ) // Save in Downloads folder
+        setAllowedOverMetered(true)  // Allow mobile data downloads
+        setAllowedOverRoaming(true)  // Allow download while roaming
+    }
+
+    val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+    downloadManager.enqueue(request)
 }
