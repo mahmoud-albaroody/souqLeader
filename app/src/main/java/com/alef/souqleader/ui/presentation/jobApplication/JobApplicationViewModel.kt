@@ -1,5 +1,9 @@
 package com.alef.souqleader.ui.presentation.jobApplication
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.Resource
@@ -7,6 +11,7 @@ import com.alef.souqleader.data.remote.dto.AddressFilter
 import com.alef.souqleader.data.remote.dto.BasicData
 import com.alef.souqleader.data.remote.dto.JobAppRequest
 import com.alef.souqleader.data.remote.dto.Jobapps
+import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.domain.AllJobUseCase
 import com.alef.souqleader.domain.FilterUseCase
 
@@ -30,6 +35,11 @@ class JobApplicationViewModel @Inject constructor(
     val jobAppResponse: MutableSharedFlow<ArrayList<Jobapps>>
         get() = _jobAppResponse
 
+    private val _unLockResponse =
+        MutableSharedFlow<UnlockResponse>()
+    val unLockResponse: MutableSharedFlow<UnlockResponse>
+        get() = _unLockResponse
+
     private val _addressFilter =
         MutableSharedFlow<AddressFilter>()
     val addressFilter: MutableSharedFlow<AddressFilter>
@@ -41,11 +51,20 @@ class JobApplicationViewModel @Inject constructor(
         get() = _basicDataResponse
 
 
+
+
     private val job = Job()
     fun jobApp(jobAppRequest: JobAppRequest) {
         viewModelScope.launch(job) {
             _jobAppResponse.emit(
                 allJobUseCase.JobApp(jobAppRequest = jobAppRequest).data?.data!!
+            )
+        }
+    }
+    fun unlock(id: String) {
+        viewModelScope.launch(job) {
+            _unLockResponse.emit(
+                allJobUseCase.unlock(id = id).data!!
             )
         }
     }

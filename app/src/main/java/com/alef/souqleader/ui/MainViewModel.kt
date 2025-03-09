@@ -13,4 +13,6 @@ class MainViewModel @Inject constructor() : ViewModel() {
     var showDialog by mutableStateOf(true)
 
     var showLoader by mutableStateOf(false)
+    var showFilter by mutableStateOf(false)
+    var showFilterIcon by mutableStateOf(false)
 }

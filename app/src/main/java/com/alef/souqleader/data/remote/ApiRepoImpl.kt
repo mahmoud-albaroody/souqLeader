@@ -41,6 +41,7 @@ import com.alef.souqleader.data.remote.dto.SalesProfileReportRequest
 import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
 import com.alef.souqleader.data.remote.dto.UserDetailsResponse
@@ -484,6 +485,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
     suspend fun addressFilter(): Resource<AddressFilterResponse> {
         val response = APIs.addressFilter()
         return if (response.isSuccessful) {
@@ -519,6 +521,17 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             workplace_id = jobAppRequest.workplaceId, name = jobAppRequest.name,
             country_id = jobAppRequest.countryId,
             city_id = jobAppRequest.cityId, area_id = jobAppRequest.areaId
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun unlock(id: String): Resource<UnlockResponse> {
+        val response = APIs.unlock(
+            id = id,
         )
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())

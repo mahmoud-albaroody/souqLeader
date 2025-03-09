@@ -34,6 +34,7 @@ import com.alef.souqleader.data.remote.dto.RegionsResponse
 import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
 import com.alef.souqleader.data.remote.dto.UserDetailsResponse
@@ -280,6 +281,9 @@ interface APIs {
     @GET("api/addressFilter")
     suspend fun addressFilter(): Response<AddressFilterResponse>
 
+
+
+
     @GET("api/basicData")
     suspend fun basicData(): Response<BasicDataResponse>
 
@@ -303,7 +307,7 @@ interface APIs {
 
     @FormUrlEncoded
     @POST("api/unlock")
-    suspend fun unlock(@Field("id") id: String?): Response<AllUserResponse>
+    suspend fun unlock(@Field("id") id: String?): Response<UnlockResponse>
 
     @FormUrlEncoded
     @POST("api/change-password")

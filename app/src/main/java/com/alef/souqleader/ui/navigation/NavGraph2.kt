@@ -161,7 +161,7 @@ fun Navigation(
             val obj = backStackEntry.arguments?.getString(Screen.JobApplicationScreen.objectName)
             if (obj != null) {
                 JobApplicationScreen(
-                    navController = navController, jobId = obj
+                    navController = navController, jobId = obj,mainViewModel
                 )
 
             }

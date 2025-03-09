@@ -161,24 +161,26 @@
     <string name="activities">أنشطة</string>
     <string name="actions">إجراءات</string>
     <string name="amount">المبلغ</string>
-    <string name="jobs_posts">Jobs Posts</string>
-    <string name="open_cv">Open CV</string>
-    <string name="skills">Skills</string>
-    <string name="work_experience">Work experience</string>
-    <string name="years_of_experience">years of Experience</string>
-    <string name="no_work_experience_available">No work experience available</string>
-    <string name="no_work_skills_available">No work skills available</string>
-    <string name="no_work_languages_available">No work languages available</string>
-    <string name="years">Years</string>
-    <string name="exp_salary">Exp Salary</string>
-    <string name="job_category">Job Category</string>
-    <string name="country">Country</string>
-    <string name="area">Area</string>
-    <string name="job_type">Job Type</string>
-    <string name="career_level">Career Level</string>
-    <string name="city">City</string>
-    <string name="apply_filter">Apply Filter</string>
-    <string name="cancel">Cancel</string>
+    <string name="jobs_posts">إعلانات الوظائف</string>
+    <string name="open_cv">فتح السيرة الذاتية</string>
+    <string name="skills">المهارات</string>
+    <string name="work_experience">الخبرة العملية</string>
+    <string name="years_of_experience">سنوات الخبرة</string>
+    <string name="no_work_experience_available">لا توجد خبرة عملية متاحة</string>
+    <string name="no_work_skills_available">لا توجد مهارات عمل متاحة</string>
+    <string name="no_work_languages_available">لا توجد لغات عمل متاحة</string>
+    <string name="years">سنوات</string>
+    <string name="exp_salary">الراتب المتوقع</string>
+    <string name="job_category">فئة الوظيفة</string>
+    <string name="country">الدولة</string>
+    <string name="area">المنطقة</string>
+    <string name="job_type">نوع الوظيفة</string>
+    <string name="career_level">المستوى الوظيفي</string>
+    <string name="city">المدينة</string>
+    <string name="apply_filter">تطبيق الفلتر</string>
+    <string name="cancel">إلغاء</string>
+    <string name="job_applications">طلبات التوظيف</string>
+    <string name="unlock_cv">فتح السيرة الذاتية</string>
 
 
 </resources>

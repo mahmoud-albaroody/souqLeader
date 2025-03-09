@@ -230,7 +230,7 @@ fun Filter(
 
 ) {
     val jobAppRequest by remember { mutableStateOf(JobAppRequest()) }
-    refresh
+   // refresh
     Column(
         modifier = Modifier.padding(
             horizontal = 16.dp,
@@ -238,28 +238,28 @@ fun Filter(
         )
     ) {
 
-        DynamicSelectTextField(jobCategory) { category ->
+        DynamicSelectTextField(jobCategory,TextAlign.Center) { category ->
             jobAppRequest.categoryId =
                 jobCategoryList.find { it.getCategory() == category }?.id.toString()
         }
 
-        DynamicSelectTextField(country) { country ->
+        DynamicSelectTextField(country,TextAlign.Center) { country ->
             jobAppRequest.countryId =
                 countryList.find { it.getCountry() == country }?.id.toString()
         }
-        DynamicSelectTextField(city) { city ->
+        DynamicSelectTextField(city,TextAlign.Center) { city ->
             jobAppRequest.cityId =
                 cityList.find { it.getCity() == city }?.id.toString()
         }
-        DynamicSelectTextField(area) { area ->
+        DynamicSelectTextField(area,TextAlign.Center) { area ->
             jobAppRequest.areaId =
                 areaList.find { it.getArea() == area }?.id.toString()
         }
-        DynamicSelectTextField(jobType) { jobType ->
+        DynamicSelectTextField(jobType,TextAlign.Center) { jobType ->
             jobAppRequest.typeId =
                 jobTypeList.find { it.getTitle() == jobType }?.id.toString()
         }
-        DynamicSelectTextField(careerLevel) { careerLevel ->
+        DynamicSelectTextField(careerLevel,TextAlign.Center) { careerLevel ->
             jobAppRequest.careerLevelId =
                 careerLevelList.find { it.careerLevel() == careerLevel }?.id.toString()
         }

@@ -266,16 +266,13 @@ fun CustomModalDrawer(
                                 ) {
                                     launchSingleTop = true
                                 }
-                            }
-
-                            else if (s == context.getString(R.string.jobs_posts) ) {
+                            } else if (s == context.getString(R.string.jobs_posts)) {
                                 navController.navigate(
                                     Screen.JobPostScreen.route
                                 ) {
                                     launchSingleTop = true
                                 }
-                            }
-                            else if (s == context.getString(R.string.properties)) {
+                            } else if (s == context.getString(R.string.properties)) {
                                 navController.navigate(Screen.PropertyScreen.route) {
                                     launchSingleTop = true
                                 }
@@ -546,9 +543,27 @@ fun CustomModalDrawer(
                                         Screen.ProductFilterResultScreen.route.plus("?s={s}")
                                     ) {
                                         title = stringResource(R.string.filter_result)
+                                    } else if (currentRoute(navController) ==
+                                        Screen.ProductFilterResultScreen.route.plus("?s={s}")
+                                    ) {
+                                        title = stringResource(R.string.filter_result)
+                                    } else if (currentRoute(navController) ==
+                                        Screen.JobPostScreen.route
+                                    ) {
+                                        title = stringResource(R.string.jobs_posts)
+                                    } else if (currentRoute(navController) ==
+                                        Screen.JobApplicationScreen.route
+                                    ) {
+                                        title = stringResource(R.string.job_applications)
+                                    } else if (currentRoute(navController) ==
+                                        Screen.JobApplicationDetailsScreen.route.plus("?s={jobApplicationDetailsScreen}")
+                                    ) {
+                                        title = stringResource(R.string.job_applications)
                                     }
-
-                                    AppBarWithArrow(navigationTitle(navController, title)) {
+                                    AppBarWithArrow(
+                                        navigationTitle(navController, title),
+                                        mainViewModel = mainViewModel
+                                    ) {
                                         navController.popBackStack()
                                     }
                                 }
@@ -623,7 +638,7 @@ fun DrawerContent(
     if (AccountData.permissionList.find { it.module_name == "job" && it.permissions.read } != null)
         sideMenuItem.add(
             SideMenuItem(
-                R.drawable.repots_menu_icon,
+                R.drawable.book,
                 stringResource(R.string.jobs_posts)
             )
         )

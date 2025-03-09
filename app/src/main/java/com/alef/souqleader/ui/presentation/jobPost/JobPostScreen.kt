@@ -20,8 +20,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +45,17 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
 import kotlinx.coroutines.launch
 
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.background
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.rememberDismissState
+
+
 
 @Composable
 fun JobPostScreen(navController: NavController) {
@@ -59,6 +74,7 @@ fun JobPostScreen(navController: NavController) {
     JobPostList(jobList, onItemClick = {
         navController.navigate(Screen.JobApplicationScreen.route.plus("/${it.id}"))
     })
+
 }
 
 
@@ -189,4 +205,5 @@ fun JobPostItem(jobPerson: JopPersion, lastPerson: JopPersion,onItemClick: (JopP
             )
     }
 }
+
 

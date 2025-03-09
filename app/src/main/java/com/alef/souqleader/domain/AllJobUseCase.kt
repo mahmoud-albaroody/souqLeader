@@ -15,6 +15,7 @@ import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.domain.model.AddLead
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -31,4 +32,8 @@ class AllJobUseCase @Inject constructor(private val repository: ApiRepoImpl) {
     suspend fun JobApp(jobAppRequest:JobAppRequest): Resource<JobAppsResponse> {
         return repository.jobapps(jobAppRequest)
     }
+    suspend fun unlock(id:String): Resource<UnlockResponse> {
+        return repository.unlock(id)
+    }
+
 }

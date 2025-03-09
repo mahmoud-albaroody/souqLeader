@@ -178,5 +178,7 @@
     <string name="city">City</string>
     <string name="apply_filter">Apply Filter</string>
     <string name="cancel">Cancel</string>
+    <string name="job_applications">Job Applications</string>
+    <string name="unlock_cv">UnLock CV</string>
 
 </resources>

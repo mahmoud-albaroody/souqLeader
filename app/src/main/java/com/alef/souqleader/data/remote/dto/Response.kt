@@ -40,6 +40,9 @@ data class AllUserResponse(
     var data: ArrayList<UsersItem>? = null
 ) : StatusResponse()
 
+data class UnlockResponse(
+    var data: Jobapps?= null
+) : StatusResponse()
 data class AddressFilterResponse(
     var data: AddressFilter? = null
 ) : StatusResponse()

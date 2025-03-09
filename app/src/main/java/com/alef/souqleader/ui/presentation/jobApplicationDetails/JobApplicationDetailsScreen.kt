@@ -49,10 +49,14 @@ import com.alef.souqleader.data.remote.dto.Skill
 import com.alef.souqleader.data.remote.dto.WorkExperience
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Environment
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.platform.LocalContext
 import com.alef.souqleader.ui.constants.Constants.BASE_URL
+import com.alef.souqleader.ui.presentation.allLeads.sendMail
 
 @Composable
 fun JobApplicationDetailsScreen(
@@ -94,6 +98,8 @@ fun JobApplication(jobApps: Jobapps) {
 
 @Composable
 fun PersonDetails(jobApps: Jobapps) {
+    val ctx = LocalContext.current
+
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -164,7 +170,7 @@ fun PersonDetails(jobApps: Jobapps) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
@@ -181,7 +187,31 @@ fun PersonDetails(jobApps: Jobapps) {
                         )
                     }
                     Image(
-                        modifier = Modifier.size(30.dp),
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clickable {
+                                val u = Uri.parse(
+                                    "tel:"
+                                            + jobApps.phone.toString()
+                                )
+
+                                // Create the intent and set the data for the
+                                // intent as the phone number.
+                                val i = Intent(Intent.ACTION_DIAL, u)
+                                try {
+
+                                    // Launch the Phone app's dialer with a phone
+                                    // number to dial a call.
+                                    ctx.startActivity(i)
+                                } catch (s: SecurityException) {
+
+                                    // show() method display the toast with
+                                    // exception message.
+                                    Toast
+                                        .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                        .show()
+                                }
+                            },
                         painter = painterResource(id = R.drawable.call_icon),
                         contentDescription = ""
                     )
@@ -192,7 +222,7 @@ fun PersonDetails(jobApps: Jobapps) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
@@ -208,7 +238,14 @@ fun PersonDetails(jobApps: Jobapps) {
                         )
                     }
                     Image(
-                        modifier = Modifier.size(30.dp),
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clickable {
+                                ctx.sendMail(
+                                    to = jobApps.email,
+                                    subject = ""
+                                )
+                            },
                         painter = painterResource(id = R.drawable.mail_icon),
                         contentDescription = ""
                     )
@@ -220,7 +257,7 @@ fun PersonDetails(jobApps: Jobapps) {
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = stringResource(R.string.years_of_experience),
@@ -228,7 +265,7 @@ fun PersonDetails(jobApps: Jobapps) {
                         fontSize = 16.sp
                     )
                     Text(
-                        text = jobApps.work_experience[0].years_of_experience.toString()+
+                        text = jobApps.work_experience[0].years_of_experience.toString() +
                                 " " + stringResource(R.string.years),
                         fontWeight = FontWeight.Normal,
                         fontSize = 16.sp
@@ -283,7 +320,7 @@ fun PersonExperience(workExperience: List<WorkExperience>) {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = workExperience[innerIndex].years_of_experience.toString() ,
+                    text = workExperience[innerIndex].years_of_experience.toString(),
                     fontSize = 12.sp
                 )
 

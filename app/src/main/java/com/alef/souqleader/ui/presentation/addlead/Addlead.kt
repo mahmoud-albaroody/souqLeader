@@ -482,7 +482,7 @@ fun TextFiledItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicSelectTextField(
-    options: List<String>, onOptionSelected: (String) -> Unit
+    options: List<String>,textAlign: TextAlign  = TextAlign.Start, onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[0]) }
@@ -496,7 +496,8 @@ fun DynamicSelectTextField(
                 .padding(top = 8.dp)
                 .menuAnchor(),
             readOnly = true,
-            textStyle = TextStyle(fontSize = 13.sp, textAlign = TextAlign.Center),
+            textStyle = TextStyle(fontSize = 13.sp,
+                textAlign = textAlign),
             value = selectedOptionText,
             onValueChange = { },
             trailingIcon = {
@@ -521,7 +522,8 @@ fun DynamicSelectTextField(
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = selectionOption,
-                        style = TextStyle(fontSize = 13.sp, textAlign = TextAlign.Center)
+                        style = TextStyle(fontSize = 13.sp,
+                            textAlign =textAlign )
                     )
                 }, onClick = {
                     selectedOptionText = selectionOption
