@@ -1,6 +1,5 @@
 package com.alef.souqleader.data.remote.dto
 
-import java.io.Serializable
 
 data class Project(
     val category_id: String?=null,
@@ -10,12 +9,12 @@ data class Project(
     val id: Int?=null,
     val images: List<Image>?=null,
     val map: String?=null,
-    val region: Int?=null,
     val region_name: String?=null,
-    val regions: Regions?=null,
+    val region: Regions?=null,
     val start_price: String?=null,
     val status: String?=null,
     val title: String?=null,
     val updated_at: String?=null,
-    val video: String?=null
+    val video: String?=null,
+    val category: ArrayList<Category>?=null,
 )

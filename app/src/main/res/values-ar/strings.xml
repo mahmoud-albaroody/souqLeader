@@ -151,9 +151,9 @@
     <string name="user_details">تفاصيل المستخدم</string>
     <string name="region">المنطقة</string>
     <string name="view">عرض</string>
-    <string name="category">الفئة</string>
+    <string name="category">تصنيف الوحدة</string>
     <string name="finishing">التشطيب</string>
-    <string name="title">العنوان</string>
+    <string name="title">ابحث عن المشروع</string>
 
     <string name="please_enter_your_credentials_to_access_your_account">الرجاء إدخال بيانات الاعتماد الخاصة بك للوصول إلى حسابك</string>
     <string name="enter_your_message">أدخل رسالتك</string>
@@ -181,6 +181,8 @@
     <string name="cancel">إلغاء</string>
     <string name="job_applications">طلبات التوظيف</string>
     <string name="unlock_cv">فتح السيرة الذاتية</string>
+    <string name="inventorytype">نوع المخزون</string>
+    <string name="department">فئة الوحدة</string>
 
 
 </resources>

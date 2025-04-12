@@ -22,11 +22,13 @@ import com.alef.souqleader.data.remote.dto.JobAppsResponse
 import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
+import com.alef.souqleader.data.remote.dto.LocationFilterDataResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.MeetingReportResponse
 import com.alef.souqleader.data.remote.dto.PlanResponse
 import com.alef.souqleader.data.remote.dto.PostResponse
+import com.alef.souqleader.data.remote.dto.ProjectFilterDataResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.ProjectsReportResponse
 import com.alef.souqleader.data.remote.dto.PropertyResponse
@@ -82,6 +84,29 @@ interface APIs {
     @GET("api/regions")
     suspend fun regions(): Response<RegionsResponse>
 
+    @GET("api/projectFilterData")
+    suspend fun projectFilterData(): Response<ProjectFilterDataResponse>
+
+    @GET("api/propertyFilterData")
+    suspend fun propertyFilterData(): Response<ProjectFilterDataResponse>
+
+
+    @GET("api/locationFilterData")
+    suspend fun locationFilterData(
+        @Query("country_id") finishing: String? = null,
+        @Query("city_id") region: String? = null,
+    ): Response<LocationFilterDataResponse>
+
+    @GET("api/propertyLocationFilterData")
+    suspend fun propertyLocationFilterData(
+        @Query("country_id") countryId: String? = null,
+        @Query("city_id") cityId: String? = null,
+    ): Response<LocationFilterDataResponse>
+
+
+
+
+
     @GET("api/propertyView")
     suspend fun propertyView(): Response<RegionsResponse>
 
@@ -98,15 +123,23 @@ interface APIs {
         @Query("region") region: String? = null,
         @Query("name") name: String? = null,
         @Query("view") view: String? = null,
-        @Query("category") category: String? = null
+        @Query("category") category: String? = null,
+        @Query("type") type: String? = null,
+        @Query("department") department: String? = null,
+        @Query("country_id") countryId: String? = null,
+        @Query("city_id") cityId: String? = null,
+        @Query("area_id") areaId: String? = null
     ): Response<PropertyResponse>
+
 
 
     @GET("api/projectsfilter")
     suspend fun projectFilter(
         @Query("title") title: String? = null,
-        @Query("region") region: String? = null,
-        @Query("status") status: String? = null
+        @Query("category") category: String? = null,
+        @Query("country_id") countryId: String? = null,
+        @Query("city_id") cityId: String? = null,
+        @Query("area_id") areaId: String? = null
     ): Response<ProjectResponse>
 
     @GET("api/projectSort")

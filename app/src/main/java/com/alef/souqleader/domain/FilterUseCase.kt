@@ -1,5 +1,6 @@
 package com.alef.souqleader.domain
 
+import android.util.Log
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.ApiRepoImpl
 import com.alef.souqleader.data.remote.dto.AddressFilterResponse
@@ -7,6 +8,8 @@ import com.alef.souqleader.data.remote.dto.BasicDataResponse
 import com.alef.souqleader.data.remote.dto.CategoryResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
+import com.alef.souqleader.data.remote.dto.LocationFilterDataResponse
+import com.alef.souqleader.data.remote.dto.ProjectFilterDataResponse
 import com.alef.souqleader.data.remote.dto.ProjectFilterRequest
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.PropertyResponse
@@ -28,6 +31,28 @@ class FilterUseCase @Inject constructor(private val repository: ApiRepoImpl) {
     suspend fun regions(): Flow<Resource<RegionsResponse>> {
         return flow {
             emit(repository.regions())
+        }.flowOn(Dispatchers.IO)
+    }
+    suspend fun projectFilterData(): Flow<Resource<ProjectFilterDataResponse>> {
+        return flow {
+            emit(repository.projectFilterData())
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun propertyFilterData(): Flow<Resource<ProjectFilterDataResponse>> {
+        return flow {
+            emit(repository.propertyFilterData())
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun locationFilterData(countryId:String?,cityId:String?): Flow<Resource<LocationFilterDataResponse>> {
+        return flow {
+            emit(repository.locationFilterData(countryId,cityId))
+        }.flowOn(Dispatchers.IO)
+    }
+    suspend fun propertyLocationFilterData(countryId:String?,cityId:String?): Flow<Resource<LocationFilterDataResponse>> {
+        return flow {
+            emit(repository.propertyLocationFilterData(countryId, cityId))
         }.flowOn(Dispatchers.IO)
     }
 

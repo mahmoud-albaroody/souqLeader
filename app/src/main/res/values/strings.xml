@@ -180,5 +180,7 @@
     <string name="cancel">Cancel</string>
     <string name="job_applications">Job Applications</string>
     <string name="unlock_cv">UnLock CV</string>
+    <string name="inventorytype">InventoryType</string>
+    <string name="department">Department</string>
 
 </resources>

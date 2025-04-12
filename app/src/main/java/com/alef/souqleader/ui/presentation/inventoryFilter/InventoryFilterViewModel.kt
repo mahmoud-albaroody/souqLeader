@@ -11,7 +11,9 @@ import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
+import com.alef.souqleader.data.remote.dto.LocationFilterDataResponse
 import com.alef.souqleader.data.remote.dto.MarketerResponse
+import com.alef.souqleader.data.remote.dto.ProjectFilterDataResponse
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.RegionsResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
@@ -29,7 +31,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InventoryFilterViewModel @Inject constructor(
-    private val filterUseCase: FilterUseCase,val getLeadUseCase: GetLeadUseCase
+    private val filterUseCase: FilterUseCase, val getLeadUseCase: GetLeadUseCase
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -42,6 +44,16 @@ class InventoryFilterViewModel @Inject constructor(
         MutableSharedFlow<Resource<RegionsResponse>>()
     val region: MutableSharedFlow<Resource<RegionsResponse>>
         get() = _region
+
+    private val _projectFilterData =
+        MutableSharedFlow<Resource<ProjectFilterDataResponse>>()
+    val projectFilterData: MutableSharedFlow<Resource<ProjectFilterDataResponse>>
+        get() = _projectFilterData
+
+    private val _locationFilterData =
+        MutableSharedFlow<Resource<LocationFilterDataResponse>>()
+    val locationFilterData: MutableSharedFlow<Resource<LocationFilterDataResponse>>
+        get() = _locationFilterData
 
 
     private val _propertyView =
@@ -78,6 +90,61 @@ class InventoryFilterViewModel @Inject constructor(
                 }
         }
     }
+
+    fun projectFilterData() {
+        viewModelScope.launch(job) {
+            filterUseCase.projectFilterData().catch {
+                Log.e("error", it.message.toString())
+            }
+                .onStart {
+                    _projectFilterData.emit(Resource.Loading())
+                }.buffer().collect {
+
+                    _projectFilterData.emit(it)
+                }
+        }
+    }
+
+    fun propertyFilterData() {
+        viewModelScope.launch(job) {
+            filterUseCase.propertyFilterData().catch {
+
+            }
+                .onStart {
+                    _projectFilterData.emit(Resource.Loading())
+                }.buffer().collect {
+                    _projectFilterData.emit(it)
+                }
+        }
+    }
+
+    fun locationFilterData(countryId: String? = null, cityId: String? = null) {
+        viewModelScope.launch(job) {
+            filterUseCase.locationFilterData(countryId, cityId).catch {
+
+            }
+                .onStart {
+                    _locationFilterData.emit(Resource.Loading())
+                }.buffer().collect {
+                    _locationFilterData.emit(it)
+                }
+        }
+    }
+
+    fun propertyLocationFilterData(countryId: String? = null, cityId: String? = null) {
+        viewModelScope.launch(job) {
+            filterUseCase.propertyLocationFilterData(countryId, cityId).catch {
+
+            }
+                .onStart {
+                    _locationFilterData.emit(Resource.Loading())
+                }.buffer().collect {
+                    _locationFilterData.emit(it)
+                }
+        }
+    }
+
+
     fun getLeads() {
         viewModelScope.launch(job) {
             getLeadUseCase.getLeadStatus().catch { }

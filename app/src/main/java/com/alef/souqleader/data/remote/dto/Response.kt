@@ -152,9 +152,16 @@ data class RegionsResponse(
     var data: ArrayList<Regions>? = null
 ) : StatusResponse()
 data class CategoryResponse(
-    var data: ArrayList<Regions>? = null
+    var data: ArrayList<Category>? = null
 ) : StatusFilterResponse()
 
+data class ProjectFilterDataResponse(
+    var data: ProjectFilterData
+) : StatusResponse()
+
+data class LocationFilterDataResponse(
+    var data: LocationFilterData
+) : StatusResponse()
 
 data class MeetingReportResponse(
     var data: MeetingReport? = null

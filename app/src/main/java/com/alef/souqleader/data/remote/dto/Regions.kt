@@ -6,15 +6,20 @@ import java.io.Serializable
 data class Regions(
     val created_at: String?,
     val id: Int?,
-    val title_ar: String?,
-    val title_en: String?,
-    val updated_at: String?
+    val name_ar: String?,
+    val name_en: String?,
+    val updated_at: String?,
+    val country_id:String?,
+    val city_id:String?,
+    val status:String?,
+    val city:City?,
+    val category: Category?,
 ) {
     fun getTitle(): String? {
         return if (AccountData.lang == "ar") {
-            title_ar
+            name_ar
         } else {
-            title_en
+            name_en
         }
     }
 }

@@ -18,7 +18,7 @@ data class FilterRequest(
     var action_date_from: String? = null,
     var action_date_to: String? = null,
     var page: Int? = null,
-    var searchField:String?=null
+    var searchField: String? = null
 
 )
 
@@ -30,6 +30,11 @@ data class ProjectFilterRequest(
     var category: String? = null,
     var title: String? = null,
     var status: String? = null,
-    var type: String? = null
-)
+    var type: String? = null,
+    var typeInventory: String? = null,
+    var department:String?=null,
+    var countryId: String? = null,
+    var cityId: String? = null,
+    var areaId: String? = null,
+    )
 

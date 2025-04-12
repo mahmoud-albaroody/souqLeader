@@ -27,11 +27,13 @@ import com.alef.souqleader.data.remote.dto.JobAppsResponse
 import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
+import com.alef.souqleader.data.remote.dto.LocationFilterDataResponse
 import com.alef.souqleader.data.remote.dto.LoginResponse
 import com.alef.souqleader.data.remote.dto.MarketerResponse
 import com.alef.souqleader.data.remote.dto.MeetingReportResponse
 import com.alef.souqleader.data.remote.dto.PlanResponse
 import com.alef.souqleader.data.remote.dto.PostResponse
+import com.alef.souqleader.data.remote.dto.ProjectFilterDataResponse
 import com.alef.souqleader.data.remote.dto.ProjectFilterRequest
 import com.alef.souqleader.data.remote.dto.ProjectResponse
 import com.alef.souqleader.data.remote.dto.ProjectsReportResponse
@@ -48,6 +50,7 @@ import com.alef.souqleader.data.remote.dto.UserDetailsResponse
 import com.alef.souqleader.domain.model.AddLead
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.http.Query
 import javax.inject.Inject
 
 
@@ -638,6 +641,45 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun projectFilterData(): Resource<ProjectFilterDataResponse> {
+        val response = APIs.projectFilterData()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun propertyFilterData(): Resource<ProjectFilterDataResponse> {
+        val response = APIs.propertyFilterData()
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun locationFilterData(countryId:String?,cityId:String?): Resource<LocationFilterDataResponse> {
+        val response = APIs.locationFilterData(countryId,cityId)
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun propertyLocationFilterData(countryId:String?,cityId:String?): Resource<LocationFilterDataResponse> {
+        val response = APIs.propertyLocationFilterData(countryId, cityId)
+        return if (response.isSuccessful) {
+
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
 
     suspend fun propertyView(): Resource<RegionsResponse> {
         val response = APIs.propertyView()
@@ -670,10 +712,14 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
     suspend fun projectFilter(filterRequest: ProjectFilterRequest): Resource<ProjectResponse> {
+      Log.e("ssssssss",filterRequest.toString())
+
         val response = APIs.projectFilter(
             filterRequest.title,
-            filterRequest.region,
-            filterRequest.status,
+            filterRequest.category,
+            filterRequest.countryId,
+            filterRequest.cityId,
+            filterRequest.areaId,
         )
         return if (response.isSuccessful) {
 
@@ -709,8 +755,12 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             filterRequest.name,
             filterRequest.view,
             filterRequest.category,
-
-            )
+            filterRequest.typeInventory,
+            filterRequest.department,
+            filterRequest.countryId,
+            filterRequest.cityId,
+            filterRequest.areaId
+        )
         return if (response.isSuccessful) {
 
             Resource.Success(response.body()!!, response.errorBody())

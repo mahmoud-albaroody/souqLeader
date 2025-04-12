@@ -70,6 +70,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
+import com.alef.souqleader.WebSocketManager
 import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
@@ -84,10 +85,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AllLeadsScreen(
-    navController: NavController,
-    modifier: Modifier,
-    leadId: String?,
-    mainViewModel: MainViewModel
+    navController: NavController, modifier: Modifier, leadId: String?, mainViewModel: MainViewModel
 ) {
     val viewModel: AllLeadViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
@@ -134,8 +132,7 @@ fun AllLeadsScreen(
                     }
 
                     is Resource.Loading -> {
-                        if (viewModel.page == 1)
-                            mainViewModel.showLoader = true
+                        if (viewModel.page == 1) mainViewModel.showLoader = true
                     }
 
                     is Resource.DataError -> {
@@ -202,6 +199,18 @@ fun Screen(
     val selectedIdList = remember { mutableStateListOf<String>() }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
+//    val socketUrl =
+//        "wss://ws-eu.pusher.com/app/850a45c0ee5d326e0322?protocol=7&client=js&version=4.4.0&cluster=eu"
+//    val socketManager = remember { WebSocketManager(socketUrl) }
+//    var receivedMessage by remember { mutableStateOf("Waiting for messages...") }
+//    LaunchedEffect(Unit) {
+//        socketManager.connect(onMessageReceived = { message ->
+//            receivedMessage = message
+//            Log.e("eeee", receivedMessage.toString())
+//        })
+//    }
+
+
 
     Box(
         Modifier
@@ -224,8 +233,7 @@ fun Screen(
                 items(leads) {
                     AllLeadsItem(it, onItemClick = { lead ->
                         navController.navigate(
-                            Screen.LeadDetailsScreen.route
-                                .plus("/${lead.id.toString()}")
+                            Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
                         )
 
                     }, onLongPress = { lead ->
@@ -234,69 +242,68 @@ fun Screen(
                         } else {
                             selectedIdList.remove(lead.id.toString())
                         }
-                    })
-                }
-                if (totalElementsCount > leads.size && leads.isNotEmpty())
-                    item {
-                        loadMore()
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
+                    }, onCallClick = {
+                    //    socketManager.sendMessage("pusher:subscribe",it)
+
                     }
+                    )
+                }
+                if (totalElementsCount > leads.size && leads.isNotEmpty()) item {
+                    loadMore()
+                    Row(
+                        Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(16.dp),
+                            color = MaterialTheme.colorScheme.secondary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        )
+                    }
+                }
             }
 
         }
-        if (selectedIdList.isNotEmpty())
-            Button(modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-                shape = RoundedCornerShape(15.dp),
-                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
-                onClick = {
-                    val joinedString = selectedIdList.joinToString(separator = ",")
-                    navController.navigate(Screen.LeadUpdateScreen.route.plus("/${joinedString}"))
-                }) {
-                Text(
-                    text = stringResource(R.string.add_action),
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
+        if (selectedIdList.isNotEmpty()) Button(modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.BottomCenter),
+            shape = RoundedCornerShape(15.dp),
+            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
+            onClick = {
+                val joinedString = selectedIdList.joinToString(separator = ",")
+                navController.navigate(Screen.LeadUpdateScreen.route.plus("/${joinedString}"))
+            }) {
+            Text(
+                text = stringResource(R.string.add_action),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AllLeadsItem(
-    lead: Lead,
-    onItemClick: (Lead) -> Unit,
-    onLongPress: (Lead) -> Unit
+    lead: Lead, onItemClick: (Lead) -> Unit,
+    onLongPress: (Lead) -> Unit,
+    onCallClick: (Map<String,String>) -> Unit
 ) {
     var selected by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val ctx = LocalContext.current
     selected = lead.selected
+
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(screenHeight / 3f)
             .padding(6.dp)
-            .combinedClickable(
-                onLongClick = {
-                    lead.selected = !lead.selected
-                    selected = lead.selected
-                    onLongPress(lead)
-                },
-                onDoubleClick = { /*....*/ },
-                onClick = { onItemClick(lead) }),
+            .combinedClickable(onLongClick = {
+                lead.selected = !lead.selected
+                selected = lead.selected
+                onLongPress(lead)
+            }, onDoubleClick = { /*....*/ }, onClick = { onItemClick(lead) }),
 //            .clickable {
 ////                lead.selected = !lead.selected
 ////                selected = lead.selected
@@ -305,12 +312,11 @@ fun AllLeadsItem(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
-            if (selected)
-                Image(
-                    painterResource(R.drawable.select_box),
-                    contentDescription = "",
-                    Modifier.align(Alignment.TopEnd)
-                )
+            if (selected) Image(
+                painterResource(R.drawable.select_box),
+                contentDescription = "",
+                Modifier.align(Alignment.TopEnd)
+            )
 
             Column(
                 Modifier
@@ -439,15 +445,25 @@ fun AllLeadsItem(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Image(
-                        painterResource(R.drawable.call_icon),
+                    Image(painterResource(R.drawable.call_icon),
                         contentDescription = "",
                         Modifier
                             .size(60.dp, 40.dp)
                             .clickable {
+                                val leadId = lead.id.toString()
+                                val send = "call"
+                                val salesId = lead.sales_id.toString()
+
+                                val data = mapOf(
+                                    "channel" to "souqleader",
+                                    "lead_id" to leadId,
+                                    "send" to send,
+                                    "sales_id" to salesId
+                                )
+                                onCallClick(data)
+
                                 val u = Uri.parse(
-                                    "tel:"
-                                            + lead.phone.toString()
+                                    "tel:" + lead.phone.toString()
                                 )
 
                                 // Create the intent and set the data for the
@@ -467,10 +483,8 @@ fun AllLeadsItem(
                                         .show()
                                 }
 
-                            }
-                    )
-                    Image(
-                        painterResource(R.drawable.sms_icon),
+                            })
+                    Image(painterResource(R.drawable.sms_icon),
                         contentDescription = "",
                         Modifier
                             .size(60.dp, 40.dp)
@@ -484,21 +498,17 @@ fun AllLeadsItem(
 
                             })
 
-                    Image(
-                        painterResource(R.drawable.mail_icon),
+                    Image(painterResource(R.drawable.mail_icon),
                         contentDescription = "",
                         Modifier
                             .size(60.dp, 40.dp)
                             .clickable {
                                 ctx.sendMail(
-                                    to = lead.email ?: "",
-                                    subject = ""
+                                    to = lead.email ?: "", subject = ""
                                 )
 
-                            }
-                    )
-                    Image(
-                        painterResource(R.drawable.whats_icon),
+                            })
+                    Image(painterResource(R.drawable.whats_icon),
                         contentDescription = "",
                         Modifier
                             .size(60.dp, 40.dp)
@@ -508,8 +518,7 @@ fun AllLeadsItem(
                                     Intent(
                                         // on below line we are calling
                                         // uri to parse the data
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse(
+                                        Intent.ACTION_VIEW, Uri.parse(
                                             // on below line we are passing uri,
                                             // message and whats app phone number.
                                             java.lang.String.format(
@@ -520,8 +529,7 @@ fun AllLeadsItem(
                                         )
                                     )
                                 )
-                            }
-                    )
+                            })
                 }
             }
         }
