@@ -1,66 +1,79 @@
 package com.alef.souqleader
 
 import android.util.Log
-
-import kotlinx.coroutines.*
 import okhttp3.*
 import okio.ByteString
-
-
 import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
-class WebSocketManager(private val url: String) {
+class WebSocketClient(
+    private val onMessage: (String) -> Unit
+) {
+
+    private val client = OkHttpClient.Builder()
+        .readTimeout(3, TimeUnit.SECONDS)
+        .build()
+
     private var webSocket: WebSocket? = null
-    private val client = OkHttpClient()
-    private val scope = CoroutineScope(Dispatchers.IO)
 
-    // Connects to WebSocket and subscribes to the 'souqleader' channel
-    fun connect(onMessageReceived: (String) -> Unit) {
-        val request = Request.Builder().url(url).build()
+    fun connect() {
+        val request = Request.Builder()
+            .url("wss://ws-eu.pusher.com/app/850a45c0ee5d326e0322?protocol=7&client=js&version=4.4.0&cluster=eu")
+            .build()
+
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
-                Log.d("WebSocket", "Connected")
-                // Send subscription message to the channel
-                webSocket.send("{ \"event\": \"pusher:subscribe\", \"data\": { \"channel\": \"souqleader\" } }")
+                // Subscribe to the channel
+                val subscribeMessage = """
+                    {
+                      "event": "pusher:subscribe",
+                      "data": {
+                        "channel": "souqleader"
+                      }
+                    }
+                """.trimIndent()
+              //  webSocket.send(subscribeMessage)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
-                Log.d("WebSocket", "Message received: $text")
-                onMessageReceived(text)
+                onMessage(text)
+                Log.e("sssssss",text)
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-                onMessageReceived(bytes.utf8())
+                onMessage(bytes.utf8())
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                webSocket.close(1000, null)
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                Log.e("WebSocket", "Error: ${t.message}")
-            }
-
-            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                Log.d("WebSocket", "Closed: $reason")
+                onMessage("Error: ${t.message}")
             }
         })
     }
 
-    // Sends a custom message to the WebSocket connection
-    fun sendMessage(event: String, data: Map<String, Any>) {
-        val jsonObject = JSONObject()
-        jsonObject.put("event", event) // Add event type
-        jsonObject.put("data", JSONObject(data)) // Add dynamic data
-
-        val message = jsonObject.toString()
-
-        // Send message to WebSocket
-        scope.launch {
-            webSocket?.send(message)
-            Log.d("WebSocket", "Message sent: $message")
-        }
+    fun close() {
+        webSocket?.close(1000, "User closed connection")
     }
 
-    // Closes the WebSocket connection
-    fun close() {
-        webSocket?.close(1000, "Closing WebSocket")
-        webSocket = null
+    // Send data to WebSocket (this will trigger from UI)
+    fun sendData(leadId:String,send:String,salesId:String) {
+
+        val data = JSONObject().apply {
+            put("channel", "souqleader")
+            put("lead_id", leadId)
+            put("send", send)
+            put("sales_id", salesId)
+        }
+
+        val message = JSONObject().apply {
+            put("event", "pusher:subscribe")
+            put("data", data)
+        }
+
+
+        webSocket?.send(message.toString())
     }
 }

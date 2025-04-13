@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -70,7 +71,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
-import com.alef.souqleader.WebSocketManager
+import com.alef.souqleader.WebSocketClient
 import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
@@ -80,6 +81,7 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
+import com.pusher.rest.Pusher
 import kotlinx.coroutines.launch
 
 
@@ -199,18 +201,21 @@ fun Screen(
     val selectedIdList = remember { mutableStateListOf<String>() }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-//    val socketUrl =
-//        "wss://ws-eu.pusher.com/app/850a45c0ee5d326e0322?protocol=7&client=js&version=4.4.0&cluster=eu"
-//    val socketManager = remember { WebSocketManager(socketUrl) }
-//    var receivedMessage by remember { mutableStateOf("Waiting for messages...") }
-//    LaunchedEffect(Unit) {
-//        socketManager.connect(onMessageReceived = { message ->
-//            receivedMessage = message
-//            Log.e("eeee", receivedMessage.toString())
-//        })
-//    }
+    val messages = remember { mutableStateListOf<String>() }
+    val socket = remember {
+        WebSocketClient { msg ->
+            messages.add(msg)
+        }
+    }
 
-
+    LaunchedEffect(Unit) {
+        socket.connect()
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            socket.close()
+        }
+    }
 
     Box(
         Modifier
@@ -230,8 +235,8 @@ fun Screen(
             LazyColumn(
                 Modifier.fillMaxWidth()
             ) {
-                items(leads) {
-                    AllLeadsItem(it, onItemClick = { lead ->
+                items(leads) { leadItem ->
+                    AllLeadsItem(leadItem, onItemClick = { lead ->
                         navController.navigate(
                             Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
                         )
@@ -242,10 +247,26 @@ fun Screen(
                         } else {
                             selectedIdList.remove(lead.id.toString())
                         }
-                    }, onCallClick = {
-                    //    socketManager.sendMessage("pusher:subscribe",it)
-
-                    }
+                    }, onCallClick = { lead ->
+                        socket.sendData(
+                            leadItem.id.toString(),
+                            "call",
+                            lead.sales_id.toString()
+                        )
+                    },
+                        onMailClick = { lead ->
+                            socket.sendData(lead.id.toString(), "email", lead.sales_id.toString())
+                        },
+                        onSmsClick = { lead ->
+                            socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
+                        },
+                        onWhatsClick = { lead ->
+                            socket.sendData(
+                                lead.id.toString(),
+                                "whatsapp",
+                                lead.sales_id.toString()
+                            )
+                        }
                     )
                 }
                 if (totalElementsCount > leads.size && leads.isNotEmpty()) item {
@@ -285,7 +306,10 @@ fun Screen(
 fun AllLeadsItem(
     lead: Lead, onItemClick: (Lead) -> Unit,
     onLongPress: (Lead) -> Unit,
-    onCallClick: (Map<String,String>) -> Unit
+    onCallClick: (Lead) -> Unit,
+    onMailClick: (Lead) -> Unit,
+    onSmsClick: (Lead) -> Unit,
+    onWhatsClick: (Lead) -> Unit,
 ) {
     var selected by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
@@ -450,18 +474,7 @@ fun AllLeadsItem(
                         Modifier
                             .size(60.dp, 40.dp)
                             .clickable {
-                                val leadId = lead.id.toString()
-                                val send = "call"
-                                val salesId = lead.sales_id.toString()
-
-                                val data = mapOf(
-                                    "channel" to "souqleader",
-                                    "lead_id" to leadId,
-                                    "send" to send,
-                                    "sales_id" to salesId
-                                )
-                                onCallClick(data)
-
+                                onCallClick(lead)
                                 val u = Uri.parse(
                                     "tel:" + lead.phone.toString()
                                 )
@@ -495,7 +508,7 @@ fun AllLeadsItem(
                                     message = ctx.getString(R.string.enter_your_message),
                                     context = ctx
                                 )
-
+                                onSmsClick(lead)
                             })
 
                     Image(painterResource(R.drawable.mail_icon),
@@ -506,13 +519,14 @@ fun AllLeadsItem(
                                 ctx.sendMail(
                                     to = lead.email ?: "", subject = ""
                                 )
-
+                                onMailClick(lead)
                             })
                     Image(painterResource(R.drawable.whats_icon),
                         contentDescription = "",
                         Modifier
                             .size(60.dp, 40.dp)
                             .clickable {
+                                onWhatsClick(lead)
                                 ctx.startActivity(
                                     // on below line we are opening the intent.
                                     Intent(

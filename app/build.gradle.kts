@@ -33,6 +33,11 @@ android {
             )
         }
     }
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/DEPENDENCIES"
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -153,6 +158,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.8")
     implementation("androidx.compose.ui:ui-tooling-preview-android:1.7.0-beta06@aar")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
+    implementation("com.pusher:pusher-http-java:1.0.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
