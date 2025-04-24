@@ -36,7 +36,7 @@ class CancellationReportViewModel @Inject constructor(
 //        stateListOfGym = gyms
 //    }
 //
-//
+//,
     fun getCancellationReport(userId:String) {
         viewModelScope.launch(job) {
             cancellationStatus = cancelationUseCase.getCancelationReport(userId).data?.data!!

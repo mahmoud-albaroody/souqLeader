@@ -102,6 +102,7 @@ fun MainScreen(
 
     val connection by connectivityState()
     val isConnected = connection === ConnectionState.Available
+
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
         if (isConnected.not()) {
             Snackbar(

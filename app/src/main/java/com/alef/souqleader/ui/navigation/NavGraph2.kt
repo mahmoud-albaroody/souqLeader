@@ -189,7 +189,7 @@ fun Navigation(
         composable(Screen.JobPostScreen.route) {
             modifier?.let { it1 ->
                 JobPostScreen(
-                    navController = navController
+                    navController = navController,mainViewModel=mainViewModel, sharedViewModel = viewModel
                 )
             }
         }

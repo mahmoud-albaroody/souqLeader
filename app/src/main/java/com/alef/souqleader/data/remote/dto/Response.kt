@@ -57,7 +57,8 @@ data class JobAppsResponse(
 
 
 data class AllJobResponse(
-    var data: ArrayList<JopPersion>? = null
+    var data: ArrayList<JopPersion>? = null,
+    val info: Info? = null
 ) : StatusResponse()
 
 

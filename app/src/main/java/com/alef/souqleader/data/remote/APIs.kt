@@ -322,7 +322,7 @@ interface APIs {
 
 
     @GET("api/allJobs")
-    suspend fun allJobs(): Response<AllJobResponse>
+    suspend fun allJobs(@Query("page") page: Int): Response<AllJobResponse>
 
     @FormUrlEncoded
     @POST("api/jobapps")

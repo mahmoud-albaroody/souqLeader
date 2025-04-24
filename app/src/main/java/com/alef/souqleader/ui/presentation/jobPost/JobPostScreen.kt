@@ -1,15 +1,16 @@
 package com.alef.souqleader.ui.presentation.jobPost
 
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -17,69 +18,111 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.JopPersion
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
 import kotlinx.coroutines.launch
-
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import androidx.compose.foundation.background
-import androidx.compose.material.DismissDirection
-import androidx.compose.material.DismissValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SwipeToDismiss
-import androidx.compose.material.rememberDismissState
-
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
+import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.ui.MainActivity
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.presentation.SharedViewModel
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
+import com.alef.souqleader.ui.theme.AndroidCookiesTheme
+import kotlin.math.log
 
 
 @Composable
-fun JobPostScreen(navController: NavController) {
+fun JobPostScreen(navController: NavHostController, mainViewModel: MainViewModel,
+                  sharedViewModel: SharedViewModel
+) {
     val viewModel: JobPostViewModel = hiltViewModel()
     val jobList = remember { mutableStateListOf<JopPersion>() }
-
+    val ctx = LocalContext.current
+    var totalElementsCount by remember { mutableIntStateOf(0) }
     LaunchedEffect(key1 = true) {
 
-        viewModel.allJob()
+        viewModel.allJob(viewModel.page)
         viewModel.viewModelScope.launch {
             viewModel.allJob.collect {
-                jobList.addAll(it)
+                when (it) {
+                    is Resource.Success -> {
+                        it.data?.info?.let {
+                            it.count?.let {
+                                totalElementsCount = it
+                            }
+                        }
+                        if (viewModel.page == 1) {
+                            jobList.clear()
+                            it.data?.data?.let { itt->
+                                jobList.addAll(itt) }
+                        } else {
+                            it.data?.data?.let { itt->
+                                jobList.addAll(itt) }
+                        }
+                        mainViewModel.showLoader = false
+                    }
+
+
+
+                    is Resource.Loading -> {
+                        if (viewModel.page == 1) mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        mainViewModel.showLoader = false
+                        if (it.errorCode == 401||it.errorCode==403) {
+                            AccountData.clear()
+                            (ctx as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(Modifier, navController,
+                                        sharedViewModel,mainViewModel)
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }
-    JobPostList(jobList, onItemClick = {
+    JobPostList(jobList,totalElementsCount, onItemClick = {
         navController.navigate(Screen.JobApplicationScreen.route.plus("/${it.id}"))
+    }, loadMore = {
+        viewModel.allJob(++viewModel.page)
     })
 
 }
 
 
 @Composable
-fun JobPostList(jobs: SnapshotStateList<JopPersion>,onItemClick:(JopPersion)->Unit) {
+fun JobPostList(jobs: SnapshotStateList<JopPersion>,
+                totalElementsCount: Int,
+                onItemClick:(JopPersion)->Unit,
+                loadMore: () -> Unit) {
 
 
     Card(
@@ -95,6 +138,20 @@ fun JobPostList(jobs: SnapshotStateList<JopPersion>,onItemClick:(JopPersion)->Un
             items(jobs) { jobPerson ->
                 JobPostItem(jobPerson, jobs.last()){
                    onItemClick(jobPerson)
+                }
+            }
+
+            if (totalElementsCount > jobs.size && jobs.isNotEmpty())
+                item {
+                loadMore()
+                Row(
+                    Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(16.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
                 }
             }
         })
@@ -127,34 +184,40 @@ fun JobPostItem(jobPerson: JopPersion, lastPerson: JopPersion,onItemClick: (JopP
                 fontWeight = FontWeight.SemiBold,
                 color = colorResource(id = R.color.blue2)
             )
-            Text(
-                modifier = Modifier,
-                text = jobPerson.workplace,
-                fontSize = 11.sp,
-                color = Color.Gray,
-                fontWeight = FontWeight.Normal
-            )
+            jobPerson.workplace?.let {
+                Text(
+                    modifier = Modifier,
+                    text = it,
+                    fontSize = 11.sp,
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Normal
+                )
+            }
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = 12.sp,
-                color = colorResource(id = R.color.gray),
-                text = jobPerson.country.getCountry() + " , " +
-                        jobPerson.city.getCity() + " , " +
-                        jobPerson.area.getArea()
-            )
+            jobPerson.country?.let {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 12.sp,
+                    color = colorResource(id = R.color.gray),
+                    text = jobPerson.country.getCountry() + " , " +
+                            jobPerson.city?.getCity() + " , " +
+                            jobPerson.area?.getArea()
+                )
+            }
         }
 
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            fontSize = 11.sp,
-            color = colorResource(id = R.color.gray),
-            text = jobPerson.career_level.careerLevel()
-        )
+        jobPerson.career_level?.careerLevel()?.let {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = 11.sp,
+                color = colorResource(id = R.color.gray),
+                text = it
+            )
+        }
 
 
         Row(

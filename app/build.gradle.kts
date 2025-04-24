@@ -150,6 +150,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    kapt ("com.github.bumptech.glide:compiler:4.16.0")
 
 
     val composeBom = platform("androidx.compose:compose-bom:2024.05.00")

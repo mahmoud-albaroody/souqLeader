@@ -507,8 +507,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun allJob(): Resource<AllJobResponse> {
-        val response = APIs.allJobs()
+    suspend fun allJob(pageNumber:Int): Resource<AllJobResponse> {
+        val response = APIs.allJobs(page = pageNumber)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {

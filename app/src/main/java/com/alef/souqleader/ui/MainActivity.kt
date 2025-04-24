@@ -1,8 +1,11 @@
 package com.alef.souqleader.ui
 
+import android.Manifest
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +35,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // Determine the layout direction based on the current locale
         //  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
+        checkAndRequestPermissions()
         window.requestFeature(android.view.Window.FEATURE_NO_TITLE)
 
 //        this.window.setSoftInputMode(
@@ -54,7 +57,32 @@ class MainActivity : ComponentActivity() {
 //            LocaleHelper.setLocale(newBase, AccountData.lang)
 //        )
 //    }
+private val requestPermissionsLauncher =
+    registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        val granted = permissions.entries.all { it.value }
+        if (granted) {
+            Toast.makeText(this, "Permissions Granted.", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
+    // Function to check and request
+    // necessary permissions
+    private fun checkAndRequestPermissions() {
+        val requiredPermissions = mutableListOf<String>()
+
+        // Request WRITE_EXTERNAL_STORAGE only
+        // for Android 9 and below
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) {
+            requiredPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        // Request permissions if any are needed
+        if (requiredPermissions.isNotEmpty()) {
+            requestPermissionsLauncher.launch(requiredPermissions.toTypedArray())
+        }
+    }
 }
 
 @Composable

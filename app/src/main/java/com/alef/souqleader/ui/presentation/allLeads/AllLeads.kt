@@ -1,17 +1,10 @@
 package com.alef.souqleader.ui.presentation.allLeads
 
-import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
-import android.telephony.SmsManager
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,7 +42,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -62,26 +54,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.WebSocketClient
-import com.alef.souqleader.data.remote.Info
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
-import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
-import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
-import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
-import com.pusher.rest.Pusher
 import kotlinx.coroutines.launch
 
 
@@ -181,7 +164,6 @@ fun AllLeadsScreen(
         }
     }, leads, leadId, totalElementsCount, loadMore = {
         leadId?.let {
-
             viewModel.getLeadByStatus(it, ++viewModel.page)
         }
     })

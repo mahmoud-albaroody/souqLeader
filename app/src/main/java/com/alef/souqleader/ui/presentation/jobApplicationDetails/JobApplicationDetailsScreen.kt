@@ -480,7 +480,7 @@ fun PersonCV(jobApps: Jobapps) {
                         downloadFile(context, url, file)
                     }) {
                     Text(
-                        text = stringResource(R.string.open_cv),
+                        text = stringResource(R.string.open_cv) ,
                         modifier = Modifier.padding(vertical = 8.dp),
                         style = TextStyle(textAlign = TextAlign.Center, fontSize = 15.sp)
                     )
@@ -536,26 +536,32 @@ fun Education(education: Education) {
             .padding(horizontal = 4.dp)
             .padding(top = 4.dp)
     ) {
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = education.education,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 15.sp
-        )
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp),
-            text = education.university,
-            fontSize = 12.sp
-        )
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp),
-            text = education.grad_year,
-            fontSize = 12.sp
-        )
+        education.education?.let {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = it,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp
+            )
+        }
+        education.university?.let {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 4.dp),
+                text = it,
+                fontSize = 12.sp
+            )
+        }
+        education.grad_year?.let {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 4.dp),
+                text = it,
+                fontSize = 12.sp
+            )
+        }
     }
 }
 

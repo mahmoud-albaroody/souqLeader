@@ -88,7 +88,7 @@ fun DashboardScreen(
                     }
 
                     is Resource.DataError -> {
-                        if (it.errorCode == 401) {
+                        if (it.errorCode == 401||it.errorCode==403) {
                             AccountData.clear()
                             (context as MainActivity).setContent {
                                 AndroidCookiesTheme {
