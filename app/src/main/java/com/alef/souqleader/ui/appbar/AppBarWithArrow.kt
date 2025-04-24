@@ -23,9 +23,11 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.presentation.jobApplication.JobApplicationViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -76,6 +78,21 @@ fun AppBarWithArrow(
                         .align(Alignment.CenterVertically)
                         .clickable {
                             mainViewModel.showFilter = !mainViewModel.showFilter
+                        }
+                )
+
+            if (mainViewModel.showShareIcon)
+                Image(
+                    painter = painterResource(R.drawable.baseline_ios_share_24),
+                    colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 16.dp)
+                        .clickable {
+                            mainViewModel.viewModelScope.launch {
+                                mainViewModel.onShareClick.emit(true)
+                            }
                         }
                 )
         }

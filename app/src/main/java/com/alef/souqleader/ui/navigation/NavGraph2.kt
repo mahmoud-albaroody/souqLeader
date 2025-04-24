@@ -477,7 +477,7 @@ fun Navigation(
                 val property = jsonString.fromJson<PropertyObject>()
                 modifier?.let { it1 ->
                     PropertyDetailsScreen(
-                        navController, modifier, property = property
+                        navController, modifier,mainViewModel, property = property
                     )
 
                 }

@@ -8,9 +8,11 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.graphics.fonts.FontStyle
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -31,6 +33,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,13 +56,18 @@ import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.PropertyObject
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -67,14 +77,33 @@ import java.io.FileOutputStream
 fun PropertyDetailsScreen(
     navController: NavController,
     modifier: Modifier,
+    mainViewModel: MainViewModel,
     property: PropertyObject?
 ) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
+    mainViewModel.showShareIcon = true
+    val imageUrls = arrayListOf<String>()
     Item(property)
     val context = LocalContext.current
-    val file = generatePDF(context)
-    file?.let {
-        sharePdfFile(context, file)
+    property?.gallery?.forEach {
+        it.image?.let { it1 -> imageUrls.add(AccountData.BASE_URL + it1) }
+    }
+
+
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.onShareClick.collect {
+            if (it)
+                generatePdfFromImageArray(context, imageUrls, property)
+        }
+    }
+
+
+
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mainViewModel.showShareIcon = false
+        }
     }
 }
 
@@ -213,11 +242,7 @@ fun ReminderItem(text: String, text1: String) {
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ImageSliderExample(property: PropertyObject) {
-    val images = listOf(
-        "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-    )
+
 
     val pagerState = rememberPagerState()
 
@@ -264,39 +289,123 @@ fun sharePdfFile(context: Context, file: File) {
     context.startActivity(Intent.createChooser(intent, "Share PDF"))
 }
 
+
 // Function to generate a simple PDF document
-fun generatePDF(context: Context): File? {
+fun generatePDF(context: Context, images: List<Bitmap>, property: PropertyObject?): File? {
     val pageHeight = 1120
     val pageWidth = 792
     val pdfDocument = PdfDocument()
     val paint = Paint()
     val title = Paint()
-    val imageUrl = "https://img.freepik.com/free-vector/www-icon_23-2147934051.jpg?t=st=1745421910~exp=1745425510~hmac=182f00b3a52a1059cda82ad187b6ae7c96271499d79e75720ab2303f5637a09d&w=740"
-    CoroutineScope(Dispatchers.Main).launch {
-        val bitmap = loadBitmapFromUrl(context, imageUrl)
 
-        val scaledBitmap = bitmap?.let { Bitmap.createScaledBitmap(it, 140, 140, false) }
+    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_launcher_foreground)
+    val bmp = drawable?.toBitmap()
+    val scaledBitmap = bmp?.let { Bitmap.createScaledBitmap(it, 140, 140, false) }
 
-        val myPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-        val myPage = pdfDocument.startPage(myPageInfo)
-        val canvas: Canvas = myPage.canvas
+    val myPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+    val myPage = pdfDocument.startPage(myPageInfo)
+    val canvas: Canvas = myPage.canvas
 
-        if (scaledBitmap != null) {
-            canvas.drawBitmap(scaledBitmap, 56F, 40F, paint)
-        }
+    if (scaledBitmap != null) {
+        canvas.drawBitmap(scaledBitmap, 20F, 10F, paint)
     }
 
+    title.apply {
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        textSize = 16F
+        color = Color.Black.toArgb()
+        textAlign = Paint.Align.CENTER
+    }
 
-        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_launcher_foreground)
-        val bmp = drawable?.toBitmap()
-        val scaledBitmap = bmp?.let { Bitmap.createScaledBitmap(it, 140, 140, false) }
+    canvas.drawText(context.getString(R.string.app_name), 160F, 75F, title)
 
-        val myPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-        val myPage = pdfDocument.startPage(myPageInfo)
-        val canvas: Canvas = myPage.canvas
+    val cellPadding = 10
+    val tableStartX = 50f
+    var tableStartY = 250f
+    val columnWidth = pageWidth / 2f - 60
+    val rowHeight = 50f
+    val titlePaint = Paint().apply {
+        typeface = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
+        textSize = 18f
+        color = context.getColor(R.color.black)
+    }
+    // Draw header
+    property?.getTitle()?.let { canvas.drawText(it, tableStartX, 130f, titlePaint) }
+    property?.description()?.let { canvas.drawText(it, tableStartX, 160f, titlePaint) }
+    canvas.drawText(
+        context.getString(R.string.location) + property?.regions?.getTitle(),
+        tableStartX,
+        190f,
+        titlePaint
+    )
+    canvas.drawText(context.getString(R.string.property_details), tableStartX, 220f, titlePaint)
+
+    val tableData = listOf(
+        context.getString(R.string.unit_no) to property?.unit_no.toString(),
+        context.getString(R.string.building_no) to property?.bulding_no.toString(),
+        context.getString(R.string.land_space) to property?.land_space.toString(),
+        context.getString(R.string.bua) to property?.bua.toString(),
+        context.getString(R.string.price) to property?.price.toString(),
+        context.getString(R.string.meter_price) to property?.meter_price.toString(),
+        context.getString(R.string.owner_name) to property?.owner.toString(),
+        context.getString(R.string.owner_mobile) to property?.owner_mobile.toString(),
+        context.getString(R.string.bedrooms) to property?.bedrooms.toString(),
+        context.getString(R.string.bathrooms) to property?.bathrooms.toString(),
+        context.getString(R.string.floor) to property?.floor.toString(),
+        context.getString(R.string.unit_code) to property?.unit_code.toString(),
+        context.getString(R.string.category) to property?.property_category?.getTitle().toString(),
+        context.getString(R.string.department) to property?.property_department?.getTitle().toString(),
+        context.getString(R.string.unit_type) to property?.unit_type?.toString()
+    )
+
+    for ((label, value) in tableData) {
+        // Left column - label
+        canvas.drawRect(
+            tableStartX,
+            tableStartY,
+            tableStartX + columnWidth,
+            tableStartY + rowHeight,
+            paint.apply { style = Paint.Style.STROKE }
+        )
+        canvas.drawText(
+            label,
+            tableStartX + cellPadding,
+            tableStartY + rowHeight / 2 + 5,
+            paint.apply { style = Paint.Style.FILL }
+        )
+
+        // Right column - value
+        canvas.drawRect(
+            tableStartX + columnWidth,
+            tableStartY,
+            tableStartX + 2 * columnWidth,
+            tableStartY + rowHeight,
+            paint.apply { style = Paint.Style.STROKE }
+        )
+        canvas.drawText(
+            value.toString(),
+            tableStartX + columnWidth + cellPadding,
+            tableStartY + rowHeight / 2 + 5,
+            paint
+        )
+
+        tableStartY += rowHeight
+    }
+
+    pdfDocument.finishPage(myPage)
+
+// ---- Page 2: Villa Image with Title and Watermark ----
+
+    for (bitmap in images) {
+
+        val pageInfo2 = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 2).create()
+        val page2 = pdfDocument.startPage(pageInfo2)
+        val canvas2 = page2.canvas
+
+
 
         if (scaledBitmap != null) {
-            canvas.drawBitmap(scaledBitmap, 56F, 40F, paint)
+            canvas2.drawBitmap(scaledBitmap, 20F, 10F, paint)
         }
 
         title.apply {
@@ -306,38 +415,80 @@ fun generatePDF(context: Context): File? {
             textAlign = Paint.Align.CENTER
         }
 
-        canvas.drawText("Geeks for Geeks", 209F, 100F, title)
-        canvas.drawText("A portal for IT professionals.", 209F, 120F, title)
-        canvas.drawText("This is a sample document which we have created.", 396F, 560F, title)
+        canvas2.drawText(context.getString(R.string.app_name), 160F, 75F, title)
 
-        pdfDocument.finishPage(myPage)
 
-        val file = File(context.getExternalFilesDir(null), "hhhhh.pdf")
 
-        return try {
-            pdfDocument.writeTo(FileOutputStream(file))
-            Toast.makeText(context, "PDF saved at ${file.absolutePath}", Toast.LENGTH_SHORT).show()
-            pdfDocument.close()
-            file
-        } catch (e: Exception) {
-            e.printStackTrace()
-            pdfDocument.close()
-            Toast.makeText(context, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
-            null
+        val scaledBitmap1 = bitmap.let {
+            Bitmap.createScaledBitmap(it, 600, 400, false)
         }
+
+        scaledBitmap1.let {
+            canvas2.drawBitmap(it, 96f, 140f, paint)
+        }
+
+        // Draw watermark
+        val watermarkPaint = Paint().apply {
+            color = context.getColor(R.color.black)
+            alpha = 90
+            textSize = 36f
+            typeface = Typeface.DEFAULT_BOLD
+            textAlign = Paint.Align.CENTER
+        }
+
+        canvas2.drawText(context.getString(R.string.app_name), pageWidth / 2f, 400f, watermarkPaint)
+
+        pdfDocument.finishPage(page2)
+
+    }
+
+
+    val file = File(context.getExternalFilesDir(null), "property_details.pdf")
+    return try {
+        pdfDocument.writeTo(FileOutputStream(file))
+       // Toast.makeText(context, "PDF saved to ${file.absolutePath}", Toast.LENGTH_SHORT).show()
+        file
+    } catch (e: Exception) {
+        e.printStackTrace()
+        pdfDocument.close()
+        Toast.makeText(context, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
+        null
+    }
 
 }
 
-suspend fun loadBitmapFromUrl(context: Context, imageUrl: String): Bitmap? =
-    withContext(Dispatchers.IO) {
-        try {
-            Glide.with(context)
-                .asBitmap()
-                .load(imageUrl)
-                .submit()
-                .get()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+
+
+fun generatePdfFromImageArray(
+    context: Context,
+    imageUrls: List<String>,
+    propertyObject: PropertyObject?
+) {
+    CoroutineScope(Dispatchers.IO).launch {
+        val bitmaps = imageUrls.mapNotNull { url ->
+            try {
+                withContext(Dispatchers.IO) {
+                    Glide.with(context)
+                        .asBitmap()
+                        .load(url)
+                        .submit()
+                        .get()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
+        withContext(Dispatchers.Main) {
+            if (bitmaps.isNotEmpty()) {
+
+                generatePDF(context, bitmaps, property = propertyObject)?.let {
+                    sharePdfFile(context, it)
+                }
+            } else {
+                Toast.makeText(context, "Failed to load images", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+}

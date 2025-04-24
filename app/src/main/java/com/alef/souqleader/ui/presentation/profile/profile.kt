@@ -74,7 +74,7 @@ fun ProfileScreen(modifier: Modifier, navController: NavController) {
         AccountData.lang = lang
         updateLocale(context, Locale(AccountData.lang))
         (context as MainActivity).setContent {
-            Start()
+            Start("pr")
         }
     }, onSalesReportClick = {
         navController.navigate(Screen.SalesProfileReportScreen.route.plus("/${AccountData.userId}"))

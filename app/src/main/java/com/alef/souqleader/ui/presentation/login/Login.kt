@@ -114,7 +114,7 @@ fun LoginScreen(
 
                                 if (AccountData.auth_token != null)
                                     (context as MainActivity).setContent {
-                                        Start()
+                                        Start("login")
                                     }
                             }
                         } else {

@@ -54,4 +54,12 @@ data class PropertyObject(
             title_en
         }
     }
+
+    fun description(): String? {
+        return if (AccountData.lang=="ar"){
+            description_ar
+        }else{
+            description_en
+        }
+    }
 }

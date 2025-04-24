@@ -185,6 +185,11 @@ interface APIs {
         @Field("email") email: String, @Field("password") password: String
     ): Response<LoginResponse>
 
+
+
+    @POST("api/userByToken")
+    suspend fun getuserbytoken(): Response<LoginResponse>
+
     @GET("api/getClient/{name}")
     suspend fun getClient(@Path("name") name: String): Response<GetClientResponse>
 
@@ -323,6 +328,7 @@ interface APIs {
 
     @GET("api/allJobs")
     suspend fun allJobs(@Query("page") page: Int): Response<AllJobResponse>
+
 
     @FormUrlEncoded
     @POST("api/jobapps")

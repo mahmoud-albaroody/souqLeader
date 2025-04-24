@@ -271,6 +271,14 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun getuserbytoken(): Resource<LoginResponse> {
+        val response = APIs.getuserbytoken()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
 
     suspend fun userDetails(user: String): Resource<UserDetailsResponse> {
         val response = APIs.userDetails(user)

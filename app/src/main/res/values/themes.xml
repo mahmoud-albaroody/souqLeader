@@ -10,4 +10,5 @@
     <item name="windowSplashScreenAnimatedIcon">@drawable/souq_leader_logo_3</item>
     <item name="postSplashScreenTheme">@style/Theme.AppCompat.Light.NoActionBar</item>
     </style>
+
 </resources>

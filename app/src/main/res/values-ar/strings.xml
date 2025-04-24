@@ -183,6 +183,14 @@
     <string name="unlock_cv">فتح السيرة الذاتية</string>
     <string name="inventorytype">نوع المخزون</string>
     <string name="department">فئة الوحدة</string>
+    <string name="location">الموقع: </string>
+    <string name="bua">BUA</string>
+    <string name="meter_price">السعر الاساسى</string>
+    <string name="bedrooms">Bedrooms</string>
+    <string name="bathrooms">Bathrooms</string>
+    <string name="floor">Floor</string>
+    <string name="unit_code">Unit Code</string>
+    <string name="unit_type">Unit Type</string>
 
 
 </resources>

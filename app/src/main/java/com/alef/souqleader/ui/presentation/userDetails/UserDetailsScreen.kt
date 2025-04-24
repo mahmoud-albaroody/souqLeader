@@ -93,8 +93,8 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                             activitiesSales.add(
                                 SalesReportModel(
                                     time = activity.created_at,
-                                    image = activity.activity_by.photo,
-                                    name = activity.activity_by.name,
+                                    image = activity.activity_by?.photo?:"",
+                                    name = activity.activity_by?.name,
                                     action = activity.getDescriptions()
                                 )
                             )

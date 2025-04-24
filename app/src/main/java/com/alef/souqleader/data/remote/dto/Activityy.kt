@@ -3,7 +3,7 @@ package com.alef.souqleader.data.remote.dto
 import com.alef.souqleader.domain.model.AccountData
 
 data class Activityy(
-    val activity_by: ActivityBy,
+    val activity_by: ActivityBy?,
     val created_at: String,
     val description: String,
     val description_ar: String,

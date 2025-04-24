@@ -60,6 +60,16 @@ class LoginViewModel @Inject constructor(
                 }
         }
     }
+    fun getUserByToken() {
+        viewModelScope.launch(job) {
+            loginUseCase.getuserbytoken().catch { }
+                .onStart {
+                    _loginState.emit(Resource.Loading())
+                }.buffer().collect {
+                    _loginState.emit(it)
+                }
+        }
+    }
 
     fun updateFcmToken(token: String) {
         viewModelScope.launch(job) {

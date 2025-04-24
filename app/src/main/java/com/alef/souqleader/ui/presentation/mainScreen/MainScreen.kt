@@ -1,10 +1,8 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
 import android.annotation.SuppressLint
-import android.os.Build
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,7 +55,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
@@ -79,16 +76,11 @@ import com.alef.souqleader.ui.appbar.AppBarWithArrow
 import com.alef.souqleader.ui.navigation.Navigation1
 import com.alef.souqleader.ui.networkconnection.ConnectionState
 import com.alef.souqleader.ui.networkconnection.connectivityState
+import com.alef.souqleader.ui.presentation.login.LoginViewModel
 import com.alef.souqleader.ui.updateLocale
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
-
-@Composable
-fun MyApp(modifier: Modifier, navController: NavHostController, mainViewModel: MainViewModel) {
-    val viewModel: SharedViewModel = hiltViewModel()
-
-
-}
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -190,18 +182,6 @@ fun CustomModalDrawer(
                                 it.data?.data?.let { it1 ->
                                     allLead.addAll(it1)
                                 }
-//                                allLead.add(
-//                                    AllLeadStatus(
-//                                        title_ar = "Duplicated Leads",
-//                                        title_en = "Duplicated Leads",
-//                                        id = 100
-//                                    )
-//                                )
-//                                allLead.add(
-//                                    AllLeadStatus(
-//                                        title_ar = "Delay Leads", title_en = "Delay Leads", id = 200
-//                                    )
-//                                )
                                 mainViewModel.showLoader = false
                             }
 
@@ -319,119 +299,6 @@ fun CustomModalDrawer(
                                 ) {
                                     launchSingleTop = true
                                 }
-//                                when (position) {
-////                                    0 -> {
-////                                        navController.navigate(Screen.DashboardScreen.route) {
-////                                            launchSingleTop = true
-////                                        }
-////                                    }
-//
-////                                    1 -> {
-////                                        if (s == context.getString(R.string.timeline)) {
-////                                            navController.navigate(Screen.Timeline.route) {
-////                                                launchSingleTop = true
-////                                            }
-////                                        } else {
-////                                            navController.navigate(Screen.CompanyTimelineScreen.route) {
-////                                                launchSingleTop = true
-////                                            }
-////                                        }
-////                                    }
-//
-////                                    2 -> {
-////                                        if (s == "Add Lead") {
-////                                            navController.navigate(Screen.AddLeadScreen.route) {
-////                                                launchSingleTop = true
-////                                            }
-////                                        } else {
-////                                            navController.navigate(
-////                                                Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
-////                                            ) {
-////                                                launchSingleTop = true
-////                                            }
-////                                        }
-////                                    }
-//
-////                                    3 -> {
-////                                        navController.navigate(
-////                                            Screen.SalesProfileReportScreen.route.plus(
-////                                                "/${AccountData.userId}"
-////                                            )
-////                                        ) {
-////                                            launchSingleTop = true
-////                                        }
-////                                    }
-//
-////                                    4 -> {
-////                                        if (s == "Projects") {
-////                                            navController.navigate(
-////                                                Screen.ProjectsScreen.route.plus(
-////                                                    "/${s}"
-////                                                )
-////                                            ) {
-////                                                launchSingleTop = true
-////                                            }
-////                                        } else {
-////                                            navController.navigate(Screen.PropertyScreen.route) {
-////                                                launchSingleTop = true
-////                                            }
-////                                        }
-////                                    }
-//
-//                                    5 -> {
-//                                        when (s) {
-//                                            "meetingReport" -> {
-//                                                navController.navigate(Screen.ReportsScreen.route) {
-//                                                    launchSingleTop = true
-//                                                }
-//                                            }
-//
-//                                            "CancellationReport" -> {
-//                                                navController.navigate(Screen.CancellationsReportScreen.route) {
-//                                                    launchSingleTop = true
-//                                                }
-//                                            }
-//
-//                                            "ProjectReport" -> {
-//                                                navController.navigate(Screen.ProjectReport.route) {
-//                                                    launchSingleTop = true
-//                                                }
-//                                            }
-//
-//                                            "DelayReport" -> {
-//                                                navController.navigate(Screen.DelayReport.route) {
-//                                                    launchSingleTop = true
-//                                                }
-//                                            }
-//
-//                                            else -> {
-//                                                navController.navigate(Screen.ChannelReport.route) {
-//                                                    launchSingleTop = true
-//                                                }
-//                                            }
-//                                        }
-//
-//                                    }
-//
-////                                    6 -> {
-////                                        navController.navigate(Screen.PaymentPlansScreen.route) {
-////                                            launchSingleTop = true
-////                                        }
-////                                    }
-////
-////                                    7 -> {
-////                                        navController.navigate(Screen.ProfileScreen.route) {
-////                                            launchSingleTop = true
-////                                        }
-////                                    }
-////
-////                                    8 -> {
-////                                        AccountData.clear()
-////                                        (context as MainActivity).setContent {
-////                                            Start()
-////                                        }
-////                                    }
-//                                }
                             }
                         }
                     }
@@ -439,7 +306,6 @@ fun CustomModalDrawer(
                 content = {
                     Scaffold(
                         topBar = {
-                            Log.e("ddddfd", currentRoute(navController).toString())
                             when (currentRoute(navController)) {
                                 Screen.DashboardScreen.route, Screen.Timeline.route,
                                 Screen.CompanyTimelineScreen.route,
@@ -1028,3 +894,111 @@ fun Item(
     }
 }
 
+@Composable
+fun SplashScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel,
+    mainViewModel: MainViewModel,
+    onSplashEndedValid: () -> Unit,
+) {
+    val viewModel: LoginViewModel = hiltViewModel()
+    val context = LocalContext.current
+    viewModel.updateBaseUrl(AccountData.BASE_URL)
+    LaunchedEffect(key1 = true) {
+        delay(500)
+        viewModel.getUserByToken()
+        viewModel.viewModelScope.launch {
+            viewModel.loginState.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data?.status == true) {
+                            it.data.data?.let {
+                                if (!it.access_token.isNullOrEmpty()) {
+                                    AccountData.auth_token = "Bearer " + it.access_token
+                                    AccountData.name = it.name.toString()
+                                    AccountData.role_name = it.role_name.toString()
+                                    AccountData.role_id = it.role_id ?: 0
+                                    AccountData.userId = it.id ?: 0
+                                    AccountData.photo = it.photo.toString()
+                                    AccountData.email = it.email.toString()
+                                    it.permissions?.let {
+                                        AccountData.permissionList = it
+                                    }
+                                    AccountData.firebase_token?.let { it1 ->
+                                        viewModel.updateFcmToken(
+                                            it1
+                                        )
+                                    }
+                                    sharedViewModel.updateSalesNameState(it.role_name.toString())
+                                    sharedViewModel.updatePhotoState(it.photo.toString())
+                                    sharedViewModel.updateNameState(it.name.toString())
+                                    onSplashEndedValid()
+                                }
+
+//                                if (AccountData.auth_token != null)
+//                                    (context as MainActivity).setContent {
+//                                        Start()
+//                                    }
+                            }
+                        } else {
+                            Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
+                                .show()
+                        }
+                        mainViewModel.showLoader = false
+                    }
+
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        sharedViewModel,
+                                        mainViewModel
+                                    )
+                                }
+                            }
+                        }
+                        if (it.errorCode == 500) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.something_error), Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+                        mainViewModel.showLoader = false
+                    }
+                }
+
+            }
+
+        }
+    }
+
+
+
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(colorResource(id = R.color.blue)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.souq_leader_logo_3),
+            contentDescription = null,
+            modifier = Modifier
+                .size(150.dp)
+
+        )
+    }
+}

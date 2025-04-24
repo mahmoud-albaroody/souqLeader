@@ -2,6 +2,7 @@ package com.alef.souqleader.ui
 
 import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -22,8 +27,9 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.mainScreen.CustomModalDrawer
 import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
-import com.alef.souqleader.ui.presentation.mainScreen.MyApp
+import com.alef.souqleader.ui.presentation.mainScreen.SplashScreen
 import com.alef.souqleader.ui.theme.AndroidCookiesTheme
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
@@ -37,7 +43,9 @@ class MainActivity : ComponentActivity() {
         //  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         checkAndRequestPermissions()
         window.requestFeature(android.view.Window.FEATURE_NO_TITLE)
-
+        installSplashScreen().apply{
+            setKeepOnScreenCondition { false }
+        }
 //        this.window.setSoftInputMode(
 //            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
 //        )
@@ -52,11 +60,8 @@ class MainActivity : ComponentActivity() {
             Start()
         }
     }
-//        override fun attachBaseContext(newBase: Context) {
-//        super.attachBaseContext(
-//            LocaleHelper.setLocale(newBase, AccountData.lang)
-//        )
-//    }
+
+
 private val requestPermissionsLauncher =
     registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         val granted = permissions.entries.all { it.value }
@@ -86,14 +91,16 @@ private val requestPermissionsLauncher =
 }
 
 @Composable
-fun Start() {
+fun Start(xxx: String?=null) {
     val mainViewModel: MainViewModel = hiltViewModel()
     val viewModel: SharedViewModel = hiltViewModel()
+    var isVisible by remember { mutableStateOf(false) }
     val layoutDirection = if (AccountData.lang == "ar") {
         LayoutDirection.Rtl
     } else {
         LayoutDirection.Ltr
     }
+
     AndroidCookiesTheme {
         // A surface container using the 'background' color from the theme
         val modifier = Modifier.fillMaxSize()
@@ -106,16 +113,38 @@ fun Start() {
                 if (AccountData.auth_token == null) {
                     MainScreen(modifier, navController, viewModel, mainViewModel)
                 } else {
-                    CustomModalDrawer(
-                        modifier, navController, viewModel,
-                        SnapshotStateList(), mainViewModel
-                    )
+
+                    if (isVisible) {
+                        CustomModalDrawer(
+                            modifier, navController, viewModel,
+                            SnapshotStateList(), mainViewModel
+                        )
+                    } else {
+                        if (xxx.isNullOrEmpty()) {
+                            SplashScreen(Modifier.fillMaxSize(),
+                                navController,
+                                sharedViewModel = viewModel,
+                                mainViewModel,
+                                onSplashEndedValid = {
+                                    isVisible = true
+                                })
+
+                        } else {
+                            CustomModalDrawer(
+                                modifier, navController, viewModel,
+                                SnapshotStateList(), mainViewModel
+                            )
+                        }
+
+                    }
                 }
 
             }
         }
     }
 }
+
+
 
 //@Composable
 //private fun GymsAroundApp(modifier: Modifier) {

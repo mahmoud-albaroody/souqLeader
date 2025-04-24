@@ -25,6 +25,11 @@ class LoginUseCase @Inject constructor(
             emit(repository.login(username, password))
         }.flowOn(Dispatchers.IO)
     }
+    suspend fun getuserbytoken(): Flow<Resource<LoginResponse>> {
+        return flow {
+            emit(repository.getuserbytoken())
+        }.flowOn(Dispatchers.IO)
+    }
 
     suspend fun userDetails(user: String): Flow<Resource<UserDetailsResponse>> {
         return flow {
