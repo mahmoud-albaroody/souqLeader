@@ -128,7 +128,9 @@ interface APIs {
         @Query("department") department: String? = null,
         @Query("country_id") countryId: String? = null,
         @Query("city_id") cityId: String? = null,
-        @Query("area_id") areaId: String? = null
+        @Query("area_id") areaId: String? = null,
+        @Query("price_from") budget_from: String? = null,
+        @Query("price_to") budget_to: String? = null,
     ): Response<PropertyResponse>
 
 
@@ -139,7 +141,9 @@ interface APIs {
         @Query("category") category: String? = null,
         @Query("country_id") countryId: String? = null,
         @Query("city_id") cityId: String? = null,
-        @Query("area_id") areaId: String? = null
+        @Query("area_id") areaId: String? = null,
+        @Query("start_price_from") budget_from: String? = null,
+        @Query("start_price_to") budget_to: String? = null,
     ): Response<ProjectResponse>
 
     @GET("api/projectSort")

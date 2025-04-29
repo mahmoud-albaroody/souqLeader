@@ -720,14 +720,15 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
     suspend fun projectFilter(filterRequest: ProjectFilterRequest): Resource<ProjectResponse> {
-      Log.e("ssssssss",filterRequest.toString())
-
         val response = APIs.projectFilter(
             filterRequest.title,
             filterRequest.category,
             filterRequest.countryId,
             filterRequest.cityId,
             filterRequest.areaId,
+            filterRequest.budget_from,
+            filterRequest.budget_to
+
         )
         return if (response.isSuccessful) {
 
@@ -767,7 +768,9 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             filterRequest.department,
             filterRequest.countryId,
             filterRequest.cityId,
-            filterRequest.areaId
+            filterRequest.areaId,
+            filterRequest.budget_from,
+            filterRequest.budget_to
         )
         return if (response.isSuccessful) {
 

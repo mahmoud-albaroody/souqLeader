@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.filter
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background

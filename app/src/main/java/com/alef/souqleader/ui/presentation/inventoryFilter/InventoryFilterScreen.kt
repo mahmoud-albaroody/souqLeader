@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,12 +22,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
@@ -362,18 +368,18 @@ fun InventoryFilterScreen(
             cityList,
             areaList,
             type, onCountryClick = { countryId, cityId ->
-                if (type=="Property"){
+                if (type == "Property") {
                     inventoryFilterViewModel.propertyLocationFilterData(
                         countryId = countryId,
                         cityId = cityId
                     )
-                }else {
+                } else {
                     inventoryFilterViewModel.locationFilterData(
                         countryId = countryId,
                         cityId = cityId
                     )
                 }
-                     }, onShowClick = {
+            }, onShowClick = {
                 val jsonObject = JsonObject()
                 jsonObject.addProperty("title", it.title)
                 jsonObject.addProperty("name", it.name)
@@ -389,12 +395,58 @@ fun InventoryFilterScreen(
                 jsonObject.addProperty("type", it.type)
                 jsonObject.addProperty("department", it.department)
 
+
+                jsonObject.addProperty("budget_from", it.budget_from)
+                jsonObject.addProperty("budget_to", it.budget_to)
                 navController.navigate(
                     Screen.ProductFilterResultScreen.route +
                             "?" + Screen.ProductFilterResultScreen.objectName + "=${jsonObject}"
                 )
             }
         )
+    }
+}
+
+
+@Composable
+private fun Budget(onFrom: (String) -> Unit, onTo: (String) -> Unit) {
+
+    Row(
+        Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.from), Modifier.align(Alignment.Center),
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            )
+        }
+        Box(Modifier.weight(2f)) {
+            TextFiledItem(stringResource(R.string.min_price), true) {
+                onFrom(it)
+            }
+        }
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.to), Modifier.align(Alignment.Center),
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            )
+        }
+        Box(Modifier.weight(2f)) {
+            TextFiledItem(stringResource(R.string.max_price), true) {
+                onTo(it)
+            }
+        }
     }
 }
 
@@ -412,6 +464,7 @@ private fun Filter(
     cityList: SnapshotStateList<City>,
     areaList: SnapshotStateList<Area>,
     type: String,
+
     onShowClick: (ProjectFilterRequest) -> Unit,
     onCountryClick: (String, String?) -> Unit
 ) {
@@ -532,8 +585,7 @@ private fun Filter(
                     filterRequest.areaId =
                         areaList.find { it.getArea() == area }?.id.toString()
                 }
-            }
-            else {
+            } else {
                 TextFiledItem(stringResource(R.string.title), true) {
                     filterRequest.title = it
                 }
@@ -563,7 +615,11 @@ private fun Filter(
                 }
             }
 
-
+            Budget(onFrom = {
+                filterRequest.budget_from = it
+            }, onTo = {
+                filterRequest.budget_to = it
+            })
         }
 
 

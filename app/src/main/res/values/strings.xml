@@ -190,5 +190,16 @@
     <string name="floor">Floor</string>
     <string name="unit_code">Unit Code</string>
     <string name="unit_type">Unit Type</string>
+    <string name="min_price">Min Price</string>
+    <string name="from">From</string>
+    <string name="max_price">Max Price</string>
+    <string name="submit">Submit</string>
+    <string name="add_lead_add_call_details">Add lead / Add call Details</string>
+    <string name="would_you_like_to_add_or_log_the_details_of_the_call">Would you like to add or log the details of the call?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="caller_number">Caller Name</string>
+    <string name="caller_called_number">Caller/Called Number*</string>
+    <string name="duration_seconds">Duration (seconds)</string>
 
 </resources>

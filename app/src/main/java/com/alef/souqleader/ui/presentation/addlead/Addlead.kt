@@ -425,6 +425,17 @@ fun TextFiledItem(
                     keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
                 )
             }
+            stringResource(id = R.string.max_price) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+                )
+            }
+
+            stringResource(id = R.string.min_price) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+                )
+            }
 
             stringResource(id = R.string.name) -> {
                 KeyboardOptions.Default.copy(

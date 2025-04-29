@@ -29,6 +29,7 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.activityAndAction.ActivityScreen
 import com.alef.souqleader.ui.presentation.addlead.AddLeadScreen
 import com.alef.souqleader.ui.presentation.allLeads.AllLeadsScreen
+import com.alef.souqleader.ui.presentation.callLog.AddCallLogScreen
 import com.alef.souqleader.ui.presentation.cancellationsReport.CancellationsReport
 import com.alef.souqleader.ui.presentation.changePassword.ChangePasswordScreen
 import com.alef.souqleader.ui.presentation.channelReport.ChannelReport
@@ -501,6 +502,15 @@ fun Navigation(
                 )
             }
         }
+        composable(Screen.AddCallLogScreen.route) {
+            modifier?.let { it1 ->
+                AddCallLogScreen(
+                    navController, modifier
+                )
+            }
+        }
+
+
         composable(Screen.DelayReport.route) {
             modifier?.let { it1 ->
                 DelaysReports(

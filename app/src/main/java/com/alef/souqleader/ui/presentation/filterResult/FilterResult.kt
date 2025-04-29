@@ -71,7 +71,7 @@ fun FilterResultScreen(
 ) {
 
     val viewModel: AllLeadViewModel = hiltViewModel()
-    //   viewModel.updateBaseUrl(AccountData.BASE_URL)
+    //   viewModel.updateBaseUrl(AccountData.BAFilterResultScreenSE_URL)
     val context = LocalContext.current
 
     var lead by remember { mutableStateOf(LeadsByStatusResponse()) }
@@ -108,12 +108,7 @@ fun FilterResultScreen(
         }
     }
     LaunchedEffect(key1 = true) {
-        if (budgetFrom == context.getString(R.string.amount)) {
-            budgetFrom = null
-        }
-        if (budgetTo == context.getString(R.string.amount)) {
-            budgetTo = null
-        }
+Log.e("mmmm",budgetFrom.toString())
         viewModel.leadsFilter(
             FilterRequest(
                 searchField = name, status = status,
@@ -132,6 +127,7 @@ fun FilterResultScreen(
         }
     }
     Screen(navController, lead, page, loadMore = {
+        Log.e("mmmm",budgetFrom.toString())
         viewModel.leadsFilter(
             FilterRequest(
                 status = status,

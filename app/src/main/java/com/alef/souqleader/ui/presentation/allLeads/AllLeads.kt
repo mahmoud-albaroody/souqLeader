@@ -1,10 +1,17 @@
 package com.alef.souqleader.ui.presentation.allLeads
 
+import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.CallLog
+import android.provider.ContactsContract
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +30,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -54,6 +63,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -65,6 +75,7 @@ import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.map.PopupBox
 import kotlinx.coroutines.launch
 
 
@@ -181,15 +192,49 @@ fun Screen(
     loadMore: () -> Unit
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
+    var showDialog by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
+    val ctx = LocalContext.current
+    val lead by remember { mutableStateOf<Lead?>(null) }
     val messages = remember { mutableStateListOf<String>() }
     val socket = remember {
         WebSocketClient { msg ->
             messages.add(msg)
         }
     }
+    AddCallDetailsDialog(
+        showDialog = showDialog,
+        onDismiss = {
+            showDialog = false
+            val u = Uri.parse(
+                "tel:" + lead?.phone.toString()
+            )
 
+            // Create the intent and set the data for the
+            // intent as the phone number.
+            val i = Intent(Intent.ACTION_DIAL, u)
+            try {
+                // Launch the Phone app's dialer with a phone
+                // number to dial a call.
+                ctx.startActivity(i)
+            } catch (s: SecurityException) {
+
+                // show() method display the toast with
+                // exception message.
+                Toast
+                    .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                    .show()
+            }
+        },
+        onConfirm = {
+            showDialog = false
+            navController.navigate(Screen.AddCallLogScreen.route) {
+                launchSingleTop = true
+            }
+            // Handle YES action here (navigate to Add Call Log screen etc.)
+        }
+    )
     LaunchedEffect(Unit) {
         socket.connect()
     }
@@ -235,6 +280,7 @@ fun Screen(
                             "call",
                             lead.sales_id.toString()
                         )
+                        showDialog = true
                     },
                         onMailClick = { lead ->
                             socket.sendData(lead.id.toString(), "email", lead.sales_id.toString())
@@ -457,27 +503,6 @@ fun AllLeadsItem(
                             .size(60.dp, 40.dp)
                             .clickable {
                                 onCallClick(lead)
-                                val u = Uri.parse(
-                                    "tel:" + lead.phone.toString()
-                                )
-
-                                // Create the intent and set the data for the
-                                // intent as the phone number.
-                                val i = Intent(Intent.ACTION_DIAL, u)
-                                try {
-
-                                    // Launch the Phone app's dialer with a phone
-                                    // number to dial a call.
-                                    ctx.startActivity(i)
-                                } catch (s: SecurityException) {
-
-                                    // show() method display the toast with
-                                    // exception message.
-                                    Toast
-                                        .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
-                                        .show()
-                                }
-
                             })
                     Image(painterResource(R.drawable.sms_icon),
                         contentDescription = "",
@@ -529,6 +554,39 @@ fun AllLeadsItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AddToCallLogButton(phoneNumber: String) {
+    val context = LocalContext.current
+
+    Button(onClick = {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_CALL_LOG
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            val values = ContentValues().apply {
+                put(CallLog.Calls.NUMBER, phoneNumber)
+                put(CallLog.Calls.DATE, System.currentTimeMillis())
+                put(CallLog.Calls.DURATION, 0) // Duration in seconds
+                put(
+                    CallLog.Calls.TYPE,
+                    CallLog.Calls.INCOMING_TYPE
+                ) // or OUTGOING_TYPE or MISSED_TYPE
+                put(CallLog.Calls.NEW, 1)
+                put(CallLog.Calls.CACHED_NAME, "") // if you have a name
+                put(CallLog.Calls.CACHED_NUMBER_TYPE, 0)
+                put(CallLog.Calls.CACHED_NUMBER_LABEL, "")
+            }
+            context.contentResolver.insert(CallLog.Calls.CONTENT_URI, values)
+        } else {
+            // Handle the case when permission is NOT granted
+            // You should ask for permission here
+        }
+    }) {
+        Text(text = "Add to Call Log")
     }
 }
 
@@ -611,5 +669,34 @@ fun openSMSApp(phoneNumber: String, message: String, context: Context) {
     } catch (e: Exception) {
         e.printStackTrace()
         // Handle the error if SMS app is not available
+    }
+}
+
+@Composable
+fun AddCallDetailsDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(text = stringResource(R.string.add_lead_add_call_details))
+            },
+            text = {
+                Text(text = stringResource(R.string.would_you_like_to_add_or_log_the_details_of_the_call))
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(text = stringResource(R.string.yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.no))
+                }
+            }
+        )
     }
 }

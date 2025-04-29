@@ -98,6 +98,8 @@ sealed class Screen(
 
     object ProjectReport : Screen("ProjectReport")
 
+    object AddCallLogScreen : Screen("AddCallLogScreen")
+
     object DelayReport : Screen("DelayReport")
 
 

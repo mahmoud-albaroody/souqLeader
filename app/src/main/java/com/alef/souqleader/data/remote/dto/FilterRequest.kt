@@ -36,5 +36,7 @@ data class ProjectFilterRequest(
     var countryId: String? = null,
     var cityId: String? = null,
     var areaId: String? = null,
+    var budget_from: String? = null,
+    var budget_to: String? = null,
     )
 
