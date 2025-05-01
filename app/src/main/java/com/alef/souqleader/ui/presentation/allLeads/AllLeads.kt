@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.CallLog
 import android.provider.ContactsContract
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -74,6 +75,7 @@ import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.map.PopupBox
 import kotlinx.coroutines.launch
@@ -196,7 +198,7 @@ fun Screen(
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val ctx = LocalContext.current
-    val lead by remember { mutableStateOf<Lead?>(null) }
+    var selectedLead by remember { mutableStateOf<Lead?>(null) }
     val messages = remember { mutableStateListOf<String>() }
     val socket = remember {
         WebSocketClient { msg ->
@@ -208,7 +210,7 @@ fun Screen(
         onDismiss = {
             showDialog = false
             val u = Uri.parse(
-                "tel:" + lead?.phone.toString()
+                "tel:" + selectedLead?.phone.toString()
             )
 
             // Create the intent and set the data for the
@@ -229,10 +231,14 @@ fun Screen(
         },
         onConfirm = {
             showDialog = false
-            navController.navigate(Screen.AddCallLogScreen.route) {
-                launchSingleTop = true
-            }
-            // Handle YES action here (navigate to Add Call Log screen etc.)
+
+            Log.e("ddddd",selectedLead?.name.toString())
+            val leadJson = selectedLead.toJson()
+            navController.navigate(
+                Screen.AddCallLogScreen.route
+                    .plus("?" + Screen.AddCallLogScreen.objectName + "=${leadJson}")
+            )
+
         }
     )
     LaunchedEffect(Unit) {
@@ -280,6 +286,7 @@ fun Screen(
                             "call",
                             lead.sales_id.toString()
                         )
+                        selectedLead = lead
                         showDialog = true
                     },
                         onMailClick = { lead ->

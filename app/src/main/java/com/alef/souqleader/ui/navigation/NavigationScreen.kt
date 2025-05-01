@@ -98,7 +98,10 @@ sealed class Screen(
 
     object ProjectReport : Screen("ProjectReport")
 
-    object AddCallLogScreen : Screen("AddCallLogScreen")
+
+
+    object AddCallLogScreen :
+        Screen("AddCallLogScreen", objectName = "lead", objectPath = "/{lead}")
 
     object DelayReport : Screen("DelayReport")
 

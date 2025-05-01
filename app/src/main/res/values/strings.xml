@@ -201,5 +201,7 @@
     <string name="caller_number">Caller Name</string>
     <string name="caller_called_number">Caller/Called Number*</string>
     <string name="duration_seconds">Duration (seconds)</string>
+    <string name="add_log">Add Log</string>
+    <string name="duration">Duration</string>
 
 </resources>

@@ -400,7 +400,9 @@ fun AddLead(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TextFiledItem(
-    text: String, click: Boolean, value: String? = null, onTextChange: (String) -> Unit
+    text: String,
+    click: Boolean,
+    value: String? = null, onTextChange: (String) -> Unit
 ) {
 
     var textValue by remember { mutableStateOf("") }
@@ -420,11 +422,24 @@ fun TextFiledItem(
                 )
             }
 
+            stringResource(R.string.caller_called_number) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                )
+            }
+
+            stringResource(R.string.note) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+                )
+            }
+
             stringResource(id = R.string.budget) -> {
                 KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
                 )
             }
+
             stringResource(id = R.string.max_price) -> {
                 KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
@@ -433,7 +448,7 @@ fun TextFiledItem(
 
             stringResource(id = R.string.min_price) -> {
                 KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next
                 )
             }
 
@@ -493,7 +508,9 @@ fun TextFiledItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicSelectTextField(
-    options: List<String>,textAlign: TextAlign  = TextAlign.Start, onOptionSelected: (String) -> Unit
+    options: List<String>,
+    textAlign: TextAlign = TextAlign.Start,
+    onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[0]) }
@@ -507,8 +524,10 @@ fun DynamicSelectTextField(
                 .padding(top = 8.dp)
                 .menuAnchor(),
             readOnly = true,
-            textStyle = TextStyle(fontSize = 13.sp,
-                textAlign = textAlign),
+            textStyle = TextStyle(
+                fontSize = 13.sp,
+                textAlign = textAlign
+            ),
             value = selectedOptionText,
             onValueChange = { },
             trailingIcon = {
@@ -533,8 +552,10 @@ fun DynamicSelectTextField(
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = selectionOption,
-                        style = TextStyle(fontSize = 13.sp,
-                            textAlign =textAlign )
+                        style = TextStyle(
+                            fontSize = 13.sp,
+                            textAlign = textAlign
+                        )
                     )
                 }, onClick = {
                     selectedOptionText = selectionOption

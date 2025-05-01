@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Jobapps
 import com.alef.souqleader.data.remote.dto.JopPersion
+import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.ProjectFilterRequest
@@ -502,13 +503,29 @@ fun Navigation(
                 )
             }
         }
-        composable(Screen.AddCallLogScreen.route) {
-            modifier?.let { it1 ->
-                AddCallLogScreen(
-                    navController, modifier
-                )
+
+
+
+
+        composable(
+            Screen.AddCallLogScreen.route.plus("?" + Screen.AddCallLogScreen.objectName + "={lead}"),
+            arguments = listOf(navArgument(Screen.AddCallLogScreen.objectName) {
+                type = NavType.StringType
+                nullable = true
+            })
+        ) {
+            it.arguments?.getString(Screen.AddCallLogScreen.objectName)?.let { jsonString ->
+                val lead = jsonString.fromJson<Lead>()
+                modifier?.let { it1 ->
+
+                    AddCallLogScreen(
+                        navController, modifier, lead = lead
+                    )
+                }
             }
         }
+
+
 
 
         composable(Screen.DelayReport.route) {
@@ -639,6 +656,12 @@ fun navigationTitle(navController: NavController, title: String): String {
         Screen.PropertyDetailsScreen.route.plus("?" + Screen.PropertyDetailsScreen.objectName + "={property}") -> {
             stringResource(R.string.property_details)
         }
+
+
+        Screen.AddCallLogScreen.route.plus("?" + Screen.AddCallLogScreen.objectName + "={lead}") -> {
+            stringResource(R.string.add_log)
+        }
+
 
         Screen.PropertyScreen.route -> {
             stringResource(R.string.properties)

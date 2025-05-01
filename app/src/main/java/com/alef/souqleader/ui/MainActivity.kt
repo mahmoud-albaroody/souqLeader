@@ -1,20 +1,20 @@
 package com.alef.souqleader.ui
 
 import android.Manifest
-import android.content.Context
-import android.net.Uri
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
+import android.telecom.Call
+import android.telecom.CallScreeningService
+import android.telecom.TelecomManager
 import android.telephony.PhoneStateListener
-import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +29,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.alef.souqleader.domain.model.AccountData
@@ -51,10 +53,26 @@ class MainActivity : ComponentActivity() {
         // Determine the layout direction based on the current locale
         //  AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         checkAndRequestPermissions()
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_PHONE_STATE),
+                    1
+                )
+            } else {
+                startPhoneStateListener()
+            }
+        }
+        val intent = Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).apply {
+            putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
+        }
+        startActivity(intent)
+
         window.requestFeature(android.view.Window.FEATURE_NO_TITLE)
-//        val telephonyManager = this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-//        val listener = MyCallStateListener(this)
-//        telephonyManager.registerTelephonyCallback(this.mainExecutor, listener)
+
         installSplashScreen().apply{
             setKeepOnScreenCondition { false }
         }
@@ -65,7 +83,7 @@ class MainActivity : ComponentActivity() {
         updateLocale(this, Locale(AccountData.lang))
 
 
-        //     setForceDarkAllowed()
+        //setForceDarkAllowed()
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         setContent {
@@ -100,10 +118,30 @@ private val requestPermissionsLauncher =
             requestPermissionsLauncher.launch(requiredPermissions.toTypedArray())
         }
     }
-}
+    private fun startPhoneStateListener() {
+        val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+        val listener = object : PhoneStateListener() {
+            @Deprecated("Deprecated in Java")
+            override fun onCallStateChanged(state: Int, incomingNumber: String?) {
+                when (state) {
+                    TelephonyManager.CALL_STATE_RINGING -> Log.e("eeeeee", "RINGING")
+                    TelephonyManager.CALL_STATE_OFFHOOK -> Log.e("eeeeee", "OFFHOOK")
+                    TelephonyManager.CALL_STATE_IDLE -> Log.e("eeeeee", "IDLE")
+                }
+            }
+        }
+        telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
+    }
 
+}
+class MyCallScreeningService : CallScreeningService() {
+    override fun onScreenCall(callDetails: Call.Details) {
+        val number = callDetails.handle?.schemeSpecificPart
+        Log.e("eeeeee", "Incoming from: $number")
+    }
+}
 @Composable
-fun Start(xxx: String?=null) {
+fun Start(splash: String?=null) {
     val mainViewModel: MainViewModel = hiltViewModel()
     val viewModel: SharedViewModel = hiltViewModel()
     var isVisible by remember { mutableStateOf(false) }
@@ -132,7 +170,7 @@ fun Start(xxx: String?=null) {
                             SnapshotStateList(), mainViewModel
                         )
                     } else {
-                        if (xxx.isNullOrEmpty()) {
+                        if (splash.isNullOrEmpty()) {
                             SplashScreen(Modifier.fillMaxSize(),
                                 navController,
                                 sharedViewModel = viewModel,
@@ -157,46 +195,3 @@ fun Start(xxx: String?=null) {
 }
 
 
-
-//@Composable
-//private fun GymsAroundApp(modifier: Modifier) {
-//    val navController = rememberNavController()
-//    Navigation(navController = navController, modifier = modifier)
-//}
-//
-//@RequiresApi(Build.VERSION_CODES.S)
-//class MyCallStateListener(private val context: Context) : TelephonyCallback(), TelephonyCallback.CallStateListener {
-//    override fun onCallStateChanged(state: Int) {
-//        when (state) {
-//            TelephonyManager.CALL_STATE_RINGING -> {
-//                Log.d("CallState", "Phone is ringing")
-//            }
-//            TelephonyManager.CALL_STATE_OFFHOOK -> {
-//                Log.d("CallState", "Call answered")
-//            }
-//            TelephonyManager.CALL_STATE_IDLE -> {
-//                Log.d("CallState", "Call ended")
-//            }
-//        }
-//    }
-//}
-//fun getContactName(context: Context, phoneNumber: String?): String {
-//    if (phoneNumber.isNullOrEmpty()) return "Unknown Number"
-//
-//    val uri = Uri.withAppendedPath(
-//        ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-//        Uri.encode(phoneNumber)
-//    )
-//
-//    val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
-//    var contactName = "Unknown Number"
-//
-//    val cursor = context.contentResolver.query(uri, projection, null, null, null)
-//    cursor?.use {
-//        if (it.moveToFirst()) {
-//            contactName = it.getString(it.getColumnIndexOrThrow(ContactsContract.PhoneLookup.DISPLAY_NAME))
-//        }
-//    }
-//
-//    return contactName
-//}

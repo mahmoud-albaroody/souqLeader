@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.provider.CallLog
 import android.provider.ContactsContract
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -15,9 +16,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,24 +34,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCallLogScreen(
     navController: NavController,
-    modifier: Modifier
+    modifier: Modifier,
+    lead: Lead?
 ) {
     val ctx = LocalContext.current
-    var caller by remember { mutableStateOf("") }
-    var calledNumber by remember { mutableStateOf("") }
+    var caller by remember { mutableStateOf(lead?.name.toString()) }
+    var calledNumber by remember { mutableStateOf(lead?.phone.toString()) }
     var duration by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var exists by remember { mutableStateOf<Boolean>(false) }
-
+    var isCaller by remember { mutableStateOf(false) }
+    var isCalledNumber by remember { mutableStateOf(false) }
+    var isDuration by remember { mutableStateOf(false) }
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -65,7 +80,7 @@ fun AddCallLogScreen(
             isPhoneNumberInContacts(ctx, calledNumber)
         } else {
             exists = false
-        // or show message that permission denied
+            // or show message that permission denied
         }
     }
     Column(
@@ -75,22 +90,130 @@ fun AddCallLogScreen(
     ) {
 
 
-        TextFiledItem(text = stringResource(R.string.caller_number), click = true) {
-            caller = it
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            value = caller,
+            placeholder = {
+               Text(
+                    text =  stringResource(R.string.name), style = TextStyle(fontSize = 13.sp)
+                )
+            },
+
+            //  keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
+
+            textStyle = TextStyle(fontSize = 13.sp),
+            colors = TextFieldDefaults.textFieldColors(
+                cursorColor = colorResource(id = R.color.black),
+                disabledLabelColor = colorResource(id = R.color.transparent),
+                focusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedLabelColor = colorResource(id = R.color.transparent)
+            ),
+            onValueChange = {
+                caller = it
+                isCaller = it.isEmpty()
+            },
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true,
+
+        )
+
+        if (isCaller) {
+            Text(
+                text = stringResource(R.string.please_enter_valid_text),
+                fontSize = 12.sp,
+                color = colorResource(id = R.color.red)
+            )
         }
 
 
-        TextFiledItem(stringResource(R.string.caller_called_number), true) {
-            calledNumber = it
+
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            value = calledNumber,
+            keyboardOptions =   KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+            ),
+            placeholder = {
+                Text(
+                    text =  stringResource(R.string.phone), style = TextStyle(fontSize = 13.sp)
+                )
+            },
+
+            //  keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
+
+            textStyle = TextStyle(fontSize = 13.sp),
+            colors = TextFieldDefaults.textFieldColors(
+                cursorColor = colorResource(id = R.color.black),
+                disabledLabelColor = colorResource(id = R.color.transparent),
+                focusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedLabelColor = colorResource(id = R.color.transparent)
+            ),
+            onValueChange = {
+                calledNumber = it
+                isCalledNumber = it.isEmpty()
+            },
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true,
+
+            )
+        if (isCalledNumber) {
+            Text(
+                text = stringResource(R.string.please_enter_valid_text),
+                fontSize = 12.sp,
+                color = colorResource(id = R.color.red)
+            )
         }
 
+//        TextFiledItem(stringResource(R.string.duration_seconds), true) {
+//            duration = it
+//        }
 
-        TextFiledItem(stringResource(R.string.duration_seconds), true) {
-            duration = it
+
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            value = duration,
+            keyboardOptions =   KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+            ),
+            placeholder = {
+                Text(
+                    text = stringResource(R.string.duration), style = TextStyle(fontSize = 13.sp)
+                )
+            },
+
+              //keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
+
+            textStyle = TextStyle(fontSize = 13.sp),
+            colors = TextFieldDefaults.textFieldColors(
+                cursorColor = colorResource(id = R.color.black),
+                disabledLabelColor = colorResource(id = R.color.transparent),
+                focusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+                unfocusedLabelColor = colorResource(id = R.color.transparent)
+            ),
+            onValueChange = {
+                duration = it
+                isDuration = it.isEmpty()
+            },
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true,
+
+            )
+        if (isDuration) {
+            Text(
+                text = stringResource(R.string.please_enter_valid_text),
+                fontSize = 12.sp,
+                color = colorResource(id = R.color.red)
+            )
         }
-
-
-
         TextFiledItem(stringResource(R.string.note), true) {
             notes = it
         }
@@ -103,17 +226,23 @@ fun AddCallLogScreen(
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
-                when (PackageManager.PERMISSION_GRANTED) {
-                    ContextCompat.checkSelfPermission(ctx, Manifest.permission.WRITE_CALL_LOG) -> {
-                                addContact(
-                                    ctx,
-                                    calledNumber, caller
-                                )
-                            insertCallLog(ctx, calledNumber, duration) // Add call log
-                    }
+                if (caller.isNotEmpty()&& calledNumber.isNotEmpty()&&duration.isNotEmpty()  ) {
+                    when (PackageManager.PERMISSION_GRANTED) {
+                        ContextCompat.checkSelfPermission(
+                            ctx,
+                            Manifest.permission.WRITE_CALL_LOG
+                        ) -> {
 
-                    else -> {
-                        permissionLauncher.launch(Manifest.permission.WRITE_CALL_LOG)
+                            addContact(
+                                ctx,
+                                calledNumber, caller
+                            )
+                            insertCallLog(ctx, calledNumber, duration) // Add call log
+                        }
+
+                        else -> {
+                            permissionLauncher.launch(Manifest.permission.WRITE_CALL_LOG)
+                        }
                     }
                 }
             }) {
