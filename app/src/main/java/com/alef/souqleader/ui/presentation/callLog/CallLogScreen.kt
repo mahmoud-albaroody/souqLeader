@@ -1,6 +1,8 @@
 package com.alef.souqleader.ui.presentation.callLog
 
 import android.Manifest
+import android.app.Activity
+import android.content.ContentProviderOperation
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -10,6 +12,7 @@ import android.provider.CallLog
 import android.provider.ContactsContract
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +46,9 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.ui.MainActivity
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,23 +56,29 @@ import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
 fun AddCallLogScreen(
     navController: NavController,
     modifier: Modifier,
+    mainViewModel: MainViewModel,
     lead: Lead?
 ) {
     val ctx = LocalContext.current
-    var caller by remember { mutableStateOf(lead?.name.toString()) }
-    var calledNumber by remember { mutableStateOf(lead?.phone.toString()) }
+    var caller by remember { mutableStateOf(lead?.name) }
+    var calledNumber by remember { mutableStateOf(lead?.phone) }
     var duration by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var exists by remember { mutableStateOf<Boolean>(false) }
     var isCaller by remember { mutableStateOf(false) }
     var isCalledNumber by remember { mutableStateOf(false) }
     var isDuration by remember { mutableStateOf(false) }
+    if(lead==null){
+        mainViewModel.isCall = false
+    }else{
+        mainViewModel.isCall = true
+    }
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
             // Permission granted -> Insert into Call Log
-            insertCallLog(ctx, calledNumber, duration)
+            insertCallLog(ctx, calledNumber?:"", duration)
         } else {
             // Permission denied -> Show some message or handle accordingly
         }
@@ -77,7 +89,7 @@ fun AddCallLogScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            isPhoneNumberInContacts(ctx, calledNumber)
+            isPhoneNumberInContacts(ctx, calledNumber?:"")
         } else {
             exists = false
             // or show message that permission denied
@@ -94,10 +106,10 @@ fun AddCallLogScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            value = caller,
+            value = caller?:"",
             placeholder = {
-               Text(
-                    text =  stringResource(R.string.name), style = TextStyle(fontSize = 13.sp)
+                Text(
+                    text = stringResource(R.string.name), style = TextStyle(fontSize = 13.sp)
                 )
             },
 
@@ -118,7 +130,7 @@ fun AddCallLogScreen(
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
 
-        )
+            )
 
         if (isCaller) {
             Text(
@@ -134,13 +146,13 @@ fun AddCallLogScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            value = calledNumber,
-            keyboardOptions =   KeyboardOptions.Default.copy(
+            value = calledNumber?:"",
+            keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
             ),
             placeholder = {
                 Text(
-                    text =  stringResource(R.string.phone), style = TextStyle(fontSize = 13.sp)
+                    text = stringResource(R.string.phone), style = TextStyle(fontSize = 13.sp)
                 )
             },
 
@@ -180,7 +192,7 @@ fun AddCallLogScreen(
                 .fillMaxWidth()
                 .padding(top = 8.dp),
             value = duration,
-            keyboardOptions =   KeyboardOptions.Default.copy(
+            keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
             ),
             placeholder = {
@@ -189,7 +201,7 @@ fun AddCallLogScreen(
                 )
             },
 
-              //keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
+            //keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
 
             textStyle = TextStyle(fontSize = 13.sp),
             colors = TextFieldDefaults.textFieldColors(
@@ -226,22 +238,39 @@ fun AddCallLogScreen(
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
-                if (caller.isNotEmpty()&& calledNumber.isNotEmpty()&&duration.isNotEmpty()  ) {
-                    when (PackageManager.PERMISSION_GRANTED) {
-                        ContextCompat.checkSelfPermission(
-                            ctx,
-                            Manifest.permission.WRITE_CALL_LOG
-                        ) -> {
-
-                            addContact(
+                when {
+                    caller?.isEmpty() == true -> {
+                        isCaller = true
+                    }
+                    calledNumber?.isEmpty() == true -> {
+                        isCalledNumber = true
+                    }
+                    duration.isEmpty() -> {
+                        isDuration = true
+                    }
+                    else -> {
+                        when (PackageManager.PERMISSION_GRANTED) {
+                            ContextCompat.checkSelfPermission(
                                 ctx,
-                                calledNumber, caller
-                            )
-                            insertCallLog(ctx, calledNumber, duration) // Add call log
-                        }
+                                Manifest.permission.WRITE_CALL_LOG,
+                            ) -> {
+//                                addContact(
+//                                    ctx,
+//                                    calledNumber, caller
+//                                )
+                                (ctx as MainActivity).addContactLauncher?.let {
+                                    mainViewModel.selectedLead = calledNumber?:""
+                                    launchAddContact(ctx,  calledNumber?:"", caller?:"",
+                                        it
+                                    )
+                                }
 
-                        else -> {
-                            permissionLauncher.launch(Manifest.permission.WRITE_CALL_LOG)
+                                insertCallLog(ctx, calledNumber?:"", duration) // Add call log
+                            }
+
+                            else -> {
+                                permissionLauncher.launch(Manifest.permission.WRITE_CALL_LOG)
+                            }
                         }
                     }
                 }
@@ -266,6 +295,7 @@ private fun insertCallLog(context: Context, phoneNumber: String, duration: Strin
     }
     context.contentResolver.insert(CallLog.Calls.CONTENT_URI, values)
 }
+
 
 fun addContact(context: Context, phoneNumber: String, name: String) {
     val intent = Intent(ContactsContract.Intents.Insert.ACTION).apply {
@@ -299,4 +329,13 @@ fun isPhoneNumberInContacts(context: Context, phoneNumber: String): Boolean {
         }
     }
     return false // Number not found
+}
+
+fun launchAddContact(context: Context, phoneNumber: String, name: String, launcher: ActivityResultLauncher<Intent>) {
+    val intent = Intent(ContactsContract.Intents.Insert.ACTION).apply {
+        type = ContactsContract.RawContacts.CONTENT_TYPE
+        putExtra(ContactsContract.Intents.Insert.NAME, name)
+        putExtra(ContactsContract.Intents.Insert.PHONE, phoneNumber)
+    }
+    launcher.launch(intent)
 }

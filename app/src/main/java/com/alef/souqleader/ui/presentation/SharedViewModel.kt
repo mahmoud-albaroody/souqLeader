@@ -1,7 +1,10 @@
 package com.alef.souqleader.ui.presentation
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.Resource
@@ -45,6 +48,8 @@ class SharedViewModel @Inject constructor(
 
     private val _salesNameState = mutableStateOf("Initial State")
     val salesNameState: State<String> = _salesNameState
+
+
 
     fun updateSalesNameState(newState: String) {
         _salesNameState.value = newState

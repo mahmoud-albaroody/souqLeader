@@ -517,9 +517,8 @@ fun Navigation(
             it.arguments?.getString(Screen.AddCallLogScreen.objectName)?.let { jsonString ->
                 val lead = jsonString.fromJson<Lead>()
                 modifier?.let { it1 ->
-
                     AddCallLogScreen(
-                        navController, modifier, lead = lead
+                        navController, modifier, mainViewModel = mainViewModel, lead = lead
                     )
                 }
             }

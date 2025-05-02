@@ -83,7 +83,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AllLeadsScreen(
-    navController: NavController, modifier: Modifier, leadId: String?, mainViewModel: MainViewModel
+    navController: NavController, modifier: Modifier,
+    leadId: String?,
+    mainViewModel: MainViewModel
 ) {
     val viewModel: AllLeadViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
@@ -164,7 +166,7 @@ fun AllLeadsScreen(
 
     }
 
-    Screen(navController, setKeyword = {
+    Screen(navController,mainViewModel, setKeyword = {
         if (it.isEmpty()) {
             viewModel.page = 1
             leadId?.let { viewModel.getLeadByStatus(it, page = viewModel.page) }
@@ -187,6 +189,7 @@ fun AllLeadsScreen(
 @Composable
 fun Screen(
     navController: NavController,
+    mainViewModel: MainViewModel,
     setKeyword: (String) -> Unit,
     leads: List<Lead>,
     leadId: String?,
@@ -194,10 +197,11 @@ fun Screen(
     loadMore: () -> Unit
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
-    var showDialog by remember { mutableStateOf(false) }
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val ctx = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
     var selectedLead by remember { mutableStateOf<Lead?>(null) }
     val messages = remember { mutableStateListOf<String>() }
     val socket = remember {
@@ -206,7 +210,7 @@ fun Screen(
         }
     }
     AddCallDetailsDialog(
-        showDialog = showDialog,
+        showDialog = showDialog ,
         onDismiss = {
             showDialog = false
             val u = Uri.parse(
@@ -231,8 +235,6 @@ fun Screen(
         },
         onConfirm = {
             showDialog = false
-
-            Log.e("ddddd",selectedLead?.name.toString())
             val leadJson = selectedLead.toJson()
             navController.navigate(
                 Screen.AddCallLogScreen.route

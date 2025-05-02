@@ -42,8 +42,6 @@ import kotlinx.coroutines.launch
 fun ActivityScreen(navController: NavController, userId: String?, mainViewModel: MainViewModel) {
     val userDetailsViewModel: UserDetailsViewModel = hiltViewModel()
     var userData by remember { mutableStateOf(UserDate()) }
-    var userDetails by remember { mutableStateOf(UserDetailsResponse()) }
-
     val actionSales = remember { mutableStateListOf<SalesReportModel>() }
     val activitiesSales = remember { mutableStateListOf<SalesReportModel>() }
     var page by remember { mutableIntStateOf(1) }

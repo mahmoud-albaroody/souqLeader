@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
@@ -15,13 +16,15 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor() : ViewModel() {
 
-    var showDialog by mutableStateOf(true)
+    var showDialog by mutableStateOf(false)
 
     var showLoader by mutableStateOf(false)
     var showFilter by mutableStateOf(false)
     var showFilterIcon by mutableStateOf(false)
     var showShareIcon by mutableStateOf(false)
+    var selectedLead by mutableStateOf("")
 
+    var isCall by mutableStateOf(true)
     private val _onShareClick =
         MutableSharedFlow<Boolean>()
     val onShareClick: MutableSharedFlow<Boolean>
