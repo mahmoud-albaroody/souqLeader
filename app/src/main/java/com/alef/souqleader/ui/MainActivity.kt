@@ -219,7 +219,6 @@ fun Start(splash: String? = null) {
                         },
                         onConfirm = {
                            mainViewModel.showDialog = false
-
                             navController.navigate(
                                 Screen.AddCallLogScreen.route
                                     .plus("?" + Screen.AddCallLogScreen.objectName )

@@ -210,31 +210,13 @@ fun Screen(
         }
     }
     AddCallDetailsDialog(
-        showDialog = showDialog ,
+        showDialog = mainViewModel.showDialog  ,
         onDismiss = {
-            showDialog = false
-            val u = Uri.parse(
-                "tel:" + selectedLead?.phone.toString()
-            )
+            mainViewModel.showDialog = false
 
-            // Create the intent and set the data for the
-            // intent as the phone number.
-            val i = Intent(Intent.ACTION_DIAL, u)
-            try {
-                // Launch the Phone app's dialer with a phone
-                // number to dial a call.
-                ctx.startActivity(i)
-            } catch (s: SecurityException) {
-
-                // show() method display the toast with
-                // exception message.
-                Toast
-                    .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
-                    .show()
-            }
         },
         onConfirm = {
-            showDialog = false
+            mainViewModel.showDialog = false
             val leadJson = selectedLead.toJson()
             navController.navigate(
                 Screen.AddCallLogScreen.route
@@ -289,7 +271,28 @@ fun Screen(
                             lead.sales_id.toString()
                         )
                         selectedLead = lead
-                        showDialog = true
+                        val u = Uri.parse(
+                            "tel:" + selectedLead?.phone.toString()
+                        )
+
+                        // Create the intent and set the data for the
+                        // intent as the phone number.
+                        val i = Intent(Intent.ACTION_DIAL, u)
+                        try {
+                            // Launch the Phone app's dialer with a phone
+                            // number to dial a call.
+                            ctx.startActivity(i)
+                            mainViewModel.showDialog = true
+                        }
+                        catch (s: SecurityException) {
+
+                            // show() method display the toast with
+                            // exception message.
+                            Toast
+                                .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                .show()
+                        }
+
                     },
                         onMailClick = { lead ->
                             socket.sendData(lead.id.toString(), "email", lead.sales_id.toString())

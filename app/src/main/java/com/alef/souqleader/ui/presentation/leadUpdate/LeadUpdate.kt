@@ -139,6 +139,7 @@ fun LeadUpdateScreen(
         viewModel.viewModelScope.launch {
             viewModel.updateLead.collect {
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+                navController.popBackStack()
             }
         }
 

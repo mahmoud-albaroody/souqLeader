@@ -1,6 +1,8 @@
 package com.alef.souqleader.ui.presentation.userDetails
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,6 +67,7 @@ import com.alef.souqleader.ui.presentation.salesProfileReport.SalesProfileReport
 import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserDetailsScreen(navController: NavController, userId: String?, mainViewModel: MainViewModel) {
     val userDetailsViewModel: UserDetailsViewModel = hiltViewModel()
@@ -76,7 +79,6 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
     val activitiesSales = remember { mutableStateListOf<SalesReportModel>() }
     var page by remember { mutableIntStateOf(1) }
     var activityPage by remember { mutableIntStateOf(1) }
-    Log.e("sssssss", AccountData.auth_token.toString())
     LaunchedEffect(key1 = true) {
         userId?.let { userDetailsViewModel.userDetails(it) }
 
@@ -92,7 +94,7 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                         userData.activities?.forEach { activity ->
                             activitiesSales.add(
                                 SalesReportModel(
-                                    time = activity.created_at,
+                                    time = activity.getDate(),
                                     image = activity.activity_by?.photo?:"",
                                     name = activity.activity_by?.name,
                                     action = activity.getDescriptions()
@@ -106,7 +108,7 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                         userData.actions?.forEach { action ->
                             actionSales.add(
                                 SalesReportModel(
-                                    time = action.created_at,
+                                    time = action.getDate(),
                                     name = action.sales,
                                     status = action.status,
                                     comment = action.note,
@@ -350,32 +352,32 @@ fun ProfileItem(
 
                 }
             }
-            if (AccountData.permissionList.find { it.module_name == "sales_report" && it.permissions.read } != null)
-                Card(
-                Modifier
-                    .weight(1f)
-                    .height(100.dp)
-                    .clickable {
-                        onSalesReport()
-                    }) {
-                Column(Modifier.padding(16.dp)) {
-                    Text(
-                        text = userDetails.sales_report_count ?: "", style = TextStyle(
-                            fontSize = 20.sp,
-                            color = colorResource(id = R.color.blue),
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 8.dp),
-                        text = stringResource(R.string.sales_report_count),
-                        style = TextStyle(
-                            fontSize = 15.sp
-                        )
-                    )
-
-                }
-            }
+//            if (AccountData.permissionList.find { it.module_name == "sales_report" && it.permissions.read } != null)
+//                Card(
+//                Modifier
+//                    .weight(1f)
+//                    .height(100.dp)
+//                    .clickable {
+//                        onSalesReport()
+//                    }) {
+//                Column(Modifier.padding(16.dp)) {
+//                    Text(
+//                        text = userDetails.sales_report_count ?: "", style = TextStyle(
+//                            fontSize = 20.sp,
+//                            color = colorResource(id = R.color.blue),
+//                            fontWeight = FontWeight.Bold
+//                        )
+//                    )
+//                    Text(
+//                        modifier = Modifier.padding(top = 8.dp),
+//                        text = stringResource(R.string.sales_report_count),
+//                        style = TextStyle(
+//                            fontSize = 15.sp
+//                        )
+//                    )
+//
+//                }
+//            }
         }
     }
 }
