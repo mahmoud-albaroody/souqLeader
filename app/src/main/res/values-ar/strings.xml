@@ -194,16 +194,16 @@
     <string name="min_price">أقل سعر</string>
     <string name="from">من</string>
     <string name="max_price">أعلى سعر</string>
-    <string name="submit">Submit</string>
-    <string name="add_lead_add_call_details">Add lead / Add call Details</string>
-    <string name="would_you_like_to_add_or_log_the_details_of_the_call">Would you like to add or log the details of the call?</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="caller_number">Caller Number</string>
-    <string name="caller_called_number">Caller/Called Number*</string>
-    <string name="duration_seconds">Duration (seconds)</string>
-    <string name="add_log">Add Log</string>
-    <string name="duration">Duration</string>
+    <string name="submit">إرسال</string>
+    <string name="add_lead_add_call_details">إضافة عميل / إضافة تفاصيل المكالمة</string>
+    <string name="would_you_like_to_add_or_log_the_details_of_the_call">هل ترغب في إضافة أو تسجيل تفاصيل المكالمة؟</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+    <string name="caller_number">رقم المتصل</string>
+    <string name="caller_called_number">رقم المتصل/المُتَّصل به*</string>
+    <string name="duration_seconds">المدة (بالثواني)</string>
+    <string name="add_log">إضافة سجل</string>
+    <string name="duration">المدة</string>
 
 
 </resources>
