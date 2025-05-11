@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.presentation.timeline
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
@@ -54,7 +55,7 @@ class TimeLineViewModel @Inject constructor(
         MutableSharedFlow<Resource<PostResponse>>(replay = 1)
     val statePosts: MutableSharedFlow<Resource<PostResponse>>
         get() = _statePosts
-
+    var page by mutableIntStateOf(1)
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()

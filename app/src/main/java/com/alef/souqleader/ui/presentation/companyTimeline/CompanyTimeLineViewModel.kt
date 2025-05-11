@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.presentation.companyTimeline
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
@@ -40,7 +41,7 @@ class CompanyTimeLineViewModel @Inject constructor(
     private val addLikeUseCase: AddLikeUseCase
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-
+    var page by mutableIntStateOf(1)
     //  var statePosts by mutableStateOf(emptyList<Post>())
 
 

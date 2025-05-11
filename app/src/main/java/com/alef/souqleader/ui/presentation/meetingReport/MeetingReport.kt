@@ -601,7 +601,10 @@ fun MeetingLeads(lead: Lead) {
         ) {
             Text(text = lead.name ?: "", style = TextStyle(), modifier = Modifier.weight(1f))
             Text(
-                text = lead.phone ?: "",
+                   text =  (lead.phone?.substring(
+                    0,
+                    3
+                ) + "*".repeat(lead.phone?.length!! - 3))?: "",
                 style = TextStyle(color = colorResource(id = R.color.blue2)),
                 modifier = Modifier.weight(1f)
             )

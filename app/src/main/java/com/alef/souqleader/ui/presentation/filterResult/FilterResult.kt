@@ -292,7 +292,10 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit,  onLongPress: (Lead) -
                             )
                         )
                         Text(
-                            text = lead.phone ?: "", style = TextStyle(
+                            text =  (lead.phone?.substring(
+                                0,
+                                3
+                            ) + "*".repeat(lead.phone?.length!! - 3)), style = TextStyle(
                                 fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                             )
                         )

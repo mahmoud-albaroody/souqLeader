@@ -176,7 +176,8 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                 items(activitiesSales) { actionSalesItem ->
                     ActivityItem(actionSalesItem, type)
                 }
-                if (userData.activities_pagination?.pages != null) if (userData.activities_pagination?.pages!! > activityPage && activitiesSales.size > 10) {
+                if (userData.activities_pagination?.pages != null)
+                    if (userData.activities_pagination?.pages!! > activityPage && activitiesSales.size > 10) {
                     item {
                         Row(
                             Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center

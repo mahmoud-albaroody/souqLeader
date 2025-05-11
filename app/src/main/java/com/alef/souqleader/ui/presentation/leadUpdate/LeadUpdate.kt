@@ -74,8 +74,10 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -88,7 +90,7 @@ fun LeadUpdateScreen(
     val cancelationReason = remember { mutableStateListOf<CancelationReason>() }
     val cancelationTitleReason = remember { mutableStateListOf<String>() }
     val context = LocalContext.current
-    Log.e("ddd", leadIds.size.toString())
+
 
     LaunchedEffect(key1 = true) {
         viewModel.getLeads()
@@ -485,16 +487,24 @@ fun TimePickerDialog(
     val mCalendar = Calendar.getInstance()
     val mHour = mCalendar[Calendar.HOUR_OF_DAY]
     val mMinute = mCalendar[Calendar.MINUTE]
-    val mTime = remember { mutableStateOf("") }
-    val timePickerDialog = TimePickerDialog(
-        mContext,R.style.DialogTheme,
-        { _, mHour: Int, mMinute: Int ->
-            mTime.value = "$mHour:$mMinute"
-            onTimeSelected(mTime.value)
-        }, mHour, mMinute, false
+
+    val timePickerDialog = android.app.TimePickerDialog(
+        mContext, R.style.DialogTheme,
+        { _, hourOfDay: Int, minute: Int ->
+            // Format to 12-hour with AM/PM
+            val cal = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hourOfDay)
+                set(Calendar.MINUTE, minute)
+            }
+            val format = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            val formattedTime = format.format(cal.time)
+            onTimeSelected(formattedTime)
+        }, mHour, mMinute, false // `false` for 12-hour format
     )
+
     timePickerDialog.setOnDismissListener {
-        onDismiss.invoke()
+        onDismiss()
     }
+
     timePickerDialog.show()
 }

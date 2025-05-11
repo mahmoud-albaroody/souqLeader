@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.view.SoundEffectConstants
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -18,6 +19,7 @@ import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +37,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
@@ -60,6 +63,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -97,6 +101,7 @@ import com.alef.souqleader.ui.presentation.timeline.TimeLineViewModel
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -116,7 +121,7 @@ fun CompanyTimelineScreen(
     val viewModel: CompanyTimeLineViewModel = hiltViewModel()
     val posts = remember { mutableStateListOf<Post>() }
     var visibleMeda by remember { mutableStateOf(false) }
-    var page = 1
+    var loadMore by remember { mutableStateOf(true) }
     var info by remember { mutableStateOf(Info()) }
     var likedPost by remember { mutableStateOf<Post?>(null) }
     val context = LocalContext.current
@@ -171,27 +176,26 @@ fun CompanyTimelineScreen(
 
 
     LaunchedEffect(key1 = true) {
-        viewModel.getCompanyPost(page)
+        viewModel.getCompanyPost(viewModel.page)
 
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
                 imageUri = null
                 if (it is Resource.Success) {
-
-
                     it.data?.let {
                         if (it.info != null)
                             info = it.info
                         it.data.let { it1 ->
-                            if (page == 1) {
+                            if (viewModel.page == 1) {
                                 posts.clear()
                             }
                             posts.addAll(it1)
                         }
                     }
+                    loadMore = true
                     mainViewModel.showLoader = false
                 } else if (it is Resource.Loading) {
-                    if (page == 1)
+                    if (viewModel.page == 1)
                         mainViewModel.showLoader = true
                 } else if (it is Resource.DataError) {
                     mainViewModel.showLoader = false
@@ -200,8 +204,8 @@ fun CompanyTimelineScreen(
         }
         viewModel.addPosts.observe(context as MainActivity) {
             if (it.status) {
-                page = 1
-                viewModel.getCompanyPost(page)
+                viewModel.page = 1
+                viewModel.getCompanyPost(viewModel.page)
             } else {
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
@@ -366,7 +370,7 @@ fun CompanyTimelineScreen(
                 text = vedioPath?.path.toString()
             )
 
-        LazyColumn(state = listState, modifier = Modifier.padding(horizontal = 24.dp)) {
+        LazyColumn(state = listState, modifier = Modifier.fillMaxHeight().padding(horizontal = 24.dp)) {
             items(posts) { post ->
                 TimelineItem(
                     post, onTimelineCLick = {
@@ -386,11 +390,17 @@ fun CompanyTimelineScreen(
                         }
                     })
             }
-            if (info.pages != null)
-                if (info.pages!! > info.count!!) {
+
+            if (info.pages != null && loadMore)
+                if (info.pages!! > viewModel.page) {
+
                     item {
                         if (posts.isNotEmpty()) {
-                            viewModel.getCompanyPost(++page)
+                            viewModel.viewModelScope.launch {
+                                delay(1000)
+                                loadMore = false
+                                viewModel.getCompanyPost(++viewModel.page)
+                            }
                         }
                         Row(
                             Modifier.fillMaxWidth(),
@@ -575,9 +585,56 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
 
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding( 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    modifier = Modifier
+                        .size(45.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                    painter = rememberAsyncImagePainter(
+                        if (post.user?.photo?.isNotEmpty() == true) {
+                            AccountData.BASE_URL + post.user.photo
+                        } else {
+                            R.drawable.user_profile_placehoder
+                        }
+
+                    ),
+
+                    contentDescription = ""
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth().wrapContentHeight()
+                        .padding(horizontal = 8.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    post.user?.name?.let {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = it, fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    post.getDate()?.let {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = it,
+                            fontSize = 11.sp,
+                        )
+                    }
+                }
+            }
+
+            if(!post.images.isNullOrEmpty())
             Image(
                 painter = rememberAsyncImagePainter(
-                    if (post.images?.isNotEmpty() == true) {
+                    if (post.images.isNotEmpty()) {
                         AccountData.BASE_URL + post.images[0].image
                     } else {
                         ""

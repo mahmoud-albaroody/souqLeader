@@ -55,7 +55,7 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private var receiver: CallReceiver? = null
+//    private var receiver: CallReceiver? = null
      var addContactLauncher: ActivityResultLauncher<Intent>? = null
     private val viewModel: MainViewModel by viewModels()
 
@@ -142,7 +142,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(receiver)
+//        unregisterReceiver(receiver)
         unregisterReceiver(callReceiver)
 
     }

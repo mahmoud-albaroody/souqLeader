@@ -1,5 +1,9 @@
 package com.alef.souqleader.data.remote.dto
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.alef.souqleader.ui.getCreatedAt
+
 data class Post(
     val comment: ArrayList<Comment>? = null,
     val created_at: String? = null,
@@ -16,5 +20,10 @@ data class Post(
 ) {
     fun commentCount(): Int? {
         return comment?.size
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getDate():String? {
+        return created_at?.let { getCreatedAt(it) }
     }
 }

@@ -10,7 +10,7 @@ data class UsersItem(
     val users: List<User>
 ) {
     fun getName(): String {
-        return if (AccountData.lang == "En") {
+        return if (AccountData.lang == "en") {
             name_en
         } else {
             name_ar
