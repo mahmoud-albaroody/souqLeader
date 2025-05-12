@@ -1,13 +1,17 @@
 package com.alef.souqleader.ui.presentation.meetingReport
 
+import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,6 +56,8 @@ import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.MeetingReport
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.CustomBarChartRender
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.presentation.allLeads.AllLeadViewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -67,7 +74,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
 
 
 @Composable
-fun MeetingScreen(modifier: Modifier) {
+fun MeetingScreen(modifier: Modifier,mainViewModel:MainViewModel) {
     val viewModel: MeetingReportViewModel = hiltViewModel()
     LaunchedEffect(key1 = true) {
         viewModel.getMeetingReport()
@@ -103,7 +110,7 @@ fun MeetingScreen(modifier: Modifier) {
                                     .heightIn(200.dp, 500.dp),
                                 content = {
                                     items(it.leads) { lead ->
-                                        MeetingLeads(lead)
+                                        MeetingLeads(lead,mainViewModel)
                                     }
                                 })
                         }
@@ -589,7 +596,8 @@ fun updatePieChartWithData(
 
 
 @Composable
-fun MeetingLeads(lead: Lead) {
+fun MeetingLeads(lead: Lead,mainViewModel: MainViewModel) {
+    val ctx = LocalContext.current
 
     Column {
         Row(
@@ -600,21 +608,51 @@ fun MeetingLeads(lead: Lead) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = lead.name ?: "", style = TextStyle(), modifier = Modifier.weight(1f))
-            Text(
-                   text =  (lead.phone?.substring(
-                    0,
-                    3
-                ) + "*".repeat(lead.phone?.length!! - 3))?: "",
-                style = TextStyle(color = colorResource(id = R.color.blue2)),
-                modifier = Modifier.weight(1f)
-            )
+           if(lead.phone?.length!!>3) {
+               Text(
+                   text = (lead.phone.substring(
+                       0,
+                       3
+                   ) + "*".repeat(lead.phone.length - 3)),
+                   style = TextStyle(color = colorResource(id = R.color.blue2)),
+                   modifier = Modifier.weight(1f)
+               )
+           }else{
+               Text(
+                   text = lead.phone,
+                   style = TextStyle(color = colorResource(id = R.color.blue2)),
+                   modifier = Modifier.weight(1f)
+               )
+           }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.weight(0.5f)
             ) {
                 Image(
-                    modifier = Modifier.padding(end = 4.dp),
+                    modifier = Modifier.padding(end = 4.dp).clickable {
+                        val u = Uri.parse(
+                            "tel:" + lead.phone.toString()
+                        )
+
+                        // Create the intent and set the data for the
+                        // intent as the phone number.
+                        val i = Intent(Intent.ACTION_DIAL, u)
+                        try {
+                            // Launch the Phone app's dialer with a phone
+                            // number to dial a call.
+                            ctx.startActivity(i)
+                            mainViewModel.showDialog = true
+                        }
+                        catch (s: SecurityException) {
+
+                            // show() method display the toast with
+                            // exception message.
+                            Toast
+                                .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                .show()
+                        }
+                    },
                     painter = painterResource(id = R.drawable.baseline_call_24),
                     contentDescription = "",
                     contentScale = ContentScale.Fit,

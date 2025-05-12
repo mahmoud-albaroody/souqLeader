@@ -108,6 +108,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -348,7 +350,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 TimelineItem(
                     post, onTimelineCLick = {
                         post.postType="timelineCompany"
-                        val postJson = post.toJson()
+                        val postJson = URLEncoder.encode(post.toJson(), StandardCharsets.UTF_8.toString())
                         navController.navigate(
                             Screen.CRMScreen.route
                                 .plus("?" + Screen.CRMScreen.objectName + "=${postJson}")
@@ -556,29 +558,44 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding( 8.dp),
+                    .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    modifier = Modifier
-                        .size(45.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop,
-                    painter = rememberAsyncImagePainter(
-                        if (post.user?.photo?.isNotEmpty() == true) {
-                            AccountData.BASE_URL + post.user.photo
-                        } else {
-                            R.drawable.user_profile_placehoder
-                        }
-
-                    ),
-
-                    contentDescription = ""
-                )
+                Box {
+                    Image(
+                        modifier = Modifier
+                            .size(45.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                        painter = rememberAsyncImagePainter(
+                            if (post.user?.photo?.isNotEmpty() == true) {
+                                AccountData.BASE_URL + post.user.photo
+                            } else {
+                                R.drawable.user_profile_placehoder
+                            }
+                        ),
+                        contentDescription = ""
+                    )
+                    Image(
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                            .size(10.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                        painter = rememberAsyncImagePainter(
+                            if (post.user?.is_online==1) {
+                                R.drawable.ellipse_green
+                            } else {
+                                R.drawable.ellipse_gray
+                            }
+                        ),
+                        contentDescription = ""
+                    )
+                }
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth().wrapContentHeight()
+                        .fillMaxWidth()
+                        .wrapContentHeight()
                         .padding(horizontal = 8.dp),
                     verticalArrangement = Arrangement.Center
                 ) {

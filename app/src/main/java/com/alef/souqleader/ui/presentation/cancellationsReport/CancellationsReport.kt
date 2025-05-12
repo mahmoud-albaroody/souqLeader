@@ -42,13 +42,14 @@ import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.CancelationReport
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
 import com.alef.souqleader.ui.presentation.meetingReport.MeetingLeads
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 
 
 @Composable
-fun CancellationsReport(navController: NavController, modifier: Modifier) {
+fun CancellationsReport(navController: NavController, modifier: Modifier,mainViewModel:MainViewModel) {
     val viewModel: CancellationReportViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
@@ -60,54 +61,54 @@ fun CancellationsReport(navController: NavController, modifier: Modifier) {
             .padding(vertical = 16.dp, horizontal = 24.dp)
     ) {
         viewModel.cancellationStatus?.let {
-            Cancellations(it)
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
 
-            ) {
-                MyBarChart(it.reasons_chart, stringResource(R.string.cancellation_report))
-            }
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp, top = 8.dp),
-            ) {
-                Column(
-                    Modifier
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                content = {
+                    item { Cancellations(it) }
+                    item {
+                        Card(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
 
-                ) {
-                    Text(
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-                        text = stringResource(R.string.cancellation_leads),
-                        fontSize = 18.sp, color = colorResource(id = R.color.black),
-                        fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
-                    )
-                    LazyColumn(
-                        modifier = Modifier
-                            .heightIn(200.dp, 500.dp), content = {
-                            items(it.leads) { lead ->
-                                MeetingLeads(lead)
+                        ) {
+                            MyBarChart(
+                                it.reasons_chart,
+                                stringResource(R.string.cancellation_report)
+                            )
+                        }
+                    }
+                    item {
+                        Card(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp, top = 8.dp),
+                        ) {
+                            Column(
+                                Modifier
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                                    text = stringResource(R.string.cancellation_leads),
+                                    fontSize = 18.sp, color = colorResource(id = R.color.black),
+                                    fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
+                                )
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .heightIn(200.dp, 500.dp), content = {
+                                        items(it.leads) { lead ->
+                                            MeetingLeads(lead, mainViewModel = mainViewModel)
+                                        }
+                                    })
                             }
-                        })
-                }
-            }
-//            LazyColumn(
-//                Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 8.dp)
-//            ) {
-//                items(it.leads) { lead ->
-//                    CancellationsReportItem(lead)
-////                modifier, listOfGym[it]) { gym ->
-//////                viewModel.toggleFav(gym)
-////                onclick(gym)
-////            }
-//                }
-//            }
+                        }
+                    }
+                })
         }
     }
 

@@ -75,6 +75,8 @@ import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -83,7 +85,10 @@ import java.util.Locale
 @Composable
 fun LeadUpdateScreen(
     navController: NavHostController,
-    modifier: Modifier, mainViewModel: MainViewModel,sharedViewModel:SharedViewModel, leadIds: Array<String>
+    modifier: Modifier,
+    mainViewModel: MainViewModel,
+    sharedViewModel: SharedViewModel,
+    leadIds: Array<String>
 ) {
     val viewModel: LeadUpdateViewModel = hiltViewModel()
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
@@ -120,9 +125,15 @@ fun LeadUpdateScreen(
                             AccountData.clear()
                             (context as MainActivity).setContent {
                                 AndroidCookiesTheme {
-                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        sharedViewModel,
+                                        mainViewModel
+                                    )
                                 }
-                            }                        }
+                            }
+                        }
                         mainViewModel.showLoader = false
                     }
                 }
@@ -223,7 +234,7 @@ fun LeadUpdate(
                 if (leads.find { it.getTitle() == selectedDate }?.id == 8) {
                     showCancllation = true
                 } else {
-                    cancelationTitle =""
+                    cancelationTitle = ""
                     showCancllation = false
                 }
                 leadSelected = selectedDate
@@ -299,11 +310,21 @@ fun LeadUpdate(
                     })
             }
 
-        Button(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
+        Button(modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp),
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
-                onUpdateClick(leadSelected, note, cancelationTitle, selectedDate)
+
+                val inputFormat = SimpleDateFormat("yyyy/M/d hh:mm a", Locale.US)
+                val outputFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US)
+
+                val date = inputFormat.parse(selectedDate)
+                date?.let {
+                    onUpdateClick(leadSelected, note, cancelationTitle, outputFormat.format(it))
+                }
+
             }) {
             Text(text = stringResource(R.string.update), Modifier.padding(vertical = 8.dp))
         }
@@ -464,7 +485,7 @@ fun DatePickerModal(
     mCalendar.time = Date()
     val mDate = remember { mutableStateOf("") }
     val mDatePickerDialog = DatePickerDialog(
-        mContext,R.style.DialogTheme,
+        mContext, R.style.DialogTheme,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
             mDate.value = "$mYear/${mMonth + 1}/$mDayOfMonth"
             onDateSelected(mDate.value)
@@ -488,7 +509,7 @@ fun TimePickerDialog(
     val mHour = mCalendar[Calendar.HOUR_OF_DAY]
     val mMinute = mCalendar[Calendar.MINUTE]
 
-    val timePickerDialog = android.app.TimePickerDialog(
+    val timePickerDialog = TimePickerDialog(
         mContext, R.style.DialogTheme,
         { _, hourOfDay: Int, minute: Int ->
             // Format to 12-hour with AM/PM
@@ -508,3 +529,26 @@ fun TimePickerDialog(
 
     timePickerDialog.show()
 }
+
+//@Composable
+//fun TimePickerDialog(
+//    onTimeSelected: (String) -> Unit,
+//    onDismiss: () -> Unit
+//) {
+//    val mContext = LocalContext.current
+//    val mCalendar = Calendar.getInstance()
+//    val mHour = mCalendar[Calendar.HOUR_OF_DAY]
+//    val mMinute = mCalendar[Calendar.MINUTE]
+//    val mTime = remember { mutableStateOf("") }
+//    val timePickerDialog = TimePickerDialog(
+//        mContext, R.style.DialogTheme,
+//        { _, mHour: Int, mMinute: Int ->
+//            mTime.value = "$mHour:$mMinute"
+//            onTimeSelected(mTime.value)
+//        }, mHour, mMinute, false
+//    )
+//    timePickerDialog.setOnDismissListener {
+//        onDismiss.invoke()
+//    }
+//    timePickerDialog.show()
+//}

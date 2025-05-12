@@ -30,7 +30,7 @@ fun getCreatedAt(created_at: String): String {
 
     // If more than 2 days, return formatted date like "12Apr 2025 at 6:22 PM"
     if (days > 1) {
-        val dateFormat = DateTimeFormatter.ofPattern("ddMMM yyyy 'at' h:mm a", Locale.ENGLISH)
+        val dateFormat = DateTimeFormatter.ofPattern("dd MMM yyyy 'at' h:mm a", Locale.ENGLISH)
         return dateTime.format(dateFormat)
     }else {
 

@@ -63,6 +63,8 @@ import com.alef.souqleader.ui.presentation.salesProfileReport.SalesProfileReport
 import com.alef.souqleader.ui.presentation.timeline.TimelineScreen
 import com.alef.souqleader.ui.presentation.userDetails.UserDetailsScreen
 import org.json.JSONObject
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -163,7 +165,7 @@ fun Navigation(
             val obj = backStackEntry.arguments?.getString(Screen.JobApplicationScreen.objectName)
             if (obj != null) {
                 JobApplicationScreen(
-                    navController = navController, jobId = obj,mainViewModel
+                    navController = navController, jobId = obj, mainViewModel
                 )
 
             }
@@ -191,7 +193,9 @@ fun Navigation(
         composable(Screen.JobPostScreen.route) {
             modifier?.let { it1 ->
                 JobPostScreen(
-                    navController = navController,mainViewModel=mainViewModel, sharedViewModel = viewModel
+                    navController = navController,
+                    mainViewModel = mainViewModel,
+                    sharedViewModel = viewModel
                 )
             }
         }
@@ -308,7 +312,9 @@ fun Navigation(
             })
         ) {
             it.arguments?.getString(Screen.CRMScreen.objectName)?.let { jsonString ->
-                val post = jsonString.fromJson<Post>()
+
+                val decodedJson = URLDecoder.decode(jsonString, StandardCharsets.UTF_8.toString())
+                val post = decodedJson.fromJson<Post>()
                 modifier?.let { it1 ->
                     CRMScreen(
                         navController, modifier, post = post
@@ -345,7 +351,7 @@ fun Navigation(
         composable(Screen.ReportsScreen.route) {
             modifier?.let { it1 ->
                 MeetingScreen(
-                    modifier
+                    modifier,mainViewModel
                 )
             }
         }
@@ -479,7 +485,7 @@ fun Navigation(
                 val property = jsonString.fromJson<PropertyObject>()
                 modifier?.let { it1 ->
                     PropertyDetailsScreen(
-                        navController, modifier,mainViewModel, property = property
+                        navController, modifier, mainViewModel, property = property
                     )
 
                 }
@@ -489,7 +495,7 @@ fun Navigation(
         composable(Screen.CancellationsReportScreen.route) {
             modifier?.let { it1 ->
                 CancellationsReport(
-                    navController, modifier
+                    navController, modifier,mainViewModel
                 )
             }
         }

@@ -11,10 +11,10 @@ data class Chart(
     val id: String?=null,
     val status_id: Int?=null,
     val channel_title: String?=null,
-    val fresh_leads: Int?=null,
+    val fresh_leads: Float=0.0F,
     val percentage_leads: String?=null,
-    val total: Float?=null,
-    val total_leads: Float?=null,
+    val total: Float=0.0F,
+    val total_leads: Float=0.0F,
     val delay_actions_count: Float?=null
 ) {
     fun getCount(): Float {

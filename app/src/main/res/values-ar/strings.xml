@@ -204,6 +204,7 @@
     <string name="duration_seconds">المدة (بالثواني)</string>
     <string name="add_log">إضافة سجل</string>
     <string name="duration">المدة</string>
+    <string name="fresh_lead">عميل جديد</string>
 
 
 </resources>

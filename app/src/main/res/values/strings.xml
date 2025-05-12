@@ -203,5 +203,6 @@
     <string name="duration_seconds">Duration (seconds)</string>
     <string name="add_log">Add Log</string>
     <string name="duration">Duration</string>
+    <string name="fresh_lead">Fresh Lead</string>
 
 </resources>
