@@ -4,7 +4,9 @@ package com.alef.souqleader.ui.presentation.userDetails
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -52,6 +54,9 @@ class UserDetailsViewModel @Inject constructor(
     val userDate: MutableSharedFlow<UserDateResponse>
         get() = _userDate
     var salesProfileReport: SalesProfileReport? by mutableStateOf(null)
+
+    var page by mutableIntStateOf(1)
+    var activityPage by mutableIntStateOf(1)
 
     fun userDetails(user: String) {
         viewModelScope.launch(job) {

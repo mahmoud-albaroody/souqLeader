@@ -209,6 +209,7 @@ fun Screen(
             messages.add(msg)
         }
     }
+
     AddCallDetailsDialog(
         showDialog = mainViewModel.showDialog  ,
         onDismiss = {

@@ -215,10 +215,11 @@ fun AddLead(
     val hasMarketer = remember { mutableStateOf(false) }
     val hasSales = remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val addLead by remember { mutableStateOf(AddLead(is_fresh = false)) }
+    val addLead by remember { mutableStateOf(AddLead(is_fresh = true)) }
     val status = arrayListOf<String>()
-    status.add(stringResource(R.string.cold))
     status.add(stringResource(R.string.fresh))
+    status.add(stringResource(R.string.cold))
+
 //    if (statusList.isNotEmpty()) statusList.forEach {
 //        if (it.title_en?.uppercase() == "Cold".uppercase() || it.title_en?.uppercase() == "Fresh".uppercase())
 //            status.add(it.getTitle())

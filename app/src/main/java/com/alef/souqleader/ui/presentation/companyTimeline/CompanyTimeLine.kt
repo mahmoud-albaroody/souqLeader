@@ -372,7 +372,8 @@ fun CompanyTimelineScreen(
                 text = vedioPath?.path.toString()
             )
 
-        LazyColumn(state = listState, modifier = Modifier.fillMaxHeight().padding(horizontal = 24.dp)) {
+        LazyColumn(state = listState, modifier =
+        Modifier.fillMaxHeight().padding(horizontal = 24.dp)) {
             items(posts) { post ->
                 TimelineItem(
                     post, onTimelineCLick = {

@@ -203,6 +203,7 @@ fun CustomModalDrawer(
             }
 
             ModalNavigationDrawer(drawerState = drawerState,
+                gesturesEnabled = mainViewModel.isGesturesEnabled,
                 scrimColor = colorResource(id = R.color.transparent),
                 drawerContent = {
                     ModalDrawerSheet(
@@ -313,6 +314,7 @@ fun CustomModalDrawer(
                                 Screen.PaymentPlansScreen.route,
                                 Screen.ProfileScreen.route,
                                 Screen.RoleScreen.route -> {
+                                    mainViewModel.isGesturesEnabled = true
                                     val appTitle: String =
                                         if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
                                             R.string.dashboard
@@ -329,18 +331,35 @@ fun CustomModalDrawer(
                                         else if (currentRoute(navController) == Screen.AddLeadScreen.route) stringResource(
                                             R.string.add_lead
                                         )
-                                        else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) stringResource(
-                                            R.string.change_password
-                                        )
-                                        else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route) stringResource(
-                                            R.string.forgot_password
-                                        )
-                                        else if (currentRoute(navController) == Screen.ResetPasswordScreen.route) stringResource(
-                                            R.string.reset_password
-                                        )
-                                        else if (currentRoute(navController) == Screen.CheckCodeScreen.route) stringResource(
-                                            R.string.verify_code
-                                        )
+                                        else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) {
+                                            mainViewModel.isGesturesEnabled = false
+                                            stringResource(
+                                                R.string.change_password
+                                            )
+
+                                        }
+                                        else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route)
+                                        {
+                                            mainViewModel.isGesturesEnabled = false
+                                            stringResource(
+                                                R.string.forgot_password
+                                            )
+                                        }
+
+                                        else if (currentRoute(navController) == Screen.ResetPasswordScreen.route)
+                                        {
+                                            mainViewModel.isGesturesEnabled = false
+                                            stringResource(
+                                                R.string.reset_password
+                                            )
+                                        }
+                                        else if (currentRoute(navController) == Screen.CheckCodeScreen.route)
+                                        {
+                                            mainViewModel.isGesturesEnabled = false
+                                            stringResource(
+                                                R.string.verify_code
+                                            )
+                                        }
                                         else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
                                             R.string.filter_result
                                         )
@@ -369,6 +388,7 @@ fun CustomModalDrawer(
                                             R.string.project_details
                                         )
                                         else stringResource(R.string.dashboard)
+
                                     HomeAppBar(title = appTitle, openDrawer = {
                                         scope.launch {
                                             if (drawerState.isClosed) {
@@ -427,6 +447,7 @@ fun CustomModalDrawer(
                                     ) {
                                         title = stringResource(R.string.job_applications)
                                     }
+                                    mainViewModel.isGesturesEnabled = false
                                     AppBarWithArrow(
                                         navigationTitle(navController, title),
                                         mainViewModel = mainViewModel

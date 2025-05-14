@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
@@ -64,6 +66,7 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.salesProfileReport.SalesProfileReportItem
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -77,8 +80,8 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
     var type by remember { mutableStateOf("activity") }
     val actionSales = remember { mutableStateListOf<SalesReportModel>() }
     val activitiesSales = remember { mutableStateListOf<SalesReportModel>() }
-    var page by remember { mutableIntStateOf(1) }
-    var activityPage by remember { mutableIntStateOf(1) }
+    var loadMore by remember { mutableStateOf(true) }
+    var loadMore1 by remember { mutableStateOf(true) }
     LaunchedEffect(key1 = true) {
         userId?.let { userDetailsViewModel.userDetails(it) }
 
@@ -88,23 +91,26 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                     userData = it
 
                     if (type == "activity") {
-                        if (activityPage == 1) {
+                        if (userDetailsViewModel.activityPage == 1) {
                             actionSales.clear()
                         }
                         userData.activities?.forEach { activity ->
                             activitiesSales.add(
                                 SalesReportModel(
                                     time = activity.getDate(),
-                                    image = activity.activity_by?.photo?:"",
+                                    image = activity.activity_by?.photo ?: "",
                                     name = activity.activity_by?.name,
                                     action = activity.getDescriptions()
                                 )
                             )
                         }
-                    } else {
-                        if (page == 1) {
+                        loadMore = true
+                    }
+                    else {
+                        if (userDetailsViewModel.page == 1) {
                             actionSales.clear()
                         }
+
                         userData.actions?.forEach { action ->
                             actionSales.add(
                                 SalesReportModel(
@@ -115,7 +121,7 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                                 )
                             )
                         }
-
+                        loadMore1 = true
                     }
                 }
             }
@@ -124,11 +130,13 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
             userDetailsViewModel.userDetailsState.collect {
                 when (it) {
                     is Resource.Success -> {
-                        page = 1
-                        activityPage = 1
+                        userDetailsViewModel.page = 1
+                        userDetailsViewModel.activityPage = 1
                         userId?.let {
                             userDetailsViewModel.userDate(
-                                it, page = page, activityPage = activityPage
+                                it,
+                                page = userDetailsViewModel.page,
+                                activityPage = userDetailsViewModel.activityPage
                             )
                         }
                         userDetails = it.data!!
@@ -150,7 +158,7 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
     }
     Column {
         userDetails.data?.let {
-            ProfileItem(it, onActionCountClick = {
+            ProfileItem(it, type = type, onActionCountClick = {
                 type = "action"
                 userId?.let { userDetailsViewModel.userDetails(it) }
             }, onActivityCountClick = {
@@ -176,49 +184,64 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                 items(activitiesSales) { actionSalesItem ->
                     ActivityItem(actionSalesItem, type)
                 }
-                if (userData.activities_pagination?.pages != null)
-                    if (userData.activities_pagination?.pages!! > activityPage && activitiesSales.size > 10) {
-                    item {
-                        Row(
-                            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
-                        userId?.let {
-                            userDetailsViewModel.userDate(
-                                it, activityPage = ++page, page = 1
-                            )
+                if (userData.activities_pagination?.pages != null && loadMore)
+                    if (userData.activities_pagination?.pages!! > userDetailsViewModel.activityPage && activitiesSales.size > 10) {
+                        item {
+                            userDetailsViewModel.viewModelScope.launch {
+                                delay(1000)
+                                loadMore = false
+                                userId?.let {
+                                    userDetailsViewModel.userDate(
+                                        it, activityPage = ++userDetailsViewModel.page, page = 1
+                                    )
+                                }
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+
+
                         }
                     }
-                }
 
             } else {
                 items(actionSales) { actionSalesItem ->
                     ActivityItem(actionSalesItem, type)
                 }
-                if (userData.actions_pagination?.pages != null) if (userData.actions_pagination?.pages!! > page && actionSales.size > 10) {
-                    item {
-                        Row(
-                            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
+                if (userData.actions_pagination?.pages != null && loadMore)
+                    if (userData.actions_pagination?.pages!! >
+                        userDetailsViewModel.page && actionSales.size > 10
+                    ) {
+                        item {
 
-                        userId?.let {
-                            userDetailsViewModel.userDate(
-                                it, activityPage = 1, page = ++page
-                            )
+                            userDetailsViewModel.viewModelScope.launch {
+                                delay(1000)
+                                loadMore1 = false
+                                userId?.let {
+                                    userDetailsViewModel.userDate(
+                                        it, activityPage = 1, page = ++userDetailsViewModel.page
+                                    )
+                                }
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+
+
                         }
                     }
-                }
 
             }
 
@@ -231,6 +254,7 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
 @Composable
 fun ProfileItem(
     userDetails: UserDetails,
+    type: String,
     onActionCountClick: () -> Unit,
     onActivityCountClick: () -> Unit,
     onSalesReport: () -> Unit
@@ -244,7 +268,8 @@ fun ProfileItem(
     ) {
 
         Card(
-            Modifier.fillMaxWidth()
+            Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0)),
         ) {
             Column(Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
                 Image(
@@ -305,7 +330,12 @@ fun ProfileItem(
 
         ) {
             Card(
-                Modifier
+                colors = CardDefaults.cardColors(
+                    containerColor = if (type == "activity") Color(
+                        0xFFDDDDDD
+                    ) else Color(0xFFF0F0F0)
+                ),
+                modifier = Modifier
                     .weight(1f)
                     .height(100.dp)
                     .clickable {
@@ -329,12 +359,18 @@ fun ProfileItem(
                 }
             }
             Card(
-                Modifier
+                modifier = Modifier
                     .weight(1f)
                     .height(100.dp)
                     .clickable {
                         onActionCountClick()
-                    }) {
+                    },
+                colors = CardDefaults.cardColors(
+                    containerColor = if (type == "activity") Color(
+                        0xFFF0F0F0
+                    ) else Color(0xFFDDDDDD)
+                )
+            ) {
                 Column(Modifier.padding(16.dp)) {
                     Text(
                         text = userDetails.actions_count ?: "0", style = TextStyle(
@@ -402,10 +438,10 @@ fun ActivityItem(actions: SalesReportModel, type: String) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (type == stringResource(id = R.string.activities)) {
+            if (type == "activity") {
                 Image(
                     modifier = Modifier
-                        .size(45.dp)
+                        .size(35.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop,
                     painter = rememberAsyncImagePainter(
@@ -434,7 +470,7 @@ fun ActivityItem(actions: SalesReportModel, type: String) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                if (type == stringResource(id = R.string.activities)) {
+                if (type == "activity") {
                     actions.name?.let {
                         Text(
                             modifier = Modifier.wrapContentWidth(),
@@ -475,6 +511,9 @@ fun ActivityItem(actions: SalesReportModel, type: String) {
                     actions.comment?.let {
                         Row {
                             Image(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .padding(end = 4.dp),
                                 painter = painterResource(id = R.drawable.notes_icon),
                                 contentDescription = ""
                             )

@@ -25,6 +25,7 @@ class MainViewModel @Inject constructor() : ViewModel() {
     var selectedLead by mutableStateOf("")
 
     var isCall by mutableStateOf(true)
+    var isGesturesEnabled by mutableStateOf(true)
     private val _onShareClick =
         MutableSharedFlow<Boolean>()
     val onShareClick: MutableSharedFlow<Boolean>

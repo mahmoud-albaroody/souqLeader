@@ -68,11 +68,7 @@ fun AddCallLogScreen(
     var isCaller by remember { mutableStateOf(false) }
     var isCalledNumber by remember { mutableStateOf(false) }
     var isDuration by remember { mutableStateOf(false) }
-    if(lead==null){
-        mainViewModel.isCall = false
-    }else{
-        mainViewModel.isCall = true
-    }
+    mainViewModel.isCall = lead != null
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->

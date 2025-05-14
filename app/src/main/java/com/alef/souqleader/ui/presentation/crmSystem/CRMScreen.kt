@@ -131,9 +131,10 @@ fun CRMScreenItem(
                 Modifier
                     .fillMaxWidth()
             ) {
+                if(!post.images.isNullOrEmpty())
                 Image(
                     painter = rememberAsyncImagePainter(
-                        if (!post.images.isNullOrEmpty()) {
+                        if (post.images.isNotEmpty()) {
                             if (post.images[0].image?.isNotEmpty() == true) {
                                 AccountData.BASE_URL + post.images[0].image
                             } else {

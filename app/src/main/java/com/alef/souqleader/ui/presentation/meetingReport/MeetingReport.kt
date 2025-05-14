@@ -74,7 +74,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
 
 
 @Composable
-fun MeetingScreen(modifier: Modifier,mainViewModel:MainViewModel) {
+fun MeetingScreen(modifier: Modifier, mainViewModel: MainViewModel) {
     val viewModel: MeetingReportViewModel = hiltViewModel()
     LaunchedEffect(key1 = true) {
         viewModel.getMeetingReport()
@@ -110,7 +110,7 @@ fun MeetingScreen(modifier: Modifier,mainViewModel:MainViewModel) {
                                     .heightIn(200.dp, 500.dp),
                                 content = {
                                     items(it.leads) { lead ->
-                                        MeetingLeads(lead,mainViewModel)
+                                        MeetingLeads(lead, mainViewModel)
                                     }
                                 })
                         }
@@ -141,7 +141,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                 Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .height(140.dp)
+
             ) {
                 Column(Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
                     Image(
@@ -155,15 +155,18 @@ fun MeetingItem(meetingReport: MeetingReport) {
                         contentDescription = "",
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
-                            .size(50.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .border(2.dp, colorResource(id = R.color.lightGray), CircleShape)
                     )
                     Text(
-                        modifier = Modifier.padding(top = 24.dp),
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 8.dp),
                         text = meetingReport.the_best.user_name,
                         style = TextStyle(
-                            fontSize = 16.sp, color = colorResource(id = R.color.blue)
+                            textAlign = TextAlign.Start,
+                            fontSize = 15.sp,
+                            color = colorResource(id = R.color.blue)
                         ),
                     )
                     Row(
@@ -186,7 +189,7 @@ fun MeetingItem(meetingReport: MeetingReport) {
                 Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .height(140.dp)
+
             ) {
                 Column(
                     Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
@@ -596,7 +599,7 @@ fun updatePieChartWithData(
 
 
 @Composable
-fun MeetingLeads(lead: Lead,mainViewModel: MainViewModel) {
+fun MeetingLeads(lead: Lead, mainViewModel: MainViewModel) {
     val ctx = LocalContext.current
 
     Column {
@@ -608,51 +611,52 @@ fun MeetingLeads(lead: Lead,mainViewModel: MainViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = lead.name ?: "", style = TextStyle(), modifier = Modifier.weight(1f))
-           if(lead.phone?.length!!>3) {
-               Text(
-                   text = (lead.phone.substring(
-                       0,
-                       3
-                   ) + "*".repeat(lead.phone.length - 3)),
-                   style = TextStyle(color = colorResource(id = R.color.blue2)),
-                   modifier = Modifier.weight(1f)
-               )
-           }else{
-               Text(
-                   text = lead.phone,
-                   style = TextStyle(color = colorResource(id = R.color.blue2)),
-                   modifier = Modifier.weight(1f)
-               )
-           }
+            if (lead.phone?.length!! > 3) {
+                Text(
+                    text = (lead.phone.substring(
+                        0,
+                        3
+                    ) + "*".repeat(lead.phone.length - 3)),
+                    style = TextStyle(color = colorResource(id = R.color.blue2)),
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                Text(
+                    text = lead.phone,
+                    style = TextStyle(color = colorResource(id = R.color.blue2)),
+                    modifier = Modifier.weight(1f)
+                )
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.weight(0.5f)
             ) {
                 Image(
-                    modifier = Modifier.padding(end = 4.dp).clickable {
-                        val u = Uri.parse(
-                            "tel:" + lead.phone.toString()
-                        )
+                    modifier = Modifier
+                        .padding(end = 4.dp)
+                        .clickable {
+                            val u = Uri.parse(
+                                "tel:" + lead.phone.toString()
+                            )
 
-                        // Create the intent and set the data for the
-                        // intent as the phone number.
-                        val i = Intent(Intent.ACTION_DIAL, u)
-                        try {
-                            // Launch the Phone app's dialer with a phone
-                            // number to dial a call.
-                            ctx.startActivity(i)
-                            mainViewModel.showDialog = true
-                        }
-                        catch (s: SecurityException) {
+                            // Create the intent and set the data for the
+                            // intent as the phone number.
+                            val i = Intent(Intent.ACTION_DIAL, u)
+                            try {
+                                // Launch the Phone app's dialer with a phone
+                                // number to dial a call.
+                                ctx.startActivity(i)
+                                mainViewModel.showDialog = true
+                            } catch (s: SecurityException) {
 
-                            // show() method display the toast with
-                            // exception message.
-                            Toast
-                                .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
-                                .show()
-                        }
-                    },
+                                // show() method display the toast with
+                                // exception message.
+                                Toast
+                                    .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                    .show()
+                            }
+                        },
                     painter = painterResource(id = R.drawable.baseline_call_24),
                     contentDescription = "",
                     contentScale = ContentScale.Fit,
