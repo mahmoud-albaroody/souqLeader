@@ -362,7 +362,7 @@ fun AllLeadsItem(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(screenHeight / 3f)
+//            .height(screenHeight / 3f)
             .padding(6.dp)
             .combinedClickable(onLongClick = {
                 lead.selected = !lead.selected
@@ -430,7 +430,7 @@ fun AllLeadsItem(
                 }
 
                 Row(
-                    Modifier.fillMaxWidth(),
+                    Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -449,7 +449,7 @@ fun AllLeadsItem(
                     }
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -493,7 +493,9 @@ fun AllLeadsItem(
                 }
 
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painterResource(R.drawable.notes_icon),
                         contentDescription = "",
@@ -510,8 +512,8 @@ fun AllLeadsItem(
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Image(painterResource(R.drawable.call_icon),
                         contentDescription = "",
