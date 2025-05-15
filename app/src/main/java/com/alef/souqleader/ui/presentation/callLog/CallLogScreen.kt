@@ -11,7 +11,9 @@ import android.database.Cursor
 import android.provider.CallLog
 import android.provider.ContactsContract
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -28,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,20 +46,31 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.alef.souqleader.R
+import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
+import com.alef.souqleader.ui.presentation.leadUpdate.LeadUpdateViewModel
+import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
+import com.alef.souqleader.ui.theme.AndroidCookiesTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCallLogScreen(
-    navController: NavController,
+    navController: NavHostController,
     modifier: Modifier,
     mainViewModel: MainViewModel,
+    sharedViewModel: SharedViewModel,
     lead: Lead?
 ) {
     val ctx = LocalContext.current
@@ -68,6 +82,8 @@ fun AddCallLogScreen(
     var isCaller by remember { mutableStateOf(false) }
     var isCalledNumber by remember { mutableStateOf(false) }
     var isDuration by remember { mutableStateOf(false) }
+    val callLogViewModel: CallLogViewModel = hiltViewModel()
+    val context = LocalContext.current
     mainViewModel.isCall = lead != null
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -80,7 +96,43 @@ fun AddCallLogScreen(
         }
     }
 
+    LaunchedEffect(key1 = true) {
+        callLogViewModel.viewModelScope.launch {
+            callLogViewModel.quickCreate.collect {
+                callLogViewModel.quickCreate.collect {
+                    Toast.makeText(context,it.message.toString(),
+                        Toast.LENGTH_LONG).show()
+                    when (PackageManager.PERMISSION_GRANTED) {
+                        ContextCompat.checkSelfPermission(
+                            ctx,
+                            Manifest.permission.WRITE_CALL_LOG,
+                        ) -> {
+//                                addContact(
+//                                    ctx,
+//                                    calledNumber, caller
+//                                )
+//                                (ctx as MainActivity).addContactLauncher?.let {
+//                                    mainViewModel.selectedLead = calledNumber?:""
+//                                    launchAddContact(ctx,  calledNumber?:"", caller?:"",
+//                                        it
+//                                    )
+//                                }
 
+                            insertCallLog(ctx, calledNumber?:"", duration) // Add call log
+                        }
+
+                        else -> {
+                            permissionLauncher.launch(Manifest.permission.WRITE_CALL_LOG)
+                        }
+                    }
+                    navController.popBackStack()
+                }
+
+
+            }
+
+        }
+    }
     val permissionLauncher1 = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -245,29 +297,9 @@ fun AddCallLogScreen(
                         isDuration = true
                     }
                     else -> {
-                        when (PackageManager.PERMISSION_GRANTED) {
-                            ContextCompat.checkSelfPermission(
-                                ctx,
-                                Manifest.permission.WRITE_CALL_LOG,
-                            ) -> {
-//                                addContact(
-//                                    ctx,
-//                                    calledNumber, caller
-//                                )
-                                (ctx as MainActivity).addContactLauncher?.let {
-                                    mainViewModel.selectedLead = calledNumber?:""
-                                    launchAddContact(ctx,  calledNumber?:"", caller?:"",
-                                        it
-                                    )
-                                }
+                        callLogViewModel.quickCreate(caller?:"",
+                            calledNumber,duration,notes)
 
-                                insertCallLog(ctx, calledNumber?:"", duration) // Add call log
-                            }
-
-                            else -> {
-                                permissionLauncher.launch(Manifest.permission.WRITE_CALL_LOG)
-                            }
-                        }
                     }
                 }
             }) {

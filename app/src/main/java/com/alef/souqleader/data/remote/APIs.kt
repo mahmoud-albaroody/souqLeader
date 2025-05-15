@@ -301,6 +301,16 @@ interface APIs {
         @Field("cancel_reason") cancel_reason: String?,
     ): Response<UpdateLeadResponse>
 
+    @FormUrlEncoded
+    @POST("api/quickCreate")
+    suspend fun quickCreate(
+        @Field("name") name: String?,
+        @Field("phone") phone: String?,
+        @Field("duration") duration: String?,
+        @Field("note") note: String?,
+    ): Response<LeadsStatusResponse>
+
+
     @GET("api/userData/{id}")
     suspend fun userData(
         @Path("id") id: String, @Query("action_page") action_page: String,

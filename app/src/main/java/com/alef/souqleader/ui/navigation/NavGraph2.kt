@@ -524,7 +524,11 @@ fun Navigation(
                 val lead = jsonString.fromJson<Lead>()
                 modifier?.let { it1 ->
                     AddCallLogScreen(
-                        navController, modifier, mainViewModel = mainViewModel, lead = lead
+                        navController,
+                        modifier,
+                        mainViewModel = mainViewModel,
+                        sharedViewModel = viewModel,
+                        lead = lead
                     )
                 }
             }

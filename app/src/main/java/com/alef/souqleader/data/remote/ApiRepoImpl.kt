@@ -243,6 +243,20 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
+    suspend fun quickCreate(
+        name: String,
+        phone: String?,
+        duration: String?,
+        note: String?
+    ): Resource<LeadsStatusResponse> {
+        val response = APIs.quickCreate(name, phone, duration, note)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
     suspend fun userData(
         id: String, page: Int, activityPage: Int,
     ): Resource<UserDateResponse> {

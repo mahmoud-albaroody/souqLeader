@@ -65,6 +65,16 @@ class GetLeadUseCase @Inject constructor(private val repository: ApiRepoImpl) {
         return repository.updateLead(id, status, note, reminderTime, cancelReason)
     }
 
+    suspend fun quickCreate(
+        name: String,
+        phone: String?,
+        duration: String?,
+        note: String?,
+    ): Resource<LeadsStatusResponse> {
+        return repository.quickCreate(name, phone, duration, note)
+    }
+
+
     suspend fun cancelationReason(): Resource<CancelationReasonResponse> {
         return repository.cancelationReason()
     }
