@@ -90,7 +90,7 @@ fun AddCallLogScreen(
     ) { isGranted: Boolean ->
         if (isGranted) {
             // Permission granted -> Insert into Call Log
-            insertCallLog(ctx, calledNumber?:"", duration)
+          //  insertCallLog(ctx, calledNumber?:"", duration)
         } else {
             // Permission denied -> Show some message or handle accordingly
         }
@@ -118,7 +118,7 @@ fun AddCallLogScreen(
 //                                    )
 //                                }
 
-                            insertCallLog(ctx, calledNumber?:"", duration) // Add call log
+                          //  insertCallLog(ctx, calledNumber?:"", duration) // Add call log
                         }
 
                         else -> {
