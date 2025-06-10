@@ -1,5 +1,7 @@
 package com.alef.souqleader.data.remote.dto
 
+import com.alef.souqleader.data.remote.Info
+
 data class MeetingReport(
     val channel_chart: List<ChannelChart>,
     val chart: List<Chart>,
@@ -12,5 +14,6 @@ data class MeetingReport(
     val total_meeting: Int,
     val leads_count: String,
     val projectChart: List<ProjectChart>,
-    val projects_count: String
+    val projects_count: String,
+    val pagination:Info
 )

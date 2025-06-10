@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.meetingReport
 
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -25,15 +26,16 @@ class MeetingReportViewModel @Inject constructor(
 ) : ViewModel() {
 
      var meetingReports: MeetingReport? by mutableStateOf(null)
-
+    var page by mutableIntStateOf(1)
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
     }
 
     fun getMeetingReport() {
+
         viewModelScope.launch(job) {
-            meetingReports = meetingReportsUseCase.getMeetingReport().data?.data!!
+            meetingReports = meetingReportsUseCase.getMeetingReport(page++.toString()).data?.data!!
         }
     }
 

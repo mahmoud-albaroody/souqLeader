@@ -267,7 +267,7 @@ fun LeadUpdate(
             },
             shape = RoundedCornerShape(8.dp),
         )
-
+        if (!showCancllation)
         Card(
             Modifier
                 .fillMaxWidth()

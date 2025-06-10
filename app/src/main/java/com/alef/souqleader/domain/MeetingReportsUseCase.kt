@@ -11,8 +11,8 @@ import com.alef.souqleader.data.remote.dto.ProjectsReportResponse
 import javax.inject.Inject
 
 class MeetingReportsUseCase @Inject constructor(private val repository: ApiRepoImpl) {
-    suspend fun getMeetingReport(): Resource<MeetingReportResponse> {
-        return repository.getMeetingReport()
+    suspend fun getMeetingReport(page:String): Resource<MeetingReportResponse> {
+        return repository.getMeetingReport(page)
     }
 
     suspend fun channelReport(): Resource<ChannelReportResponse> {

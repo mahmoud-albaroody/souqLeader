@@ -268,8 +268,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun cancelationReport(userId: String): Resource<CancelationReportResponse> {
-        val response = APIs.cancelationReport(userId)
+    suspend fun cancelationReport(userId: String,page: Int): Resource<CancelationReportResponse> {
+        val response = APIs.cancelationReport(userId,page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -466,8 +466,8 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
     }
 
 
-    suspend fun getMeetingReport(): Resource<MeetingReportResponse> {
-        val response = APIs.getMeetingReport()
+    suspend fun getMeetingReport(page:String): Resource<MeetingReportResponse> {
+        val response = APIs.getMeetingReport(page)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {

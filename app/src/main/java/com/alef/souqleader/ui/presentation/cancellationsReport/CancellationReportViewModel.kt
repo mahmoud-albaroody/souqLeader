@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.cancellationsReport
 
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -19,6 +20,7 @@ class CancellationReportViewModel @Inject constructor(
     private val cancelationUseCase: CancelationUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
+    var page by mutableIntStateOf(1)
     var cancellationStatus: CancelationReport? by mutableStateOf(null)
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -39,7 +41,7 @@ class CancellationReportViewModel @Inject constructor(
 //,
     fun getCancellationReport(userId:String) {
         viewModelScope.launch(job) {
-            cancellationStatus = cancelationUseCase.getCancelationReport(userId).data?.data!!
+            cancellationStatus = cancelationUseCase.getCancelationReport(userId,page++).data?.data!!
         }
     }
 

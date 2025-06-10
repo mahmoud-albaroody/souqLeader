@@ -35,12 +35,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -126,6 +128,7 @@ fun CompanyTimelineScreen(
     var loadMore by remember { mutableStateOf(true) }
     var info by remember { mutableStateOf(Info()) }
     var likedPost by remember { mutableStateOf<Post?>(null) }
+    val images = remember { mutableStateListOf<Uri>() }
     val context = LocalContext.current
     val listState = rememberLazyListState()
     //  val posts = mutableStateListOf<Post>()
@@ -143,6 +146,7 @@ fun CompanyTimelineScreen(
     ) { uri: Uri? ->
         if (uri != null) {
             imageUri = uri
+            images.add(uri)
             vedioPath = null
             visibleMeda = true
         } else {
@@ -154,6 +158,7 @@ fun CompanyTimelineScreen(
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
             vedioPath = it
             imageUri = null
+            images.clear()
             visibleMeda = false
         }
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -163,6 +168,7 @@ fun CompanyTimelineScreen(
             // Save the Bitmap to a file and get the Uri
             val uri = saveBitmapToFile(context, bitmap)
             imageUri = uri
+            uri?.let { it1 -> images.add(it1) }
             visibleMeda = true
             vedioPath = null
         }
@@ -173,6 +179,7 @@ fun CompanyTimelineScreen(
         vedioPath = videoUrl
         visibleMeda = false
         imageUri = null
+        images.clear()
     }
 
 
@@ -183,6 +190,7 @@ fun CompanyTimelineScreen(
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
                 imageUri = null
+                images.clear()
                 if (it is Resource.Success) {
                     it.data?.let {
                         if (it.info != null)
@@ -244,9 +252,9 @@ fun CompanyTimelineScreen(
                     Toast.makeText(context,
                         context.getString(R.string.please_add_a_caption_to_your_post),Toast.LENGTH_LONG).show()
                 }else {
-                val images: ArrayList<MultipartBody.Part> = arrayListOf()
+                val imagesMulti: ArrayList<MultipartBody.Part> = arrayListOf()
 
-                if (imageUri == null) {
+                if (images.isEmpty()) {
                     val name: RequestBody = RequestBody.create(
                         "text/plain".toMediaType(),
                         it
@@ -254,35 +262,41 @@ fun CompanyTimelineScreen(
                     viewModel.addPost(name, null)
                 }
                 else {
-                    val parcelFileDescriptor =
-                        context.contentResolver.openFileDescriptor(imageUri!!, "r", null)
-                    parcelFileDescriptor?.let { pfd ->
-                        val inputStream = FileInputStream(pfd.fileDescriptor)
-                        val file = File(context.cacheDir, "temp_image_file")
-                        val outputStream = FileOutputStream(file)
-                        inputStream.copyTo(outputStream)
+                    images.forEach {
+                        val parcelFileDescriptor =
+                            context.contentResolver.openFileDescriptor(it, "r", null)
+                        parcelFileDescriptor?.let { pfd ->
+                            val inputStream = FileInputStream(pfd.fileDescriptor)
+                            val file = File(context.cacheDir, "temp_image_file_${System.currentTimeMillis()}")
+                            val outputStream = FileOutputStream(file)
+                            inputStream.copyTo(outputStream)
 
-                        // Close streams
-                        inputStream.close()
-                        outputStream.close()
-                        pfd.close()
-                        val requestFile: RequestBody =
-                            RequestBody.create("image/*".toMediaType(), file)
-                        val imagePart =
-                            MultipartBody.Part.createFormData(
-                                "images[]",
-                                file.name,
-                                requestFile
-                            )
+                            // Close streams
+                            inputStream.close()
+                            outputStream.close()
+                            pfd.close()
+                            val requestFile: RequestBody =
+                                RequestBody.create("image/*".toMediaType(), file)
+                            val imagePart =
+                                MultipartBody.Part.createFormData(
+                                    "images[]",
+                                    file.name,
+                                    requestFile
+                                )
 
-                        images.add(imagePart)
-                        val name: RequestBody = RequestBody.create(
-                            "text/plain".toMediaType(),
-                            it
-                        )
-                        // Call the ViewModel's addPost function with the necessary parameters
-                        viewModel.addPost(name, images)
+                            imagesMulti.add(imagePart)
+
+                        }
                     }
+
+
+
+                    val name: RequestBody = RequestBody.create(
+                        "text/plain".toMediaType(),
+                        it
+                    )
+                    // Call the ViewModel's addPost function with the necessary parameters
+                    viewModel.addPost(name, imagesMulti)
                 }
                     visibleMeda = false
                 }
@@ -350,23 +364,59 @@ fun CompanyTimelineScreen(
                 )
             }
         )
-        if (visibleMeda && imageUri != null)
-            Column(
-                Modifier
+        if (visibleMeda && images.isNotEmpty())
+            LazyRow(
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
-                    .padding(horizontal = 36.dp)
+                    .padding(horizontal = 24.dp)
             ) {
-                AsyncImage(
-                    model = imageUri,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .fillMaxHeight()
-                        .width(100.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop,
-                )
+                items(images) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .padding(horizontal = 6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxHeight()
+                                .width(100.dp)
+                        ) {
+                            AsyncImage(
+                                model = it,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(12.dp))
+                            )
+
+                            // Delete icon at top-right corner
+                            IconButton(
+                                onClick = {
+                                    images.remove(it)
+                                },
+                                modifier = Modifier
+                                    .size(25.dp)
+                                    .align(Alignment.TopEnd)
+                                    .padding(4.dp)
+                                    .background(
+                                        color = Color.Black.copy(alpha = 0.5f),
+                                        shape = CircleShape
+                                    )
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(25.dp),
+                                    imageVector = Icons.Default.Delete, // or use a custom icon if preferred
+                                    contentDescription = "Delete Image",
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
         if (vedioPath != null)

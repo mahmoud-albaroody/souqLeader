@@ -16,6 +16,5 @@ data class AddLead(
     val action_date: String? = null,
     var budget: String? = null,
     var campaign_id:Int?=null,
-    var is_fresh: Boolean
-
+    var is_fresh: Int
 )

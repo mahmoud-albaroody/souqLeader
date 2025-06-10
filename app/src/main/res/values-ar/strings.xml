@@ -113,7 +113,7 @@
     <string name="the_sales_id_is_required">معرف المبيعات مطلوب</string>
     <string name="select_image">اختر صورة</string>
     <string name="write_your_post">اكتب منشورك</string>
-    <string name="sort_by">الترتيب حسب</string>
+    <string name="sort_by">الترتيب حسب السعر ↑</string>
     <string name="map">الخريطة</string>
     <string name="all_projects">جميع المشاريع</string>
     <string name="language">اللغة</string>

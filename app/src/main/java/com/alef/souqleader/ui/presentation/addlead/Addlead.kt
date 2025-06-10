@@ -90,6 +90,8 @@ fun AddLeadScreen(
     val channelList = remember { mutableStateListOf<Channel>() }
     val salesList = remember { mutableStateListOf<Sales>() }
     val marketerList = remember { mutableStateListOf<Marketer>() }
+    var leadAdded by remember { mutableStateOf<AddLead?>(null) }
+
     val communicationWayList = remember { mutableStateListOf<CommunicationWay>() }
     LaunchedEffect(key1 = true) {
         addLeadViewModel.getLeads()
@@ -158,6 +160,17 @@ fun AddLeadScreen(
                         Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
                             .show()
                         mainViewModel.showLoader = false
+                        if(leadAdded?.is_fresh == 1){
+                            Screen.AllLeadsScreen.title =  context.getString(R.string.fresh)
+                            navController.navigate(
+                                Screen.AllLeadsScreen.route.plus("/${1}")
+                            )
+                        }else {
+                            Screen.AllLeadsScreen.title =  context.getString(R.string.cold)
+                            navController.navigate(
+                                Screen.AllLeadsScreen.route.plus("/${2}")
+                            )
+                        }
                     }
 
                     is Resource.Loading -> {
@@ -192,6 +205,7 @@ fun AddLeadScreen(
         campaignList, marketerList, salesList, channelList, communicationWayList, projectList,
         allLead
     ) {
+        leadAdded = it
         addLeadViewModel.lead(it)
     }
 }
@@ -215,7 +229,7 @@ fun AddLead(
     val hasMarketer = remember { mutableStateOf(false) }
     val hasSales = remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val addLead by remember { mutableStateOf(AddLead(is_fresh = true)) }
+    val addLead by remember { mutableStateOf(AddLead(is_fresh = 1)) }
     val status = arrayListOf<String>()
     status.add(stringResource(R.string.fresh))
     status.add(stringResource(R.string.cold))
@@ -225,7 +239,7 @@ fun AddLead(
 //            status.add(it.getTitle())
 //    }
     val channels = arrayListOf<String>()
-    channels.add(stringResource(R.string.lead_source))
+    channels.add(stringResource(R.string.lead_source)+"*")
     if (channelList.isNotEmpty()) channelList.forEach {
         channels.add(it.getTitle())
     }
@@ -242,12 +256,12 @@ fun AddLead(
     }
 
     val marketers = arrayListOf<String>()
-    marketers.add(stringResource(R.string.marketer))
+    marketers.add(stringResource(R.string.marketer)+"*")
     if (marketerList.isNotEmpty()) marketerList.forEach {
         marketers.add(it.name)
     }
     val sales = arrayListOf<String>()
-    sales.add(stringResource(R.string.sales_rep))
+    sales.add(stringResource(R.string.sales_rep)+"*")
     if (salesList.isNotEmpty()) salesList.forEach {
         sales.add(it.name)
     }
@@ -271,12 +285,17 @@ fun AddLead(
         ) {
 
             DynamicSelectTextField(status) { status ->
-                addLead.is_fresh =
-                    status.uppercase() == context.getString(R.string.fresh).uppercase()
+
+                    if(status.uppercase() == context.getString(R.string.fresh).uppercase()) {
+                        addLead.is_fresh = 1
+                    }else{
+                        addLead.is_fresh = 0
+                    }
+
             }
 
 
-            TextFiledItem(stringResource(R.string.name), true) {
+            TextFiledItem(stringResource(R.string.name)+"*", true) {
                 addLead.name = it
                 hasName.value = false
             }
@@ -299,7 +318,7 @@ fun AddLead(
 //                    }
 //                }
                 Box(Modifier.fillMaxWidth()) {
-                    TextFiledItem(stringResource(R.string.mobile), true) {
+                    TextFiledItem(stringResource(R.string.mobile)+"*", true) {
                         addLead.phone = it
                         hasPhone.value = false
                     }
@@ -381,11 +400,11 @@ fun AddLead(
                     hasName.value = true
                 } else if (addLead.phone.isNullOrEmpty()) {
                     hasPhone.value = true
+                }else if (addLead.channel == null) {
+                    hasChannel.value = true
                 } else if (addLead.marketer_id == null) {
                     hasMarketer.value = true
-                } else if (addLead.channel == null) {
-                    hasChannel.value = true
-                } else if (addLead.sales_id == null) {
+                }  else if (addLead.sales_id == null) {
                     hasSales.value = true
                 } else {
                     onAddClick(addLead)
@@ -411,11 +430,17 @@ fun TextFiledItem(
 
     val keyboardOptions: KeyboardOptions =
         when (text) {
-            stringResource(id = R.string.mobile) -> {
+            stringResource(id = R.string.mobile)-> {
                 KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
                 )
             }
+            (stringResource(id = R.string.mobile)+"*") -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                )
+            }
+
 
             stringResource(id = R.string.filter) -> {
                 KeyboardOptions.Default.copy(

@@ -153,13 +153,20 @@ fun TopElement(leadDetails: Lead) {
                         painter = painterResource(R.drawable.baseline_phone_24),
                         contentDescription = ""
                     )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = (leadDetails.phone?.substring(
-                            0,
-                            3
-                        ) + "*".repeat(leadDetails.phone?.length!! - 3)), fontSize = 11.sp
-                    )
+                    if(!leadDetails.phone.isNullOrEmpty() && leadDetails.phone.length >4) {
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = (leadDetails.phone.substring(
+                                0,
+                                3
+                            ) + "*".repeat(leadDetails.phone.length - 3)), fontSize = 11.sp
+                        )
+                    }else{
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = leadDetails.phone.toString(), fontSize = 11.sp
+                        )
+                    }
                 }
             }
             Row(

@@ -8,7 +8,7 @@ import com.alef.souqleader.data.remote.dto.CancelationReportResponse
 import javax.inject.Inject
 
 class CancelationUseCase @Inject constructor(private val repository: ApiRepoImpl) {
-    suspend fun getCancelationReport(userId:String): Resource<CancelationReportResponse> {
-        return  repository.cancelationReport(userId)
+    suspend fun getCancelationReport(userId:String,page:Int): Resource<CancelationReportResponse> {
+        return  repository.cancelationReport(userId,page)
     }
 }

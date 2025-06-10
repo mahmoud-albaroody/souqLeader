@@ -69,7 +69,7 @@ interface APIs {
 
     @FormUrlEncoded
     @POST("api/CancelationReport")
-    suspend fun cancelationReport(@Field("user_id") user_id: String): Response<CancelationReportResponse>
+    suspend fun cancelationReport(@Field("user_id") user_id: String,@Query("page") page: Int? = null): Response<CancelationReportResponse>
 
 
     @GET("api/project")
@@ -181,7 +181,7 @@ interface APIs {
 
 
     @POST("api/MeetingReport")
-    suspend fun getMeetingReport(): Response<MeetingReportResponse>
+    suspend fun getMeetingReport( @Query("page") page: String): Response<MeetingReportResponse>
 
     @FormUrlEncoded
     @POST("api/login")
@@ -273,7 +273,7 @@ interface APIs {
         @Field("cancel_reason") cancel_reason: String?,
         @Field("action_date") action_date: String?,
         @Field("budget") budget: String?,
-        @Field("is_fresh") is_fresh: Boolean?,
+        @Field("is_fresh") is_fresh: Int?,
     ): Response<AddLeadResponse>
 
     @GET("api/leadStatus")

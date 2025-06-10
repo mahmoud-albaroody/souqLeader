@@ -105,8 +105,7 @@ fun UserDetailsScreen(navController: NavController, userId: String?, mainViewMod
                             )
                         }
                         loadMore = true
-                    }
-                    else {
+                    } else {
                         if (userDetailsViewModel.page == 1) {
                             actionSales.clear()
                         }

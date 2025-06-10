@@ -21,15 +21,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,11 +58,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Chart
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.MeetingReport
+import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.CustomBarChartRender
 import com.alef.souqleader.ui.MainViewModel
@@ -71,15 +82,28 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun MeetingScreen(modifier: Modifier, mainViewModel: MainViewModel) {
     val viewModel: MeetingReportViewModel = hiltViewModel()
-    LaunchedEffect(key1 = true) {
+
+    val meeting = remember { mutableStateListOf<Lead>() }
+    var someKey by remember { mutableStateOf(false) }
+    var loadMore by remember { mutableStateOf(false) }
+    LaunchedEffect(key1 = someKey) {
         viewModel.getMeetingReport()
     }
     viewModel.meetingReports?.let {
+        if(viewModel.page==1){
+            meeting.clear()
+            meeting.addAll(it.leads)
+        }else {
+            meeting.addAll(it.leads)
+        }
+        loadMore = true
 
         LazyColumn(
             modifier = Modifier
@@ -109,9 +133,28 @@ fun MeetingScreen(modifier: Modifier, mainViewModel: MainViewModel) {
                                 modifier = Modifier
                                     .heightIn(200.dp, 500.dp),
                                 content = {
-                                    items(it.leads) { lead ->
+                                    items(meeting) { lead ->
                                         MeetingLeads(lead, mainViewModel)
                                     }
+
+                                    if (it.pagination.pages != null && loadMore)
+                                        if (it.pagination.pages >= viewModel.page && it.leads.size > 10) {
+                                            item {
+                                               viewModel.viewModelScope.launch {
+                                                   delay(2000)
+                                                   loadMore = false
+                                                   someKey=!someKey
+                                               }
+
+                                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.width(16.dp),
+                                                        color = MaterialTheme.colorScheme.secondary,
+                                                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                    )
+                                                }
+                                            }
+                                        }
                                 })
                         }
                     }
@@ -160,7 +203,8 @@ fun MeetingItem(meetingReport: MeetingReport) {
                             .border(2.dp, colorResource(id = R.color.lightGray), CircleShape)
                     )
                     Text(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(top = 8.dp),
                         text = meetingReport.the_best.user_name,
                         style = TextStyle(
