@@ -204,5 +204,19 @@
     <string name="add_log">Add Log</string>
     <string name="duration">Duration</string>
     <string name="fresh_lead">Fresh Lead</string>
+    <string name="new_message">New Message</string>
+    <string name="send">Send</string>
+    <string name="saved_messages">SAVED MESSAGES</string>
+    <string name="save_this_message_for_future_use">Save this message for future use</string>
+    <string name="please_enter_valid_email">Please enter valid email.</string>
+    <string name="please_enter_your_code">Please enter the verification code.</string>
+    <string name="please_enter_your_password">Please enter your Password.</string>
+    <string name="please_enter_a_new_password">Please enter a new password.</string>
+    <string name="please_confirm_your_new_password">Please confirm your new password.</string>
+    <string name="this_field_is_required">This field is required</string>
+    <string name="please_enter_a_valid_price_range">Please enter a valid price range.</string>
+    <string name="please_enter_company_name">Please enter company name</string>
+    <string name="please_enter_your_email_to_get_a_password_reset_code">Please enter your email to get a password reset code.</string>
+    <string name="please_add_a_caption_to_your_post">Please add a caption to your post</string>
 
 </resources>

@@ -8,11 +8,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.CallLog
-import android.provider.ContactsContract
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +20,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,17 +30,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.Checkbox
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Switch
 import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -51,9 +66,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -62,10 +82,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
@@ -166,7 +190,7 @@ fun AllLeadsScreen(
 
     }
 
-    Screen(navController,mainViewModel, setKeyword = {
+    Screen(navController, mainViewModel, setKeyword = {
         if (it.isEmpty()) {
             viewModel.page = 1
             leadId?.let { viewModel.getLeadByStatus(it, page = viewModel.page) }
@@ -186,6 +210,7 @@ fun AllLeadsScreen(
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Screen(
     navController: NavController,
@@ -198,6 +223,14 @@ fun Screen(
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
 
+    var contactList = rememberSaveable(
+        saver = listSaver(
+            save = { it.toList() },
+            restore = { mutableStateListOf<String>().apply { addAll(it) } }
+        )
+    ) {
+        mutableStateListOf<String>()
+    }
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val ctx = LocalContext.current
@@ -210,8 +243,43 @@ fun Screen(
         }
     }
 
+    //  var contactList by rememberSaveable { mutableStateOf(listOf("+201012953520", "+201010079486")) }
+    val emailAddresses = listOf("recipient1@example.com", "recipient2@example.com", "recipient3@example.com")
+
+    var messageToSend by rememberSaveable { mutableStateOf("initialMessage") }
+
+    // Flag to track whether we've already sent a message
+    var isMessageSent by rememberSaveable { mutableStateOf(false) }
+
+    // On Resume logic using LifecycleEventObserver
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (!isMessageSent && contactList.isNotEmpty()) {
+
+                    // Remove first contact and update the list
+                    contactList.removeAt(0)
+                    isMessageSent = false
+
+                    if (contactList.isNotEmpty()) {
+
+                        val nextContact = contactList.first()
+                        // Send the next message
+                        sendWhatsAppMessage(ctx, nextContact, messageToSend)
+                        isMessageSent = true
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     AddCallDetailsDialog(
-        showDialog = mainViewModel.showDialog  ,
+        showDialog = mainViewModel.showDialog,
         onDismiss = {
             mainViewModel.showDialog = false
 
@@ -234,110 +302,152 @@ fun Screen(
             socket.close()
         }
     }
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+    val coroutineScope = rememberCoroutineScope()
 
-    Box(
-        Modifier
-            .background(colorResource(id = R.color.white))
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .fillMaxSize()
-    ) {
-        Column(Modifier.height(screenHeight)) {
-            Search(stringResource(R.string.search), setKeyword = {
-                setKeyword(it)
-            }, onFilterClick = {
-                navController.navigate(Screen.FilterScreen.route.plus("/${leadId}")) {
-                    launchSingleTop = true
-                }
-            })
-
-            LazyColumn(
-                Modifier.fillMaxWidth()
-            ) {
-                items(leads) { leadItem ->
-                    AllLeadsItem(leadItem, onItemClick = { lead ->
-                        navController.navigate(
-                            Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
-                        )
-
-                    }, onLongPress = { lead ->
-                        if (selectedIdList.find { it.toInt() == lead.id } == null) {
-                            selectedIdList.add(lead.id.toString())
-                        } else {
-                            selectedIdList.remove(lead.id.toString())
-                        }
-                    }, onCallClick = { lead ->
-                        socket.sendData(
-                            leadItem.id.toString(),
-                            "call",
-                            lead.sales_id.toString()
-                        )
-                        selectedLead = lead
-                        val u = Uri.parse(
-                            "tel:" + selectedLead?.phone.toString()
-                        )
-
-                        // Create the intent and set the data for the
-                        // intent as the phone number.
-                        val i = Intent(Intent.ACTION_DIAL, u)
-                        try {
-                            // Launch the Phone app's dialer with a phone
-                            // number to dial a call.
-                            ctx.startActivity(i)
-                            mainViewModel.showDialog = true
-                        }
-                        catch (s: SecurityException) {
-
-                            // show() method display the toast with
-                            // exception message.
-                            Toast
-                                .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
-                                .show()
-                        }
-
-                    },
-                        onMailClick = { lead ->
-                            socket.sendData(lead.id.toString(), "email", lead.sales_id.toString())
-                        },
-                        onSmsClick = { lead ->
-                            socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
-                        },
-                        onWhatsClick = { lead ->
-                            socket.sendData(
-                                lead.id.toString(),
-                                "whatsapp",
-                                lead.sales_id.toString()
-                            )
-                        }
-                    )
-                }
-                if (totalElementsCount > leads.size && leads.isNotEmpty()) item {
-                    loadMore()
-                    Row(
-                        Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.width(16.dp),
-                            color = MaterialTheme.colorScheme.secondary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            NewMessageSheetContent(
+                onCancel = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                },
+                onSend = { message ->
+                    coroutineScope.launch {
+                        sheetState.hide()
+                        // You can call WhatsApp sharing here:
+//                        val context = LocalContext.current
+//                        shareToWhatsApp(context, "1234567890", message)
                     }
                 }
-            }
-
-        }
-        if (selectedIdList.isNotEmpty()) Button(modifier = Modifier
-            .fillMaxWidth()
-            .align(Alignment.BottomCenter),
-            shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
-            onClick = {
-                val joinedString = selectedIdList.joinToString(separator = ",")
-                navController.navigate(Screen.LeadUpdateScreen.route.plus("/${joinedString}"))
-            }) {
-            Text(
-                text = stringResource(R.string.add_action),
-                modifier = Modifier.padding(vertical = 8.dp)
             )
+        }
+    ) {
+        Box(
+            Modifier
+                .background(colorResource(id = R.color.white))
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .fillMaxSize()
+        ) {
+            Column(Modifier.height(screenHeight)) {
+                Search(stringResource(R.string.search), setKeyword = {
+                    setKeyword(it)
+                }, onFilterClick = {
+                    navController.navigate(Screen.FilterScreen.route.plus("/${leadId}")) {
+                        launchSingleTop = true
+                    }
+                })
+
+                LazyColumn(
+                    Modifier.fillMaxWidth()
+                ) {
+                    items(leads) { leadItem ->
+                        AllLeadsItem(leadItem, onItemClick = { lead ->
+                            navController.navigate(
+                                Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
+                            )
+
+                        }, onLongPress = { lead ->
+                            if (selectedIdList.find { it.toInt() == lead.id } == null) {
+                                selectedIdList.add(lead.id.toString())
+                                //    selectedPhoneList.add(lead.phone.toString())
+                            } else {
+                                selectedIdList.remove(lead.id.toString())
+                                //selectedPhoneList.remove(lead.phone.toString())
+                            }
+                        }, onCallClick = { lead ->
+                            socket.sendData(
+                                leadItem.id.toString(),
+                                "call",
+                                lead.sales_id.toString()
+                            )
+                            selectedLead = lead
+                            val u = Uri.parse(
+                                "tel:" + selectedLead?.phone.toString()
+                            )
+
+                            // Create the intent and set the data for the
+                            // intent as the phone number.
+                            val i = Intent(Intent.ACTION_DIAL, u)
+                            try {
+                                // Launch the Phone app's dialer with a phone
+                                // number to dial a call.
+                                ctx.startActivity(i)
+                                mainViewModel.showDialog = true
+                            } catch (s: SecurityException) {
+
+                                // show() method display the toast with
+                                // exception message.
+                                Toast
+                                    .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                    .show()
+                            }
+
+                        },
+                            onMailClick = { lead ->
+//                                contactList.add("+201012953520")
+//                                contactList.add("+201010079486")
+                               // sendSms(ctx, contactList, messageToSend)
+                           //     sendEmail(ctx, emailAddresses, "subject", "message")
+
+//                                if (contactList.isNotEmpty()) {
+//                                    val firstContact = contactList.first()
+//                                    sendWhatsAppMessage(ctx, firstContact, messageToSend)
+//                                    isMessageSent = false
+//                                }
+
+                                  socket.sendData(lead.id.toString(), "email", lead.sales_id.toString())
+                            },
+                            onSmsClick = { lead ->
+//                                coroutineScope.launch {
+//                                    sheetState.show()
+//                                }
+
+                                 socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
+                            },
+                            onWhatsClick = { lead ->
+                                socket.sendData(
+                                    lead.id.toString(),
+                                    "whatsapp",
+                                    lead.sales_id.toString()
+                                )
+                            }
+                        )
+                    }
+                    if (totalElementsCount > leads.size && leads.isNotEmpty()) item {
+                        loadMore()
+                        Row(
+                            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(16.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+                }
+
+            }
+            if (selectedIdList.isNotEmpty()) Button(modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter),
+                shape = RoundedCornerShape(15.dp),
+                colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
+                onClick = {
+                    val joinedString = selectedIdList.joinToString(separator = ",")
+                    navController.navigate(Screen.LeadUpdateScreen.route.plus("/${joinedString}"))
+                }) {
+                Text(
+                    text = stringResource(R.string.add_action),
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
         }
     }
 }
@@ -417,20 +527,31 @@ fun AllLeadsItem(
                                 fontSize = 16.sp, color = colorResource(id = R.color.blue)
                             )
                         )
-                        Text(
-                            text = (lead.phone?.substring(
-                                0,
-                                3
-                            ) + "*".repeat(lead.phone?.length!! - 3)), style = TextStyle(
-                                fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                        if(!lead.phone.isNullOrEmpty() && lead.phone.length>4) {
+                            Text(
+                                text = (lead.phone.substring(
+                                    0,
+                                    3
+                                ) + "*".repeat(lead.phone.length - 3)), style = TextStyle(
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                                )
                             )
-                        )
+                        }else{
+                            Text(
+                                text = (lead.phone.toString()), style = TextStyle(
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
+
                     }
 
                 }
 
                 Row(
-                    Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -449,7 +570,9 @@ fun AllLeadsItem(
                     }
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -495,7 +618,8 @@ fun AllLeadsItem(
 
                 Row(
                     modifier = Modifier.padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Image(
                         painterResource(R.drawable.notes_icon),
                         contentDescription = "",
@@ -512,7 +636,9 @@ fun AllLeadsItem(
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Image(painterResource(R.drawable.call_icon),
@@ -690,6 +816,34 @@ fun openSMSApp(phoneNumber: String, message: String, context: Context) {
     }
 }
 
+fun sendWhatsAppMessage(context: Context, phoneNumber: String, message: String) {
+    try {
+//        context.startActivity(
+//            // on below line we are opening the intent.
+//            Intent(
+//                // on below line we are calling
+//                // uri to parse the data
+//                Intent.ACTION_VIEW, Uri.parse(
+//                    // on below line we are passing uri,
+//                    // message and whats app phone number.
+//                    java.lang.String.format(
+//                        "https://api.whatsapp.com/send?phone=%s&text=%s",
+//                        phoneNumber,
+//                        "message"
+//                    )
+//                )
+//            )
+//        )
+        val uri = Uri.parse("https://wa.me/$phoneNumber?text=${Uri.encode(message)}")
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        intent.setPackage("com.whatsapp")  // Directly open WhatsApp
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // Show error message or handle gracefully
+    }
+}
+
 @Composable
 fun AddCallDetailsDialog(
     showDialog: Boolean,
@@ -717,4 +871,145 @@ fun AddCallDetailsDialog(
             }
         )
     }
+}
+
+@Composable
+fun NewMessageSheetContent(
+    onCancel: () -> Unit,
+    onSend: (String) -> Unit
+) {
+    var message by rememberSaveable { mutableStateOf("") }
+    var saveMessage by rememberSaveable { mutableStateOf(false) }
+
+    val savedMessages = listOf(
+        "Maven developments\nشركة أمريكية مصرية مقرها في مدينة فيلادلفيا بأمريكا حيث قامت بإنشاء أكثر من ٥٠ مشروع.",
+        "Holla",
+        "حي الاستثمار والحفاظ ع قيمة الاموال مر فلوسك ف شقة في جاردينيا سيتي طريق ا..."
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.85f)
+            .background(Color(0xFFEFEFEF)) // Light background
+            .padding(16.dp)
+    ) {
+        // Header
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            TextButton(onClick = onCancel) {
+                Text(stringResource(id = R.string.cancel), color = Color.Red)
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.new_message), style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = { onSend(message) }) {
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = stringResource(R.string.send),
+                    tint = Color.Gray
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // "Saved Messages" label
+        Text(
+            text = stringResource(R.string.saved_messages),
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.Gray
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Saved Messages
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(savedMessages) { saved ->
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, Color(0xFF72FC7F)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFDFF5E1)), // light green
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .clickable { message = saved }
+
+                ) {
+                    Text(
+                        text = saved,
+                        modifier = Modifier.padding(8.dp),
+                        fontSize = 11.sp
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // New Message Input
+        OutlinedTextField(
+            value = message,
+            onValueChange = { message = it },
+            placeholder = { Text(stringResource(id = R.string.new_message)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp),
+            maxLines = 6,
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Character count (bottom right corner)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text("${message.length}/1000", fontSize = 12.sp, color = Color.Gray)
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Save toggle
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.BookmarkBorder,
+                contentDescription = null,
+                tint = Color(0xFF4CAF50)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.save_this_message_for_future_use))
+            Spacer(modifier = Modifier.weight(1f))
+            Switch(
+                checked = saveMessage,
+                onCheckedChange = { saveMessage = it }
+            )
+        }
+    }
+}
+
+fun sendSms(context: Context, phoneNumbers: List<String>, message: String) {
+    val recipients = phoneNumbers.joinToString(",")
+    val uri = Uri.parse("smsto:$recipients")
+    val intent = Intent(Intent.ACTION_SENDTO, uri).apply {
+        putExtra("sms_body", message)
+    }
+    context.startActivity(intent)
+}
+fun sendEmail(context: Context, emailAddresses: List<String>, subject: String, message: String) {
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = android.net.Uri.parse("mailto:")
+        putExtra(Intent.EXTRA_EMAIL, emailAddresses.toTypedArray())
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    context.startActivity(Intent.createChooser(intent, "Send Email"))
 }

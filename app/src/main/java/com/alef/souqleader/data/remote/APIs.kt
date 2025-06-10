@@ -139,9 +139,9 @@ interface APIs {
     suspend fun projectFilter(
         @Query("title") title: String? = null,
         @Query("category") category: String? = null,
-        @Query("country_id") countryId: String? = null,
-        @Query("city_id") cityId: String? = null,
-        @Query("area_id") areaId: String? = null,
+        @Query("country") countryId: String? = null,
+        @Query("city") cityId: String? = null,
+        @Query("area") areaId: String? = null,
         @Query("start_price_from") budget_from: String? = null,
         @Query("start_price_to") budget_to: String? = null,
     ): Response<ProjectResponse>

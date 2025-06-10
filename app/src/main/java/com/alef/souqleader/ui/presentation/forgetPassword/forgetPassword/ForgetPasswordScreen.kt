@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.forgetPassword.forgetPassword
 
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -50,6 +51,7 @@ import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.login.isValidText
 import com.alef.souqleader.ui.theme.White
 import kotlinx.coroutines.launch
+import java.util.regex.Pattern
 
 @Composable
 fun ForgetPasswordScreen(navController: NavController) {
@@ -93,7 +95,7 @@ fun ForgetPasswordScreen(navController: NavController) {
                 ),
             )
             Text(
-                text = stringResource(R.string.lorem_ipsum_dolor_sit_amet_cons_ectetur_adipisici_elit),
+                text = stringResource(R.string.please_enter_your_email_to_get_a_password_reset_code),
                 style = TextStyle(
                     fontSize = 15.sp
                 ),
@@ -132,7 +134,7 @@ fun ChangePass(onChangePasswordClick: (String) -> Unit) {
                 if (isEmailNotValid) {
                     Toast.makeText(
                         context,
-                        context.getString(R.string.invalid_data), Toast.LENGTH_LONG
+                        context.getString(R.string.please_enter_valid_email), Toast.LENGTH_LONG
                     ).show()
                 } else {
                     onChangePasswordClick(email)
@@ -156,7 +158,7 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     val keyboardOptions =
         KeyboardOptions(
             imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Text
+            keyboardType = KeyboardType.Email
         )
 
     TextField(
@@ -180,7 +182,7 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
         ),
         onValueChange = {
             password = it
-            isNotValid = it.isEmpty()
+            isNotValid = it.isEmpty() || !isValidEmail(it)
             onTextChange(password, isNotValid)
 
         },
@@ -192,9 +194,14 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
 
     if (isNotValid) {
         Text(
-            text = stringResource(R.string.please_enter_valid_text),
+            stringResource(R.string.please_enter_valid_email),
             fontSize = 12.sp,
             color = colorResource(id = R.color.red)
         )
     }
+}
+
+ fun isValidEmail(email: String): Boolean {
+    val pattern: Pattern = Patterns.EMAIL_ADDRESS
+    return pattern.matcher(email).matches()
 }

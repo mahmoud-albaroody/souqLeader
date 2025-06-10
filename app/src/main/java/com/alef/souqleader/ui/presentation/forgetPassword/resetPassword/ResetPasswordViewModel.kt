@@ -31,14 +31,16 @@ class ResetPasswordViewModel @Inject constructor(
         code: String
     ) {
         viewModelScope.launch(job) {
-            _resetPassword.emit(
-                loginUseCase.resetPassword(
-                    email,
-                    password,
-                    passwordConfirmation,
-                    code
-                ).data!!
-            )
+            loginUseCase.resetPassword(
+                email,
+                password,
+                passwordConfirmation,
+                code
+            ).data?.let {
+                _resetPassword.emit(
+                    it
+                )
+            }
         }
     }
 }

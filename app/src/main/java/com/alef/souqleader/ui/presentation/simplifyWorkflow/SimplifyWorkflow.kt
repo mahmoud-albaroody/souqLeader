@@ -290,7 +290,7 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-                text = stringResource(R.string.please_enter_valid_text),
+                text = stringResource(R.string.please_enter_company_name),
                 color = colorResource(id = R.color.red),
                 fontSize = 12.sp
             )

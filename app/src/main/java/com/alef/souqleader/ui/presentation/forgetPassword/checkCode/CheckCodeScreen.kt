@@ -188,7 +188,7 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
 
     if (isNotValid) {
         Text(
-            text = stringResource(R.string.please_enter_valid_text),
+            text = stringResource(R.string.please_enter_your_code),
             fontSize = 12.sp,
             color = colorResource(id = R.color.red)
         )

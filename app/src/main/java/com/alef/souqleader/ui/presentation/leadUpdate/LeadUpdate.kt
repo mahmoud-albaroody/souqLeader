@@ -316,13 +316,16 @@ fun LeadUpdate(
             shape = RoundedCornerShape(15.dp),
             colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue)),
             onClick = {
+                if (selectedDate == "Date / Time") {
+                    onUpdateClick(leadSelected, note, cancelationTitle, selectedDate)
+                }else {
+                    val inputFormat = SimpleDateFormat("yyyy/M/d hh:mm a", Locale.US)
+                    val outputFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US)
+                    val date = inputFormat.parse(selectedDate)
 
-                val inputFormat = SimpleDateFormat("yyyy/M/d hh:mm a", Locale.US)
-                val outputFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US)
-
-                val date = inputFormat.parse(selectedDate)
-                date?.let {
-                    onUpdateClick(leadSelected, note, cancelationTitle, outputFormat.format(it))
+                    date?.let {
+                        onUpdateClick(leadSelected, note, cancelationTitle, outputFormat.format(it))
+                    }
                 }
 
             }) {

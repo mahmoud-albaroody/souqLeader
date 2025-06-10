@@ -257,7 +257,7 @@ fun LoginItem(
 
             if (isNotValid) {
                 Text(
-                    text = stringResource(R.string.please_enter_valid_text),
+                    text = stringResource(R.string.please_enter_valid_email),
                     fontSize = 12.sp,
                     color = colorResource(id = R.color.red)
                 )
@@ -311,7 +311,7 @@ fun LoginItem(
 
             if (isValidNotPassword) {
                 Text(
-                    text = stringResource(R.string.please_enter_valid_text),
+                    text = stringResource(R.string.please_enter_your_password),
                     color = colorResource(id = R.color.red),
                     fontSize = 12.sp
                 )

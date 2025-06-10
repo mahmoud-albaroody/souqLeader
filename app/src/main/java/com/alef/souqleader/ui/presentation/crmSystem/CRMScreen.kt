@@ -1,8 +1,13 @@
 package com.alef.souqleader.ui.presentation.crmSystem
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,6 +45,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
@@ -48,17 +58,24 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Comment
+import com.alef.souqleader.data.remote.dto.Image
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.User
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.theme.*
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -111,7 +128,7 @@ fun CRMScreenItem(
     val screenWidth = configuration.screenWidthDp.dp
     val scrollState = rememberScrollState()
     val corroutineScope = rememberCoroutineScope()
-
+    var visibleSlider by remember { mutableStateOf(false) }
 
 
     Box(
@@ -132,27 +149,30 @@ fun CRMScreenItem(
                     .fillMaxWidth()
             ) {
                 if(!post.images.isNullOrEmpty())
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        if (post.images.isNotEmpty()) {
-                            if (post.images[0].image?.isNotEmpty() == true) {
-                                AccountData.BASE_URL + post.images[0].image
-                            } else {
-                                //  R.drawable.user_profile_placehoder
-                            }
-                        } else {
-
-                        }
-                    ),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(screenHeight / 4)
-                        .padding(bottom = 8.dp)
-                        .clip(RoundedCornerShape(16.dp))
-
-                )
+                    ImageSlider(post.images)
+//                Image(
+//                    painter = rememberAsyncImagePainter(
+//                        if (post.images.isNotEmpty()) {
+//                            if (post.images[0].image?.isNotEmpty() == true) {
+//                                AccountData.BASE_URL + post.images[0].image
+//                            } else {
+//                                //  R.drawable.user_profile_placehoder
+//                            }
+//                        } else {
+//
+//                        }
+//                    ),
+//                    contentDescription = "",
+//                    contentScale = ContentScale.Crop,
+//                    modifier = Modifier.clickable {
+//                        visibleSlider = true
+//                    }
+//                        .fillMaxWidth()
+//                        .height(screenHeight / 4)
+//                        .padding(bottom = 8.dp)
+//                        .clip(RoundedCornerShape(16.dp))
+//
+//                )
                 Text(
                     text = post.post ?: "",
                     style = TextStyle(
@@ -259,7 +279,9 @@ fun CRMScreenItem(
 
             }
         }
-
+        if(visibleSlider){
+            post.images?.let { ImageSlider(it) }
+        }
     }
     SideEffect {
         corroutineScope.launch {
@@ -366,6 +388,84 @@ fun CommentItem(comment: Comment) {
                     fontSize = 12.sp, color = colorResource(id = R.color.gray)
                 )
             )
+        }
+    }
+}
+
+
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@Composable
+fun ImageSlider(imageUrls: List<Image>) {
+    val pagerState = rememberPagerState()
+    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+
+    Column {
+        HorizontalPager(
+            count = imageUrls.size,
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) { page ->
+            AsyncImage(
+                model = AccountData.BASE_URL + imageUrls[page].image,
+                contentDescription = "Slider Image",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable {
+                        selectedImageUrl = AccountData.BASE_URL + imageUrls[page].image
+                    },
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(8.dp)
+        )
+    }
+
+    selectedImageUrl?.let { url ->
+        Dialog(onDismissRequest = { selectedImageUrl = null }) {
+            var scale by remember { mutableStateOf(1f) }
+            var offset by remember { mutableStateOf(Offset.Zero) }
+            val state = rememberTransformableState { zoomChange, offsetChange, _ ->
+                scale *= zoomChange
+                offset += offsetChange
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+
+                    .padding(16.dp)
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            offset += pan
+                        }
+                    }
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x,
+                        translationY = offset.y
+                    )
+                    .transformable(state = state)
+            ) {
+                AsyncImage(
+                    model = url,
+                    contentDescription = "Full Image",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            }
         }
     }
 }

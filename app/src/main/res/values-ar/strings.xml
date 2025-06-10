@@ -205,6 +205,18 @@
     <string name="add_log">إضافة سجل</string>
     <string name="duration">المدة</string>
     <string name="fresh_lead">عميل جديد</string>
-
-
+    <string name="new_message">رسالة جديدة</string>
+    <string name="send">إرسال</string>
+    <string name="saved_messages">الرسائل المحفوظة</string>
+    <string name="save_this_message_for_future_use">احفظ هذه الرسالة للاستخدام المستقبلي</string>
+    <string name="please_enter_valid_email">يرجى إدخال بريد إلكتروني صحيح</string>
+    <string name="please_enter_your_code">يرجى إدخال رمز التحقق</string>
+    <string name="please_enter_your_password">يرجى إدخال كلمة المرور</string>
+    <string name="please_enter_a_new_password">يرجى إدخال كلمة مرور جديدة</string>
+    <string name="please_confirm_your_new_password">يرجى تأكيد كلمة المرور الجديدة.</string>
+    <string name="this_field_is_required">هذا الحقل مطلوب</string>
+    <string name="please_enter_a_valid_price_range">يرجى إدخال نطاق سعر صحيح.</string>
+    <string name="please_enter_company_name">Please enter company name</string>
+    <string name="please_enter_your_email_to_get_a_password_reset_code">Please enter your email to get a password reset code.</string>
+    <string name="please_add_a_caption_to_your_post">Please add a caption to your post</string>
 </resources>

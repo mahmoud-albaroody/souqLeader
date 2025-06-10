@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.inventoryFilter
 
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -380,28 +381,42 @@ fun InventoryFilterScreen(
                     )
                 }
             }, onShowClick = {
-                val jsonObject = JsonObject()
-                jsonObject.addProperty("title", it.title)
-                jsonObject.addProperty("name", it.name)
-                jsonObject.addProperty("status", it.status)
-                jsonObject.addProperty("region", it.region)
-                jsonObject.addProperty("finishing", it.finishing)
-                jsonObject.addProperty("view", it.view)
-                jsonObject.addProperty("category", it.category)
-                jsonObject.addProperty("countryId", it.countryId)
-                jsonObject.addProperty("cityId", it.cityId)
-                jsonObject.addProperty("areaId", it.areaId)
-                jsonObject.addProperty("typeInventory", it.typeInventory)
-                jsonObject.addProperty("type", it.type)
-                jsonObject.addProperty("department", it.department)
+
+                    if ((!it.budget_from.isNullOrEmpty() && !it.budget_to.isNullOrEmpty())
+                        && (it.budget_from?.toDouble()!! > it.budget_to?.toDouble()!!)) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.please_enter_a_valid_price_range),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                    else {
+
+                        val jsonObject = JsonObject()
+                        jsonObject.addProperty("title", it.title)
+                        jsonObject.addProperty("name", it.name)
+                        jsonObject.addProperty("status", it.status)
+                        jsonObject.addProperty("region", it.region)
+                        jsonObject.addProperty("finishing", it.finishing)
+                        jsonObject.addProperty("view", it.view)
+                        jsonObject.addProperty("category", it.category)
+                        jsonObject.addProperty("countryId", it.countryId)
+                        jsonObject.addProperty("cityId", it.cityId)
+                        jsonObject.addProperty("areaId", it.areaId)
+                        jsonObject.addProperty("typeInventory", it.typeInventory)
+                        jsonObject.addProperty("type", it.type)
+                        jsonObject.addProperty("department", it.department)
 
 
-                jsonObject.addProperty("budget_from", it.budget_from)
-                jsonObject.addProperty("budget_to", it.budget_to)
-                navController.navigate(
-                    Screen.ProductFilterResultScreen.route +
-                            "?" + Screen.ProductFilterResultScreen.objectName + "=${jsonObject}"
-                )
+                        jsonObject.addProperty("budget_from", it.budget_from)
+                        jsonObject.addProperty("budget_to", it.budget_to)
+                        navController.navigate(
+                            Screen.ProductFilterResultScreen.route +
+                                    "?" + Screen.ProductFilterResultScreen.objectName + "=${jsonObject}"
+                        )
+                    }
+
             }
         )
     }

@@ -235,48 +235,52 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
 
         },
             onPostClick = {
-                val images: ArrayList<MultipartBody.Part> = arrayListOf()
-                if (imageUri == null) {
-                    val name: RequestBody = RequestBody.create(
-                        "text/plain".toMediaType(),
-                        it
-                    )
-                    viewModel.addPost(name, null)
-                }
-                else {
-                    val parcelFileDescriptor =
-                        context.contentResolver.openFileDescriptor(imageUri!!, "r", null)
-                    parcelFileDescriptor?.let { pfd ->
-                        val inputStream = FileInputStream(pfd.fileDescriptor)
-                        val file = File(context.cacheDir, "temp_image_file")
-                        val outputStream = FileOutputStream(file)
-                        inputStream.copyTo(outputStream)
-
-                        // Close streams
-                        inputStream.close()
-                        outputStream.close()
-                        pfd.close()
-                        val requestFile: RequestBody =
-                            RequestBody.create("image/*".toMediaType(), file)
-                        val imagePart =
-                            MultipartBody.Part.createFormData(
-                                "images[]",
-                                file.name,
-                                requestFile
-                            )
-
-                        images.add(imagePart)
+                if(it.isEmpty()){
+                  Toast.makeText(context,
+                      context.getString(R.string.please_add_a_caption_to_your_post),Toast.LENGTH_LONG).show()
+                }else {
+                    val images: ArrayList<MultipartBody.Part> = arrayListOf()
+                    if (imageUri == null) {
                         val name: RequestBody = RequestBody.create(
                             "text/plain".toMediaType(),
                             it
                         )
-                        // Call the ViewModel's addPost function with the necessary parameters
-                        viewModel.addPost(name, images)
+                        viewModel.addPost(name, null)
+                    } else {
+                        val parcelFileDescriptor =
+                            context.contentResolver.openFileDescriptor(imageUri!!, "r", null)
+                        parcelFileDescriptor?.let { pfd ->
+                            val inputStream = FileInputStream(pfd.fileDescriptor)
+                            val file = File(context.cacheDir, "temp_image_file")
+                            val outputStream = FileOutputStream(file)
+                            inputStream.copyTo(outputStream)
+
+                            // Close streams
+                            inputStream.close()
+                            outputStream.close()
+                            pfd.close()
+                            val requestFile: RequestBody =
+                                RequestBody.create("image/*".toMediaType(), file)
+                            val imagePart =
+                                MultipartBody.Part.createFormData(
+                                    "images[]",
+                                    file.name,
+                                    requestFile
+                                )
+
+                            images.add(imagePart)
+                            val name: RequestBody = RequestBody.create(
+                                "text/plain".toMediaType(),
+                                it
+                            )
+                            // Call the ViewModel's addPost function with the necessary parameters
+                            viewModel.addPost(name, images)
+                        }
+
                     }
 
+                    visibleMeda = false
                 }
-
-                visibleMeda = false
             }, onOpenCamera = {
                 if (ContextCompat.checkSelfPermission(
                         context,
@@ -578,7 +582,8 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                         contentDescription = ""
                     )
                     Image(
-                        modifier = Modifier.align(Alignment.BottomEnd)
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
                             .size(10.dp)
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop,

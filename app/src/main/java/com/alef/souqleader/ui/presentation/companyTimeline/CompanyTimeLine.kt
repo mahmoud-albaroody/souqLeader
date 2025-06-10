@@ -240,6 +240,10 @@ fun CompanyTimelineScreen(
 
         },
             onPostClick = {
+                if(it.isEmpty()){
+                    Toast.makeText(context,
+                        context.getString(R.string.please_add_a_caption_to_your_post),Toast.LENGTH_LONG).show()
+                }else {
                 val images: ArrayList<MultipartBody.Part> = arrayListOf()
 
                 if (imageUri == null) {
@@ -248,7 +252,8 @@ fun CompanyTimelineScreen(
                         it
                     )
                     viewModel.addPost(name, null)
-                } else {
+                }
+                else {
                     val parcelFileDescriptor =
                         context.contentResolver.openFileDescriptor(imageUri!!, "r", null)
                     parcelFileDescriptor?.let { pfd ->
@@ -278,7 +283,8 @@ fun CompanyTimelineScreen(
                         // Call the ViewModel's addPost function with the necessary parameters
                         viewModel.addPost(name, images)
                     }
-
+                }
+                    visibleMeda = false
                 }
 //                imageUri?.let { uri ->
 //                    // Create a File object from the URI
@@ -303,7 +309,7 @@ fun CompanyTimelineScreen(
 //                    // Call the ViewModel's addPost function with the necessary parameters
 //                    viewModel.addPost(name, images)
 //                }
-                visibleMeda = false
+
             }, onOpenCamera = {
                 if (ContextCompat.checkSelfPermission(
                         context,

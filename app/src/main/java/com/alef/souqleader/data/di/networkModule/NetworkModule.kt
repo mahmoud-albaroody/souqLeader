@@ -135,7 +135,7 @@ class NetworkModule {
 //                .header("Content-Type", "application/json; charset=utf-8")
                 .header("Authorization", AccountData.auth_token.toString())
 
-            //  .header("Host", "")
+             .header("Accept-Language", AccountData.lang)
 
             it.proceed(requestBuilder.build())
         }

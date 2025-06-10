@@ -218,8 +218,15 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     )
 
     if (isNotValid) {
+        var errorMessage=""
+        if (text == stringResource(id = R.string.code)) {
+           errorMessage = stringResource(R.string.please_enter_your_code)
+        }
+        else if(text == stringResource(id = R.string.e_mail)){
+            errorMessage = stringResource(R.string.please_enter_valid_email)
+        }
         Text(
-            text = stringResource(R.string.please_enter_valid_text),
+            text = errorMessage,
             fontSize = 12.sp,
             color = colorResource(id = R.color.red)
         )
@@ -232,7 +239,7 @@ fun ChangePassItem2(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    var keyboardOptions =
+    val keyboardOptions =
         KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Text)
     TextField(
         modifier = Modifier
@@ -279,10 +286,18 @@ fun ChangePassItem2(text: String, onTextChange: (String, Boolean) -> Unit) {
     )
 
     if (isNotValid) {
-        Text(
-            text = stringResource(R.string.please_enter_valid_text),
-            fontSize = 12.sp,
-            color = colorResource(id = R.color.red)
-        )
+        if(text == stringResource(R.string.confirm_password)){
+            Text(
+                text = stringResource(R.string.please_confirm_your_new_password),
+                fontSize = 12.sp,
+                color = colorResource(id = R.color.red)
+            )
+        }else {
+            Text(
+                text = stringResource(R.string.please_enter_a_new_password),
+                fontSize = 12.sp,
+                color = colorResource(id = R.color.red)
+            )
+        }
     }
 }
