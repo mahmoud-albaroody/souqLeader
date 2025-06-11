@@ -108,7 +108,7 @@ fun FilterResultScreen(
         }
     }
     LaunchedEffect(key1 = true) {
-Log.e("mmmm",budgetFrom.toString())
+
         viewModel.leadsFilter(
             FilterRequest(
                 searchField = name, status = status,
@@ -291,14 +291,22 @@ fun AllLeadsItem(lead: Lead, onItemClick: (Lead) -> Unit,  onLongPress: (Lead) -
                                 fontSize = 16.sp, color = colorResource(id = R.color.blue)
                             )
                         )
-                        Text(
-                            text =  (lead.phone?.substring(
-                                0,
-                                3
-                            ) + "*".repeat(lead.phone?.length!! - 3)), style = TextStyle(
-                                fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                        if (!lead.phone.isNullOrEmpty() && lead.phone.length > 4) {
+                            Text(
+                                text = (lead.phone.substring(
+                                    0,
+                                    3
+                                ) + "*".repeat(lead.phone.length - 3)), style = TextStyle(
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                                )
                             )
-                        )
+                        }else{
+                            Text(
+                                text = lead.phone.toString(), style = TextStyle(
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                        }
                     }
 
                 }

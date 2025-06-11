@@ -655,7 +655,7 @@ fun MeetingLeads(lead: Lead, mainViewModel: MainViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = lead.name ?: "", style = TextStyle(), modifier = Modifier.weight(1f))
-            if (lead.phone?.length!! > 3) {
+            if ( lead.phone?.length!! > 3) {
                 Text(
                     text = (lead.phone.substring(
                         0,

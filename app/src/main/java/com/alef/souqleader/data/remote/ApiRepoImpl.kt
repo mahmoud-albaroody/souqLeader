@@ -733,8 +733,9 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun projectFilter(filterRequest: ProjectFilterRequest): Resource<ProjectResponse> {
+    suspend fun projectFilter(page: Int,filterRequest: ProjectFilterRequest): Resource<ProjectResponse> {
         val response = APIs.projectFilter(
+            page=page,
             filterRequest.title,
             filterRequest.category,
             filterRequest.countryId,
@@ -771,8 +772,9 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
-    suspend fun propertyFilter(filterRequest: ProjectFilterRequest): Resource<PropertyResponse> {
+    suspend fun propertyFilter(page: Int,filterRequest: ProjectFilterRequest): Resource<PropertyResponse> {
         val response = APIs.propertyFilter(
+            page = page,
             filterRequest.finishing,
             filterRequest.region,
             filterRequest.name,

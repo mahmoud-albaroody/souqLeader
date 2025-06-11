@@ -44,7 +44,7 @@ class ProjectFilterResultViewModel @Inject constructor(
     var page by mutableIntStateOf(1)
     fun projectFilter(projectFilterRequest: ProjectFilterRequest) {
         viewModelScope.launch(job) {
-            filterUseCase.projectFilter(projectFilterRequest).catch {
+            filterUseCase.projectFilter(page,projectFilterRequest).catch {
 
             }
                 .onStart {
@@ -58,7 +58,7 @@ class ProjectFilterResultViewModel @Inject constructor(
 
     fun propertyFilter(projectFilterRequest: ProjectFilterRequest) {
         viewModelScope.launch(job) {
-            filterUseCase.propertyFilter(projectFilterRequest).catch {
+            filterUseCase.propertyFilter(page,projectFilterRequest).catch {
 
             }
                 .onStart {

@@ -35,6 +35,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -102,6 +103,7 @@ import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.map.PopupBox
+import com.alef.souqleader.ui.presentation.meetingReport.blueColor
 import kotlinx.coroutines.launch
 
 
@@ -244,7 +246,8 @@ fun Screen(
     }
 
     //  var contactList by rememberSaveable { mutableStateOf(listOf("+201012953520", "+201010079486")) }
-    val emailAddresses = listOf("recipient1@example.com", "recipient2@example.com", "recipient3@example.com")
+    val emailAddresses =
+        listOf("recipient1@example.com", "recipient2@example.com", "recipient3@example.com")
 
     var messageToSend by rememberSaveable { mutableStateOf("initialMessage") }
 
@@ -392,8 +395,8 @@ fun Screen(
                             onMailClick = { lead ->
 //                                contactList.add("+201012953520")
 //                                contactList.add("+201010079486")
-                               // sendSms(ctx, contactList, messageToSend)
-                           //     sendEmail(ctx, emailAddresses, "subject", "message")
+                                // sendSms(ctx, contactList, messageToSend)
+                                //     sendEmail(ctx, emailAddresses, "subject", "message")
 
 //                                if (contactList.isNotEmpty()) {
 //                                    val firstContact = contactList.first()
@@ -401,14 +404,18 @@ fun Screen(
 //                                    isMessageSent = false
 //                                }
 
-                                  socket.sendData(lead.id.toString(), "email", lead.sales_id.toString())
+                                socket.sendData(
+                                    lead.id.toString(),
+                                    "email",
+                                    lead.sales_id.toString()
+                                )
                             },
                             onSmsClick = { lead ->
 //                                coroutineScope.launch {
 //                                    sheetState.show()
 //                                }
 
-                                 socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
+                                socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
                             },
                             onWhatsClick = { lead ->
                                 socket.sendData(
@@ -487,10 +494,25 @@ fun AllLeadsItem(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
-            if (selected) Image(
-                painterResource(R.drawable.select_box),
-                contentDescription = "",
-                Modifier.align(Alignment.TopEnd)
+//            if (selected)
+//                Image(
+//                    painterResource(R.drawable.select_box),
+//                    contentDescription = "",
+//                    Modifier.align(Alignment.TopEnd)
+//                )
+            Checkbox(
+                modifier = Modifier.align(Alignment.TopEnd),
+                checked = selected,
+                onCheckedChange = {
+                    lead.selected = !lead.selected
+                    selected = lead.selected
+                    onLongPress(lead)
+                    selected = it },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = colorResource(id = R.color.blue),
+                    uncheckedColor = colorResource(id = R.color.blue),
+                    checkmarkColor = Color.White
+                )
             )
 
             Column(
@@ -527,7 +549,7 @@ fun AllLeadsItem(
                                 fontSize = 16.sp, color = colorResource(id = R.color.blue)
                             )
                         )
-                        if(!lead.phone.isNullOrEmpty() && lead.phone.length>4) {
+                        if (!lead.phone.isNullOrEmpty() && lead.phone.length > 4) {
                             Text(
                                 text = (lead.phone.substring(
                                     0,
@@ -536,7 +558,7 @@ fun AllLeadsItem(
                                     fontSize = 14.sp, fontWeight = FontWeight.SemiBold
                                 )
                             )
-                        }else{
+                        } else {
                             Text(
                                 text = (lead.phone.toString()), style = TextStyle(
                                     fontSize = 14.sp, fontWeight = FontWeight.SemiBold
@@ -1004,6 +1026,7 @@ fun sendSms(context: Context, phoneNumbers: List<String>, message: String) {
     }
     context.startActivity(intent)
 }
+
 fun sendEmail(context: Context, emailAddresses: List<String>, subject: String, message: String) {
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = android.net.Uri.parse("mailto:")

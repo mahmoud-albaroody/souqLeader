@@ -119,6 +119,7 @@ interface APIs {
 
     @GET("api/propertyfilter")
     suspend fun propertyFilter(
+        @Query("page") page: Int? = null,
         @Query("finishing") finishing: String? = null,
         @Query("region") region: String? = null,
         @Query("name") name: String? = null,
@@ -137,6 +138,7 @@ interface APIs {
 
     @GET("api/projectsfilter")
     suspend fun projectFilter(
+        @Query("page") page: Int? = null,
         @Query("title") title: String? = null,
         @Query("category") category: String? = null,
         @Query("country") countryId: String? = null,

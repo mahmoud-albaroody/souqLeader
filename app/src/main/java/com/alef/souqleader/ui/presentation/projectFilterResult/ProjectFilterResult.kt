@@ -33,6 +33,7 @@ import com.alef.souqleader.ui.presentation.projects.ProjectsScreenViewModel
 import com.alef.souqleader.ui.presentation.property.Property
 import com.alef.souqleader.ui.presentation.property.PropertyItem
 import com.alef.souqleader.ui.presentation.property.PropertyScreenViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -41,18 +42,20 @@ fun ProductFilterResultScreen(
     navController: NavController, mainViewModel: MainViewModel,
     projectFilterRequest: ProjectFilterRequest?
 ) {
-    val info by remember { mutableStateOf(Info()) }
+    var info by remember { mutableStateOf(Info()) }
     val viewModel: ProjectFilterResultViewModel = hiltViewModel()
     val viewPropertyModel: PropertyScreenViewModel = hiltViewModel()
     val viewProjectModel: ProjectsScreenViewModel = hiltViewModel()
     val projects = remember { mutableStateListOf<Project>() }
     var projectResponse by remember { mutableStateOf(ProjectResponse()) }
-
+    var loadMore by remember { mutableStateOf(false) }
     val properties = remember { mutableStateListOf<PropertyObject>() }
     var propertyResponse by remember { mutableStateOf(PropertyResponse()) }
 
+
     LaunchedEffect(key1 = true) {
         if (projectFilterRequest?.type == "Product") {
+
             projectFilterRequest.let { viewModel.projectFilter(it) }
             viewModel.viewModelScope.launch {
                 viewModel.projectFilter.collect {
@@ -60,8 +63,9 @@ fun ProductFilterResultScreen(
 
                         it.data?.let {
                             projectResponse = it
-                            if (it.info != null)
 
+                            if (it.info != null)
+                                info = it.info
                                 if (viewModel.page == 1) {
                                     projects.clear()
                                 }
@@ -85,11 +89,11 @@ fun ProductFilterResultScreen(
             viewModel.viewModelScope.launch {
                 viewModel.propertyFilter.collect {
                     if (it is Resource.Success) {
-
+                        loadMore = true
                         it.data?.let {
                             propertyResponse = it
                             if (it.info != null)
-
+                                info = it.info!!
                                 if (viewModel.page == 1) {
                                     projects.clear()
                                 }
@@ -122,19 +126,22 @@ fun ProductFilterResultScreen(
                     viewProjectModel.getProject(++viewProjectModel.page)
                 }
             }, onMapClick = {
-//                Screen.MapScreen.title = "prooooo"
-//                val projectJson = projectResponse.toJson()
-//                navController.navigate(
-//                    Screen.MapScreen.route.plus(
-//                        "?" + Screen.MapScreen.objectName + "=${projectJson}"
-//                    )
-//                )
+
             }, onSortClick = {
 
             }, onFilterClick = {
-                //  navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Product"}"))
+
             })
     } else {
-        Property(propertyResponse, properties, info, viewPropertyModel, navController, false)
+        Property(propertyResponse, properties, info,
+            viewPropertyModel, navController,
+            false,true,loadMore,viewModel, onPaging = {
+                viewModel.viewModelScope.launch {
+                    delay(2000)
+                    loadMore = false
+                    viewModel.page++
+                    projectFilterRequest?.let { viewModel.propertyFilter(it) }
+                }
+            })
     }
 }

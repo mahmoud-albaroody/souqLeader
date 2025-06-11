@@ -188,15 +188,24 @@ fun FilterScreen(
             projectList,
             status
         ) {
-            val jsonObject = JsonObject()
-            jsonObject.addProperty("name", it.searchField)
-            jsonObject.addProperty("status", it.status)
-            jsonObject.addProperty("channel", it.channel)
-            jsonObject.addProperty("project", it.project)
-            jsonObject.addProperty("communication_way", it.communication_way)
-            jsonObject.addProperty("budget_from", it.budget_from)
-            jsonObject.addProperty("budget_to", it.budget_to)
-            navController.navigate(Screen.FilterResultScreen.route + "/${jsonObject.toJson()}")
+            if ((!it.budget_from.isNullOrEmpty() && !it.budget_to.isNullOrEmpty())
+                && (it.budget_from?.toDouble()!! > it.budget_to?.toDouble()!!)) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.please_enter_a_valid_price_range),
+                    Toast.LENGTH_LONG
+                ).show()
+            }else {
+                val jsonObject = JsonObject()
+                jsonObject.addProperty("name", it.searchField)
+                jsonObject.addProperty("status", it.status)
+                jsonObject.addProperty("channel", it.channel)
+                jsonObject.addProperty("project", it.project)
+                jsonObject.addProperty("communication_way", it.communication_way)
+                jsonObject.addProperty("budget_from", it.budget_from)
+                jsonObject.addProperty("budget_to", it.budget_to)
+                navController.navigate(Screen.FilterResultScreen.route + "/${jsonObject.toJson()}")
+            }
         }
 
     }

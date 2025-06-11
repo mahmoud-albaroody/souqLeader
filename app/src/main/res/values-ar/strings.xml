@@ -131,7 +131,7 @@
     <string name="fresh">جديد</string>
     <string name="new_password">كلمة المرور الجديدة</string>
     <string name="confirm_password">تأكيد كلمة المرور</string>
-    <string name="invalid_data">بيانات غير صالحة</string>
+    <string name="invalid_data">يجب ادخال بيانات صحيحة</string>
     <string name="reset_password">إعادة تعيين كلمة المرور</string>
     <string name="verify_code">رمز التحقق</string>
     <string name="code">الرمز</string>
@@ -216,8 +216,10 @@
     <string name="please_confirm_your_new_password">يرجى تأكيد كلمة المرور الجديدة.</string>
     <string name="this_field_is_required">هذا الحقل مطلوب</string>
     <string name="please_enter_a_valid_price_range">يرجى إدخال نطاق سعر صحيح.</string>
-    <string name="please_enter_company_name">Please enter company name</string>
-    <string name="please_enter_your_email_to_get_a_password_reset_code">Please enter your email to get a password reset code.</string>
-    <string name="please_add_a_caption_to_your_post">Please add a caption to your post</string>
-    <string name="select_language">Select Language</string>
+    <string name="please_enter_company_name">يرجى إدخال اسم الشركة</string>
+    <string name="please_enter_your_email_to_get_a_password_reset_code">
+        يرجى إدخال بريدك الإلكتروني للحصول على رمز إعادة تعيين كلمة المرور.
+    </string>
+    <string name="please_add_a_caption_to_your_post">يرجى إضافة عنوان توضيحي لمنشورك</string>
+    <string name="select_language">اختر اللغة</string>
 </resources>

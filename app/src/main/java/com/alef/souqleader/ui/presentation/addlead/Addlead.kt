@@ -239,7 +239,7 @@ fun AddLead(
 //            status.add(it.getTitle())
 //    }
     val channels = arrayListOf<String>()
-    channels.add(stringResource(R.string.lead_source)+"*")
+    channels.add(stringResource(R.string.lead_source))
     if (channelList.isNotEmpty()) channelList.forEach {
         channels.add(it.getTitle())
     }
@@ -256,7 +256,7 @@ fun AddLead(
     }
 
     val marketers = arrayListOf<String>()
-    marketers.add(stringResource(R.string.marketer)+"*")
+    marketers.add(stringResource(R.string.marketer))
     if (marketerList.isNotEmpty()) marketerList.forEach {
         marketers.add(it.name)
     }
@@ -333,15 +333,15 @@ fun AddLead(
             )
             DynamicSelectTextField(channels) { channel ->
                 addLead.channel = channelList.find { it.getTitle() == channel }?.id
-                hasChannel.value = false
+               // hasChannel.value = false
             }
-            if (hasChannel.value) Text(
-                modifier = Modifier.padding(start = 8.dp),
-                text = stringResource(R.string.the_channel_is_required),
-                style = TextStyle(
-                    color = colorResource(id = R.color.red), fontSize = 12.sp
-                )
-            )
+//            if (hasChannel.value) Text(
+//                modifier = Modifier.padding(start = 8.dp),
+//                text = stringResource(R.string.the_channel_is_required),
+//                style = TextStyle(
+//                    color = colorResource(id = R.color.red), fontSize = 12.sp
+//                )
+//            )
             TextFiledItem(stringResource(id = R.string.e_mail), true) {
                 addLead.email = it
 
@@ -360,15 +360,15 @@ fun AddLead(
 //            }
             DynamicSelectTextField(marketers) { marketer ->
                 addLead.marketer_id = marketerList.find { it.name == marketer }?.id
-                hasMarketer.value = false
+               // hasMarketer.value = false
             }
-            if (hasMarketer.value) Text(
-                modifier = Modifier.padding(start = 8.dp),
-                text = stringResource(R.string.the_marketer_id_is_required),
-                style = TextStyle(
-                    color = colorResource(id = R.color.red), fontSize = 12.sp
-                )
-            )
+//            if (hasMarketer.value) Text(
+//                modifier = Modifier.padding(start = 8.dp),
+//                text = stringResource(R.string.the_marketer_id_is_required),
+//                style = TextStyle(
+//                    color = colorResource(id = R.color.red), fontSize = 12.sp
+//                )
+//            )
             TextFiledItem(stringResource(R.string.note), true) {
                 addLead.note = it
             }
@@ -400,11 +400,13 @@ fun AddLead(
                     hasName.value = true
                 } else if (addLead.phone.isNullOrEmpty()) {
                     hasPhone.value = true
-                }else if (addLead.channel == null) {
-                    hasChannel.value = true
-                } else if (addLead.marketer_id == null) {
-                    hasMarketer.value = true
-                }  else if (addLead.sales_id == null) {
+                }
+//                else if (addLead.channel == null) {
+//                    hasChannel.value = true
+//                } else if (addLead.marketer_id == null) {
+//                    hasMarketer.value = true
+//                }
+                else if (addLead.sales_id == null) {
                     hasSales.value = true
                 } else {
                     onAddClick(addLead)
@@ -522,7 +524,9 @@ fun TextFiledItem(
             unfocusedLabelColor = colorResource(id = R.color.transparent)
         ),
         onValueChange = {
-            textValue = it
+            textValue = it.filter {
+                it.isLetterOrDigit() || it == '.'
+            }
             onTextChange(it)
         },
         shape = RoundedCornerShape(8.dp),

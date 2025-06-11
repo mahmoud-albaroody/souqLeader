@@ -200,14 +200,22 @@ fun CancellationsReportItem(lead: Lead) {
                             fontSize = 15.sp, color = colorResource(id = R.color.blue)
                         )
                     )
-                    Text(
-                        text = (lead.phone?.substring(
-                            0,
-                            3
-                        ) + "*".repeat(lead.phone?.length!! - 3)), style = TextStyle(
-                            fontSize = 13.sp,
+                    if(!lead.phone.isNullOrEmpty() && lead.phone.length>4) {
+                        Text(
+                            text = (lead.phone.substring(
+                                0,
+                                3
+                            ) + "*".repeat(lead.phone.length - 3)), style = TextStyle(
+                                fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                            )
                         )
-                    )
+                    }else{
+                        Text(
+                            text = (lead.phone.toString()), style = TextStyle(
+                                fontSize = 14.sp, fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
                 }
 
             }

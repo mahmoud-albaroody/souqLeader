@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.presentation.property
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,7 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.projectFilterResult.ProjectFilterResultViewModel
 import com.alef.souqleader.ui.presentation.projects.Filter
 import kotlinx.coroutines.launch
 
@@ -89,7 +91,7 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
 
     Property(
         propertyResponse, properties, info, viewModel,
-        navController, true
+        navController, true,   false, false,onPaging = {}
     )
 
 }
@@ -100,7 +102,11 @@ fun Property(
     properties: SnapshotStateList<PropertyObject>,
     info: Info,
     viewModel: PropertyScreenViewModel,
-    navController: NavController, showFilter: Boolean
+    navController: NavController, showFilter: Boolean,
+    isFilter:Boolean,
+    loadMore:Boolean,
+    projectFilterResultViewModel: ProjectFilterResultViewModel?=null,
+    onPaging:()->Unit
 ) {
     var isSort by remember { mutableStateOf(false) }
     Column {
@@ -133,27 +139,50 @@ fun Property(
 
                 }
             }
-            if (info.pages != null)
-                if (info.pages > viewModel.page && properties.size > 10) {
-                    item {
-                        if (isSort) {
-                            if (properties.isNotEmpty()) {
-                                viewModel.propertySort(++viewModel.page)
+            if (isFilter) {
+                if (info.pages != null  && loadMore)
+                    if (info.pages >= projectFilterResultViewModel!!.page && properties.size > 10) {
+                        item {
+                            onPaging()
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
                             }
-                        } else {
-                            if (properties.isNotEmpty()) {
-                                viewModel.getProperty(++viewModel.page)
-                            }
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
                         }
                     }
-                }
+
+            } else {
+                if (info.pages != null)
+                    if (info.pages > viewModel.page && properties.size > 10) {
+                        item {
+                            if (isSort) {
+                                if (properties.isNotEmpty()) {
+                                    viewModel.propertySort(++viewModel.page)
+                                }
+                            } else {
+                                if (properties.isNotEmpty()) {
+                                    viewModel.getProperty(++viewModel.page)
+                                }
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
+            }
         }
     }
 }

@@ -75,16 +75,16 @@ class FilterUseCase @Inject constructor(private val repository: ApiRepoImpl) {
     }
 
 
-    suspend fun projectFilter(filterRequest: ProjectFilterRequest): Flow<Resource<ProjectResponse>> {
+    suspend fun projectFilter(page:Int,filterRequest: ProjectFilterRequest): Flow<Resource<ProjectResponse>> {
         return flow {
-            emit(repository.projectFilter(filterRequest))
+            emit(repository.projectFilter(page,filterRequest))
         }.flowOn(Dispatchers.IO)
     }
 
 
-    suspend fun propertyFilter(filterRequest: ProjectFilterRequest): Flow<Resource<PropertyResponse>> {
+    suspend fun propertyFilter(page:Int,filterRequest: ProjectFilterRequest): Flow<Resource<PropertyResponse>> {
         return flow {
-            emit(repository.propertyFilter(filterRequest))
+            emit(repository.propertyFilter(page,filterRequest))
         }.flowOn(Dispatchers.IO)
     }
 

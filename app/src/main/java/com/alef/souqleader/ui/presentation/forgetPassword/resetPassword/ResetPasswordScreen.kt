@@ -55,6 +55,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.forgetPassword.forgetPassword.isValidEmail
 import com.alef.souqleader.ui.presentation.login.isValidText
 import com.alef.souqleader.ui.theme.White
 import kotlinx.coroutines.launch
@@ -134,6 +135,7 @@ fun ChangePass(onChangePasswordClick: (String, String, String, String) -> Unit) 
             isEmailNotValid = isNotValid
         })
 
+
         ChangePassItem2(stringResource(R.string.password), onTextChange = { pass, isNotValid ->
             password = pass
             isPasswordNotValid = isNotValid
@@ -207,7 +209,7 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
         ),
         onValueChange = {
             password = it
-            isNotValid = it.isEmpty()
+            isNotValid = it.isEmpty() || !isValidEmail(it)
             onTextChange(password, isNotValid)
 
         },
