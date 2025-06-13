@@ -40,6 +40,7 @@ import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
 import com.alef.souqleader.data.remote.dto.UserDetailsResponse
+import com.alef.souqleader.data.remote.dto.WhatMessageResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -310,6 +311,7 @@ interface APIs {
         @Field("phone") phone: String?,
         @Field("duration") duration: String?,
         @Field("note") note: String?,
+        @Field("id") id: String?,
     ): Response<LeadsStatusResponse>
 
 
@@ -397,6 +399,39 @@ interface APIs {
     suspend fun checkCode(
         @Field("code") code: String?,
     ): Response<ForgetPasswordResponse>
+
+    @FormUrlEncoded
+    @POST("api/sendWhatsappMessage")
+    suspend fun sendWhatsappMessage(
+        @Field("message") message: String?,
+        @Field("is_saved") is_saved: Boolean,
+        @FieldMap(encoded = true) checkLeadsMap: Map<String, String>
+    ): Response<ForgetPasswordResponse>
+
+    @FormUrlEncoded
+    @POST("api/sendMail")
+    suspend fun sendMail(
+        @Field("subject") subject: String?,
+        @Field("body") body: String?,
+        @Field("fromEmail") fromEmail: String?,
+        @Field("is_saved") is_saved: Boolean?,
+        @Field("is_html") is_html: Boolean?,
+        @FieldMap(encoded = true) ids: Map<String, Int>?
+    ): Response<ForgetPasswordResponse>
+    @FormUrlEncoded
+    @POST("api/sms")
+    suspend fun sendSms(
+        @Field("to") to: String?,
+        @Field("message") message: String?,
+        @Field("from") from: String?,
+        ): Response<ForgetPasswordResponse>
+
+
+
+    @GET("api/prevMessages")
+    suspend fun prevMessages(): Response<WhatMessageResponse>
+    @GET("api/prevMails")
+    suspend fun prevMails(): Response<WhatMessageResponse>
 
     @FormUrlEncoded
     @POST("api/forget-password")

@@ -7,3 +7,9 @@ data class BasicData(
     val careerLevels: ArrayList<CareerLevel>,
 
     )
+data class Message(
+    val id: String,
+    val message: String,
+    val subject: String,
+
+    )

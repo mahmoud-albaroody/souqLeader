@@ -23,7 +23,8 @@ class MainViewModel @Inject constructor() : ViewModel() {
     var showFilterIcon by mutableStateOf(false)
     var showShareIcon by mutableStateOf(false)
     var selectedLead by mutableStateOf("")
-
+    var showSendContact by mutableStateOf(false)
+    var showMenuContact by mutableStateOf(false)
     var isCall by mutableStateOf(true)
     var isGesturesEnabled by mutableStateOf(true)
     private val _onShareClick =
@@ -31,5 +32,19 @@ class MainViewModel @Inject constructor() : ViewModel() {
     val onShareClick: MutableSharedFlow<Boolean>
         get() = _onShareClick
 
+    private val _onSendMailClick =
+        MutableSharedFlow<Boolean>()
+    val onSendMailClick: MutableSharedFlow<Boolean>
+        get() = _onSendMailClick
+
+    private val _onSmsMailClick =
+        MutableSharedFlow<Boolean>()
+    val onSmsMailClick: MutableSharedFlow<Boolean>
+        get() = _onSmsMailClick
+
+    private val _onWhatsClick =
+        MutableSharedFlow<Boolean>()
+    val onWhatsClick: MutableSharedFlow<Boolean>
+        get() = _onWhatsClick
 
 }

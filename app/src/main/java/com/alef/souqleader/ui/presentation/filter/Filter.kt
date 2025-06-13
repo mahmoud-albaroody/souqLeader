@@ -60,6 +60,7 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.AddLeadViewModel
 import com.alef.souqleader.ui.presentation.addlead.DynamicSelectTextField
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
+import com.alef.souqleader.ui.presentation.addlead.TextFiledItem1
 import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
 import com.google.gson.JsonObject
@@ -313,7 +314,7 @@ fun Filter(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Box(Modifier.weight(2f)) {
-                    TextFiledItem(
+                    TextFiledItem1(
                         text = stringResource(id = R.string.filter),
                         value = fromAmount, click = true
                     ) {
@@ -332,7 +333,7 @@ fun Filter(
                     )
                 }
                 Box(Modifier.weight(2f)) {
-                    TextFiledItem(
+                    TextFiledItem1(
                         text = stringResource(id = R.string.filter),
                         value = toAmount, click = true
                     ) {

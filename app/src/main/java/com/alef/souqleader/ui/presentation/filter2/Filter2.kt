@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alef.souqleader.R
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
+import com.alef.souqleader.ui.presentation.addlead.TextFiledItem1
 import com.alef.souqleader.ui.theme.*
 
 
@@ -118,7 +119,7 @@ private fun Budget() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(Modifier.weight(2f)) {
-            TextFiledItem("0",true){
+            TextFiledItem1("0",true){
 
             }
         }
@@ -133,7 +134,7 @@ private fun Budget() {
             )
         }
         Box(Modifier.weight(2f)) {
-            TextFiledItem(stringResource(R.string.any),true){
+            TextFiledItem1(stringResource(R.string.any),true){
 
             }
         }

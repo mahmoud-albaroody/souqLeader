@@ -1,20 +1,17 @@
 package com.alef.souqleader.ui.presentation.allLeads
 
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.Resource
-import com.alef.souqleader.data.remote.dto.CancelationReasonResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
-import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.LeadsByStatusResponse
+import com.alef.souqleader.data.remote.dto.WhatMessageResponse
 import com.alef.souqleader.domain.FilterUseCase
 import com.alef.souqleader.domain.GetLeadUseCase
 import com.alef.souqleader.domain.NetworkManager
@@ -42,10 +39,26 @@ class AllLeadViewModel @Inject constructor(
 
     var page by mutableIntStateOf(1)
 
+    private val _sendWhatsappMessage =
+        MutableSharedFlow<ForgetPasswordResponse>()
+    val sendWhatsappMessage:  MutableSharedFlow<ForgetPasswordResponse>
+        get() = _sendWhatsappMessage
+
+    private val _getWhatsMessage =
+        MutableSharedFlow<WhatMessageResponse>()
+    val getWhatsMessage:  MutableSharedFlow<WhatMessageResponse>
+        get() = _getWhatsMessage
+
+    private val _getMailMessage =
+        MutableSharedFlow<WhatMessageResponse>()
+    val getMailMessage:  MutableSharedFlow<WhatMessageResponse>
+        get() = _getMailMessage
+
     private val _stateFilterLeads =
         MutableSharedFlow<Resource<LeadsByStatusResponse>>(replay = 1)
     val stateFilterLeads: MutableSharedFlow<Resource<LeadsByStatusResponse>>
         get() = _stateFilterLeads
+
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -100,6 +113,54 @@ class AllLeadViewModel @Inject constructor(
                 }.buffer().collect {
                     _stateFilterLeads.emit(it)
                 }
+        }
+    }
+    fun sendWhatsappMessage(
+        message: String, isSaved:Boolean, checkLeads: List<String>
+    ) {
+        viewModelScope.launch(job) {
+            getLeadUseCase.sendWhatsappMessage(
+                message,
+                isSaved,
+                checkLeads,
+            ).data?.let {
+                _sendWhatsappMessage.emit(it)
+            }
+        }
+    }
+    fun sendMail(
+        subject: String,body:String
+        ,fromEmail:String,isSaved:Boolean,
+        isHtml:Boolean, ids:List<Int>
+    ) {
+        viewModelScope.launch(job) {
+            getLeadUseCase.sendMail(subject,body,fromEmail,isSaved,isHtml,ids).data?.let {
+                _sendWhatsappMessage.emit(it)
+            }
+        }
+    }
+    fun sendSms(
+        to: String,message:String
+        ,from:String
+    ) {
+        viewModelScope.launch(job) {
+            getLeadUseCase.sendSms(to,message,from).data?.let {
+                _sendWhatsappMessage.emit(it)
+            }
+        }
+    }
+    fun prevMessages() {
+        viewModelScope.launch(job) {
+            getLeadUseCase.prevMessages().data?.let {
+                _getWhatsMessage.emit(it)
+            }
+        }
+    }
+    fun prevMails() {
+        viewModelScope.launch(job) {
+            getLeadUseCase.prevMails().data?.let {
+                _getMailMessage.emit(it)
+            }
         }
     }
 

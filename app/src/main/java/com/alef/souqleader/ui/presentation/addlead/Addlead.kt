@@ -424,7 +424,122 @@ fun AddLead(
 fun TextFiledItem(
     text: String,
     click: Boolean,
-    value: String? = null, onTextChange: (String) -> Unit
+    value: String? = null,
+    onTextChange: (String) -> Unit
+) {
+
+    var textValue by remember { mutableStateOf("") }
+    var hint by remember { mutableStateOf(text) }
+
+    val keyboardOptions: KeyboardOptions =
+        when (text) {
+            stringResource(id = R.string.mobile)-> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                )
+            }
+            (stringResource(id = R.string.mobile)+"*") -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                )
+            }
+
+
+            stringResource(id = R.string.filter) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
+                )
+            }
+
+            stringResource(R.string.caller_called_number) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
+                )
+            }
+
+            stringResource(R.string.note) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+                )
+            }
+
+            stringResource(id = R.string.budget) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+                )
+            }
+
+            stringResource(id = R.string.max_price) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done
+                )
+            }
+
+            stringResource(id = R.string.min_price) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next
+                )
+            }
+
+            stringResource(id = R.string.name) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+                )
+            }
+
+            stringResource(id = R.string.e_mail) -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
+                )
+            }
+
+            else -> {
+                KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                )
+            }
+        }
+
+    if (value != null)
+        hint = value
+
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        value = textValue,
+        placeholder = {
+            Text(
+                text = hint, style = TextStyle(fontSize = 13.sp)
+            )
+        },
+        keyboardOptions = keyboardOptions,
+        //  keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
+
+        textStyle = TextStyle(fontSize = 13.sp),
+        colors = TextFieldDefaults.textFieldColors(
+            cursorColor = colorResource(id = R.color.black),
+            disabledLabelColor = colorResource(id = R.color.transparent),
+            focusedIndicatorColor = colorResource(id = R.color.transparent),
+            unfocusedIndicatorColor = colorResource(id = R.color.transparent),
+            unfocusedLabelColor = colorResource(id = R.color.transparent)
+        ),
+        onValueChange = {
+            textValue = it
+            onTextChange(textValue)
+        },
+        shape = RoundedCornerShape(8.dp),
+        singleLine = true,
+        enabled = click
+    )
+}
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun TextFiledItem1(
+    text: String,
+    click: Boolean,
+    value: String? = null,
+    onTextChange: (String) -> Unit
 ) {
 
     var textValue by remember { mutableStateOf("") }
@@ -527,13 +642,15 @@ fun TextFiledItem(
             textValue = it.filter {
                 it.isLetterOrDigit() || it == '.'
             }
-            onTextChange(it)
+            onTextChange(textValue)
         },
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
         enabled = click
     )
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

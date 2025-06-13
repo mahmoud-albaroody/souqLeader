@@ -59,6 +59,7 @@ import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.addlead.DynamicSelectTextField
 import com.alef.souqleader.ui.presentation.addlead.TextFiledItem
+import com.alef.souqleader.ui.presentation.addlead.TextFiledItem1
 import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.AndroidCookiesTheme
 import com.google.gson.JsonObject
@@ -443,7 +444,7 @@ private fun Budget(onFrom: (String) -> Unit, onTo: (String) -> Unit) {
             )
         }
         Box(Modifier.weight(2f)) {
-            TextFiledItem(stringResource(R.string.min_price), true) {
+            TextFiledItem1(stringResource(R.string.min_price), true) {
                 onFrom(it)
             }
         }
@@ -458,7 +459,7 @@ private fun Budget(onFrom: (String) -> Unit, onTo: (String) -> Unit) {
             )
         }
         Box(Modifier.weight(2f)) {
-            TextFiledItem(stringResource(R.string.max_price), true) {
+            TextFiledItem1(stringResource(R.string.max_price), true) {
                 onTo(it)
             }
         }

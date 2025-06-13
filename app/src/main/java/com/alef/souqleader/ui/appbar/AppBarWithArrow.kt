@@ -1,5 +1,6 @@
 package com.alef.souqleader.ui.appbar
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -95,6 +97,60 @@ fun AppBarWithArrow(
                             }
                         }
                 )
+
+            if (mainViewModel.showMenuContact)
+                Image(
+                    painter = painterResource(R.drawable.icons8_menu),
+                    colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 16.dp)
+                        .clickable {
+                            mainViewModel.showSendContact = !mainViewModel.showSendContact
+                        }
+                )
+            if (mainViewModel.showSendContact) {
+
+                Image(
+                    painter = painterResource(R.drawable.icons8_mail),
+                    colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                            mainViewModel.viewModelScope.launch {
+                                mainViewModel.onSendMailClick.emit(true)
+                            }
+                        }
+                )
+                Image(
+                    painter = painterResource(R.drawable.message_text1),
+                    colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                            mainViewModel.viewModelScope.launch {
+                                mainViewModel.onSmsMailClick.emit(true)
+                            }
+                        }
+                )
+                Image(
+                    painter = painterResource(R.drawable.icons8_whatsapp),
+                    colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 16.dp)
+                        .clickable {
+                            mainViewModel.viewModelScope.launch {
+                                mainViewModel.onWhatsClick.emit(true)
+                            }
+                        }
+                )
+
+            }
         }
     }
 }

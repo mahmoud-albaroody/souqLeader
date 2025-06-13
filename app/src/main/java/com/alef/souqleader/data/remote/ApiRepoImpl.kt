@@ -47,6 +47,7 @@ import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
 import com.alef.souqleader.data.remote.dto.UserDetailsResponse
+import com.alef.souqleader.data.remote.dto.WhatMessageResponse
 import com.alef.souqleader.domain.model.AddLead
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -247,9 +248,10 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         name: String,
         phone: String?,
         duration: String?,
-        note: String?
+        note: String?,
+        id:String?
     ): Resource<LeadsStatusResponse> {
-        val response = APIs.quickCreate(name, phone, duration, note)
+        val response = APIs.quickCreate(name, phone, duration, note,id = id)
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
@@ -790,6 +792,60 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         )
         return if (response.isSuccessful) {
 
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+    suspend fun sendWhatsappMessage(message: String,isSaved:Boolean,checkLeads:List<String>): Resource<ForgetPasswordResponse> {
+        val checkLeadsMap = mutableMapOf<String, String>().apply {
+            checkLeads.forEachIndexed { index, value ->
+                put("checkLeads[$index]", value)
+            }
+        }
+        val response = APIs.sendWhatsappMessage(message,isSaved,checkLeadsMap)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun sendMail(subject: String,body:String
+                         ,fromEmail:String,isSaved:Boolean,
+                         isHtml:Boolean, ids:List<Int>): Resource<ForgetPasswordResponse> {
+        val idss = mutableMapOf<String, Int>().apply {
+            ids.forEachIndexed { index, value ->
+                put("ids[$index]", value)
+            }
+        }
+        val response = APIs.sendMail(subject,body,fromEmail,isSaved,isHtml,idss)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun sendSms(to: String,message:String
+                         ,from:String): Resource<ForgetPasswordResponse> {
+        val response = APIs.sendSms(to,message,from)
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun prevMessages(): Resource<WhatMessageResponse> {
+        val response = APIs.prevMessages()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun prevMails(): Resource<WhatMessageResponse> {
+        val response = APIs.prevMails()
+        return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
             Resource.DataError(null, response.code(), response.errorBody())

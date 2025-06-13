@@ -8,7 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.CallLog
-import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,25 +31,30 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CheckboxDefaults
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Switch
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -83,10 +87,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -102,11 +107,10 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.presentation.map.PopupBox
-import com.alef.souqleader.ui.presentation.meetingReport.blueColor
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AllLeadsScreen(
     navController: NavController, modifier: Modifier,
@@ -115,10 +119,63 @@ fun AllLeadsScreen(
 ) {
     val viewModel: AllLeadViewModel = hiltViewModel()
     viewModel.updateBaseUrl(AccountData.BASE_URL)
-
+    val ctx = LocalContext.current
     var totalElementsCount by remember { mutableIntStateOf(0) }
     val leads = remember { mutableStateListOf<Lead>() }
+    val emailAddresses = remember { mutableStateListOf<Pair<String, String>>() }
+    val savedSMSMessages = remember { mutableStateListOf<Pair<String, String>>() }
+    var savedWhatsMessages = remember { mutableStateListOf<String>() }
+    val contactList = rememberSaveable(
+        saver = listSaver(
+            save = { it.toList() },
+            restore = { mutableStateListOf<String>().apply { addAll(it) } }
+        )
+    ) {
+        mutableStateListOf<String>()
+    }
+    var messageToSend by rememberSaveable { mutableStateOf("initialMessage") }
+
+    // Flag to track whether we've already sent a message
+    var isMessageSent by rememberSaveable { mutableStateOf(false) }
+    var isMail by rememberSaveable { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+    val coroutineScope = rememberCoroutineScope()
+    // On Resume logic using LifecycleEventObserver
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.prevMessages()
+                viewModel.prevMails()
+                if (!isMessageSent && contactList.isNotEmpty()) {
+
+                    // Remove first contact and update the list
+                    contactList.removeAt(0)
+                    isMessageSent = false
+
+                    if (contactList.isNotEmpty()) {
+
+                        val nextContact = contactList.first()
+                        // Send the next message
+                        sendWhatsAppMessage(ctx, nextContact, messageToSend)
+                        isMessageSent = true
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     LaunchedEffect(key1 = true) {
+        viewModel.prevMessages()
+        viewModel.prevMails()
+        mainViewModel.showMenuContact = true
         when (leadId) {
             "100" -> {
                 viewModel.delayLeads(viewModel.page)
@@ -189,95 +246,168 @@ fun AllLeadsScreen(
 
             }
         }
-
+        viewModel.viewModelScope.launch {
+            viewModel.getWhatsMessage.collect {
+                savedWhatsMessages.clear()
+                it.data?.map { msg -> msg.message }?.let { messages ->
+                    savedWhatsMessages.addAll(messages)
+                }
+            }
+        }
+        viewModel.viewModelScope.launch {
+            viewModel.getMailMessage.collect {
+                savedSMSMessages.clear()
+                it.data?.forEach {
+                    savedSMSMessages.add(Pair(it.subject, it.message))
+                }
+            }
+        }
     }
 
-    Screen(navController, mainViewModel, setKeyword = {
-        if (it.isEmpty()) {
-            viewModel.page = 1
-            leadId?.let { viewModel.getLeadByStatus(it, page = viewModel.page) }
-        } else {
-            viewModel.leadsFilter(
-                FilterRequest(
-                    name = it, status = leadId
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.onWhatsClick.collect {
+            coroutineScope.launch {
+                isMail = false
+                sheetState.show()
+            }
+
+        }
+    }
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.onSmsMailClick.collect {
+            contactList.clear()
+            leads.filter { it.selected }.forEach {
+                contactList.add(it.phone.toString())
+            }
+
+            sendSms(ctx, contactList, "")
+           // viewModel.sendSms()
+        }
+    }
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.onSendMailClick.collect {
+            coroutineScope.launch {
+                emailAddresses.clear()
+                leads.filter { it.selected }.forEach {
+                    emailAddresses.add(Pair(it.name.toString(), it.email.toString()))
+                }
+                isMail = true
+                sheetState.show()
+            }
+        }
+    }
+
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mainViewModel.showMenuContact = false
+            mainViewModel.showSendContact = false
+        }
+    }
+    AllLeadScreen(navController,
+        mainViewModel,
+        setKeyword = {
+            if (it.isEmpty()) {
+                viewModel.page = 1
+                leadId?.let { viewModel.getLeadByStatus(it, page = viewModel.page) }
+            } else {
+                viewModel.leadsFilter(
+                    FilterRequest(
+                        name = it, status = leadId
+                    )
                 )
-            )
-        }
-    }, leads, leadId, totalElementsCount, loadMore = {
-        leadId?.let {
-            viewModel.getLeadByStatus(it, ++viewModel.page)
-        }
-    })
+            }
+        },
+        leads,
+        leadId,
+        totalElementsCount,
+        sheetState,
+        isMail,
+        emailAddresses,
+        savedWhatsMessages,
+        savedSMSMessages,
+        loadMore = {
+            leadId?.let {
+                viewModel.getLeadByStatus(it, ++viewModel.page)
+            }
+        },
+        onCancelClick = {
+            coroutineScope.launch {
+                sheetState.hide()
+            }
+        },
+        onSendClick = { title, body, isSaved, isHtml ->
+            if (title.isEmpty()) {
+                coroutineScope.launch {
+                    contactList.clear()
+                    leads.filter { it.selected }.forEach {
+                        contactList.add(it.phone.toString())
+                    }
+                    messageToSend = body
+                    if (contactList.isNotEmpty()) {
+                        val firstContact = contactList.first()
+                        sendWhatsAppMessage(ctx, firstContact, messageToSend)
+                        viewModel.sendWhatsappMessage(messageToSend, isSaved, contactList.toList())
+                        isMessageSent = false
+                    }
+                    sheetState.hide()
+                }
+            } else {
+                coroutineScope.launch {
+                    val emailAddresses1: ArrayList<Int> = arrayListOf()
+                    emailAddresses.clear()
+                    leads.filter { it.selected }.forEach {
+                        emailAddresses.add(Pair(it.name.toString(), it.email.toString()))
+                        it.id?.let { it1 -> emailAddresses1.add(it1) }
+                    }
+                    sendEmail(ctx, emailAddresses, title, body)
+                    viewModel.sendMail(
+                        subject = title,
+                        body = body,
+                        fromEmail = AccountData.email,
+                        isSaved = isSaved,
+                        isHtml = isHtml,
+                        emailAddresses1.toList()
+                    )
+                    sheetState.hide()
+                }
+            }
+
+        })
 
 }
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Screen(
+fun AllLeadScreen(
     navController: NavController,
     mainViewModel: MainViewModel,
     setKeyword: (String) -> Unit,
     leads: List<Lead>,
     leadId: String?,
     totalElementsCount: Int,
-    loadMore: () -> Unit
+    sheetState: ModalBottomSheetState,
+    isMail: Boolean,
+    recipients: SnapshotStateList<Pair<String, String>>,
+    savedWhatsMessages: List<String>,
+    savedTemplates: List<Pair<String, String>>,
+    loadMore: () -> Unit,
+    onSendClick: (String, String, Boolean, Boolean) -> Unit,
+    onCancelClick: () -> Unit
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
 
-    var contactList = rememberSaveable(
-        saver = listSaver(
-            save = { it.toList() },
-            restore = { mutableStateListOf<String>().apply { addAll(it) } }
-        )
-    ) {
-        mutableStateListOf<String>()
-    }
+
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val ctx = LocalContext.current
-    var showDialog by remember { mutableStateOf(false) }
     var selectedLead by remember { mutableStateOf<Lead?>(null) }
     val messages = remember { mutableStateListOf<String>() }
+
     val socket = remember {
         WebSocketClient { msg ->
             messages.add(msg)
-        }
-    }
-
-    //  var contactList by rememberSaveable { mutableStateOf(listOf("+201012953520", "+201010079486")) }
-    val emailAddresses =
-        listOf("recipient1@example.com", "recipient2@example.com", "recipient3@example.com")
-
-    var messageToSend by rememberSaveable { mutableStateOf("initialMessage") }
-
-    // Flag to track whether we've already sent a message
-    var isMessageSent by rememberSaveable { mutableStateOf(false) }
-
-    // On Resume logic using LifecycleEventObserver
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                if (!isMessageSent && contactList.isNotEmpty()) {
-
-                    // Remove first contact and update the list
-                    contactList.removeAt(0)
-                    isMessageSent = false
-
-                    if (contactList.isNotEmpty()) {
-
-                        val nextContact = contactList.first()
-                        // Send the next message
-                        sendWhatsAppMessage(ctx, nextContact, messageToSend)
-                        isMessageSent = true
-                    }
-                }
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -305,30 +435,28 @@ fun Screen(
             socket.close()
         }
     }
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
-    val coroutineScope = rememberCoroutineScope()
+
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            NewMessageSheetContent(
-                onCancel = {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                    }
-                },
-                onSend = { message ->
-                    coroutineScope.launch {
-                        sheetState.hide()
-                        // You can call WhatsApp sharing here:
-//                        val context = LocalContext.current
-//                        shareToWhatsApp(context, "1234567890", message)
-                    }
-                }
-            )
+            if (isMail) {
+                ComposeEmailPage(recipients, savedTemplates, onCancel = {
+                    onCancelClick()
+                }, onSend = { title, body, isSaved, isHtml ->
+                    onSendClick(title, body, isSaved, isHtml)
+                })
+            } else {
+                NewMessageSheetContent(
+                    onCancel = {
+                        onCancelClick()
+                    },
+                    onSend = { message, isSave ->
+                        onSendClick("", message, isSave, false)
+                    },
+                    savedWhatsMessages
+                )
+            }
         }
     ) {
         Box(
@@ -411,10 +539,6 @@ fun Screen(
                                 )
                             },
                             onSmsClick = { lead ->
-//                                coroutineScope.launch {
-//                                    sheetState.show()
-//                                }
-
                                 socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
                             },
                             onWhatsClick = { lead ->
@@ -507,7 +631,8 @@ fun AllLeadsItem(
                     lead.selected = !lead.selected
                     selected = lead.selected
                     onLongPress(lead)
-                    selected = it },
+                    selected = it
+                },
                 colors = CheckboxDefaults.colors(
                     checkedColor = colorResource(id = R.color.blue),
                     uncheckedColor = colorResource(id = R.color.blue),
@@ -898,21 +1023,18 @@ fun AddCallDetailsDialog(
 @Composable
 fun NewMessageSheetContent(
     onCancel: () -> Unit,
-    onSend: (String) -> Unit
+    onSend: (String, Boolean) -> Unit,
+    savedMessages: List<String>
 ) {
     var message by rememberSaveable { mutableStateOf("") }
     var saveMessage by rememberSaveable { mutableStateOf(false) }
 
-    val savedMessages = listOf(
-        "Maven developments\nشركة أمريكية مصرية مقرها في مدينة فيلادلفيا بأمريكا حيث قامت بإنشاء أكثر من ٥٠ مشروع.",
-        "Holla",
-        "حي الاستثمار والحفاظ ع قيمة الاموال مر فلوسك ف شقة في جاردينيا سيتي طريق ا..."
-    )
+
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.85f)
+            .fillMaxHeight(0.90f)
             .background(Color(0xFFEFEFEF)) // Light background
             .padding(16.dp)
     ) {
@@ -927,7 +1049,7 @@ fun NewMessageSheetContent(
             Spacer(modifier = Modifier.weight(1f))
             Text(stringResource(R.string.new_message), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = { onSend(message) }) {
+            IconButton(onClick = { onSend(message, saveMessage) }) {
                 Icon(
                     imageVector = Icons.Default.Send,
                     contentDescription = stringResource(R.string.send),
@@ -1027,12 +1149,235 @@ fun sendSms(context: Context, phoneNumbers: List<String>, message: String) {
     context.startActivity(intent)
 }
 
-fun sendEmail(context: Context, emailAddresses: List<String>, subject: String, message: String) {
+fun sendEmail(
+    context: Context,
+    emailAddresses: SnapshotStateList<Pair<String, String>>,
+    subject: String,
+    message: String
+) {
+    val emailAddresses1: ArrayList<String> = arrayListOf()
+    emailAddresses.forEach {
+        emailAddresses1.add(it.second)
+    }
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = android.net.Uri.parse("mailto:")
-        putExtra(Intent.EXTRA_EMAIL, emailAddresses.toTypedArray())
+        putExtra(Intent.EXTRA_EMAIL, emailAddresses1.toTypedArray())
         putExtra(Intent.EXTRA_SUBJECT, subject)
         putExtra(Intent.EXTRA_TEXT, message)
     }
     context.startActivity(Intent.createChooser(intent, "Send Email"))
+}
+
+
+@Composable
+fun ComposeEmailPage(
+    recipients: SnapshotStateList<Pair<String, String>>, savedTemplates: List<Pair<String, String>>,
+    onSend: (String, String, Boolean, Boolean) -> Unit,
+    onCancel: () -> Unit
+) {
+
+    var subject by remember { mutableStateOf("") }
+    var body by remember { mutableStateOf("") }
+    var useHtml by remember { mutableStateOf(false) }
+    var saveMessage by remember { mutableStateOf(false) }
+    var showPreview by remember { mutableStateOf(false) }
+//    val savedTemplates = listOf(
+//        Triple("new Offers", "new Offers", "Offer until end of spring..."),
+//        Triple("Hi", "Dear Mylead, Masry,", "I hope this message finds you..."),
+//        Triple("Hi", "<h1>Dear Mylead, Masry,", "I hope this message finds..."),
+//        Triple("Hello", "Dear Mylead, neqlead, Rana,", "I hope this message f..."),
+//        Triple("Hello", "Dear Mylead, neqlead, Rana,", "I hope this message f...")
+//    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.90f)
+            .background(Color(0xFFFFFFFF)) // Light background
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Top Bar
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF007AFF))
+        ) {
+            Text(text = stringResource(id = R.string.cancel),
+                color = Color.White, modifier = Modifier
+                    .padding(vertical = 16.dp, horizontal = 16.dp)
+                    .clickable {
+                        onCancel()
+                    })
+            Text(
+                modifier = Modifier
+                    .padding(vertical = 16.dp, horizontal = 16.dp),
+                text = stringResource(R.string.compose_email),
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Icon(
+                Icons.Default.Send, contentDescription = "Send", tint = Color.White,
+                modifier = Modifier
+                    .padding(vertical = 16.dp, horizontal = 16.dp)
+                    .clickable {
+                        onSend(subject, body, saveMessage, useHtml)
+                    }
+            )
+        }
+
+        // RECIPIENTS SECTION
+        Text(
+            text = stringResource(R.string.recipients),
+            modifier = Modifier.padding(16.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+
+            recipients.forEachIndexed { index, (name, email) ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.Green)
+                    Spacer(Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(name, fontWeight = FontWeight.Bold)
+                        Text(email)
+                    }
+                    IconButton(onClick = { recipients.removeAt(index) }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                    }
+                }
+                Divider()
+            }
+
+            // Add Recipient
+//        Text(
+//            text = "+ Add Recipient",
+//            color = Color.Blue,
+//            modifier = Modifier
+//                .padding(vertical = 8.dp)
+//                .clickable { recipients.add("New Recipient" to "example@email.com") }
+//        )
+        }
+
+        // EMAIL CONTENT SECTION
+        Text(
+            stringResource(R.string.email_content),
+            modifier = Modifier.padding(16.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            OutlinedTextField(
+                value = subject,
+                onValueChange = { subject = it },
+                label = { Text(stringResource(R.string.subject)) })
+
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.use_html_formatting),
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(checked = useHtml,
+
+                    onCheckedChange = {
+                        useHtml = it
+                        showPreview = false
+
+                        body = if (useHtml) {
+                            if (body.contains("<h1>")) {
+                                body
+                            } else {
+                                // Convert to HTML-formatted string (basic, safe conversion)
+                                "<h1>" + body.replace("\n", "<br>") + "</h1>"
+                            }
+
+                        } else {
+                            // Strip simple HTML tags
+                            HtmlCompat.fromHtml(body, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+                        }
+
+                    })
+                if (useHtml) {
+                    Button(onClick = { showPreview = !showPreview }) {
+                        Text(
+                            if (showPreview) stringResource(R.string.hide_preview) else stringResource(
+                                R.string.preview_html
+                            )
+                        )
+                    }
+                }
+            }
+
+            if (showPreview) {
+                AndroidView(
+                    factory = { context ->
+                        TextView(context).apply {
+                            text = HtmlCompat.fromHtml(body, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                        }
+                    },
+                    update = {
+                        it.text = HtmlCompat.fromHtml(body, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .padding(top = 8.dp)
+                )
+            } else {
+                OutlinedTextField(
+                    value = body,
+                    onValueChange = { body = it },
+                    label = { Text(stringResource(R.string.email_body)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    maxLines = 10
+                )
+            }
+        }
+
+        // SAVED TEMPLATES
+        Text(
+            stringResource(R.string.saved_templates),
+            modifier = Modifier.padding(16.dp),
+            fontWeight = FontWeight.Bold
+        )
+        savedTemplates.forEach { (title, preview) ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        subject = title
+                        body =
+                            if (useHtml) "<h1>$preview</h1>" else "$preview"
+                    }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(text = title, color = Color.Blue, fontWeight = FontWeight.Bold)
+                Text(preview, color = Color.Gray, fontSize = 12.sp)
+            }
+            Divider()
+        }
+
+        // SAVE MESSAGE SWITCH
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(id = R.string.save_this_message_for_future_use),
+                modifier = Modifier.weight(1f)
+            )
+            Switch(checked = saveMessage, onCheckedChange = { saveMessage = it })
+        }
+
+        Spacer(Modifier.height(16.dp))
+    }
 }

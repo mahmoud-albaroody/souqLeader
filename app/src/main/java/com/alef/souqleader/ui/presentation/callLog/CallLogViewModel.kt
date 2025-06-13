@@ -44,19 +44,22 @@ class CallLogViewModel @Inject constructor(
     fun quickCreate(
         name: String, phone: String?,
         duration: String?,
-        note: String?
+        note: String?,
+        id:String?
     ) {
         viewModelScope.launch(job) {
             getLeadUseCase.quickCreate(
                 name,
                 phone,
                 duration,
-                note
+                note,
+                id
             ).data?.let {
                 _quickCreate.emit(it)
             }
         }
     }
+
 
 
 }

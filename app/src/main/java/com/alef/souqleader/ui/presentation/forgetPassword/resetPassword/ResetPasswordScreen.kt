@@ -102,7 +102,7 @@ fun ResetPasswordScreen(navController: NavController) {
                 ),
             )
             Text(
-                text = stringResource(R.string.lorem_ipsum_dolor_sit_amet_cons_ectetur_adipisici_elit),
+                text = stringResource(R.string.enter_your_data_to_reset_your_password),
                 style = TextStyle(
                     fontSize = 15.sp
                 ),

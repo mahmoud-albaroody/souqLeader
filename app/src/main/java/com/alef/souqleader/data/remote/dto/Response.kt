@@ -51,6 +51,11 @@ data class BasicDataResponse(
     var data: BasicData? = null
 ) : StatusResponse()
 
+data class WhatMessageResponse(
+    var data: List<Message>? = null
+) : StatusResponse()
+
+
 data class JobAppsResponse(
     var data: ArrayList<Jobapps>? = null
 ) : StatusResponse()
