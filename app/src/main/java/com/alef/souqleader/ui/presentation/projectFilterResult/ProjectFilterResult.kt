@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.projectFilterResult
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,6 +58,7 @@ fun ProductFilterResultScreen(
         if (projectFilterRequest?.type == "Product") {
 
             projectFilterRequest.let { viewModel.projectFilter(it) }
+
             viewModel.viewModelScope.launch {
                 viewModel.projectFilter.collect {
                     if (it is Resource.Success) {
@@ -122,9 +124,13 @@ fun ProductFilterResultScreen(
             )
         },
             onPage = {
-                if (projects.isNotEmpty()) {
-                    viewProjectModel.getProject(++viewProjectModel.page)
+                viewModel.viewModelScope.launch {
+                    delay(2000)
+                    loadMore = false
+                    projectFilterRequest.let {viewModel.page++
+                        viewModel.projectFilter(it) }
                 }
+
             }, onMapClick = {
 
             }, onSortClick = {

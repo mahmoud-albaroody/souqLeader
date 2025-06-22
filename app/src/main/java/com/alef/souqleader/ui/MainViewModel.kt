@@ -47,4 +47,10 @@ class MainViewModel @Inject constructor() : ViewModel() {
     val onWhatsClick: MutableSharedFlow<Boolean>
         get() = _onWhatsClick
 
+
+    private val _onSelectAllClick =
+        MutableSharedFlow<Boolean>()
+    val onSelectAllClick: MutableSharedFlow<Boolean>
+        get() = _onSelectAllClick
+
 }

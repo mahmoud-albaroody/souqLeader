@@ -140,38 +140,38 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    override fun onDestroy() {
-        super.onDestroy()
-//        unregisterReceiver(receiver)
-        unregisterReceiver(callReceiver)
-
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onStart() {
-        super.onStart()
-        val phoneReadStatePermission = applicationContext.checkSelfPermission("READ_PHONE_STATE")
-        val readCallLogPermission = applicationContext.checkSelfPermission("READ_CALL_LOG")
-        val hasPhoneReadStatePermission =
-            phoneReadStatePermission == PackageManager.PERMISSION_GRANTED
-        val hasReadCallLogPermission = readCallLogPermission == PackageManager.PERMISSION_GRANTED
-        if (!hasPhoneReadStatePermission || !hasReadCallLogPermission) {
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.READ_CALL_LOG,
-                    Manifest.permission.READ_PHONE_STATE
-                ),
-                1
-            )
-            this.registerPhoneReceiver()
-            val filter = IntentFilter("com.testing.firewall.CALL_RECEIVED")
-            registerReceiver(callReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            this.registerPhoneReceiver()
-            val filter = IntentFilter("com.testing.firewall.CALL_RECEIVED")
-            registerReceiver(callReceiver, filter, RECEIVER_NOT_EXPORTED)
-        }
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+////        unregisterReceiver(receiver)
+//        unregisterReceiver(callReceiver)
+//
+//    }
+//
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    override fun onStart() {
+//        super.onStart()
+//        val phoneReadStatePermission = applicationContext.checkSelfPermission("READ_PHONE_STATE")
+//        val readCallLogPermission = applicationContext.checkSelfPermission("READ_CALL_LOG")
+//        val hasPhoneReadStatePermission =
+//            phoneReadStatePermission == PackageManager.PERMISSION_GRANTED
+//        val hasReadCallLogPermission = readCallLogPermission == PackageManager.PERMISSION_GRANTED
+//        if (!hasPhoneReadStatePermission || !hasReadCallLogPermission) {
+//            requestPermissions(
+//                arrayOf(
+//                    Manifest.permission.READ_CALL_LOG,
+//                    Manifest.permission.READ_PHONE_STATE
+//                ),
+//                1
+//            )
+//            this.registerPhoneReceiver()
+//            val filter = IntentFilter("com.testing.firewall.CALL_RECEIVED")
+//            registerReceiver(callReceiver, filter, RECEIVER_NOT_EXPORTED)
+//        } else {
+//            this.registerPhoneReceiver()
+//            val filter = IntentFilter("com.testing.firewall.CALL_RECEIVED")
+//            registerReceiver(callReceiver, filter, RECEIVER_NOT_EXPORTED)
+//        }
+//    }
     private fun registerPhoneReceiver() {
         val handler = CallReceiver()
         val filter = IntentFilter()

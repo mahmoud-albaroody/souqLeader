@@ -222,15 +222,22 @@
     </string>
     <string name="please_add_a_caption_to_your_post">يرجى إضافة عنوان توضيحي لمنشورك</string>
     <string name="select_language">اختر اللغة</string>
-    <string name="enter_your_data_to_reset_your_password">Enter your data to reset your password.</string>
-    <string name="please_enter_a_duration">Please enter a duration.</string>
-    <string name="compose_email">Compose Email</string>
-    <string name="email_content">EMAIL CONTENT</string>
-    <string name="subject">Subject</string>
-    <string name="use_html_formatting">Use HTML Formatting</string>
-    <string name="hide_preview">Hide Preview</string>
-    <string name="preview_html">Preview HTML</string>
-    <string name="email_body">Email Body</string>
-    <string name="saved_templates">SAVED TEMPLATES</string>
-    <string name="recipients">RECIPIENTS</string>
+    <string name="enter_your_data_to_reset_your_password">أدخل بياناتك لإعادة تعيين كلمة المرور.</string>
+    <string name="please_enter_a_duration">يرجى إدخال المدة.</string>
+    <string name="compose_email">إنشاء بريد إلكتروني</string>
+    <string name="email_content">محتوى البريد الإلكتروني</string>
+    <string name="subject">الموضوع</string>
+    <string name="use_html_formatting">استخدام تنسيق HTML</string>
+    <string name="hide_preview">إخفاء المعاينة</string>
+    <string name="preview_html">معاينة HTML</string>
+    <string name="email_body">نص البريد الإلكتروني</string>
+    <string name="saved_templates">القوالب المحفوظة</string>
+    <string name="recipients">المستلمون</string>
+    <string name="duplicated_lead">تم تكرار العميل المحتمل</string>
+    <string name="delay_lead">تأجيل العميل المحتمل</string>
+    <string name="delete_post">حذف المنشور</string>
+    <string name="are_you_sure_you_want_to_delete_this_post">هل أنت متأكد أنك تريد حذف هذا المنشور؟</string>
+    <string name="delete">حذف</string>
+    <string name="set_reminder">تعيين تذكير</string>
+    <string name="hide_all">Hide All</string>
 </resources>

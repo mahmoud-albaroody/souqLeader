@@ -31,6 +31,7 @@ data class Lead(
     val sales_name: String?,
     val status: Int?,
     var selected: Boolean,
+
     val channel: String?,
     val created_at: String?,
     val is_duplicated: Int?,

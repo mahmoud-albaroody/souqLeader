@@ -24,6 +24,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -441,31 +443,54 @@ fun ImageSlider(imageUrls: List<Image>) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-
                     .padding(16.dp)
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            scale = (scale * zoom).coerceIn(1f, 5f)
-                            offset += pan
-                        }
-                    }
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offset.x,
-                        translationY = offset.y
-                    )
-                    .transformable(state = state)
             ) {
-                AsyncImage(
-                    model = url,
-                    contentDescription = "Full Image",
-                    contentScale = ContentScale.Fit,
+
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                )
+                        .wrapContentHeight()
+                        .pointerInput(Unit) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                scale = (scale * zoom).coerceIn(1f, 5f)
+                                offset += pan
+                            }
+                        }
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offset.x,
+                            translationY = offset.y
+                        )
+                        .transformable(state = state)
+                        .align(Alignment.Center)
+                ) {
+                    AsyncImage(
+                        model = url,
+                        contentDescription = "Full Image",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                }
+                // Close button (top-right)
+                IconButton(
+                    onClick = { selectedImageUrl = null },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .background(Color.Red.copy(alpha = 0.3f), shape = CircleShape)
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = Color.White
+                    )
+                }
+
             }
         }
     }
+
 }

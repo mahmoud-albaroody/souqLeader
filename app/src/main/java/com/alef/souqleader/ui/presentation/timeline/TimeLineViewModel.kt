@@ -48,6 +48,9 @@ class TimeLineViewModel @Inject constructor(
     private val _addPosts = MutableLiveData<StatusResponse>()
     val addPosts: LiveData<StatusResponse> = _addPosts
 
+    private val _deletePost = MutableLiveData<StatusResponse>()
+    val deletePost: LiveData<StatusResponse> = _deletePost
+
     private val _addLike = MutableLiveData<AddLikeResponse>()
     val addLike: LiveData<AddLikeResponse> = _addLike
 
@@ -81,6 +84,14 @@ class TimeLineViewModel @Inject constructor(
     ) {
         viewModelScope.launch(job) {
             _addPosts.value = addPostUseCase.addPost(post, images).data!!
+        }
+    }
+
+    fun deletePost(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            _addPosts.value = addPostUseCase.deletePost(id).data!!
         }
     }
 

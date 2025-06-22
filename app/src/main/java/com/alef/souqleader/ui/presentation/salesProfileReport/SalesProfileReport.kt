@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -24,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,9 +84,11 @@ fun SalesProfileReportItem(
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
-
+    val ctx = LocalContext.current
     var stageHeight by remember { mutableIntStateOf(200) }
     var size by remember { mutableIntStateOf(5) }
+    var text by remember { mutableStateOf("") }
+    text =  ctx.getString(R.string.view_all)
 
     LazyColumn(
         // and not having a Modifier that could return non-infinite max height contraint
@@ -376,23 +383,27 @@ fun SalesProfileReportItem(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(stageHeight.dp)
+                            .heightIn(max = stageHeight.dp)
+                            .verticalScroll(rememberScrollState())
                     ) {
 //                        for (statusCounters in 0 until size) {
 //                            StagesPerLead(salesProfileReport.status_counters[statusCounters])
 //                        }
+
                         (salesProfileReport.status_counters).forEach { statusCounters ->
                             StagesPerLead(statusCounters)
                         }
                     }
                     Text(
-                        text = stringResource(R.string.view_all),
+                        text = text,
                         modifier = Modifier
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                             .clickable {
                                 stageHeight = if (stageHeight == 200) {
-                                    400
+                                    text = ctx.getString(R.string.hide_all)
+                                    500
                                 } else {
+                                    text = ctx.getString(R.string.view_all)
                                     200
                                 }
 //                                size = if (size == 5) {

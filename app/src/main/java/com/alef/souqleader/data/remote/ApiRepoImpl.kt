@@ -454,6 +454,20 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         }
     }
 
+    suspend fun deletePost(
+        id: String
+    ): Resource<StatusResponse> {
+        val response = APIs.deletePost(
+            id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
     suspend fun addCompanyPost(
         post: RequestBody, images: ArrayList<MultipartBody.Part>?
     ): Resource<StatusResponse> {

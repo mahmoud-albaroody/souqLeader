@@ -51,7 +51,6 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
-import com.alef.souqleader.ui.presentation.map.PopupBox
 
 import com.alef.souqleader.ui.presentation.salesProfileReport.VerticalDivider
 

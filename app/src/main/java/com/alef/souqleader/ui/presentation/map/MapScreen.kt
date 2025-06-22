@@ -58,47 +58,7 @@ fun MapScreen(
     MapIcons(projects, propertyResponse)
 }
 
-@Composable
-fun PopupBox(
-    popupWidth: Float,
-    popupHeight: Float,
-    showPopup: Boolean,
-    onClickOutside: () -> Unit,
-    content: @Composable () -> Unit
-) {
 
-    if (showPopup) {
-        // full screen background
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Transparent)
-                .zIndex(10F),
-            contentAlignment = Alignment.Center
-        ) {
-            // popup
-            Popup(
-                alignment = Alignment.Center,
-                properties = PopupProperties(
-                    excludeFromSystemGesture = true,
-                ),
-                // to dismiss on click outside
-                onDismissRequest = { onClickOutside() }
-            ) {
-                Box(
-                    Modifier
-                        .width(popupWidth.dp)
-                        .height(popupHeight.dp)
-                        .background(Color.White)
-                        .clip(RoundedCornerShape(4.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    content()
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun MapIcons(projects: ProjectResponse?, propertyResponse: PropertyResponse?) {

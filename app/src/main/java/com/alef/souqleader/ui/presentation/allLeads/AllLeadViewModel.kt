@@ -3,6 +3,7 @@ package com.alef.souqleader.ui.presentation.allLeads
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
@@ -41,17 +42,17 @@ class AllLeadViewModel @Inject constructor(
 
     private val _sendWhatsappMessage =
         MutableSharedFlow<ForgetPasswordResponse>()
-    val sendWhatsappMessage:  MutableSharedFlow<ForgetPasswordResponse>
+    val sendWhatsappMessage: MutableSharedFlow<ForgetPasswordResponse>
         get() = _sendWhatsappMessage
 
     private val _getWhatsMessage =
         MutableSharedFlow<WhatMessageResponse>()
-    val getWhatsMessage:  MutableSharedFlow<WhatMessageResponse>
+    val getWhatsMessage: MutableSharedFlow<WhatMessageResponse>
         get() = _getWhatsMessage
 
     private val _getMailMessage =
         MutableSharedFlow<WhatMessageResponse>()
-    val getMailMessage:  MutableSharedFlow<WhatMessageResponse>
+    val getMailMessage: MutableSharedFlow<WhatMessageResponse>
         get() = _getMailMessage
 
     private val _stateFilterLeads =
@@ -65,9 +66,9 @@ class AllLeadViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    fun getLeadByStatus(id: String, page: Int) {
+    fun getLeadByStatus(id: String) {
         viewModelScope.launch(job) {
-            getLeadUseCase.getLeadByStatus(id, page).catch { }
+            getLeadUseCase.getLeadByStatus(id, page++).catch { }
                 .onStart {
                     _stateListOfLeads.emit(Resource.Loading())
                 }.buffer().collect {
@@ -76,9 +77,9 @@ class AllLeadViewModel @Inject constructor(
         }
     }
 
-    fun delayLeads(page: Int) {
+    fun delayLeads() {
         viewModelScope.launch(job) {
-            getLeadUseCase.delayLeads(page).catch { }
+            getLeadUseCase.delayLeads(page++).catch { }
                 .onStart {
                     _stateListOfLeads.emit(Resource.Loading())
                 }.buffer().collect {
@@ -87,9 +88,9 @@ class AllLeadViewModel @Inject constructor(
         }
     }
 
-    fun duplicated(page: Int) {
+    fun duplicated() {
         viewModelScope.launch(job) {
-            getLeadUseCase.duplicated(page).catch { }
+            getLeadUseCase.duplicated(page++).catch { }
                 .onStart {
                     _stateListOfLeads.emit(Resource.Loading())
                 }.buffer().collect {
@@ -115,8 +116,9 @@ class AllLeadViewModel @Inject constructor(
                 }
         }
     }
+
     fun sendWhatsappMessage(
-        message: String, isSaved:Boolean, checkLeads: List<String>
+        message: String, isSaved: Boolean, checkLeads: List<String>
     ) {
         viewModelScope.launch(job) {
             getLeadUseCase.sendWhatsappMessage(
@@ -128,27 +130,28 @@ class AllLeadViewModel @Inject constructor(
             }
         }
     }
+
     fun sendMail(
-        subject: String,body:String
-        ,fromEmail:String,isSaved:Boolean,
-        isHtml:Boolean, ids:List<Int>
+        subject: String, body: String, fromEmail: String, isSaved: Boolean,
+        isHtml: Boolean, ids: List<Int>
     ) {
         viewModelScope.launch(job) {
-            getLeadUseCase.sendMail(subject,body,fromEmail,isSaved,isHtml,ids).data?.let {
+            getLeadUseCase.sendMail(subject, body, fromEmail, isSaved, isHtml, ids).data?.let {
                 _sendWhatsappMessage.emit(it)
             }
         }
     }
+
     fun sendSms(
-        to: String,message:String
-        ,from:String
+        to: String, message: String, from: String
     ) {
         viewModelScope.launch(job) {
-            getLeadUseCase.sendSms(to,message,from).data?.let {
+            getLeadUseCase.sendSms(to, message, from).data?.let {
                 _sendWhatsappMessage.emit(it)
             }
         }
     }
+
     fun prevMessages() {
         viewModelScope.launch(job) {
             getLeadUseCase.prevMessages().data?.let {
@@ -156,6 +159,7 @@ class AllLeadViewModel @Inject constructor(
             }
         }
     }
+
     fun prevMails() {
         viewModelScope.launch(job) {
             getLeadUseCase.prevMails().data?.let {

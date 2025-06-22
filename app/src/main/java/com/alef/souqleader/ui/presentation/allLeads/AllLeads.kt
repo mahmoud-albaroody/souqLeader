@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.CallLog
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -107,6 +108,7 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -124,7 +126,7 @@ fun AllLeadsScreen(
     val leads = remember { mutableStateListOf<Lead>() }
     val emailAddresses = remember { mutableStateListOf<Pair<String, String>>() }
     val savedSMSMessages = remember { mutableStateListOf<Pair<String, String>>() }
-    var savedWhatsMessages = remember { mutableStateListOf<String>() }
+    val savedWhatsMessages = remember { mutableStateListOf<String>() }
     val contactList = rememberSaveable(
         saver = listSaver(
             save = { it.toList() },
@@ -138,6 +140,7 @@ fun AllLeadsScreen(
     // Flag to track whether we've already sent a message
     var isMessageSent by rememberSaveable { mutableStateOf(false) }
     var isMail by rememberSaveable { mutableStateOf(false) }
+    var isLoadMore by remember { mutableStateOf(false) }
 
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -151,6 +154,23 @@ fun AllLeadsScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.prevMessages()
                 viewModel.prevMails()
+                leads.clear()
+                viewModel.page = 1
+                when (leadId) {
+                    "100" -> {
+                        viewModel.delayLeads()
+                    }
+
+                    "200" -> {
+                        viewModel.duplicated()
+                    }
+
+                    else -> {
+                        leadId?.let {
+                            viewModel.getLeadByStatus(it)
+                        }
+                    }
+                }
                 if (!isMessageSent && contactList.isNotEmpty()) {
 
                     // Remove first contact and update the list
@@ -173,30 +193,31 @@ fun AllLeadsScreen(
         }
     }
     LaunchedEffect(key1 = true) {
-        viewModel.prevMessages()
-        viewModel.prevMails()
+//        viewModel.prevMessages()
+//        viewModel.prevMails()
         mainViewModel.showMenuContact = true
-        when (leadId) {
-            "100" -> {
-                viewModel.delayLeads(viewModel.page)
-            }
-
-            "200" -> {
-                viewModel.duplicated(viewModel.page)
-            }
-
-            else -> {
-                leadId?.let {
-                    viewModel.getLeadByStatus(it, viewModel.page)
-                }
-            }
-        }
+//        when (leadId) {
+//            "100" -> {
+//                viewModel.delayLeads()
+//            }
+//
+//            "200" -> {
+//                viewModel.duplicated()
+//            }
+//
+//            else -> {
+//                leadId?.let {
+//                    viewModel.getLeadByStatus(it)
+//                }
+//            }
+//        }
 
 
         viewModel.viewModelScope.launch {
             viewModel.stateListOfLeads.collect {
                 when (it) {
                     is Resource.Success -> {
+
                         it.data?.info?.let {
                             it.count?.let {
                                 totalElementsCount = it
@@ -211,6 +232,7 @@ fun AllLeadsScreen(
                                 leads.addAll(it1)
                             }
                         }
+                        isLoadMore = true
                         mainViewModel.showLoader = false
                     }
 
@@ -273,6 +295,7 @@ fun AllLeadsScreen(
 
         }
     }
+
     LaunchedEffect(key1 = Unit) {
         mainViewModel.onSmsMailClick.collect {
             contactList.clear()
@@ -281,7 +304,7 @@ fun AllLeadsScreen(
             }
 
             sendSms(ctx, contactList, "")
-           // viewModel.sendSms()
+            // viewModel.sendSms()
         }
     }
     LaunchedEffect(key1 = Unit) {
@@ -304,77 +327,111 @@ fun AllLeadsScreen(
             mainViewModel.showSendContact = false
         }
     }
-    AllLeadScreen(navController,
-        mainViewModel,
-        setKeyword = {
-            if (it.isEmpty()) {
-                viewModel.page = 1
-                leadId?.let { viewModel.getLeadByStatus(it, page = viewModel.page) }
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            if (isMail) {
+                ComposeEmailPage(emailAddresses, savedSMSMessages, onCancel = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                }, onSend = { title, body, isSaved, isHtml ->
+
+                        coroutineScope.launch {
+                            val emailAddresses1: ArrayList<Int> = arrayListOf()
+                            emailAddresses.clear()
+                            leads.filter { it.selected }.forEach {
+                                emailAddresses.add(Pair(it.name.toString(), it.email.toString()))
+                                it.id?.let { it1 -> emailAddresses1.add(it1) }
+                            }
+                            sendEmail(ctx, emailAddresses, title, body)
+                            viewModel.sendMail(
+                                subject = title,
+                                body = body,
+                                fromEmail = AccountData.email,
+                                isSaved = isSaved,
+                                isHtml = isHtml,
+                                emailAddresses1.toList()
+                            )
+                            sheetState.hide()
+                        }
+
+                })
             } else {
-                viewModel.leadsFilter(
-                    FilterRequest(
-                        name = it, status = leadId
-                    )
+                NewMessageSheetContent(
+                    onCancel = {
+                        coroutineScope.launch {
+                            sheetState.hide()
+                        }
+                    },
+                    onSend = { message, isSave ->
+
+                            coroutineScope.launch {
+                                contactList.clear()
+                                leads.filter { it.selected }.forEach {
+                                    contactList.add(it.phone.toString())
+                                }
+                                messageToSend = message
+                                if (contactList.isNotEmpty()) {
+                                    val firstContact = contactList.first()
+                                    sendWhatsAppMessage(ctx, firstContact, messageToSend)
+                                    viewModel.sendWhatsappMessage(
+                                        messageToSend,
+                                        isSave,
+                                        contactList.toList()
+                                    )
+                                    isMessageSent = false
+                                }
+                                sheetState.hide()
+                            }
+
+                    },
+                    savedWhatsMessages
                 )
             }
-        },
-        leads,
-        leadId,
-        totalElementsCount,
-        sheetState,
-        isMail,
-        emailAddresses,
-        savedWhatsMessages,
-        savedSMSMessages,
-        loadMore = {
-            leadId?.let {
-                viewModel.getLeadByStatus(it, ++viewModel.page)
-            }
-        },
-        onCancelClick = {
-            coroutineScope.launch {
-                sheetState.hide()
-            }
-        },
-        onSendClick = { title, body, isSaved, isHtml ->
-            if (title.isEmpty()) {
-                coroutineScope.launch {
-                    contactList.clear()
-                    leads.filter { it.selected }.forEach {
-                        contactList.add(it.phone.toString())
-                    }
-                    messageToSend = body
-                    if (contactList.isNotEmpty()) {
-                        val firstContact = contactList.first()
-                        sendWhatsAppMessage(ctx, firstContact, messageToSend)
-                        viewModel.sendWhatsappMessage(messageToSend, isSaved, contactList.toList())
-                        isMessageSent = false
-                    }
-                    sheetState.hide()
-                }
-            } else {
-                coroutineScope.launch {
-                    val emailAddresses1: ArrayList<Int> = arrayListOf()
-                    emailAddresses.clear()
-                    leads.filter { it.selected }.forEach {
-                        emailAddresses.add(Pair(it.name.toString(), it.email.toString()))
-                        it.id?.let { it1 -> emailAddresses1.add(it1) }
-                    }
-                    sendEmail(ctx, emailAddresses, title, body)
-                    viewModel.sendMail(
-                        subject = title,
-                        body = body,
-                        fromEmail = AccountData.email,
-                        isSaved = isSaved,
-                        isHtml = isHtml,
-                        emailAddresses1.toList()
+        }
+    ) {
+
+
+        AllLeadScreen(navController,
+            mainViewModel,
+            setKeyword = {
+                if (it.isEmpty()) {
+                    leadId?.let { viewModel.getLeadByStatus(it) }
+                } else {
+                    viewModel.leadsFilter(
+                        FilterRequest(
+                            name = it, status = leadId
+                        )
                     )
-                    sheetState.hide()
                 }
-            }
+            },
+            leads,
+            leadId,
+            totalElementsCount,
+            isLoadMore,
+            loadMore = {
+                isLoadMore = false
+                leadId?.let {
+                    when (leadId) {
+                        "100" -> {
+                            viewModel.delayLeads()
+                        }
 
-        })
+                        "200" -> {
+                            viewModel.duplicated()
+                        }
 
+                        else -> {
+                            leadId.let {
+                                viewModel.getLeadByStatus(it)
+                            }
+                        }
+                    }
+                }
+            },
+          )
+    }
 }
 
 
@@ -384,33 +441,43 @@ fun AllLeadScreen(
     navController: NavController,
     mainViewModel: MainViewModel,
     setKeyword: (String) -> Unit,
-    leads: List<Lead>,
+    leads: SnapshotStateList<Lead>,
     leadId: String?,
     totalElementsCount: Int,
-    sheetState: ModalBottomSheetState,
-    isMail: Boolean,
-    recipients: SnapshotStateList<Pair<String, String>>,
-    savedWhatsMessages: List<String>,
-    savedTemplates: List<Pair<String, String>>,
+    isLoadMore: Boolean,
     loadMore: () -> Unit,
-    onSendClick: (String, String, Boolean, Boolean) -> Unit,
-    onCancelClick: () -> Unit
+
+
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
-
-
+    val coroutineScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val ctx = LocalContext.current
     var selectedLead by remember { mutableStateOf<Lead?>(null) }
     val messages = remember { mutableStateListOf<String>() }
-
     val socket = remember {
         WebSocketClient { msg ->
             messages.add(msg)
         }
     }
-
+    LaunchedEffect(key1 = Unit) {
+        coroutineScope.launch {
+            mainViewModel.onSelectAllClick.collect { status ->
+                if(status) {
+                    leads.forEachIndexed { index, lead ->
+                        leads[index] = lead.copy(selected = true)
+                        selectedIdList.add(lead.id.toString())
+                    }
+                }else{
+                    leads.forEachIndexed { index, lead ->
+                        leads[index] = lead.copy(selected = false)
+                    }
+                    selectedIdList.clear()
+                }
+            }
+        }
+    }
     AddCallDetailsDialog(
         showDialog = mainViewModel.showDialog,
         onDismiss = {
@@ -436,95 +503,72 @@ fun AllLeadScreen(
         }
     }
 
-
-    ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetContent = {
-            if (isMail) {
-                ComposeEmailPage(recipients, savedTemplates, onCancel = {
-                    onCancelClick()
-                }, onSend = { title, body, isSaved, isHtml ->
-                    onSendClick(title, body, isSaved, isHtml)
-                })
-            } else {
-                NewMessageSheetContent(
-                    onCancel = {
-                        onCancelClick()
-                    },
-                    onSend = { message, isSave ->
-                        onSendClick("", message, isSave, false)
-                    },
-                    savedWhatsMessages
-                )
-            }
-        }
+    Box(
+        Modifier
+            .background(colorResource(id = R.color.white))
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .fillMaxSize()
     ) {
-        Box(
-            Modifier
-                .background(colorResource(id = R.color.white))
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .fillMaxSize()
-        ) {
-            Column(Modifier.height(screenHeight)) {
-                Search(stringResource(R.string.search), setKeyword = {
-                    setKeyword(it)
-                }, onFilterClick = {
-                    navController.navigate(Screen.FilterScreen.route.plus("/${leadId}")) {
-                        launchSingleTop = true
-                    }
-                })
+        Column(Modifier.height(screenHeight)) {
+            Search(stringResource(R.string.search), setKeyword = {
+                setKeyword(it)
+            }, onFilterClick = {
+                navController.navigate(Screen.FilterScreen.route.plus("/${leadId}")) {
+                    launchSingleTop = true
+                }
+            })
 
-                LazyColumn(
-                    Modifier.fillMaxWidth()
-                ) {
-                    items(leads) { leadItem ->
-                        AllLeadsItem(leadItem, onItemClick = { lead ->
-                            navController.navigate(
-                                Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
-                            )
+            LazyColumn(
+                Modifier.fillMaxWidth()
+            ) {
+                items(leads, key = { it.id.toString() }) { leadItem ->
+                    AllLeadsItem(leadItem, onItemClick = { lead ->
+                        navController.navigate(
+                            Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
+                        )
 
-                        }, onLongPress = { lead ->
-                            if (selectedIdList.find { it.toInt() == lead.id } == null) {
-                                selectedIdList.add(lead.id.toString())
-                                //    selectedPhoneList.add(lead.phone.toString())
-                            } else {
-                                selectedIdList.remove(lead.id.toString())
-                                //selectedPhoneList.remove(lead.phone.toString())
-                            }
-                        }, onCallClick = { lead ->
-                            socket.sendData(
-                                leadItem.id.toString(),
-                                "call",
-                                lead.sales_id.toString()
-                            )
-                            selectedLead = lead
-                            val u = Uri.parse(
-                                "tel:" + selectedLead?.phone.toString()
-                            )
+                    }, onCheckedChange = { lead ->
+                        if (selectedIdList.find { it.toInt() == lead.id } == null) {
+                            selectedIdList.add(lead.id.toString())
+                            //    selectedPhoneList.add(lead.phone.toString())
+                        } else {
+                            selectedIdList.remove(lead.id.toString())
+                            //selectedPhoneList.remove(lead.phone.toString())
+                        }
+                    }, onCallClick = { lead ->
+                        socket.sendData(
+                            leadItem.id.toString(),
+                            "call",
+                            lead.sales_id.toString()
+                        )
+                        selectedLead = lead
+                        val u = Uri.parse(
+                            "tel:" + selectedLead?.phone.toString()
+                        )
 
-                            // Create the intent and set the data for the
-                            // intent as the phone number.
-                            val i = Intent(Intent.ACTION_DIAL, u)
-                            try {
-                                // Launch the Phone app's dialer with a phone
-                                // number to dial a call.
-                                ctx.startActivity(i)
-                                mainViewModel.showDialog = true
-                            } catch (s: SecurityException) {
+                        // Create the intent and set the data for the
+                        // intent as the phone number.
+                        val i = Intent(Intent.ACTION_DIAL, u)
+                        try {
+                            // Launch the Phone app's dialer with a phone
+                            // number to dial a call.
+                            ctx.startActivity(i)
+                            mainViewModel.showDialog = true
+                        } catch (s: SecurityException) {
 
-                                // show() method display the toast with
-                                // exception message.
-                                Toast
-                                    .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
-                                    .show()
-                            }
+                            // show() method display the toast with
+                            // exception message.
+                            Toast
+                                .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                .show()
+                        }
 
-                        },
-                            onMailClick = { lead ->
+                    },
+                        onMailClick = { lead ->
 //                                contactList.add("+201012953520")
 //                                contactList.add("+201010079486")
-                                // sendSms(ctx, contactList, messageToSend)
-                                //     sendEmail(ctx, emailAddresses, "subject", "message")
+                            // sendSms(ctx, contactList, messageToSend)
+                            //     sendEmail(ctx, emailAddresses, "subject", "message")
 
 //                                if (contactList.isNotEmpty()) {
 //                                    val firstContact = contactList.first()
@@ -532,40 +576,49 @@ fun AllLeadScreen(
 //                                    isMessageSent = false
 //                                }
 
-                                socket.sendData(
-                                    lead.id.toString(),
-                                    "email",
-                                    lead.sales_id.toString()
-                                )
-                            },
-                            onSmsClick = { lead ->
-                                socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
-                            },
-                            onWhatsClick = { lead ->
-                                socket.sendData(
-                                    lead.id.toString(),
-                                    "whatsapp",
-                                    lead.sales_id.toString()
-                                )
-                            }
-                        )
-                    }
-                    if (totalElementsCount > leads.size && leads.isNotEmpty()) item {
-                        loadMore()
-                        Row(
-                            Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            socket.sendData(
+                                lead.id.toString(),
+                                "email",
+                                lead.sales_id.toString()
+                            )
+                        },
+                        onSmsClick = { lead ->
+                            socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
+                        },
+                        onWhatsClick = { lead ->
+                            socket.sendData(
+                                lead.id.toString(),
+                                "whatsapp",
+                                lead.sales_id.toString()
                             )
                         }
-                    }
+                    )
                 }
+                if (isLoadMore)
+                    if (leads.size in 11..totalElementsCount) {
+                        item {
+                            mainViewModel.viewModelScope.launch {
+                                delay(2000)
+                                loadMore()
+                            }
 
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
             }
-            if (selectedIdList.isNotEmpty()) Button(modifier = Modifier
+
+        }
+        if (selectedIdList.isNotEmpty())
+            Button(modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(15.dp),
@@ -579,15 +632,15 @@ fun AllLeadScreen(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-        }
     }
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AllLeadsItem(
     lead: Lead, onItemClick: (Lead) -> Unit,
-    onLongPress: (Lead) -> Unit,
+    onCheckedChange: (Lead) -> Unit,
     onCallClick: (Lead) -> Unit,
     onMailClick: (Lead) -> Unit,
     onSmsClick: (Lead) -> Unit,
@@ -603,34 +656,20 @@ fun AllLeadsItem(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-//            .height(screenHeight / 3f)
             .padding(6.dp)
-            .combinedClickable(onLongClick = {
-                lead.selected = !lead.selected
-                selected = lead.selected
-                onLongPress(lead)
-            }, onDoubleClick = { /*....*/ }, onClick = { onItemClick(lead) }),
-//            .clickable {
-////                lead.selected = !lead.selected
-////                selected = lead.selected
-//                onItemClick(lead)
-//            },
+            .combinedClickable(onClick = { onItemClick(lead) }),
+
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
-//            if (selected)
-//                Image(
-//                    painterResource(R.drawable.select_box),
-//                    contentDescription = "",
-//                    Modifier.align(Alignment.TopEnd)
-//                )
+
             Checkbox(
                 modifier = Modifier.align(Alignment.TopEnd),
-                checked = selected,
+                checked = lead.selected,
                 onCheckedChange = {
                     lead.selected = !lead.selected
                     selected = lead.selected
-                    onLongPress(lead)
+                    onCheckedChange(lead)
                     selected = it
                 },
                 colors = CheckboxDefaults.colors(
@@ -1047,7 +1086,10 @@ fun NewMessageSheetContent(
                 Text(stringResource(id = R.string.cancel), color = Color.Red)
             }
             Spacer(modifier = Modifier.weight(1f))
-            Text(stringResource(R.string.new_message), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.new_message),
+                style = MaterialTheme.typography.titleMedium
+            )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = { onSend(message, saveMessage) }) {
                 Icon(
@@ -1171,7 +1213,8 @@ fun sendEmail(
 
 @Composable
 fun ComposeEmailPage(
-    recipients: SnapshotStateList<Pair<String, String>>, savedTemplates: List<Pair<String, String>>,
+    recipients: SnapshotStateList<Pair<String, String>>,
+    savedTemplates: List<Pair<String, String>>,
     onSend: (String, String, Boolean, Boolean) -> Unit,
     onCancel: () -> Unit
 ) {
@@ -1241,14 +1284,22 @@ fun ComposeEmailPage(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 ) {
-                    Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.Green)
+                    Icon(
+                        Icons.Default.AccountCircle,
+                        contentDescription = null,
+                        tint = Color.Green
+                    )
                     Spacer(Modifier.width(8.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(name, fontWeight = FontWeight.Bold)
                         Text(email)
                     }
                     IconButton(onClick = { recipients.removeAt(index) }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = Color.Red
+                        )
                     }
                 }
                 Divider()
@@ -1298,7 +1349,8 @@ fun ComposeEmailPage(
 
                         } else {
                             // Strip simple HTML tags
-                            HtmlCompat.fromHtml(body, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+                            HtmlCompat.fromHtml(body, HtmlCompat.FROM_HTML_MODE_LEGACY)
+                                .toString()
                         }
 
                     })

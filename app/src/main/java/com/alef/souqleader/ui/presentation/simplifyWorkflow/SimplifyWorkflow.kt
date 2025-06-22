@@ -100,6 +100,7 @@ fun SimplifyScreen(
                                     if (!it.domain.isNullOrEmpty()) {
                                         AccountData.name = it.name ?: ""
                                         AccountData.domain = it.domain
+                                        AccountData.tenantId= it.tenant_id?:0
                                         AccountData.BASE_URL =
                                             ("https://" + AccountData.domain + "/")
                                         AccountData.log = it.logo ?: ""

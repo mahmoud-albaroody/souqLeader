@@ -16,6 +16,10 @@ class AddPostUseCase @Inject constructor(private val repository: ApiRepoImpl) {
                         images: ArrayList<MultipartBody.Part>?): Resource<StatusResponse> {
         return repository.addPost(post,images)
     }
+    suspend fun deletePost(id:String): Resource<StatusResponse> {
+        return repository.deletePost(id)
+    }
+
     suspend fun addCompanyPost(post: RequestBody,
                         images: ArrayList<MultipartBody.Part>?): Resource<StatusResponse> {
         return repository.addCompanyPost(post,images)

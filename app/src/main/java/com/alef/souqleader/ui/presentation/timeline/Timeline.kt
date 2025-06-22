@@ -39,6 +39,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Delete
@@ -123,7 +125,9 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     var loadMore by remember { mutableStateOf(true) }
     var info by remember { mutableStateOf(Info()) }
     var likedPost by remember { mutableStateOf<Post?>(null) }
+    var deletedPost by remember { mutableStateOf<Post?>(null) }
     val images = remember { mutableStateListOf<Uri>() }
+    var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val listState = rememberLazyListState()
     //  val posts = mutableStateListOf<Post>()
@@ -137,11 +141,12 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
 
     val launcher = rememberLauncherForActivityResult(
         contract =
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri: Uri? ->
+        ActivityResultContracts.PickMultipleVisualMedia()
+    ) { uri: List< Uri> ->
         if (uri != null) {
-            imageUri = uri
-            imageUri?.let { it1 -> images.add(it1) }
+            imageUri = uri[0]
+            images.addAll(uri)
+           // imageUri?.let { it1 -> images.add(it1) }
             vedioPath = null
             visibleMeda = true
         } else {
@@ -189,6 +194,14 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
+        viewModel.deletePost.observe(context as MainActivity) {
+            if (it.status) {
+            } else {
+                Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
+            }
+        }
+
+
         viewModel.viewModelScope.launch {
             viewModel.statePosts.collect {
                 imageUri = null
@@ -264,7 +277,10 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                                 context.contentResolver.openFileDescriptor(it, "r", null)
                             parcelFileDescriptor?.let { pfd ->
                                 val inputStream = FileInputStream(pfd.fileDescriptor)
-                                val file = File(context.cacheDir, "temp_image_file_${System.currentTimeMillis()}")
+                                val file = File(
+                                    context.cacheDir,
+                                    "temp_image_file_${System.currentTimeMillis()}"
+                                )
                                 val outputStream = FileOutputStream(file)
                                 inputStream.copyTo(outputStream)
 
@@ -290,13 +306,14 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                             "text/plain".toMediaType(),
                             it
                         )
-//                        // Call the ViewModel's addPost function with the necessary parameters
+                        mainViewModel.showLoader = true
                         viewModel.addPost(name, imagesMultipart)
                     }
 
                     visibleMeda = false
                 }
-            }, onOpenCamera = {
+            },
+            onOpenCamera = {
                 if (ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.CAMERA
@@ -318,7 +335,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 } else {
                     cameraLauncher.launch(null)
                 }
-            }, onVedio = {
+            },
+            onVedio = {
                 // Create file and URI using FileProvider
                 val videoFile = File(context.getExternalFilesDir(null), "video.mp4")
                 val videoUri = FileProvider.getUriForFile(
@@ -420,6 +438,10 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                         } else {
                             viewModel.addLike("1", post.id.toString())
                         }
+                    },
+                    onDeletePostClick = {
+                        deletedPost = post
+                        showDialog = true
                     })
             }
             if (info.pages != null && loadMore)
@@ -443,6 +465,12 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 }
         }
     }
+    DeletePostDialog(showDialog, onDismiss = {
+        showDialog = false
+    }, onConfirm = {
+        viewModel.deletePost(deletedPost?.id.toString())
+        showDialog = false
+    })
 }
 
 
@@ -589,7 +617,11 @@ fun MediaPost(
 }
 
 @Composable
-fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Unit) {
+fun TimelineItem(
+    post: Post, onTimelineCLick: () -> Unit,
+    onLikeClick: () -> Unit,
+    onDeletePostClick: (Post) -> Unit
+) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -608,7 +640,6 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
         Column(
             Modifier
                 .fillMaxSize(),
-
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
@@ -617,61 +648,84 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                     .fillMaxWidth()
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box {
-                    Image(
-                        modifier = Modifier
-                            .size(45.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                        painter = rememberAsyncImagePainter(
-                            if (post.user?.photo?.isNotEmpty() == true) {
-                                AccountData.BASE_URL + post.user.photo
-                            } else {
-                                R.drawable.user_profile_placehoder
-                            }
-                        ),
-                        contentDescription = ""
-                    )
-                    Image(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .size(10.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                        painter = rememberAsyncImagePainter(
-                            if (post.user?.is_online == 1) {
-                                R.drawable.ellipse_green
-                            } else {
-                                R.drawable.ellipse_gray
-                            }
-                        ),
-                        contentDescription = ""
-                    )
-                }
-                Column(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(horizontal = 8.dp),
-                    verticalArrangement = Arrangement.Center
+                        .weight(9.2f)
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    post.user?.name?.let {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = it, fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                    Box {
+                        Image(
+                            modifier = Modifier
+                                .size(45.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            painter = rememberAsyncImagePainter(
+                                if (post.user?.photo?.isNotEmpty() == true) {
+                                    AccountData.BASE_URL + post.user.photo
+                                } else {
+                                    R.drawable.user_profile_placehoder
+                                }
+                            ),
+                            contentDescription = ""
+                        )
+                        Image(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(10.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            painter = rememberAsyncImagePainter(
+                                if (post.user?.is_online == 1) {
+                                    R.drawable.ellipse_green
+                                } else {
+                                    R.drawable.ellipse_gray
+                                }
+                            ),
+                            contentDescription = ""
                         )
                     }
-                    post.getDate()?.let {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = it,
-                            fontSize = 11.sp,
-                        )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(horizontal = 8.dp),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        post.user?.name?.let {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = it, fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        post.getDate()?.let {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = it,
+                                fontSize = 11.sp,
+                            )
+                        }
                     }
+
                 }
+                if (post.tenant_id == AccountData.tenantId && AccountData.userId == post.user?.id)
+                    Image(
+                        painter = painterResource(R.drawable.icons8_delete),
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .weight(1f)
+                            .size(2.dp, 25.dp)
+                            .clip(RoundedCornerShape(percent = 10))
+                            .clickable {
+
+                                onDeletePostClick(post)
+                            }
+                    )
             }
 
             if (!post.images.isNullOrEmpty())
@@ -747,6 +801,8 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
             }
         }
     }
+
+
 }
 
 
@@ -834,5 +890,34 @@ fun saveBitmapToFile(context: Context, bitmap: Bitmap): Uri? {
     } catch (e: IOException) {
         e.printStackTrace()
         null
+    }
+}
+
+@Composable
+fun DeletePostDialog(
+    showDialog: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = {
+                Text(text = stringResource(R.string.delete_post))
+            },
+            text = {
+                Text(stringResource(R.string.are_you_sure_you_want_to_delete_this_post))
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(stringResource(R.string.delete), color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }

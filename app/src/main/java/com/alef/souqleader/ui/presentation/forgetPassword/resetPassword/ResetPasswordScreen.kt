@@ -182,6 +182,7 @@ fun ChangePass(onChangePasswordClick: (String, String, String, String) -> Unit) 
 fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
     var isNotValid by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
+    val context = LocalContext.current
     var keyboardOptions =
         KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Text)
     if (text == stringResource(id = R.string.code)) {
@@ -209,7 +210,11 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
         ),
         onValueChange = {
             password = it
-            isNotValid = it.isEmpty() || !isValidEmail(it)
+            isNotValid = if(text == context.getString( R.string.e_mail)) {
+                it.isEmpty() || !isValidEmail(it)
+            }else{
+                it.isEmpty()
+            }
             onTextChange(password, isNotValid)
 
         },

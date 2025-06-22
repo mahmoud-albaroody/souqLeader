@@ -16,7 +16,8 @@ data class Post(
     val updated_at: String? = null,
     val user_id: Int? = null,
     val user:User? = null,
-    var postType:String?=null
+    var postType:String?=null,
+
 ) {
     fun commentCount(): Int? {
         return comment?.size

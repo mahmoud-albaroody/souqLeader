@@ -439,6 +439,10 @@ interface APIs {
         @Field("email") email: String?,
     ): Response<ForgetPasswordResponse>
 
+    @DELETE("api/post/{id}")
+    suspend fun deletePost(
+        @Path("id") id: String,
+    ): Response<StatusResponse>
 
     @GET("api/Leadsfilter")
     suspend fun leadsFilter(

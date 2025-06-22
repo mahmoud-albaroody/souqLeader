@@ -17,6 +17,7 @@ object AccountData : KotprefModel() {
     var firebase_token: String? by nullableStringPref(null)
     var role_id: Int by intPref(0)
     var domain: String by stringPref("")
+    var tenantId: Int by intPref(0)
     var BASE_URL: String by stringPref( "https://souqleader.com/")
     var email: String by stringPref("")
     var userId: Int by intPref(0)

@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -182,6 +183,20 @@ fun CustomModalDrawer(
                                 it.data?.data?.let { it1 ->
                                     allLead.addAll(it1)
                                 }
+                                allLead.add(
+                                    AllLeadStatus(
+                                        id = 200,
+                                        title_ar = context.getString(R.string.duplicated_lead),
+                                        title_en = context.getString(R.string.duplicated_lead),
+                                    )
+                                )
+                                allLead.add(
+                                    AllLeadStatus(
+                                        id = 100,
+                                        title_ar = context.getString(R.string.delay_lead),
+                                        title_en = context.getString(R.string.delay_lead),
+                                    )
+                                )
                                 mainViewModel.showLoader = false
                             }
 
@@ -286,7 +301,9 @@ fun CustomModalDrawer(
                                 navController.navigate(Screen.ProfileScreen.route) {
                                     launchSingleTop = true
                                 }
-                            } else if (title == context.getString(R.string.logout)) {
+                            }
+
+                            else if (title == context.getString(R.string.logout)) {
                                 val lang = AccountData.lang
                                 AccountData.clear()
                                 AccountData.lang = lang
@@ -308,12 +325,21 @@ fun CustomModalDrawer(
                     Scaffold(
                         topBar = {
                             when (currentRoute(navController)) {
-                                Screen.DashboardScreen.route, Screen.Timeline.route,
+                                Screen.DashboardScreen.route,
+                                Screen.Timeline.route,
                                 Screen.CompanyTimelineScreen.route,
                                 Screen.SalesProfileReportScreen.route,
                                 Screen.PaymentPlansScreen.route,
                                 Screen.ProfileScreen.route,
-                                Screen.RoleScreen.route -> {
+                                Screen.RoleScreen.route, Screen.AddLeadScreen.route,
+                                Screen.AllLeadsScreen.route,
+                                Screen.PropertyScreen.route,
+                                Screen.ReportsScreen.route,
+                                Screen.CancellationsReportScreen.route,
+                                Screen.ChannelReport.route,
+                                Screen.ProjectReport.route,
+                                Screen.DelayReport.route,
+                                Screen.ProjectsScreen.route -> {
                                     mainViewModel.isGesturesEnabled = true
                                     val appTitle: String =
                                         if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
@@ -325,42 +351,37 @@ fun CustomModalDrawer(
                                         else if (currentRoute(navController) == Screen.CompanyTimelineScreen.route) stringResource(
                                             R.string.company_timeline
                                         )
-                                        else if (currentRoute(navController) == Screen.AllLeadsScreen.route) stringResource(
-                                            R.string.timeline
-                                        )
-                                        else if (currentRoute(navController) == Screen.AddLeadScreen.route) stringResource(
-                                            R.string.add_lead
-                                        )
+                                        else if (currentRoute(navController) == Screen.AllLeadsScreen.route) Screen.AllLeadsScreen.title
+                                        else if (currentRoute(navController) == Screen.AddLeadScreen.route) title
+                                        else if (currentRoute(navController) == Screen.ProjectsScreen.route) title
+                                        else if (currentRoute(navController) == Screen.PropertyScreen.route) title
+                                        else if (currentRoute(navController) == Screen.ReportsScreen.route) title
+                                        else if (currentRoute(navController) == Screen.CancellationsReportScreen.route) title
+                                        else if (currentRoute(navController) == Screen.ChannelReport.route) title
+                                        else if (currentRoute(navController) == Screen.ProjectReport.route) title
+                                        else if (currentRoute(navController) == Screen.DelayReport.route) title
                                         else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) {
                                             mainViewModel.isGesturesEnabled = false
                                             stringResource(
                                                 R.string.change_password
                                             )
 
-                                        }
-                                        else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route)
-                                        {
+                                        } else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route) {
                                             mainViewModel.isGesturesEnabled = false
                                             stringResource(
                                                 R.string.forgot_password
                                             )
-                                        }
-
-                                        else if (currentRoute(navController) == Screen.ResetPasswordScreen.route)
-                                        {
+                                        } else if (currentRoute(navController) == Screen.ResetPasswordScreen.route) {
                                             mainViewModel.isGesturesEnabled = false
                                             stringResource(
                                                 R.string.reset_password
                                             )
-                                        }
-                                        else if (currentRoute(navController) == Screen.CheckCodeScreen.route)
-                                        {
+                                        } else if (currentRoute(navController) == Screen.CheckCodeScreen.route) {
                                             mainViewModel.isGesturesEnabled = false
                                             stringResource(
                                                 R.string.verify_code
                                             )
-                                        }
-                                        else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
+                                        } else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
                                             R.string.filter_result
                                         )
                                         else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
@@ -384,8 +405,9 @@ fun CustomModalDrawer(
                                         else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
                                             R.string.project_details
                                         )
+                                        else if (currentRoute(navController) == Screen.AllLeadsScreen.route) title
                                         else if (currentRoute(navController) == Screen.CRMScreen.route) stringResource(
-                                            R.string.project_details
+                                            R.string.timeline
                                         )
                                         else stringResource(R.string.dashboard)
 
@@ -395,9 +417,10 @@ fun CustomModalDrawer(
                                                 drawerState.open()
                                             }
                                         }
-                                    }, openFilters = {
-                                        isAppBarVisible.value = false
-                                    })
+                                    } , mainViewModel = mainViewModel
+                                    ) {
+                                        navController.popBackStack()
+                                    }
                                 }
 
                                 Screen.LoginScreen.route -> {
@@ -410,9 +433,7 @@ fun CustomModalDrawer(
 
 
                                 else -> {
-                                    if (currentRoute(navController) == Screen.AllLeadsScreen.route) {
-                                        title = Screen.AllLeadsScreen.title
-                                    } else if (currentRoute(navController) ==
+                                   if (currentRoute(navController) ==
                                         Screen.LeadDetailsScreen.route
                                     ) {
                                         title = stringResource(
