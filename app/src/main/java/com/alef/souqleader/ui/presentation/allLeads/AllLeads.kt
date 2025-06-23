@@ -149,49 +149,7 @@ fun AllLeadsScreen(
     val coroutineScope = rememberCoroutineScope()
     // On Resume logic using LifecycleEventObserver
     val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.prevMessages()
-                viewModel.prevMails()
-                leads.clear()
-                viewModel.page = 1
-                when (leadId) {
-                    "100" -> {
-                        viewModel.delayLeads()
-                    }
 
-                    "200" -> {
-                        viewModel.duplicated()
-                    }
-
-                    else -> {
-                        leadId?.let {
-                            viewModel.getLeadByStatus(it)
-                        }
-                    }
-                }
-                if (!isMessageSent && contactList.isNotEmpty()) {
-
-                    // Remove first contact and update the list
-                    contactList.removeAt(0)
-                    isMessageSent = false
-
-                    if (contactList.isNotEmpty()) {
-
-                        val nextContact = contactList.first()
-                        // Send the next message
-                        sendWhatsAppMessage(ctx, nextContact, messageToSend)
-                        isMessageSent = true
-                    }
-                }
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
     LaunchedEffect(key1 = true) {
 //        viewModel.prevMessages()
 //        viewModel.prevMails()
@@ -285,48 +243,6 @@ fun AllLeadsScreen(
             }
         }
     }
-
-    LaunchedEffect(key1 = Unit) {
-        mainViewModel.onWhatsClick.collect {
-            coroutineScope.launch {
-                isMail = false
-                sheetState.show()
-            }
-
-        }
-    }
-
-    LaunchedEffect(key1 = Unit) {
-        mainViewModel.onSmsMailClick.collect {
-            contactList.clear()
-            leads.filter { it.selected }.forEach {
-                contactList.add(it.phone.toString())
-            }
-
-            sendSms(ctx, contactList, "")
-            // viewModel.sendSms()
-        }
-    }
-    LaunchedEffect(key1 = Unit) {
-        mainViewModel.onSendMailClick.collect {
-            coroutineScope.launch {
-                emailAddresses.clear()
-                leads.filter { it.selected }.forEach {
-                    emailAddresses.add(Pair(it.name.toString(), it.email.toString()))
-                }
-                isMail = true
-                sheetState.show()
-            }
-        }
-    }
-
-
-    DisposableEffect(Unit) {
-        onDispose {
-            mainViewModel.showMenuContact = false
-            mainViewModel.showSendContact = false
-        }
-    }
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
@@ -335,7 +251,8 @@ fun AllLeadsScreen(
                     coroutineScope.launch {
                         sheetState.hide()
                     }
-                }, onSend = { title, body, isSaved, isHtml ->
+                },
+                    onSend = { title, body, isSaved, isHtml ->
 
                         coroutineScope.launch {
                             val emailAddresses1: ArrayList<Int> = arrayListOf()
@@ -356,7 +273,7 @@ fun AllLeadsScreen(
                             sheetState.hide()
                         }
 
-                })
+                    })
             } else {
                 NewMessageSheetContent(
                     onCancel = {
@@ -366,24 +283,24 @@ fun AllLeadsScreen(
                     },
                     onSend = { message, isSave ->
 
-                            coroutineScope.launch {
-                                contactList.clear()
-                                leads.filter { it.selected }.forEach {
-                                    contactList.add(it.phone.toString())
-                                }
-                                messageToSend = message
-                                if (contactList.isNotEmpty()) {
-                                    val firstContact = contactList.first()
-                                    sendWhatsAppMessage(ctx, firstContact, messageToSend)
-                                    viewModel.sendWhatsappMessage(
-                                        messageToSend,
-                                        isSave,
-                                        contactList.toList()
-                                    )
-                                    isMessageSent = false
-                                }
-                                sheetState.hide()
+                        coroutineScope.launch {
+                            contactList.clear()
+                            leads.filter { it.selected }.forEach {
+                                contactList.add(it.phone.toString())
                             }
+                            messageToSend = message
+                            if (contactList.isNotEmpty()) {
+                                val firstContact = contactList.first()
+                                sendWhatsAppMessage(ctx, firstContact, messageToSend)
+                                viewModel.sendWhatsappMessage(
+                                    messageToSend,
+                                    isSave,
+                                    contactList.toList()
+                                )
+                                isMessageSent = false
+                            }
+                            sheetState.hide()
+                        }
 
                     },
                     savedWhatsMessages
@@ -391,8 +308,6 @@ fun AllLeadsScreen(
             }
         }
     ) {
-
-
         AllLeadScreen(navController,
             mainViewModel,
             setKeyword = {
@@ -430,8 +345,92 @@ fun AllLeadsScreen(
                     }
                 }
             },
-          )
+        )
     }
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.onWhatsClick.collect {
+            coroutineScope.launch {
+                isMail = false
+                sheetState.show()
+            }
+
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.onSmsMailClick.collect {
+            contactList.clear()
+            leads.filter { it.selected }.forEach {
+                contactList.add(it.phone.toString())
+            }
+
+            sendSms(ctx, contactList, "")
+            // viewModel.sendSms()
+        }
+    }
+    LaunchedEffect(key1 = Unit) {
+        mainViewModel.onSendMailClick.collect {
+            coroutineScope.launch {
+                emailAddresses.clear()
+                leads.filter { it.selected }.forEach {
+                    emailAddresses.add(Pair(it.name.toString(), it.email.toString()))
+                }
+                isMail = true
+                sheetState.show()
+            }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.prevMessages()
+                viewModel.prevMails()
+                leads.clear()
+                viewModel.page = 1
+                when (leadId) {
+                    "100" -> {
+                        viewModel.delayLeads()
+                    }
+
+                    "200" -> {
+                        viewModel.duplicated()
+                    }
+
+                    else -> {
+                        leadId?.let {
+                            viewModel.getLeadByStatus(it)
+                        }
+                    }
+                }
+                if (!isMessageSent && contactList.isNotEmpty()) {
+
+                    // Remove first contact and update the list
+                    contactList.removeAt(0)
+                    isMessageSent = false
+
+                    if (contactList.isNotEmpty()) {
+
+                        val nextContact = contactList.first()
+                        // Send the next message
+                        sendWhatsAppMessage(ctx, nextContact, messageToSend)
+                        isMessageSent = true
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            mainViewModel.showMenuContact = false
+            mainViewModel.showSendContact = false
+        }
+    }
+
 }
 
 

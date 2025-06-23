@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.AddCommentUseCase
+import com.alef.souqleader.domain.AddPostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CRMViewModel @Inject constructor(
     private val addCommentUseCase: AddCommentUseCase,
+    val addPostUseCase: AddPostUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -27,6 +29,11 @@ class CRMViewModel @Inject constructor(
         MutableSharedFlow<StatusResponse>()
     val stateAddComment: MutableSharedFlow<StatusResponse>
         get() = _stateAddComment
+
+    private val _stateDeletComment =
+        MutableSharedFlow<StatusResponse>()
+    val stateDeleteComment: MutableSharedFlow<StatusResponse>
+        get() = _stateDeletComment
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -53,6 +60,13 @@ class CRMViewModel @Inject constructor(
     fun addCompanyComment(comment: String, post_id: String) {
         viewModelScope.launch(job) {
             addCommentUseCase.addCompanyComment(comment, post_id).data?.let { _stateAddComment.emit(it) }
+        }
+    }
+    fun deleteComment(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            addPostUseCase.deleteComment(id).data?.let { _stateDeletComment.emit(it) }
         }
     }
 

@@ -444,6 +444,11 @@ interface APIs {
         @Path("id") id: String,
     ): Response<StatusResponse>
 
+    @DELETE("api/comment/{id}")
+    suspend fun deleteComment(
+        @Path("id") id: String,
+    ): Response<StatusResponse>
+
     @GET("api/Leadsfilter")
     suspend fun leadsFilter(
         @Query("phone") phone: String? = null,

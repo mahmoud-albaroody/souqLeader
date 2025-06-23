@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,6 +74,7 @@ import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.User
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.presentation.timeline.DeletePostDialog
 import com.alef.souqleader.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -86,12 +88,14 @@ import kotlinx.coroutines.launch
 fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
     val postList = remember { mutableStateListOf<Comment>() }
     var comment by remember { mutableStateOf("") }
+    var commentObject by remember { mutableStateOf<Comment?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
 
-    postList.clear()
-    post.comment?.let { postList.addAll(it) }
     val viewModel: CRMViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
+        postList.clear()
+        post.comment?.let { postList.addAll(it) }
         viewModel.viewModelScope.launch {
             viewModel.stateAddComment.collect {
                 // postList.clear()
@@ -106,22 +110,41 @@ fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
                 )
             }
         }
+        viewModel.viewModelScope.launch {
+            viewModel.stateDeleteComment.collect {
+                Log.e("kkkkkkkkk","lllllllllllllllllllllll")
+                postList.remove(commentObject)
+            }
+        }
     }
-    CRMScreenItem(post, postList = postList) {
+
+
+    CRMScreenItem(post, postList = postList, onRemoveComment = {
+        showDialog = true
+        commentObject = it
+
+
+    } , onSendTextClick = {
         comment = it
         if(post.postType=="companyType"){
             viewModel.addCompanyComment(it, post.id.toString())
         }else {
             viewModel.addComment(it, post.id.toString())
         }
-    }
+    })
+    DeletePostDialog(showDialog, onDismiss = {
+        showDialog = false
+    }, onConfirm = {
+        viewModel.deleteComment(commentObject?.id.toString())
+        showDialog = false
+    })
 }
 
 
 @Composable
 fun CRMScreenItem(
     post: Post,
-    postList: SnapshotStateList<Comment>, onSendTextClick: (String) -> Unit
+    postList: SnapshotStateList<Comment>, onSendTextClick: (String) -> Unit,onRemoveComment:(Comment)->Unit
 ) {
     val lazyColumnListState = rememberLazyListState()
 
@@ -268,7 +291,9 @@ fun CRMScreenItem(
 
             LazyColumn(state = lazyColumnListState, content = {
                 items(postList) {
-                    CommentItem(it)
+                    CommentItem(it, onRemoveComment = {
+                        onRemoveComment(it)
+                    })
                 }
             })
 
@@ -353,7 +378,7 @@ fun ReminderItem(text: String, text1: String, onSendTextClick: (String) -> Unit)
 }
 
 @Composable
-fun CommentItem(comment: Comment) {
+fun CommentItem(comment: Comment,onRemoveComment:(Comment)->Unit) {
     Row(Modifier.padding(top = 14.dp)) {
         Image(
             painter = rememberAsyncImagePainter(
@@ -370,7 +395,7 @@ fun CommentItem(comment: Comment) {
                 .clip(CircleShape)
         )
         Column(
-            Modifier.fillMaxSize(),
+            Modifier.fillMaxSize() .weight(9f),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
@@ -391,6 +416,18 @@ fun CommentItem(comment: Comment) {
                 )
             )
         }
+        Image(
+            painter = painterResource(R.drawable.icons8_delete),
+            contentDescription = "",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .weight(1f)
+                .size(2.dp, 20.dp)
+                .clip(RoundedCornerShape(percent = 10))
+                .clickable {
+                    onRemoveComment(comment)
+                }
+        )
     }
 }
 
