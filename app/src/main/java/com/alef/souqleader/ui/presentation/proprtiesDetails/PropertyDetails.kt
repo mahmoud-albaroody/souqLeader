@@ -54,6 +54,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
+import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.data.remote.dto.PropertyObject
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
@@ -81,7 +82,7 @@ fun PropertyDetailsScreen(
     property: PropertyObject?
 ) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
-    mainViewModel.showShareIcon = true
+
     val imageUrls = arrayListOf<String>()
     Item(property)
     val context = LocalContext.current
@@ -89,22 +90,21 @@ fun PropertyDetailsScreen(
         it.image?.let { it1 -> imageUrls.add(AccountData.BASE_URL + it1) }
     }
 
-
+    mainViewModel.showShareIcon = true
     LaunchedEffect(key1 = Unit) {
+
         mainViewModel.onShareClick.collect {
             if (it)
-                generatePdfFromImageArray(context, imageUrls, property)
+                generatePdfFromImageArray(context, imageUrls, property, null)
         }
     }
 
 
-
-
-    DisposableEffect(Unit) {
-        onDispose {
-            mainViewModel.showShareIcon = false
-        }
-    }
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            mainViewModel.showShareIcon = false
+//        }
+//    }
 }
 
 @Composable
@@ -291,7 +291,10 @@ fun sharePdfFile(context: Context, file: File) {
 
 
 // Function to generate a simple PDF document
-fun generatePDF(context: Context, images: List<Bitmap>, property: PropertyObject?): File? {
+fun generatePDF(
+    context: Context, images: List<Bitmap>,
+    property: PropertyObject?, project: Project?
+): File? {
     val pageHeight = 1120
     val pageWidth = 792
     val pdfDocument = PdfDocument()
@@ -329,124 +332,193 @@ fun generatePDF(context: Context, images: List<Bitmap>, property: PropertyObject
         textSize = 18f
         color = context.getColor(R.color.black)
     }
-    // Draw header
-    property?.getTitle()?.let { canvas.drawText(it, tableStartX, 130f, titlePaint) }
-    property?.description()?.let { canvas.drawText(it, tableStartX, 160f, titlePaint) }
-    canvas.drawText(
-        context.getString(R.string.location) + property?.regions?.getTitle(),
-        tableStartX,
-        190f,
-        titlePaint
-    )
-    canvas.drawText(context.getString(R.string.property_details), tableStartX, 220f, titlePaint)
-
-    val tableData = listOf(
-        context.getString(R.string.unit_no) to property?.unit_no.toString(),
-        context.getString(R.string.building_no) to property?.bulding_no.toString(),
-        context.getString(R.string.land_space) to property?.land_space.toString(),
-        context.getString(R.string.bua) to property?.bua.toString(),
-        context.getString(R.string.price) to property?.price.toString(),
-        context.getString(R.string.meter_price) to property?.meter_price.toString(),
-        context.getString(R.string.owner_name) to property?.owner.toString(),
-        context.getString(R.string.owner_mobile) to property?.owner_mobile.toString(),
-        context.getString(R.string.bedrooms) to property?.bedrooms.toString(),
-        context.getString(R.string.bathrooms) to property?.bathrooms.toString(),
-        context.getString(R.string.floor) to property?.floor.toString(),
-        context.getString(R.string.unit_code) to property?.unit_code.toString(),
-        context.getString(R.string.category) to property?.property_category?.getTitle().toString(),
-        context.getString(R.string.department) to property?.property_department?.getTitle().toString(),
-        context.getString(R.string.unit_type) to property?.unit_type?.toString()
-    )
-
-    for ((label, value) in tableData) {
-        // Left column - label
-        canvas.drawRect(
+    property?.let {
+        // Draw header
+        it?.getTitle()?.let { canvas.drawText(it, tableStartX, 130f, titlePaint) }
+        it?.description()?.let { canvas.drawText(it, tableStartX, 160f, titlePaint) }
+        canvas.drawText(
+            context.getString(R.string.location) + it?.regions?.getTitle(),
             tableStartX,
-            tableStartY,
-            tableStartX + columnWidth,
-            tableStartY + rowHeight,
-            paint.apply { style = Paint.Style.STROKE }
+            190f,
+            titlePaint
         )
-        canvas.drawText(
-            label,
-            tableStartX + cellPadding,
-            tableStartY + rowHeight / 2 + 5,
-            paint.apply { style = Paint.Style.FILL }
+        canvas.drawText(context.getString(R.string.property_details), tableStartX, 220f, titlePaint)
+
+        val tableData = listOf(
+            context.getString(R.string.unit_no) to it?.unit_no.toString(),
+            context.getString(R.string.building_no) to it?.bulding_no.toString(),
+            context.getString(R.string.land_space) to it?.land_space.toString(),
+            context.getString(R.string.bua) to it?.bua.toString(),
+            context.getString(R.string.price) to it?.price.toString(),
+            context.getString(R.string.meter_price) to it?.meter_price.toString(),
+            context.getString(R.string.owner_name) to it?.owner.toString(),
+            context.getString(R.string.owner_mobile) to it?.owner_mobile.toString(),
+            context.getString(R.string.bedrooms) to it?.bedrooms.toString(),
+            context.getString(R.string.bathrooms) to it?.bathrooms.toString(),
+            context.getString(R.string.floor) to it?.floor.toString(),
+            context.getString(R.string.unit_code) to it?.unit_code.toString(),
+            context.getString(R.string.category) to it?.property_category?.getTitle().toString(),
+            context.getString(R.string.department) to it?.property_department?.getTitle()
+                .toString(),
+            context.getString(R.string.unit_type) to it?.unit_type?.toString()
         )
 
-        // Right column - value
-        canvas.drawRect(
-            tableStartX + columnWidth,
-            tableStartY,
-            tableStartX + 2 * columnWidth,
-            tableStartY + rowHeight,
-            paint.apply { style = Paint.Style.STROKE }
-        )
-        canvas.drawText(
-            value.toString(),
-            tableStartX + columnWidth + cellPadding,
-            tableStartY + rowHeight / 2 + 5,
-            paint
-        )
+        for ((label, value) in tableData) {
+            // Left column - label
+            canvas.drawRect(
+                tableStartX,
+                tableStartY,
+                tableStartX + columnWidth,
+                tableStartY + rowHeight,
+                paint.apply { style = Paint.Style.STROKE }
+            )
+            canvas.drawText(
+                label,
+                tableStartX + cellPadding,
+                tableStartY + rowHeight / 2 + 5,
+                paint.apply { style = Paint.Style.FILL }
+            )
 
-        tableStartY += rowHeight
+            // Right column - value
+            canvas.drawRect(
+                tableStartX + columnWidth,
+                tableStartY,
+                tableStartX + 2 * columnWidth,
+                tableStartY + rowHeight,
+                paint.apply { style = Paint.Style.STROKE }
+            )
+            canvas.drawText(
+                value.toString(),
+                tableStartX + columnWidth + cellPadding,
+                tableStartY + rowHeight / 2 + 5,
+                paint
+            )
+
+            tableStartY += rowHeight
+        }
+
+        pdfDocument.finishPage(myPage)
+
     }
 
-    pdfDocument.finishPage(myPage)
+    project?.let {
+        // Draw header
+        it.title?.let { canvas.drawText(it, tableStartX, 130f, titlePaint) }
+        it.description?.let { canvas.drawText(it, tableStartX, 160f, titlePaint) }
+        canvas.drawText(
+            context.getString(R.string.location) + it.region?.getTitle(),
+            tableStartX,
+            190f,
+            titlePaint
+        )
+        canvas.drawText(context.getString(R.string.property_details), tableStartX, 220f, titlePaint)
+
+        val tableData = listOf(
+            context.getString(R.string.price) to it.start_price.toString(),
+            context.getString(R.string.update_at) to it.updated_at.toString(),
+        )
+
+        for ((label, value) in tableData) {
+            // Left column - label
+            canvas.drawRect(
+                tableStartX,
+                tableStartY,
+                tableStartX + columnWidth,
+                tableStartY + rowHeight,
+                paint.apply { style = Paint.Style.STROKE }
+            )
+            canvas.drawText(
+                label,
+                tableStartX + cellPadding,
+                tableStartY + rowHeight / 2 + 5,
+                paint.apply { style = Paint.Style.FILL }
+            )
+
+            // Right column - value
+            canvas.drawRect(
+                tableStartX + columnWidth,
+                tableStartY,
+                tableStartX + 2 * columnWidth,
+                tableStartY + rowHeight,
+                paint.apply { style = Paint.Style.STROKE }
+            )
+            canvas.drawText(
+                value.toString(),
+                tableStartX + columnWidth + cellPadding,
+                tableStartY + rowHeight / 2 + 5,
+                paint
+            )
+
+            tableStartY += rowHeight
+        }
+
+        pdfDocument.finishPage(myPage)
+
+    }
 
 // ---- Page 2: Villa Image with Title and Watermark ----
 
-    for (bitmap in images) {
+    if (!images.isNullOrEmpty())
+        for (bitmap in images) {
 
-        val pageInfo2 = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 2).create()
-        val page2 = pdfDocument.startPage(pageInfo2)
-        val canvas2 = page2.canvas
+            val pageInfo2 = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 2).create()
+            val page2 = pdfDocument.startPage(pageInfo2)
+            val canvas2 = page2.canvas
 
 
 
-        if (scaledBitmap != null) {
-            canvas2.drawBitmap(scaledBitmap, 20F, 10F, paint)
+            if (scaledBitmap != null) {
+                canvas2.drawBitmap(scaledBitmap, 20F, 10F, paint)
+            }
+
+            title.apply {
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                textSize = 16F
+                color = Color.Black.toArgb()
+                textAlign = Paint.Align.CENTER
+            }
+
+            canvas2.drawText(context.getString(R.string.app_name), 160F, 75F, title)
+
+
+            val scaledBitmap1 = bitmap.let {
+                Bitmap.createScaledBitmap(it, 600, 400, false)
+            }
+
+            scaledBitmap1.let {
+                canvas2.drawBitmap(it, 96f, 140f, paint)
+            }
+
+            // Draw watermark
+            val watermarkPaint = Paint().apply {
+                color = context.getColor(R.color.black)
+                alpha = 90
+                textSize = 36f
+                typeface = Typeface.DEFAULT_BOLD
+                textAlign = Paint.Align.CENTER
+            }
+
+            canvas2.drawText(
+                context.getString(R.string.app_name),
+                pageWidth / 2f,
+                400f,
+                watermarkPaint
+            )
+
+            pdfDocument.finishPage(page2)
+
         }
 
-        title.apply {
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-            textSize = 16F
-            color = Color.Black.toArgb()
-            textAlign = Paint.Align.CENTER
-        }
-
-        canvas2.drawText(context.getString(R.string.app_name), 160F, 75F, title)
-
-
-
-        val scaledBitmap1 = bitmap.let {
-            Bitmap.createScaledBitmap(it, 600, 400, false)
-        }
-
-        scaledBitmap1.let {
-            canvas2.drawBitmap(it, 96f, 140f, paint)
-        }
-
-        // Draw watermark
-        val watermarkPaint = Paint().apply {
-            color = context.getColor(R.color.black)
-            alpha = 90
-            textSize = 36f
-            typeface = Typeface.DEFAULT_BOLD
-            textAlign = Paint.Align.CENTER
-        }
-
-        canvas2.drawText(context.getString(R.string.app_name), pageWidth / 2f, 400f, watermarkPaint)
-
-        pdfDocument.finishPage(page2)
-
+    var fileTitle = "property_details.pdf"
+    if (project != null) {
+        fileTitle = "project_details.pdf"
+    } else {
+        fileTitle = "property_details.pdf"
     }
-
-
-    val file = File(context.getExternalFilesDir(null), "property_details.pdf")
+    val file = File(context.getExternalFilesDir(null), fileTitle)
     return try {
         pdfDocument.writeTo(FileOutputStream(file))
-       // Toast.makeText(context, "PDF saved to ${file.absolutePath}", Toast.LENGTH_SHORT).show()
+        // Toast.makeText(context, "PDF saved to ${file.absolutePath}", Toast.LENGTH_SHORT).show()
         file
     } catch (e: Exception) {
         e.printStackTrace()
@@ -458,11 +530,11 @@ fun generatePDF(context: Context, images: List<Bitmap>, property: PropertyObject
 }
 
 
-
 fun generatePdfFromImageArray(
     context: Context,
     imageUrls: List<String>,
-    propertyObject: PropertyObject?
+    propertyObject: PropertyObject?,
+    projectObject: Project?
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         val bitmaps = imageUrls.mapNotNull { url ->
@@ -481,13 +553,8 @@ fun generatePdfFromImageArray(
         }
 
         withContext(Dispatchers.Main) {
-            if (bitmaps.isNotEmpty()) {
-
-                generatePDF(context, bitmaps, property = propertyObject)?.let {
-                    sharePdfFile(context, it)
-                }
-            } else {
-                Toast.makeText(context, "Failed to load images", Toast.LENGTH_SHORT).show()
+            generatePDF(context, bitmaps, property = propertyObject, project = projectObject)?.let {
+                sharePdfFile(context, it)
             }
         }
     }

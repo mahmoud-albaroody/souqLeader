@@ -76,20 +76,20 @@ fun HomeAppBar(
                             }
                     )
 
-                if (mainViewModel.showShareIcon)
-                    Image(
-                        painter = painterResource(R.drawable.baseline_ios_share_24),
-                        colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(end = 16.dp)
-                            .clickable {
-                                mainViewModel.viewModelScope.launch {
-                                    mainViewModel.onShareClick.emit(true)
-                                }
-                            }
-                    )
+//                if (mainViewModel.showShareIcon)
+//                    Image(
+//                        painter = painterResource(R.drawable.baseline_ios_share_24),
+//                        colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .align(Alignment.CenterVertically)
+//                            .padding(end = 16.dp)
+//                            .clickable {
+//                                mainViewModel.viewModelScope.launch {
+//                                    mainViewModel.onShareClick.emit(true)
+//                                }
+//                            }
+//                    )
 
                 if (mainViewModel.showMenuContact)
                     Image(

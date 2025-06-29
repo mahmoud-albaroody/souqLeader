@@ -17,6 +17,7 @@ import com.alef.souqleader.data.remote.dto.CategoryResponse
 import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
+import com.alef.souqleader.data.remote.dto.CommentsResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
@@ -470,6 +471,18 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
         id: String
     ): Resource<StatusResponse> {
         val response = APIs.deleteComment(
+            id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun getComments(
+        id: String
+    ): Resource<CommentsResponse> {
+        val response = APIs.getComments(
             id
         )
         return if (response.isSuccessful) {

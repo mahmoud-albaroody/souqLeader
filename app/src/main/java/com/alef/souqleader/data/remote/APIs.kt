@@ -14,6 +14,7 @@ import com.alef.souqleader.data.remote.dto.CategoryResponse
 import com.alef.souqleader.data.remote.dto.ChangePasswordResponse
 import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
+import com.alef.souqleader.data.remote.dto.CommentsResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
@@ -448,6 +449,11 @@ interface APIs {
     suspend fun deleteComment(
         @Path("id") id: String,
     ): Response<StatusResponse>
+
+    @GET("api/comment/{id}")
+    suspend fun getComments(
+        @Path("id") id: String,
+    ): Response<CommentsResponse>
 
     @GET("api/Leadsfilter")
     suspend fun leadsFilter(

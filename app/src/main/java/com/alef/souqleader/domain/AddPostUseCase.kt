@@ -2,6 +2,7 @@ package com.alef.souqleader.domain
 
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.ApiRepoImpl
+import com.alef.souqleader.data.remote.dto.CommentsResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import okhttp3.MultipartBody
@@ -22,6 +23,10 @@ class AddPostUseCase @Inject constructor(private val repository: ApiRepoImpl) {
     suspend fun deleteComment(id:String): Resource<StatusResponse> {
         return repository.deleteComment(id)
     }
+    suspend fun getComments(id:String): Resource<CommentsResponse> {
+        return repository.getComments(id)
+    }
+
 
     suspend fun addCompanyPost(post: RequestBody,
                         images: ArrayList<MultipartBody.Part>?): Resource<StatusResponse> {

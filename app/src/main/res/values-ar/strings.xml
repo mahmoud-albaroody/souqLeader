@@ -239,5 +239,8 @@
     <string name="are_you_sure_you_want_to_delete_this_post">هل أنت متأكد أنك تريد حذف هذا المنشور؟</string>
     <string name="delete">حذف</string>
     <string name="set_reminder">تعيين تذكير</string>
-    <string name="hide_all">Hide All</string>
+    <string name="hide_all">إخفاء الكل</string>
+    <string name="update_at">تم التحديث في</string>
+    <string name="normal">عادي</string>
+    <string name="delayed">متأخر</string>
 </resources>

@@ -61,7 +61,7 @@ import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 import kotlin.system.exitProcess
 
 @Composable
-fun SalesProfileReportScreen( userId: String?) {
+fun SalesProfileReportScreen(userId: String?) {
     val viewModel: SalesProfileReportViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
@@ -88,7 +88,7 @@ fun SalesProfileReportItem(
     var stageHeight by remember { mutableIntStateOf(200) }
     var size by remember { mutableIntStateOf(5) }
     var text by remember { mutableStateOf("") }
-    text =  ctx.getString(R.string.view_all)
+    text = ctx.getString(R.string.view_all)
 
     LazyColumn(
         // and not having a Modifier that could return non-infinite max height contraint
@@ -380,6 +380,60 @@ fun SalesProfileReportItem(
                             fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
                         )
                     )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        ) {
+
+                            Image(
+                                painter = painterResource(
+                                    R.drawable.ellipse
+                                ),
+                                contentDescription = "",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .size(10.dp)
+                                    .clip(CircleShape)
+
+                            )
+                            Text(
+                                text = stringResource(R.string.normal),
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                style = TextStyle(fontWeight = FontWeight.SemiBold)
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        ) {
+
+                            Image(
+                                painter = painterResource(
+                                    R.drawable.ellipse_red
+                                ),
+                                contentDescription = "",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .size(10.dp)
+                                    .clip(CircleShape)
+
+                            )
+                            Text(
+                                text = stringResource(R.string.delayed),
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                style = TextStyle(fontWeight = FontWeight.SemiBold)
+                            )
+                        }
+                    }
+
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

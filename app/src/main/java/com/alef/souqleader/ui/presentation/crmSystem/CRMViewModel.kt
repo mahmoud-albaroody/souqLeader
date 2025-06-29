@@ -6,7 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alef.souqleader.Resource
+import com.alef.souqleader.data.remote.dto.CommentsResponse
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.PostResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.AddCommentUseCase
 import com.alef.souqleader.domain.AddPostUseCase
@@ -34,6 +37,13 @@ class CRMViewModel @Inject constructor(
         MutableSharedFlow<StatusResponse>()
     val stateDeleteComment: MutableSharedFlow<StatusResponse>
         get() = _stateDeletComment
+
+    private val _stateComments =
+        MutableSharedFlow<CommentsResponse>()
+    val stateComments: MutableSharedFlow<CommentsResponse>
+        get() = _stateComments
+
+
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -67,6 +77,13 @@ class CRMViewModel @Inject constructor(
     ) {
         viewModelScope.launch(job) {
             addPostUseCase.deleteComment(id).data?.let { _stateDeletComment.emit(it) }
+        }
+    }
+    fun getComments(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            addPostUseCase.getComments(id).data?.let { _stateComments.emit(it) }
         }
     }
 

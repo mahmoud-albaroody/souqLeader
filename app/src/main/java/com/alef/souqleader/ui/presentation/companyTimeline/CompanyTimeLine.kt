@@ -99,6 +99,7 @@ import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.crmSystem.ImageSlider
 import com.alef.souqleader.ui.presentation.timeline.TimeLineViewModel
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -706,21 +707,22 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
             }
 
             if(!post.images.isNullOrEmpty())
-            Image(
-                painter = rememberAsyncImagePainter(
-                    if (post.images.isNotEmpty()) {
-                        AccountData.BASE_URL + post.images[0].image
-                    } else {
-                        ""
-                    }
-                ),
-                contentDescription = "",
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .height(screenHeight * 0.22f)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(percent = 10))
-            )
+                ImageSlider(post.images)
+//            Image(
+//                painter = rememberAsyncImagePainter(
+//                    if (post.images.isNotEmpty()) {
+//                        AccountData.BASE_URL + post.images[0].image
+//                    } else {
+//                        ""
+//                    }
+//                ),
+//                contentDescription = "",
+//                contentScale = ContentScale.FillWidth,
+//                modifier = Modifier
+//                    .height(screenHeight * 0.22f)
+//                    .fillMaxWidth()
+//                    .clip(RoundedCornerShape(percent = 10))
+//            )
             post.post?.let {
                 Text(
                     modifier = Modifier

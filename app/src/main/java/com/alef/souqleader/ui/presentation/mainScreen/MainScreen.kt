@@ -150,6 +150,22 @@ fun CustomModalDrawer(
     val connection by connectivityState()
     val isConnected = connection === ConnectionState.Available
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
+    allLead.add(AllLeadStatus(title_en = "Add new lead", title_ar = "إضافة عميل", id = null))
+    allLead.add(AllLeadStatus(title_en = "Fresh", title_ar = "جديد", id = 1))
+    allLead.add(AllLeadStatus(title_en = "Cold", title_ar = "قديم", id = 2))
+    allLead.add(AllLeadStatus(title_en = "Delay", title_ar = "تأخير", id = 100))
+    allLead.add(AllLeadStatus(title_en = "Following", title_ar = "متابعة", id = 7))
+    allLead.add(AllLeadStatus(title_en = "Duplicated", title_ar = "مكرر", id = 200))
+    allLead.add(AllLeadStatus(title_en = "No Answer", title_ar = "بدون رد", id = 3))
+    allLead.add(AllLeadStatus(title_en = "Answer Leads", title_ar = "تم الرد", id = 12))
+    allLead.add(AllLeadStatus(title_en = "Reservation/Requests", title_ar = "الحجز/الطلبات", id = 22))
+    allLead.add(AllLeadStatus(title_en = "Arrange Meeting", title_ar = "ترتيب اجتماعات", id = 6))
+    allLead.add(AllLeadStatus(title_en = "Current Meetings", title_ar = "اجتماعات حاليه", id = 4))
+    allLead.add(AllLeadStatus(title_en = "Following After Meeting", title_ar = "متابعة بعد الاجتماع", id = 5))
+    allLead.add(AllLeadStatus(title_en = "Archive", title_ar = "الأرشيف", id = 10))
+    allLead.add(AllLeadStatus(title_en = "Cancelled", title_ar = "تم الإلغاء", id = 8))
+    allLead.add(AllLeadStatus(title_en = "Done Deal", title_ar = "الصفقات المتجزة", id = 9))
+
     Scaffold(
         modifier = Modifier,
         snackbarHost = {
@@ -167,55 +183,55 @@ fun CustomModalDrawer(
         },
         content = { innerPadding ->
             innerPadding
-            LaunchedEffect(key1 = true) {
-                viewModel.getLeads()
-                viewModel.viewModelScope.launch {
-                    viewModel.allLead.collect {
-                        when (it) {
-                            is Resource.Success -> {
-                                allLead.clear()
-                                allLead.add(
-                                    AllLeadStatus(
-                                        title_ar = context.getString(R.string.add_lead),
-                                        title_en = context.getString(R.string.add_lead)
-                                    )
-                                )
-                                it.data?.data?.let { it1 ->
-                                    allLead.addAll(it1)
-                                }
-                                allLead.add(
-                                    AllLeadStatus(
-                                        id = 200,
-                                        title_ar = context.getString(R.string.duplicated_lead),
-                                        title_en = context.getString(R.string.duplicated_lead),
-                                    )
-                                )
-                                allLead.add(
-                                    AllLeadStatus(
-                                        id = 100,
-                                        title_ar = context.getString(R.string.delay_lead),
-                                        title_en = context.getString(R.string.delay_lead),
-                                    )
-                                )
-                                mainViewModel.showLoader = false
-                            }
-
-
-                            is Resource.Loading -> {
-                                mainViewModel.showLoader = true
-                            }
-
-                            is Resource.DataError -> {
-                                if (it.errorCode == 401) {
-                                    AccountData.clear()
-                                    // Start()
-                                }
-                                mainViewModel.showLoader = false
-                            }
-                        }
-                    }
-                }
-            }
+//            LaunchedEffect(key1 = true) {
+//                viewModel.getLeads()
+//                viewModel.viewModelScope.launch {
+//                    viewModel.allLead.collect {
+//                        when (it) {
+//                            is Resource.Success -> {
+//                                allLead.clear()
+//                                allLead.add(
+//                                    AllLeadStatus(
+//                                        title_ar = context.getString(R.string.add_lead),
+//                                        title_en = context.getString(R.string.add_lead)
+//                                    )
+//                                )
+//                                it.data?.data?.let { it1 ->
+//                                    allLead.addAll(it1)
+//                                }
+//                                allLead.add(
+//                                    AllLeadStatus(
+//                                        id = 200,
+//                                        title_ar = context.getString(R.string.duplicated_lead),
+//                                        title_en = context.getString(R.string.duplicated_lead),
+//                                    )
+//                                )
+//                                allLead.add(
+//                                    AllLeadStatus(
+//                                        id = 100,
+//                                        title_ar = context.getString(R.string.delay_lead),
+//                                        title_en = context.getString(R.string.delay_lead),
+//                                    )
+//                                )
+//                                mainViewModel.showLoader = false
+//                            }
+//
+//
+//                            is Resource.Loading -> {
+//                                mainViewModel.showLoader = true
+//                            }
+//
+//                            is Resource.DataError -> {
+//                                if (it.errorCode == 401) {
+//                                    AccountData.clear()
+//                                    // Start()
+//                                }
+//                                mainViewModel.showLoader = false
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 
             ModalNavigationDrawer(drawerState = drawerState,
                 gesturesEnabled = mainViewModel.isGesturesEnabled,
@@ -301,9 +317,7 @@ fun CustomModalDrawer(
                                 navController.navigate(Screen.ProfileScreen.route) {
                                     launchSingleTop = true
                                 }
-                            }
-
-                            else if (title == context.getString(R.string.logout)) {
+                            } else if (title == context.getString(R.string.logout)) {
                                 val lang = AccountData.lang
                                 AccountData.clear()
                                 AccountData.lang = lang
@@ -417,7 +431,7 @@ fun CustomModalDrawer(
                                                 drawerState.open()
                                             }
                                         }
-                                    } , mainViewModel = mainViewModel
+                                    }, mainViewModel = mainViewModel
                                     ) {
                                         navController.popBackStack()
                                     }
@@ -433,7 +447,7 @@ fun CustomModalDrawer(
 
 
                                 else -> {
-                                   if (currentRoute(navController) ==
+                                    if (currentRoute(navController) ==
                                         Screen.LeadDetailsScreen.route
                                     ) {
                                         title = stringResource(

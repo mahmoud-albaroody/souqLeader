@@ -41,7 +41,7 @@ class CancellationReportViewModel @Inject constructor(
 //,
     fun getCancellationReport(userId:String) {
         viewModelScope.launch(job) {
-            cancellationStatus = cancelationUseCase.getCancelationReport(userId,page++).data?.data!!
+            cancellationStatus = cancelationUseCase.getCancelationReport(userId,page++).data?.data
         }
     }
 

@@ -132,18 +132,20 @@ fun TopElement(leadDetails: Lead) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.profile_menu_icon),
-                        contentDescription = ""
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.name ?: "", fontSize = 11.sp
-                    )
+                leadDetails.name?.let {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.profile_menu_icon),
+                            contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
                 Row(
                     modifier = Modifier.weight(1f),
@@ -153,7 +155,7 @@ fun TopElement(leadDetails: Lead) {
                         painter = painterResource(R.drawable.baseline_phone_24),
                         contentDescription = ""
                     )
-                    if(!leadDetails.phone.isNullOrEmpty() && leadDetails.phone.length >4) {
+                    if (!leadDetails.phone.isNullOrEmpty() && leadDetails.phone.length > 4) {
                         Text(
                             modifier = Modifier.padding(start = 8.dp),
                             text = (leadDetails.phone.substring(
@@ -161,7 +163,7 @@ fun TopElement(leadDetails: Lead) {
                                 3
                             ) + "*".repeat(leadDetails.phone.length - 3)), fontSize = 11.sp
                         )
-                    }else{
+                    } else {
                         Text(
                             modifier = Modifier.padding(start = 8.dp),
                             text = leadDetails.phone.toString(), fontSize = 11.sp
@@ -177,37 +179,44 @@ fun TopElement(leadDetails: Lead) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.sales_name_icon),
-                        contentDescription = ""
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.sales_name ?: "", fontSize = 11.sp
-                    )
+                leadDetails.sales_name?.let {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.sales_name_icon),
+                            contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.project_icon), contentDescription = ""
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.project_name ?: "", fontSize = 11.sp
-                    )
+                leadDetails.project_name?.let {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.project_icon),
+                            contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.coin), contentDescription = ""
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.budget ?: "", fontSize = 11.sp
-                    )
+                leadDetails.budget?.let {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.coin), contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
             }
             Row(
@@ -218,31 +227,35 @@ fun TopElement(leadDetails: Lead) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.vuesax_linear_calendar),
-                        contentDescription = ""
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.action_date ?: "", fontSize = 11.sp
-                    )
+                leadDetails.action_date?.let {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.vuesax_linear_calendar),
+                            contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.baseline_email_24),
-                        contentDescription = ""
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.email ?: "", fontSize = 11.sp
-                    )
+                leadDetails.email?.let {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.baseline_email_24),
+                            contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
             }
             Row(
@@ -253,15 +266,17 @@ fun TopElement(leadDetails: Lead) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = R.drawable.message_text),
-                        contentDescription = ""
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.note ?: "", fontSize = 11.sp
-                    )
+                leadDetails.note?.let {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.message_text),
+                            contentDescription = ""
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
 
             }
@@ -272,50 +287,56 @@ fun TopElement(leadDetails: Lead) {
                     .padding(bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = stringResource(R.string.sales_man), fontSize = 11.sp
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.sales_name ?: "", fontSize = 11.sp
-                    )
+                leadDetails.sales_name?.let {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(R.string.sales_man), fontSize = 11.sp
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = stringResource(id = R.string.communication_way), fontSize = 11.sp
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.communication_way ?: "", fontSize = 11.sp
-                    )
+                leadDetails.communication_way?.let {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(id = R.string.communication_way), fontSize = 11.sp
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text =it, fontSize = 11.sp
+                        )
+                    }
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = stringResource(id = R.string.cancel_reason), fontSize = 11.sp
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = leadDetails.cancel_reason ?: "", fontSize = 11.sp
-                    )
+                leadDetails.cancel_reason?.let {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(id = R.string.cancel_reason), fontSize = 11.sp
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = it, fontSize = 11.sp
+                        )
+                    }
                 }
             }
         }
@@ -329,8 +350,7 @@ fun LeadItem(action: Action) {
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(6.dp)
-        ,
+            .padding(6.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(

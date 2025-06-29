@@ -423,7 +423,7 @@ fun Navigation(
                 val project = jsonString.fromJson<Project>()
                 modifier?.let { it1 ->
                     ProjectDetailsScreen(
-                        navController, modifier, project = project
+                        navController, modifier, mainViewModel = mainViewModel, project = project
                     )
 
                 }

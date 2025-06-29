@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -25,11 +26,27 @@ import coil.compose.rememberImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Project
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.presentation.proprtiesDetails.generatePdfFromImageArray
 import com.google.accompanist.pager.*
 
 @Composable
-fun ProjectDetailsScreen(navController: NavController, modifier: Modifier, project: Project?) {
+fun ProjectDetailsScreen(navController: NavController, modifier: Modifier,
+                         mainViewModel: MainViewModel, project: Project?) {
     //val viewModel: DetailsGymScreenViewModel = viewModel()
+    val imageUrls = arrayListOf<String>()
+    val context = LocalContext.current
+    project?.images?.forEach {
+        it.file?.let { it1 -> imageUrls.add(AccountData.BASE_URL + it1) }
+    }
+    mainViewModel.showShareIcon = true
+    LaunchedEffect(key1 = Unit) {
+
+        mainViewModel.onShareClick.collect {
+            if (it)
+                generatePdfFromImageArray(context, imageUrls,null, project)
+        }
+    }
     Item(project)
 }
 
@@ -176,11 +193,7 @@ fun ReminderItem(text: String, text1: String) {
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ImageSliderExample(project: Project) {
-    val images = listOf(
-        "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-    )
+
 
     val pagerState = rememberPagerState()
 

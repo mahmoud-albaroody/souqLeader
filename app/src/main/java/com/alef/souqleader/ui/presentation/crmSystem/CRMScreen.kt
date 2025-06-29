@@ -104,7 +104,8 @@ fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
                         comment = comment,
                         user = User(
                             photo = AccountData.photo,
-                            name = AccountData.name
+                            name = AccountData.name,
+                            id=AccountData.userId
                         )
                     )
                 )
@@ -112,12 +113,19 @@ fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
         }
         viewModel.viewModelScope.launch {
             viewModel.stateDeleteComment.collect {
-                Log.e("kkkkkkkkk","lllllllllllllllllllllll")
-                postList.remove(commentObject)
+               viewModel.getComments(post.id.toString())
+            }
+        }
+        viewModel.viewModelScope.launch {
+            viewModel.stateComments.collect {
+                postList.clear()
+                postList.addAll(it.data)
             }
         }
     }
-
+    LaunchedEffect(key1 = true) {
+        viewModel.getComments(post.id.toString())
+    }
 
     CRMScreenItem(post, postList = postList, onRemoveComment = {
         showDialog = true
@@ -416,6 +424,7 @@ fun CommentItem(comment: Comment,onRemoveComment:(Comment)->Unit) {
                 )
             )
         }
+        if(comment.user?.id==AccountData.userId )
         Image(
             painter = painterResource(R.drawable.icons8_delete),
             contentDescription = "",

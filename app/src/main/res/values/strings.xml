@@ -12,7 +12,7 @@
     <string name="low_budget">Low Budget</string>
     <string name="not_interested">Not interested</string>
     <string name="after_two_hour">After Two Hour</string>
-    <string name="add_lead">Add Lead</string>
+    <string name="add_lead">Add new Lead</string>
     <string name="lead_stage">Lead Stage</string>
     <string name="mobile">Mobile</string>
     <string name="name">Name</string>
@@ -237,5 +237,8 @@
     <string name="delete">Delete</string>
     <string name="set_reminder">Set Reminder</string>
     <string name="hide_all">Hide All</string>
+    <string name="update_at">Update At</string>
+    <string name="normal">Normal</string>
+    <string name="delayed">Delayed</string>
 
 </resources>

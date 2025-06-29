@@ -124,6 +124,13 @@ data class PostResponse(
     val info: Info? = null
 ) : StatusResponse()
 
+
+data class CommentsResponse(
+    var data: ArrayList<Comment>,
+    val info: Info? = null
+) : StatusResponse()
+
+
 data class AllRolesAndAllPermissionsResponse(
     var data: ArrayList<AllRolesAndAllPermissions>? = null
 ) : StatusResponse()
