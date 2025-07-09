@@ -150,7 +150,7 @@ fun CustomModalDrawer(
     val connection by connectivityState()
     val isConnected = connection === ConnectionState.Available
     val allLead = remember { mutableStateListOf<AllLeadStatus>() }
-    allLead.add(AllLeadStatus(title_en = "Add new lead", title_ar = "إضافة عميل", id = null))
+    allLead.add(AllLeadStatus(title_en = "Add new lead", title_ar = "إضافة عميل"))
     allLead.add(AllLeadStatus(title_en = "Fresh", title_ar = "جديد", id = 1))
     allLead.add(AllLeadStatus(title_en = "Cold", title_ar = "قديم", id = 2))
     allLead.add(AllLeadStatus(title_en = "Delay", title_ar = "تأخير", id = 100))
