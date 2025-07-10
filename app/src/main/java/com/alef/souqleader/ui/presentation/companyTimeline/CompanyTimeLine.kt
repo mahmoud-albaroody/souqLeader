@@ -61,6 +61,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -124,12 +125,13 @@ fun CompanyTimelineScreen(
     mainViewModel: MainViewModel
 ) {
     val viewModel: CompanyTimeLineViewModel = hiltViewModel()
-    val posts = remember { mutableStateListOf<Post>() }
+    val posts = viewModel.posts
     var visibleMeda by remember { mutableStateOf(false) }
     var loadMore by remember { mutableStateOf(true) }
     var info by remember { mutableStateOf(Info()) }
     var likedPost by remember { mutableStateOf<Post?>(null) }
     val images = remember { mutableStateListOf<Uri>() }
+    var isDataLoaded by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val listState = rememberLazyListState()
     //  val posts = mutableStateListOf<Post>()
@@ -185,34 +187,38 @@ fun CompanyTimelineScreen(
 
 
 
-    LaunchedEffect(key1 = true) {
-        viewModel.getCompanyPost(viewModel.page)
+    LaunchedEffect(Unit) {
 
-        viewModel.viewModelScope.launch {
-            viewModel.statePosts.collect {
-                imageUri = null
-                images.clear()
-                if (it is Resource.Success) {
-                    it.data?.let {
-                        if (it.info != null)
-                            info = it.info
-                        it.data.let { it1 ->
-                            if (viewModel.page == 1) {
-                                posts.clear()
+            if (!isDataLoaded) {
+                viewModel.getCompanyPost(viewModel.page)
+                isDataLoaded = true
+                viewModel.viewModelScope.launch {
+                    viewModel.statePosts.collect {
+                        imageUri = null
+                        images.clear()
+                        if (it is Resource.Success) {
+                            it.data?.let {
+                                if (it.info != null)
+                                    info = it.info
+                                it.data.let { it1 ->
+                                    if (viewModel.page == 1) {
+                                        posts.clear()
+                                    }
+                                    posts.addAll(it1)
+                                }
                             }
-                            posts.addAll(it1)
+                            loadMore = true
+                            mainViewModel.showLoader = false
+                        } else if (it is Resource.Loading) {
+                            if (viewModel.page == 1)
+                                mainViewModel.showLoader = true
+                        } else if (it is Resource.DataError) {
+                            mainViewModel.showLoader = false
                         }
                     }
-                    loadMore = true
-                    mainViewModel.showLoader = false
-                } else if (it is Resource.Loading) {
-                    if (viewModel.page == 1)
-                        mainViewModel.showLoader = true
-                } else if (it is Resource.DataError) {
-                    mainViewModel.showLoader = false
                 }
             }
-        }
+
         viewModel.addPosts.observe(context as MainActivity) {
             if (it.status) {
                 viewModel.page = 1
