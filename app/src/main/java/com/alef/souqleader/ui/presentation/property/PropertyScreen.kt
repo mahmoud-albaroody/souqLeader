@@ -218,7 +218,7 @@ fun PropertyItem(property: PropertyObject, onProjectClick: (PropertyObject) -> U
                     .fillMaxWidth()
                     .weight(3.4f)
             ) {
-                if (!property.gallery.isNullOrEmpty())
+                if (!property.gallery.isNullOrEmpty()) {
                     Image(
                         painter = rememberAsyncImagePainter(
                             AccountData.BASE_URL + property.gallery[0].image
@@ -229,6 +229,18 @@ fun PropertyItem(property: PropertyObject, onProjectClick: (PropertyObject) -> U
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(percent = 10))
                     )
+                }else{
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            AccountData.BASE_URL + "images/default.jpg"
+                        ),
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(percent = 10))
+                    )
+                }
             }
 
             Row(

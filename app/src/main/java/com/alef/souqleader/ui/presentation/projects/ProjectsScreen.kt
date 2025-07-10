@@ -324,7 +324,7 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
                     .fillMaxWidth()
                     .weight(3.4f)
             ) {
-                if (project.images?.isNotEmpty() == true)
+                if (project.images?.isNotEmpty() == true) {
                     Image(
                         painter = rememberAsyncImagePainter(
                             AccountData.BASE_URL + project.images[0].file
@@ -335,6 +335,18 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(percent = 10))
                     )
+                }else{
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            AccountData.BASE_URL + "images/default.jpg"
+                        ),
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(percent = 10))
+                    )
+                }
             }
 
             Row(
