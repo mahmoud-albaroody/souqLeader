@@ -44,6 +44,7 @@ import com.alef.souqleader.data.remote.dto.SalesProfileReportRequest
 import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.TimelinePostResponse
 import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
@@ -467,6 +468,32 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun timelinePost(
+        id: String
+    ): Resource<TimelinePostResponse> {
+        val response = APIs.timelinePost(
+            id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun companyPost(
+        id: String
+    ): Resource<TimelinePostResponse> {
+        val response = APIs.companyPost(
+            id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
     suspend fun deleteComment(
         id: String
     ): Resource<StatusResponse> {
@@ -479,10 +506,36 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun deleteCompanyComment(
+        id: String
+    ): Resource<StatusResponse> {
+        val response = APIs.deleteCompanyComment(
+            id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+
+
     suspend fun getComments(
         id: String
     ): Resource<CommentsResponse> {
         val response = APIs.getComments(
+            id
+        )
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun getCompanyComment(
+        id: String
+    ): Resource<CommentsResponse> {
+        val response = APIs.getCompanyComment(
             id
         )
         return if (response.isSuccessful) {

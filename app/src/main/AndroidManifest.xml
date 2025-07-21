@@ -9,12 +9,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.SEND_SMS"/>
+
 
     <uses-feature android:name="android.hardware.camera.any" />
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
 
 
 
@@ -36,6 +33,7 @@
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -43,7 +41,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="myapp"
+                    android:host="details"
+                    android:pathPattern="/.*" />
+            </intent-filter>
         </activity>
+
         <service
             android:name=".ui.services.MyFirebaseMessagingService"
             android:exported="true">

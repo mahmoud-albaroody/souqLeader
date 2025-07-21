@@ -147,7 +147,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
         contract =
         ActivityResultContracts.PickMultipleVisualMedia()
     ) { uri: List< Uri> ->
-        if (uri != null) {
+        if (uri.isNotEmpty()) {
             imageUri = uri[0]
             images.addAll(uri)
            // imageUri?.let { it1 -> images.add(it1) }
@@ -430,12 +430,13 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
             items(posts) { post ->
                 TimelineItem(
                     post, onTimelineCLick = {
-                        post.postType = "timelineCompany"
-                        val postJson =
-                            URLEncoder.encode(post.toJson(), StandardCharsets.UTF_8.toString())
+                        Screen.CRMScreen.title = "Timeline"
+//                        post.postType = "timelineCompany"
+//                        val postJson =
+//                            URLEncoder.encode(post.toJson(), StandardCharsets.UTF_8.toString())
                         navController.navigate(
                             Screen.CRMScreen.route
-                                .plus("?" + Screen.CRMScreen.objectName + "=${postJson}")
+                                .plus("?" + Screen.CRMScreen.objectName + "=${post.id}")
                         )
                     },
                     onLikeClick = {

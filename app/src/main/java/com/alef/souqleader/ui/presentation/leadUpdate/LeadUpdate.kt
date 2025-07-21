@@ -158,7 +158,9 @@ fun LeadUpdateScreen(
         viewModel.viewModelScope.launch {
             viewModel.updateLead.collect {
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
-                navController.popBackStack()
+                if(it.status) {
+                    navController.popBackStack()
+                }
             }
         }
 
@@ -353,7 +355,7 @@ fun LeadUpdate(
                 if (selectedDate == "Date / Time") {
                     onUpdateClick(leadSelected, note, cancelationTitle, selectedDate)
                 } else {
-                    val inputFormat = SimpleDateFormat("yyyy/M/d hh:mm a", Locale.US)
+                    val inputFormat = SimpleDateFormat("yyyy/MM/dd hh:mm a", Locale.US)
                     val outputFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.US)
                     val date = inputFormat.parse(selectedDate)
 

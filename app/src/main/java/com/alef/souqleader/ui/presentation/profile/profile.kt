@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.UserDate
@@ -52,7 +53,7 @@ import java.util.Locale
 
 
 @Composable
-fun ProfileScreen(modifier: Modifier, navController: NavController) {
+fun ProfileScreen(modifier: Modifier, navController: NavHostController) {
     val profileViewModel: ProfileViewModel = hiltViewModel()
     var userDate by remember { mutableStateOf(UserDate()) }
     val context = LocalContext.current
@@ -74,7 +75,7 @@ fun ProfileScreen(modifier: Modifier, navController: NavController) {
         AccountData.lang = lang
         updateLocale(context, Locale(AccountData.lang))
         (context as MainActivity).setContent {
-            Start("pr")
+            Start(splash = "pr",navController=navController)
         }
     }, onSalesReportClick = {
         navController.navigate(Screen.SalesProfileReportScreen.route.plus("/${AccountData.userId}"))

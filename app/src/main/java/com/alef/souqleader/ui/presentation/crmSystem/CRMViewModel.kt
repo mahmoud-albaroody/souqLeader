@@ -11,6 +11,7 @@ import com.alef.souqleader.data.remote.dto.CommentsResponse
 import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.PostResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.TimelinePostResponse
 import com.alef.souqleader.domain.AddCommentUseCase
 import com.alef.souqleader.domain.AddPostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CRMViewModel @Inject constructor(
     private val addCommentUseCase: AddCommentUseCase,
-    val addPostUseCase: AddPostUseCase,
+    private val addPostUseCase: AddPostUseCase,
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -43,25 +44,31 @@ class CRMViewModel @Inject constructor(
     val stateComments: MutableSharedFlow<CommentsResponse>
         get() = _stateComments
 
-
+    private val _post =
+        MutableSharedFlow<TimelinePostResponse>()
+    val post: MutableSharedFlow<TimelinePostResponse>
+        get() = _post
 
     private val job = Job()
     private val errorHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
     }
 
+    fun timelinePost(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            addPostUseCase.timelinePost(id).data?.let { _post.emit(it) }
+        }
+    }
+    fun companyPost(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            addPostUseCase.companyPost(id).data?.let { _post.emit(it) }
+        }
+    }
 
-    //
-//
-//
-//    fun toggleFav(gym: Gym) {
-//        val gyms = stateListOfGym.toMutableList()
-//        val index = gyms.indexOf(gym)
-//        gyms[index] = gyms[index].copy(isFav = !gyms[index].isFav)
-//        stateListOfGym = gyms
-//    }
-//
-//
     fun addComment(comment: String, post_id: String) {
         viewModelScope.launch(job) {
             addCommentUseCase.addComment(comment, post_id).data?.let { _stateAddComment.emit(it) }
@@ -72,6 +79,7 @@ class CRMViewModel @Inject constructor(
             addCommentUseCase.addCompanyComment(comment, post_id).data?.let { _stateAddComment.emit(it) }
         }
     }
+
     fun deleteComment(
         id: String
     ) {
@@ -79,6 +87,15 @@ class CRMViewModel @Inject constructor(
             addPostUseCase.deleteComment(id).data?.let { _stateDeletComment.emit(it) }
         }
     }
+    fun deleteCompanyComment(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            addPostUseCase.deleteCompanyComment(id).data?.let { _stateDeletComment.emit(it) }
+        }
+    }
+
+
     fun getComments(
         id: String
     ) {
@@ -86,6 +103,12 @@ class CRMViewModel @Inject constructor(
             addPostUseCase.getComments(id).data?.let { _stateComments.emit(it) }
         }
     }
-
+    fun getCompanyComment(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            addPostUseCase.getCompanyComment(id).data?.let { _stateComments.emit(it) }
+        }
+    }
 
 }

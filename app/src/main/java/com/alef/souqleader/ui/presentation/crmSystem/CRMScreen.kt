@@ -74,6 +74,8 @@ import com.alef.souqleader.data.remote.dto.Lead
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.data.remote.dto.User
 import com.alef.souqleader.domain.model.AccountData
+import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.navigation.currentRoute
 import com.alef.souqleader.ui.presentation.timeline.DeletePostDialog
 import com.alef.souqleader.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -85,21 +87,33 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
-    val postList = remember { mutableStateListOf<Comment>() }
+fun CRMScreen(navController: NavController, modifier: Modifier, postId: String) {
+    val commentList = remember { mutableStateListOf<Comment>() }
     var comment by remember { mutableStateOf("") }
+    var post by remember { mutableStateOf<Post?>(null) }
+
     var commentObject by remember { mutableStateOf<Comment?>(null) }
     var showDialog by remember { mutableStateOf(false) }
 
     val viewModel: CRMViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
-        postList.clear()
-        post.comment?.let { postList.addAll(it) }
+        if(Screen.CRMScreen.title == "Timeline") {
+            viewModel.timelinePost(postId)
+        }else{
+            viewModel.companyPost(postId)
+        }
+        viewModel.viewModelScope.launch {
+            viewModel.post.collect {
+              post = it.data
+            }
+        }
+        commentList.clear()
+        post?.comment?.let { commentList.addAll(it) }
         viewModel.viewModelScope.launch {
             viewModel.stateAddComment.collect {
                 // postList.clear()
-                postList.add(
+                commentList.add(
                     Comment(
                         comment = comment,
                         user = User(
@@ -113,37 +127,54 @@ fun CRMScreen(navController: NavController, modifier: Modifier, post: Post) {
         }
         viewModel.viewModelScope.launch {
             viewModel.stateDeleteComment.collect {
-               viewModel.getComments(post.id.toString())
+                if(Screen.CRMScreen.title=="Timeline"){
+                    viewModel.getComments(post?.id.toString())
+                }else{
+                    viewModel.getCompanyComment(post?.id.toString())
+                }
+
             }
         }
         viewModel.viewModelScope.launch {
             viewModel.stateComments.collect {
-                postList.clear()
-                postList.addAll(it.data)
+                commentList.clear()
+                commentList.addAll(it.data)
             }
         }
     }
     LaunchedEffect(key1 = true) {
-        viewModel.getComments(post.id.toString())
+        if(Screen.CRMScreen.title=="Timeline"){
+            viewModel.getComments(postId)
+        }else{
+            viewModel.getCompanyComment(postId)
+        }
     }
 
-    CRMScreenItem(post, postList = postList, onRemoveComment = {
+    post?.let {it->
+        CRMScreenItem(it, postList = commentList, onRemoveComment = {
         showDialog = true
         commentObject = it
 
 
-    } , onSendTextClick = {
-        comment = it
-        if(post.postType=="companyType"){
-            viewModel.addCompanyComment(it, post.id.toString())
+    } , onSendTextClick = {commit->
+        comment = commit
+        if(Screen.CRMScreen.title == "Timeline"){
+            viewModel.addComment(commit, it.id.toString())
         }else {
-            viewModel.addComment(it, post.id.toString())
+            viewModel.addCompanyComment(commit, it.id.toString())
         }
     })
+    }
     DeletePostDialog(showDialog, onDismiss = {
         showDialog = false
     }, onConfirm = {
-        viewModel.deleteComment(commentObject?.id.toString())
+
+        if(Screen.CRMScreen.title == "Timeline"){
+            viewModel.deleteComment(commentObject?.id.toString())
+        }else {
+            viewModel.deleteCompanyComment(commentObject?.id.toString())
+        }
+
         showDialog = false
     })
 }
@@ -156,12 +187,8 @@ fun CRMScreenItem(
 ) {
     val lazyColumnListState = rememberLazyListState()
 
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-    val screenWidth = configuration.screenWidthDp.dp
-    val scrollState = rememberScrollState()
     val corroutineScope = rememberCoroutineScope()
-    var visibleSlider by remember { mutableStateOf(false) }
+    val visibleSlider by remember { mutableStateOf(false) }
 
 
     Box(
@@ -403,7 +430,7 @@ fun CommentItem(comment: Comment,onRemoveComment:(Comment)->Unit) {
                 .clip(CircleShape)
         )
         Column(
-            Modifier.fillMaxSize() .weight(9f),
+            Modifier.fillMaxSize().weight(9f),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
@@ -424,19 +451,20 @@ fun CommentItem(comment: Comment,onRemoveComment:(Comment)->Unit) {
                 )
             )
         }
-        if(comment.user?.id==AccountData.userId )
-        Image(
-            painter = painterResource(R.drawable.icons8_delete),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .weight(1f)
-                .size(2.dp, 20.dp)
-                .clip(RoundedCornerShape(percent = 10))
-                .clickable {
-                    onRemoveComment(comment)
-                }
-        )
+        if (comment.user?.id == AccountData.userId) {
+            Image(
+                painter = painterResource(R.drawable.icons8_delete),
+                contentDescription = "",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .weight(1f)
+                    .size(2.dp, 20.dp)
+                    .clip(RoundedCornerShape(percent = 10))
+                    .clickable {
+                        onRemoveComment(comment)
+                    }
+            )
+        }
     }
 }
 

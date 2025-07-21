@@ -10,7 +10,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Handle FCM messages here.
         Log.d("FCM", "From: ${remoteMessage.from}")
-
         // Check if message contains a data payload.
         remoteMessage.data.isNotEmpty().let {
             Log.d("FCM", "Message data payload: " + remoteMessage.data)
@@ -22,11 +21,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         // Handle message and show notification
-        sendNotification(remoteMessage.notification?.body, remoteMessage.notification?.title)
+        sendNotification(remoteMessage.notification?.body,
+            remoteMessage.notification?.title,remoteMessage.data)
     }
 
     override fun onNewToken(token: String) {
-        //  Log.e("FCM", "Refreshed token: $token")
+        Log.e("FCM", token.toString())
         AccountData.firebase_token = token
         // Send token to server if necessary
     }

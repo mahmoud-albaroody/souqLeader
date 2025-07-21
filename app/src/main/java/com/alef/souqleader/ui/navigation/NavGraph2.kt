@@ -311,13 +311,13 @@ fun Navigation(
                 nullable = true
             })
         ) {
-            it.arguments?.getString(Screen.CRMScreen.objectName)?.let { jsonString ->
+            it.arguments?.getString(Screen.CRMScreen.objectName)?.let { postId ->
 
-                val decodedJson = URLDecoder.decode(jsonString, StandardCharsets.UTF_8.toString())
-                val post = decodedJson.fromJson<Post>()
+//                val decodedJson = URLDecoder.decode(jsonString, StandardCharsets.UTF_8.toString())
+//                val post = decodedJson.fromJson<Post>()
                 modifier?.let { it1 ->
                     CRMScreen(
-                        navController, modifier, post = post
+                        navController, modifier, postId = postId
                     )
 
                 }
@@ -610,7 +610,6 @@ fun Navigation(
 
 @Composable
 fun navigationTitle(navController: NavController, title: String): String {
-
     return when (currentRoute(navController)) {
         Screen.AddLeadScreen.route -> {
             stringResource(id = R.string.add_lead)
@@ -681,7 +680,7 @@ fun navigationTitle(navController: NavController, title: String): String {
         }
 
         Screen.ProjectsScreen.route -> {
-            title
+            stringResource(R.string.projects)
         }
 
 

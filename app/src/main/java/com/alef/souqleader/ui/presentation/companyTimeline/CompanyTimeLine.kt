@@ -440,11 +440,12 @@ fun CompanyTimelineScreen(
             items(posts) { post ->
                 TimelineItem(
                     post, onTimelineCLick = {
-                        post.postType ="companyType"
-                        val postJson = URLEncoder.encode(post.toJson(), StandardCharsets.UTF_8.toString())
+                        Screen.CRMScreen.title = "companyTimeline"
+//                        post.postType ="companyType"
+//                        val postJson = URLEncoder.encode(post.toJson(), StandardCharsets.UTF_8.toString())
                         navController.navigate(
                             Screen.CRMScreen.route
-                                .plus("?" + Screen.CRMScreen.objectName + "=${postJson}")
+                                .plus("?" + Screen.CRMScreen.objectName + "=${post.id}")
                         )
                     },
                     onLikeClick = {

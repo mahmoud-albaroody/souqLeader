@@ -37,6 +37,7 @@ import com.alef.souqleader.data.remote.dto.RegionsResponse
 import com.alef.souqleader.data.remote.dto.SalesProfileReportResponse
 import com.alef.souqleader.data.remote.dto.SalesResponse
 import com.alef.souqleader.data.remote.dto.StatusResponse
+import com.alef.souqleader.data.remote.dto.TimelinePostResponse
 import com.alef.souqleader.data.remote.dto.UnlockResponse
 import com.alef.souqleader.data.remote.dto.UpdateLeadResponse
 import com.alef.souqleader.data.remote.dto.UserDateResponse
@@ -450,10 +451,28 @@ interface APIs {
         @Path("id") id: String,
     ): Response<StatusResponse>
 
+    @DELETE("api/CompanyComment/{id}")
+    suspend fun deleteCompanyComment(
+        @Path("id") id: String,
+    ): Response<StatusResponse>
+
     @GET("api/comment/{id}")
     suspend fun getComments(
         @Path("id") id: String,
     ): Response<CommentsResponse>
+    @GET("api/CompanyComment/{id}")
+    suspend fun getCompanyComment(
+        @Path("id") id: String,
+    ): Response<CommentsResponse>
+    @GET("api/post/{id}")
+    suspend fun timelinePost(
+        @Path("id") id: String,
+    ): Response<TimelinePostResponse>
+
+    @GET("api/CompanyPost/{id}")
+    suspend fun companyPost(
+        @Path("id") id: String,
+    ): Response<TimelinePostResponse>
 
     @GET("api/Leadsfilter")
     suspend fun leadsFilter(

@@ -129,6 +129,10 @@ data class CommentsResponse(
     var data: ArrayList<Comment>,
     val info: Info? = null
 ) : StatusResponse()
+data class TimelinePostResponse(
+    var data: Post,
+) : StatusResponse()
+
 
 
 data class AllRolesAndAllPermissionsResponse(

@@ -323,7 +323,7 @@ fun CustomModalDrawer(
                                 AccountData.lang = lang
                                 updateLocale(context, Locale(AccountData.lang))
                                 (context as MainActivity).setContent {
-                                    Start()
+                                    Start(navController = navController)
                                 }
                             } else {
                                 navController.navigate(
@@ -355,6 +355,7 @@ fun CustomModalDrawer(
                                 Screen.DelayReport.route,
                                 Screen.ProjectsScreen.route -> {
                                     mainViewModel.isGesturesEnabled = true
+
                                     val appTitle: String =
                                         if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
                                             R.string.dashboard
@@ -367,8 +368,8 @@ fun CustomModalDrawer(
                                         )
                                         else if (currentRoute(navController) == Screen.AllLeadsScreen.route) Screen.AllLeadsScreen.title
                                         else if (currentRoute(navController) == Screen.AddLeadScreen.route) title
-                                        else if (currentRoute(navController) == Screen.ProjectsScreen.route) title
-                                        else if (currentRoute(navController) == Screen.PropertyScreen.route) title
+                                        else if (currentRoute(navController) == Screen.ProjectsScreen.route) stringResource(R.string.projects)
+                                        else if (currentRoute(navController) == Screen.PropertyScreen.route)stringResource(R.string.properties)
                                         else if (currentRoute(navController) == Screen.ReportsScreen.route) title
                                         else if (currentRoute(navController) == Screen.CancellationsReportScreen.route) title
                                         else if (currentRoute(navController) == Screen.ChannelReport.route) title
@@ -395,7 +396,8 @@ fun CustomModalDrawer(
                                             stringResource(
                                                 R.string.verify_code
                                             )
-                                        } else if (currentRoute(navController) == Screen.FilterResultScreen.route) stringResource(
+                                        } else if (currentRoute(navController) == Screen.FilterResultScreen.route)
+                                            stringResource(
                                             R.string.filter_result
                                         )
                                         else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
@@ -419,11 +421,14 @@ fun CustomModalDrawer(
                                         else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
                                             R.string.project_details
                                         )
+                                        else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
+                                            R.string.filter
+                                        )
                                         else if (currentRoute(navController) == Screen.AllLeadsScreen.route) title
                                         else if (currentRoute(navController) == Screen.CRMScreen.route) stringResource(
                                             R.string.timeline
                                         )
-                                        else stringResource(R.string.dashboard)
+                                        else ""
 
                                     HomeAppBar(title = appTitle, openDrawer = {
                                         scope.launch {
@@ -446,6 +451,7 @@ fun CustomModalDrawer(
                                 }
 
 
+
                                 else -> {
                                     if (currentRoute(navController) ==
                                         Screen.LeadDetailsScreen.route
@@ -461,23 +467,38 @@ fun CustomModalDrawer(
                                         Screen.MapScreen.route
                                     ) {
                                         title = stringResource(R.string.leads)
-                                    } else if (currentRoute(navController) ==
+                                    }
+
+                                    else if (currentRoute(navController) ==
                                         Screen.ProductFilterResultScreen.route.plus("?s={s}")
                                     ) {
                                         title = stringResource(R.string.filter_result)
-                                    } else if (currentRoute(navController) ==
+                                    }
+                                    else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
+                                        R.string.filter
+                                    )
+                                    else if (currentRoute(navController) ==
                                         Screen.ProductFilterResultScreen.route.plus("?s={s}")
                                     ) {
                                         title = stringResource(R.string.filter_result)
-                                    } else if (currentRoute(navController) ==
+                                    }
+                                    else if (currentRoute(navController) ==
+                                        Screen.InventoryFilterScreen.route
+                                    ) {
+                                        title = stringResource(R.string.filter)
+                                    }
+
+                                    else if (currentRoute(navController) ==
                                         Screen.JobPostScreen.route
                                     ) {
                                         title = stringResource(R.string.jobs_posts)
-                                    } else if (currentRoute(navController) ==
+                                    }
+                                    else if (currentRoute(navController) ==
                                         Screen.JobApplicationScreen.route
                                     ) {
                                         title = stringResource(R.string.job_applications)
-                                    } else if (currentRoute(navController) ==
+                                    }
+                                    else if (currentRoute(navController) ==
                                         Screen.JobApplicationDetailsScreen.route.plus("?s={jobApplicationDetailsScreen}")
                                     ) {
                                         title = stringResource(R.string.job_applications)
@@ -961,6 +982,7 @@ fun SplashScreen(
     val viewModel: LoginViewModel = hiltViewModel()
     val context = LocalContext.current
     viewModel.updateBaseUrl(AccountData.BASE_URL)
+
     LaunchedEffect(key1 = true) {
         delay(500)
         viewModel.getUserByToken()

@@ -135,7 +135,7 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
                 }
             }
         }, onMapClick = {
-            Screen.MapScreen.title = "prooooo"
+
             val projectJson = projectResponse.toJson()
             navController.navigate(
                 Screen.MapScreen.route.plus(
