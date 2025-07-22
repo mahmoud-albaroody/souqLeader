@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.alef.souqleader"
-        minSdk = 25
+        minSdk = 26
         targetSdk = 34
         versionCode = 9
         versionName = "1.0.0"
