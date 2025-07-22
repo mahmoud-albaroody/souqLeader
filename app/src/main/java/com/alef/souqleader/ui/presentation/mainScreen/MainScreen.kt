@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -519,14 +520,19 @@ fun CustomModalDrawer(
                                 .fillMaxWidth()
                                 .padding(paddingValues)
                         ) {
-                            Navigation(
-                                navController = navController,
-                                modifier = modifier,
-                                Screen.DashboardScreen.route,
-                                viewModel,
-                                mainViewModel = mainViewModel
-                            )
 
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                Navigation(
+                                    navController = navController,
+                                    modifier = modifier,
+                                    Screen.DashboardScreen.route,
+                                    viewModel,
+                                    mainViewModel = mainViewModel
+                                )
+                            } else {
+                                // ممكن تظهر شاشة بديلة أو رسالة "غير مدعوم على هذا الجهاز"
+                                Text("This feature is not supported on your Android version")
+                            }
 
                             CircularIndeterminateProgressBar(
                                 isDisplayed = mainViewModel.showLoader,
