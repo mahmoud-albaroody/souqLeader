@@ -95,12 +95,14 @@ import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.Info
+import com.alef.souqleader.data.remote.dto.Image
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.openPdfFile
 import com.alef.souqleader.ui.presentation.crmSystem.ImageSlider
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -138,6 +140,9 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
     }
+    var pdfUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
     var vedioPath by remember {
         mutableStateOf<Uri?>(null)
     }
@@ -146,17 +151,31 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     val launcher = rememberLauncherForActivityResult(
         contract =
         ActivityResultContracts.PickMultipleVisualMedia()
-    ) { uri: List< Uri> ->
+    ) { uri: List<Uri> ->
         if (uri.isNotEmpty()) {
             imageUri = uri[0]
             images.addAll(uri)
-           // imageUri?.let { it1 -> images.add(it1) }
+            // imageUri?.let { it1 -> images.add(it1) }
             vedioPath = null
             visibleMeda = true
         } else {
             visibleMeda = false
         }
     }
+
+    val pdfLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
+
+                imageUri = uri
+                imageUri?.let { it1 -> images.add(it1) }
+                visibleMeda = true
+                vedioPath = null
+            }
+        }
+    )
+
 
     val pickVedioLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
@@ -171,8 +190,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
         bitmap?.let {
             // Save the Bitmap to a file and get the Uri
             val uri = saveBitmapToFile(context, bitmap)
-            imageUri = uri
-            imageUri?.let { it1 -> images.add(it1) }
+            pdfUri = uri
+            pdfUri?.let { it1 -> images.add(it1) }
             visibleMeda = true
             vedioPath = null
         }
@@ -295,8 +314,15 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                                 inputStream.close()
                                 outputStream.close()
                                 pfd.close()
+                                val type: String =
+                                    if (context.contentResolver.getType(it) == "application/pdf") {
+                                        "application/pdf"
+
+                                    } else {
+                                        "image/*"
+                                    }
                                 val requestFile: RequestBody =
-                                    RequestBody.create("image/*".toMediaType(), file)
+                                    RequestBody.create(type.toMediaType(), file)
                                 val imagePart =
                                     MultipartBody.Part.createFormData(
                                         "images[]",
@@ -360,6 +386,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 pickVedioLauncher.launch(
                     PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.VideoOnly)
                 )
+            }, onPDFClick = {
+                pdfLauncher.launch(arrayOf("application/pdf")) // Allow PDF only
             }
         )
         if (visibleMeda && images.isNotEmpty())
@@ -382,15 +410,25 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                                 .fillMaxHeight()
                                 .width(100.dp)
                         ) {
-                            AsyncImage(
-                                model = it,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(12.dp))
-                            )
-
+                            if (context.contentResolver.getType(it) == "application/pdf") {
+                                Image(
+                                    painter = painterResource(id = R.drawable.upload_pdf),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(12.dp))
+                                )
+                            } else {
+                                AsyncImage(
+                                    model = it,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(12.dp))
+                                )
+                            }
                             // Delete icon at top-right corner
                             IconButton(
                                 onClick = {
@@ -450,6 +488,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     onDeletePostClick = {
                         deletedPost = post
                         showDialog = true
+                    }, onPDFClick = {
+                        openPdfFile(context,AccountData.BASE_URL+it.image)
                     })
             }
             if (info.pages != null && loadMore)
@@ -489,7 +529,8 @@ fun WriteTextPost(
     onSelectImage: () -> Unit,
     onOpenCamera: () -> Unit,
     onVedio: () -> Unit,
-    onPickVideo: () -> Unit
+    onPickVideo: () -> Unit,
+    onPDFClick: () -> Unit
 ) {
     var textState by remember { mutableStateOf("") }
     Column {
@@ -541,6 +582,8 @@ fun WriteTextPost(
                 onVedio()
             }, onPickVideo = {
                 onPickVideo()
+            }, onPDFClick = {
+                onPDFClick()
             })
     }
 }
@@ -549,7 +592,9 @@ fun WriteTextPost(
 @Composable
 fun MediaPost(
     onPostClick: () -> Unit, onSelectImage: () -> Unit,
-    onOpenCamera: () -> Unit, onVideo: () -> Unit, onPickVideo: () -> Unit
+    onOpenCamera: () -> Unit,
+    onVideo: () -> Unit, onPickVideo: () -> Unit,
+    onPDFClick: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -605,6 +650,16 @@ fun MediaPost(
 //
 //                    }
 //            )
+            Image(
+                painterResource(R.drawable.pdf_svgrepo_com),
+                contentDescription = "",
+                Modifier
+                    .weight(0.5f)
+                    .clickable {
+                        onPDFClick()
+
+                    }
+            )
         }
         Button(modifier = Modifier
             .weight(1.2f)
@@ -628,7 +683,8 @@ fun MediaPost(
 fun TimelineItem(
     post: Post, onTimelineCLick: () -> Unit,
     onLikeClick: () -> Unit,
-    onDeletePostClick: (Post) -> Unit
+    onDeletePostClick: (Post) -> Unit,
+    onPDFClick:(Image)->Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -738,7 +794,9 @@ fun TimelineItem(
 
             if (!post.images.isNullOrEmpty())
 
-                    ImageSlider(post.images)
+                ImageSlider(post.images, onPDFClick = {
+                    onPDFClick(it)
+                })
 //                Image(
 //                    painter = rememberAsyncImagePainter(
 //                        if (post.images.isNotEmpty()) {

@@ -94,12 +94,14 @@ import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.Info
+import com.alef.souqleader.data.remote.dto.Image
 import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.openPdfFile
 import com.alef.souqleader.ui.presentation.crmSystem.ImageSlider
 import com.alef.souqleader.ui.presentation.timeline.TimeLineViewModel
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -185,7 +187,18 @@ fun CompanyTimelineScreen(
         images.clear()
     }
 
+    val pdfLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
 
+                imageUri = uri
+                imageUri?.let { it1 -> images.add(it1) }
+                visibleMeda = true
+                vedioPath = null
+            }
+        }
+    )
 
     LaunchedEffect(Unit) {
 
@@ -282,8 +295,15 @@ fun CompanyTimelineScreen(
                             inputStream.close()
                             outputStream.close()
                             pfd.close()
+                            val type: String =
+                                if (context.contentResolver.getType(it) == "application/pdf") {
+                                    "application/pdf"
+                                } else {
+                                    "image/*"
+                                }
+
                             val requestFile: RequestBody =
-                                RequestBody.create("image/*".toMediaType(), file)
+                                RequestBody.create(type.toMediaType(), file)
                             val imagePart =
                                 MultipartBody.Part.createFormData(
                                     "images[]",
@@ -369,6 +389,8 @@ fun CompanyTimelineScreen(
                 pickVedioLauncher.launch(
                     PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.VideoOnly)
                 )
+            }, onPDFClick = {
+                pdfLauncher.launch(arrayOf("application/pdf")) // Allow PDF only
             }
         )
         if (visibleMeda && images.isNotEmpty())
@@ -391,14 +413,26 @@ fun CompanyTimelineScreen(
                                 .fillMaxHeight()
                                 .width(100.dp)
                         ) {
-                            AsyncImage(
-                                model = it,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(12.dp))
-                            )
+                            if (context.contentResolver.getType(it) == "application/pdf") {
+                                Image(
+                                    painter = painterResource(id = R.drawable.upload_pdf),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(12.dp))
+                                )
+                            } else {
+                                AsyncImage(
+                                    model = it,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(12.dp))
+                                )
+                            }
+
 
                             // Delete icon at top-right corner
                             IconButton(
@@ -455,6 +489,8 @@ fun CompanyTimelineScreen(
                         } else {
                             viewModel.addLike("1", post.id.toString())
                         }
+                    }, onPDFClick = {
+                        openPdfFile(context,AccountData.BASE_URL +it.image)
                     })
             }
 
@@ -493,7 +529,8 @@ fun WriteTextPost(
     onSelectImage: () -> Unit,
     onOpenCamera: () -> Unit,
     onVedio: () -> Unit,
-    onPickVideo: () -> Unit
+    onPickVideo: () -> Unit,
+    onPDFClick: () ->Unit
 ) {
     var textState by remember { mutableStateOf("") }
     Column {
@@ -546,6 +583,9 @@ fun WriteTextPost(
                 onVedio()
             }, onPickVideo = {
                 onPickVideo()
+            },
+            onPDFClick = {
+                onPDFClick()
             })
     }
 }
@@ -554,7 +594,8 @@ fun WriteTextPost(
 @Composable
 fun MediaPost(
     onPostClick: () -> Unit, onSelectImage: () -> Unit,
-    onOpenCamera: () -> Unit, onVideo: () -> Unit, onPickVideo: () -> Unit
+    onOpenCamera: () -> Unit, onVideo: () -> Unit, onPickVideo: () -> Unit,
+    onPDFClick: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -610,6 +651,16 @@ fun MediaPost(
 //
 //                    }
 //            )
+            Image(
+                painterResource(R.drawable.pdf_svgrepo_com),
+                contentDescription = "",
+                Modifier
+                    .weight(0.5f)
+                    .clickable {
+                        onPDFClick()
+
+                    }
+            )
         }
         Button(modifier = Modifier
             .weight(1f)
@@ -630,7 +681,8 @@ fun MediaPost(
 }
 
 @Composable
-fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Unit) {
+fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Unit,
+                 onPDFClick:(Image)->Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val screenWidth = configuration.screenWidthDp.dp
@@ -714,7 +766,9 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
             }
 
             if(!post.images.isNullOrEmpty())
-                ImageSlider(post.images)
+                ImageSlider(post.images,onPDFClick = {
+                    onPDFClick(it)
+                })
 //            Image(
 //                painter = rememberAsyncImagePainter(
 //                    if (post.images.isNotEmpty()) {

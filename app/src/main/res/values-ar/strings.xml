@@ -243,4 +243,6 @@
     <string name="update_at">تم التحديث في</string>
     <string name="normal">عادي</string>
     <string name="delayed">متأخر</string>
+    <string name="view_pdf">رؤية الملف</string>
+    <string name="no_app_found_to_open_pdf">No app found to open PDF</string>
 </resources>

@@ -27,6 +27,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,6 +61,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -98,14 +101,14 @@ fun CRMScreen(navController: NavController, modifier: Modifier, postId: String) 
     val viewModel: CRMViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = true) {
-        if(Screen.CRMScreen.title == "Timeline") {
+        if (Screen.CRMScreen.title == "Timeline") {
             viewModel.timelinePost(postId)
-        }else{
+        } else {
             viewModel.companyPost(postId)
         }
         viewModel.viewModelScope.launch {
             viewModel.post.collect {
-              post = it.data
+                post = it.data
             }
         }
         commentList.clear()
@@ -119,7 +122,7 @@ fun CRMScreen(navController: NavController, modifier: Modifier, postId: String) 
                         user = User(
                             photo = AccountData.photo,
                             name = AccountData.name,
-                            id=AccountData.userId
+                            id = AccountData.userId
                         )
                     )
                 )
@@ -127,9 +130,9 @@ fun CRMScreen(navController: NavController, modifier: Modifier, postId: String) 
         }
         viewModel.viewModelScope.launch {
             viewModel.stateDeleteComment.collect {
-                if(Screen.CRMScreen.title=="Timeline"){
+                if (Screen.CRMScreen.title == "Timeline") {
                     viewModel.getComments(post?.id.toString())
-                }else{
+                } else {
                     viewModel.getCompanyComment(post?.id.toString())
                 }
 
@@ -143,35 +146,35 @@ fun CRMScreen(navController: NavController, modifier: Modifier, postId: String) 
         }
     }
     LaunchedEffect(key1 = true) {
-        if(Screen.CRMScreen.title=="Timeline"){
+        if (Screen.CRMScreen.title == "Timeline") {
             viewModel.getComments(postId)
-        }else{
+        } else {
             viewModel.getCompanyComment(postId)
         }
     }
 
-    post?.let {it->
+    post?.let { it ->
         CRMScreenItem(it, postList = commentList, onRemoveComment = {
-        showDialog = true
-        commentObject = it
+            showDialog = true
+            commentObject = it
 
 
-    } , onSendTextClick = {commit->
-        comment = commit
-        if(Screen.CRMScreen.title == "Timeline"){
-            viewModel.addComment(commit, it.id.toString())
-        }else {
-            viewModel.addCompanyComment(commit, it.id.toString())
-        }
-    })
+        }, onSendTextClick = { commit ->
+            comment = commit
+            if (Screen.CRMScreen.title == "Timeline") {
+                viewModel.addComment(commit, it.id.toString())
+            } else {
+                viewModel.addCompanyComment(commit, it.id.toString())
+            }
+        })
     }
     DeletePostDialog(showDialog, onDismiss = {
         showDialog = false
     }, onConfirm = {
 
-        if(Screen.CRMScreen.title == "Timeline"){
+        if (Screen.CRMScreen.title == "Timeline") {
             viewModel.deleteComment(commentObject?.id.toString())
-        }else {
+        } else {
             viewModel.deleteCompanyComment(commentObject?.id.toString())
         }
 
@@ -183,7 +186,9 @@ fun CRMScreen(navController: NavController, modifier: Modifier, postId: String) 
 @Composable
 fun CRMScreenItem(
     post: Post,
-    postList: SnapshotStateList<Comment>, onSendTextClick: (String) -> Unit,onRemoveComment:(Comment)->Unit
+    postList: SnapshotStateList<Comment>,
+    onSendTextClick: (String) -> Unit,
+    onRemoveComment: (Comment) -> Unit
 ) {
     val lazyColumnListState = rememberLazyListState()
 
@@ -208,7 +213,7 @@ fun CRMScreenItem(
                 Modifier
                     .fillMaxWidth()
             ) {
-                if(!post.images.isNullOrEmpty())
+                if (!post.images.isNullOrEmpty())
                     ImageSlider(post.images)
 //                Image(
 //                    painter = rememberAsyncImagePainter(
@@ -341,7 +346,7 @@ fun CRMScreenItem(
 
             }
         }
-        if(visibleSlider){
+        if (visibleSlider) {
             post.images?.let { ImageSlider(it) }
         }
     }
@@ -413,7 +418,7 @@ fun ReminderItem(text: String, text1: String, onSendTextClick: (String) -> Unit)
 }
 
 @Composable
-fun CommentItem(comment: Comment,onRemoveComment:(Comment)->Unit) {
+fun CommentItem(comment: Comment, onRemoveComment: (Comment) -> Unit) {
     Row(Modifier.padding(top = 14.dp)) {
         Image(
             painter = rememberAsyncImagePainter(
@@ -430,7 +435,9 @@ fun CommentItem(comment: Comment,onRemoveComment:(Comment)->Unit) {
                 .clip(CircleShape)
         )
         Column(
-            Modifier.fillMaxSize().weight(9f),
+            Modifier
+                .fillMaxSize()
+                .weight(9f),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
@@ -471,7 +478,7 @@ fun CommentItem(comment: Comment,onRemoveComment:(Comment)->Unit) {
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun ImageSlider(imageUrls: List<Image>) {
+fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
     val pagerState = rememberPagerState()
     var selectedImageUrl by remember { mutableStateOf<String?>(null) }
 
@@ -483,17 +490,59 @@ fun ImageSlider(imageUrls: List<Image>) {
                 .fillMaxWidth()
                 .height(200.dp)
         ) { page ->
-            AsyncImage(
-                model = AccountData.BASE_URL + imageUrls[page].image,
-                contentDescription = "Slider Image",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        selectedImageUrl = AccountData.BASE_URL + imageUrls[page].image
-                    },
-                contentScale = ContentScale.Crop
-            )
+            if ((imageUrls[page].image?.contains("jpg") == true)) {
+                AsyncImage(
+                    model = AccountData.BASE_URL + imageUrls[page].image,
+                    contentDescription = "Slider Image",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            selectedImageUrl = AccountData.BASE_URL + imageUrls[page].image
+                        },
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.pdf_document_svgrepo_com),
+                        contentDescription = "",
+                        Modifier
+                            .weight(0.5f)
+                    )
+                    Text(
+                        text = "PDF Document",
+                        modifier = Modifier.padding(
+                            horizontal = 14.dp,
+                            vertical = 8.dp
+                        ),
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            color = colorResource(id = R.color.gray)
+                        )
+                    )
+                    Button(modifier = Modifier
+                        .padding(
+                            horizontal = 8.dp,
+                            vertical = 8.dp
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
+                        onClick = {
+                                  onPDFClick?.invoke(imageUrls[0])
+                        }) {
+                        Text(
+                            text = stringResource(R.string.view_pdf), Modifier.padding(vertical = 4.dp),
+                            style = TextStyle(textAlign = TextAlign.Center, fontSize = 13.sp)
+                        )
+                    }
+
+                }
+
+            }
         }
 
         HorizontalPagerIndicator(
