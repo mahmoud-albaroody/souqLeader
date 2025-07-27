@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.alef.souqleader"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.alef.souqleader"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 9
         versionName = "1.0.0"
 
