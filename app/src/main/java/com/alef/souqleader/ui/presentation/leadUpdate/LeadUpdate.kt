@@ -300,34 +300,35 @@ fun LeadUpdate(
                         onCheckedChange = { showReminder = it }
                     )
                 }
-                if (showReminder)
-                Card(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            showDatePicker = true
-                        }
-                        .padding(top = 8.dp),
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    Row(
+                if (showReminder) {
+                    Card(
                         Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp, horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .clickable {
+                                showDatePicker = true
+                            }
+                            .padding(top = 8.dp),
+                        shape = RoundedCornerShape(8.dp),
                     ) {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp, horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
 
-                        Text(
-                            text = selectedDate,
-                            style = TextStyle(
-                                fontSize = 16.sp
-                            ),
-                        )
-                        Image(
-                            painter = painterResource(R.drawable.vuesax_linear_calendar),
-                            contentDescription = "",
-                            contentScale = ContentScale.Crop
-                        )
+                            Text(
+                                text = selectedDate,
+                                style = TextStyle(
+                                    fontSize = 16.sp
+                                ),
+                            )
+                            Image(
+                                painter = painterResource(R.drawable.vuesax_linear_calendar),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     }
                 }
             }
