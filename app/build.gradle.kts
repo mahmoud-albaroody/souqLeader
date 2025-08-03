@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.alef.souqleader"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.alef.souqleader"
