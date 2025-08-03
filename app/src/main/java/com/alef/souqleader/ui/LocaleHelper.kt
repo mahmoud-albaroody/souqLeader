@@ -15,7 +15,7 @@ object LocaleHelper {
         return updateResourcesLegacy(context, language);
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
+
     private fun updateResources(context: Context, language: String): Context? {
         val locale = Locale(language)
         Locale.setDefault(locale)

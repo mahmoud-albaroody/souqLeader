@@ -1,11 +1,5 @@
 package com.alef.souqleader.data.remote.dto
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import java.time.Duration
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 data class Lead(
     val action_date: String?,

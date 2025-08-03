@@ -51,11 +51,11 @@ fun MyFirebaseMessagingService.sendNotification(messageBody: String?,title: Stri
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
         val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
         val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
-    }
+
 
     with(NotificationManagerCompat.from(this)) {
         if (ActivityCompat.checkSelfPermission(

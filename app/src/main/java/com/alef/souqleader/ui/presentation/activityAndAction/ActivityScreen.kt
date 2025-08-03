@@ -1,8 +1,6 @@
 package com.alef.souqleader.ui.presentation.activityAndAction
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,7 +38,6 @@ import com.alef.souqleader.ui.presentation.userDetails.ProfileItem
 import com.alef.souqleader.ui.presentation.userDetails.UserDetailsViewModel
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ActivityScreen(navController: NavController, userId: String?, mainViewModel: MainViewModel) {
     val userDetailsViewModel: UserDetailsViewModel = hiltViewModel()

@@ -1,7 +1,6 @@
 package com.alef.souqleader.ui
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import com.alef.souqleader.domain.model.AccountData
 import java.time.Duration
 import java.time.LocalDateTime
@@ -12,7 +11,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 fun getCreatedAt1(created_at: String): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val zoneId = ZoneId.of("Africa/Cairo")
@@ -55,7 +54,6 @@ fun getCreatedAt1(created_at: String): String {
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun getCreatedAt(timestamp: String): String {
     val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
         .withZone(ZoneOffset.UTC)

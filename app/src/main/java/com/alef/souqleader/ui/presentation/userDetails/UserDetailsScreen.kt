@@ -1,15 +1,12 @@
 package com.alef.souqleader.ui.presentation.userDetails
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -70,7 +67,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun UserDetailsScreen(navController: NavController, userId: String?, mainViewModel: MainViewModel) {
     val userDetailsViewModel: UserDetailsViewModel = hiltViewModel()

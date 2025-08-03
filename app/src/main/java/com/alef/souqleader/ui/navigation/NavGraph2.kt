@@ -1,8 +1,6 @@
 package com.alef.souqleader.ui.navigation
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -66,7 +64,7 @@ import org.json.JSONObject
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-@RequiresApi(Build.VERSION_CODES.Q)
+
 @Composable
 fun Navigation(
     navController: NavHostController, modifier: Modifier? = null,

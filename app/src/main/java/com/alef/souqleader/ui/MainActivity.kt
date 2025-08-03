@@ -20,7 +20,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -71,10 +70,8 @@ class MainActivity : ComponentActivity() {
     var dataJson: String? = null
     private val deepLinkUri = mutableStateOf<Uri?>(null)
 
-    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.e("sssfffffy", intent?.data.toString())
         //  handleNotificationIntent(intent)
         deepLinkUri.value = intent?.data
 
@@ -200,9 +197,9 @@ class MainActivity : ComponentActivity() {
 
         // Request WRITE_EXTERNAL_STORAGE only
         // for Android 9 and below
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+
             requiredPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
+
 
         // Request permissions if any are needed
         if (requiredPermissions.isNotEmpty()) {

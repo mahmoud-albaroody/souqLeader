@@ -1,8 +1,7 @@
 package com.alef.souqleader.ui.presentation.leadDetails
 
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -343,7 +342,7 @@ fun TopElement(leadDetails: Lead) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun LeadItem(action: Action) {
     Card(

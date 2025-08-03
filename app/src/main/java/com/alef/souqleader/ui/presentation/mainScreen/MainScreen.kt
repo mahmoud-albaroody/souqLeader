@@ -520,19 +520,13 @@ fun CustomModalDrawer(
                                 .fillMaxWidth()
                                 .padding(paddingValues)
                         ) {
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                Navigation(
+                            Navigation(
                                     navController = navController,
                                     modifier = modifier,
                                     Screen.DashboardScreen.route,
                                     viewModel,
                                     mainViewModel = mainViewModel
                                 )
-                            } else {
-                                // ممكن تظهر شاشة بديلة أو رسالة "غير مدعوم على هذا الجهاز"
-                                Text("This feature is not supported on your Android version")
-                            }
 
                             CircularIndeterminateProgressBar(
                                 isDisplayed = mainViewModel.showLoader,
