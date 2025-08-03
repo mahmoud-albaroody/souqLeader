@@ -192,22 +192,22 @@ class MainActivity : ComponentActivity() {
 
     // Function to check and request
     // necessary permissions
+
+
     private fun checkAndRequestPermissions() {
         val requiredPermissions = mutableListOf<String>()
 
         // Request WRITE_EXTERNAL_STORAGE only
         // for Android 9 and below
-
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             requiredPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
+        }
 
         // Request permissions if any are needed
         if (requiredPermissions.isNotEmpty()) {
             requestPermissionsLauncher.launch(requiredPermissions.toTypedArray())
         }
     }
-
-
 }
 
 @Composable
