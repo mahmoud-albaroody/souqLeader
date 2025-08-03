@@ -66,11 +66,12 @@ fun ProductFilterResultScreen(
                         it.data?.let {
                             projectResponse = it
 
-                            if (it.info != null)
+                            if (it.info != null) {
                                 info = it.info
-                                if (viewModel.page == 1) {
-                                    projects.clear()
-                                }
+                            }
+                            if (viewModel.page == 1) {
+                                projects.clear()
+                            }
                             it.data?.let { it1 -> projects.addAll(it1) }
 
                         }
@@ -85,8 +86,7 @@ fun ProductFilterResultScreen(
             }
 
 
-        }
-        else {
+        } else {
             projectFilterRequest?.let { viewModel.propertyFilter(it) }
             viewModel.viewModelScope.launch {
                 viewModel.propertyFilter.collect {
@@ -96,9 +96,9 @@ fun ProductFilterResultScreen(
                             propertyResponse = it
                             if (it.info != null)
                                 info = it.info!!
-                                if (viewModel.page == 1) {
-                                    projects.clear()
-                                }
+                            if (viewModel.page == 1) {
+                                projects.clear()
+                            }
                             it.data?.let { it1 -> properties.addAll(it1) }
 
                         }
@@ -127,8 +127,10 @@ fun ProductFilterResultScreen(
                 viewModel.viewModelScope.launch {
                     delay(2000)
                     loadMore = false
-                    projectFilterRequest.let {viewModel.page++
-                        viewModel.projectFilter(it) }
+                    projectFilterRequest.let {
+                        viewModel.page++
+                        viewModel.projectFilter(it)
+                    }
                 }
 
             }, onMapClick = {
@@ -141,7 +143,7 @@ fun ProductFilterResultScreen(
     } else {
         Property(propertyResponse, properties, info,
             viewPropertyModel, navController,
-            false,true,loadMore,viewModel, onPaging = {
+            false, true, loadMore, viewModel, onPaging = {
                 viewModel.viewModelScope.launch {
                     delay(2000)
                     loadMore = false
