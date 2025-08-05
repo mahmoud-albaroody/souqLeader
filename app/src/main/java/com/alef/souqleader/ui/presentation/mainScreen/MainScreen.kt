@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.mainScreen
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -13,12 +14,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -31,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -44,8 +49,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,6 +61,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -167,6 +176,8 @@ fun CustomModalDrawer(
     allLead.add(AllLeadStatus(title_en = "Cancelled", title_ar = "تم الإلغاء", id = 8))
     allLead.add(AllLeadStatus(title_en = "Done Deal", title_ar = "الصفقات المتجزة", id = 9))
 
+
+
     Scaffold(
         modifier = Modifier,
         snackbarHost = {
@@ -183,359 +194,324 @@ fun CustomModalDrawer(
             }
         },
         content = { innerPadding ->
-            innerPadding
-//            LaunchedEffect(key1 = true) {
-//                viewModel.getLeads()
-//                viewModel.viewModelScope.launch {
-//                    viewModel.allLead.collect {
-//                        when (it) {
-//                            is Resource.Success -> {
-//                                allLead.clear()
-//                                allLead.add(
-//                                    AllLeadStatus(
-//                                        title_ar = context.getString(R.string.add_lead),
-//                                        title_en = context.getString(R.string.add_lead)
-//                                    )
-//                                )
-//                                it.data?.data?.let { it1 ->
-//                                    allLead.addAll(it1)
-//                                }
-//                                allLead.add(
-//                                    AllLeadStatus(
-//                                        id = 200,
-//                                        title_ar = context.getString(R.string.duplicated_lead),
-//                                        title_en = context.getString(R.string.duplicated_lead),
-//                                    )
-//                                )
-//                                allLead.add(
-//                                    AllLeadStatus(
-//                                        id = 100,
-//                                        title_ar = context.getString(R.string.delay_lead),
-//                                        title_en = context.getString(R.string.delay_lead),
-//                                    )
-//                                )
-//                                mainViewModel.showLoader = false
-//                            }
-//
-//
-//                            is Resource.Loading -> {
-//                                mainViewModel.showLoader = true
-//                            }
-//
-//                            is Resource.DataError -> {
-//                                if (it.errorCode == 401) {
-//                                    AccountData.clear()
-//                                    // Start()
-//                                }
-//                                mainViewModel.showLoader = false
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+           innerPadding
+           val insets = WindowInsets.systemBars.asPaddingValues()
+            Column(
+                modifier = Modifier.background(colorResource(id = R.color.blue2))
+            ) {
 
-            ModalNavigationDrawer(drawerState = drawerState,
-                gesturesEnabled = mainViewModel.isGesturesEnabled,
-                scrimColor = colorResource(id = R.color.transparent),
-                drawerContent = {
-                    ModalDrawerSheet(
-                        drawerShape = RectangleShape,
-                        drawerContainerColor = colorResource(id = R.color.transparent)
-                    ) {
-                        DrawerContent(navController, modifier, viewModel, allLead) { position, s ->
-
-                            title = s.toString()
-                            scope.launch {
-                                drawerState.close()
-                            }
-                            if (title == context.getString(R.string.dashboard)) {
-                                navController.navigate(Screen.DashboardScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.timeline)) {
-                                navController.navigate(Screen.Timeline.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.company_timeline)) {
-                                navController.navigate(Screen.CompanyTimelineScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (title == context.getString(R.string.sales_profile_report)) {
-                                navController.navigate(
-                                    Screen.SalesProfileReportScreen.route.plus(
-                                        "/${AccountData.userId}"
-                                    )
-                                ) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.add_lead)) {
-                                navController.navigate(Screen.AddLeadScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.projects)) {
-                                navController.navigate(
-                                    Screen.ProjectsScreen.route.plus(
-                                        "/${s}"
-                                    )
-                                ) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.jobs_posts)) {
-                                navController.navigate(
-                                    Screen.JobPostScreen.route
-                                ) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.properties)) {
-                                navController.navigate(Screen.PropertyScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.meeting_report)) {
-                                navController.navigate(Screen.ReportsScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.cancellation_report)) {
-                                navController.navigate(Screen.CancellationsReportScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.project_report)) {
-                                navController.navigate(Screen.ProjectReport.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.delay_report)) {
-                                navController.navigate(Screen.DelayReport.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (s == context.getString(R.string.channel_report)) {
-                                navController.navigate(Screen.ChannelReport.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (title == context.getString(R.string.users)) {
-                                navController.navigate(Screen.PaymentPlansScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (title == context.getString(R.string.profile)) {
-                                navController.navigate(Screen.ProfileScreen.route) {
-                                    launchSingleTop = true
-                                }
-                            } else if (title == context.getString(R.string.logout)) {
-                                val lang = AccountData.lang
-                                AccountData.clear()
-                                AccountData.lang = lang
-                                updateLocale(context, Locale(AccountData.lang))
-                                (context as MainActivity).setContent {
-                                    Start(navController = navController)
-                                }
-                            } else {
-                                navController.navigate(
-                                    Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
-                                ) {
-                                    launchSingleTop = true
-                                }
-                            }
-                        }
-                    }
-                },
-                content = {
-                    Scaffold(
-                        topBar = {
-                            when (currentRoute(navController)) {
-                                Screen.DashboardScreen.route,
-                                Screen.Timeline.route,
-                                Screen.CompanyTimelineScreen.route,
-                                Screen.SalesProfileReportScreen.route,
-                                Screen.PaymentPlansScreen.route,
-                                Screen.ProfileScreen.route,
-                                Screen.RoleScreen.route, Screen.AddLeadScreen.route,
-                                Screen.AllLeadsScreen.route,
-                                Screen.PropertyScreen.route,
-                                Screen.ReportsScreen.route,
-                                Screen.CancellationsReportScreen.route,
-                                Screen.ChannelReport.route,
-                                Screen.ProjectReport.route,
-                                Screen.DelayReport.route,
-                                Screen.ProjectsScreen.route -> {
-                                    mainViewModel.isGesturesEnabled = true
-
-                                    val appTitle: String =
-                                        if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
-                                            R.string.dashboard
-                                        )
-                                        else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
-                                            R.string.timeline
-                                        )
-                                        else if (currentRoute(navController) == Screen.CompanyTimelineScreen.route) stringResource(
-                                            R.string.company_timeline
-                                        )
-                                        else if (currentRoute(navController) == Screen.AllLeadsScreen.route) Screen.AllLeadsScreen.title
-                                        else if (currentRoute(navController) == Screen.AddLeadScreen.route) title
-                                        else if (currentRoute(navController) == Screen.ProjectsScreen.route) stringResource(R.string.projects)
-                                        else if (currentRoute(navController) == Screen.PropertyScreen.route)stringResource(R.string.properties)
-                                        else if (currentRoute(navController) == Screen.ReportsScreen.route) title
-                                        else if (currentRoute(navController) == Screen.CancellationsReportScreen.route) title
-                                        else if (currentRoute(navController) == Screen.ChannelReport.route) title
-                                        else if (currentRoute(navController) == Screen.ProjectReport.route) title
-                                        else if (currentRoute(navController) == Screen.DelayReport.route) title
-                                        else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) {
-                                            mainViewModel.isGesturesEnabled = false
-                                            stringResource(
-                                                R.string.change_password
-                                            )
-
-                                        } else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route) {
-                                            mainViewModel.isGesturesEnabled = false
-                                            stringResource(
-                                                R.string.forgot_password
-                                            )
-                                        } else if (currentRoute(navController) == Screen.ResetPasswordScreen.route) {
-                                            mainViewModel.isGesturesEnabled = false
-                                            stringResource(
-                                                R.string.reset_password
-                                            )
-                                        } else if (currentRoute(navController) == Screen.CheckCodeScreen.route) {
-                                            mainViewModel.isGesturesEnabled = false
-                                            stringResource(
-                                                R.string.verify_code
-                                            )
-                                        } else if (currentRoute(navController) == Screen.FilterResultScreen.route)
-                                            stringResource(
-                                            R.string.filter_result
-                                        )
-                                        else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
-                                            R.string.filter
-                                        )
-                                        else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route) stringResource(
-                                            R.string.sales_profile_report
-                                        )
-                                        else if (currentRoute(navController) == Screen.ReportsScreen.route) stringResource(
-                                            R.string.reports
-                                        )
-                                        else if (currentRoute(navController) == Screen.PaymentPlansScreen.route) stringResource(
-                                            R.string.users
-                                        )
-                                        else if (currentRoute(navController) == Screen.ProfileScreen.route) stringResource(
-                                            R.string.profile
-                                        )
-                                        else if (currentRoute(navController) == Screen.RoleScreen.route) stringResource(
-                                            R.string.roles_premmisions
-                                        )
-                                        else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
-                                            R.string.project_details
-                                        )
-                                        else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
-                                            R.string.filter
-                                        )
-                                        else if (currentRoute(navController) == Screen.AllLeadsScreen.route) title
-                                        else if (currentRoute(navController) == Screen.CRMScreen.route) stringResource(
-                                            R.string.timeline
-                                        )
-                                        else ""
-
-                                    HomeAppBar(title = appTitle, openDrawer = {
-                                        scope.launch {
-                                            if (drawerState.isClosed) {
-                                                drawerState.open()
-                                            }
+                    ModalNavigationDrawer(drawerState = drawerState,
+                        gesturesEnabled = mainViewModel.isGesturesEnabled,
+                        scrimColor = colorResource(id = R.color.transparent),
+                        drawerContent = {
+                            ModalDrawerSheet(
+                                modifier = Modifier,
+                                drawerShape = RectangleShape,
+                                drawerContainerColor = colorResource(id = R.color.transparent)
+                            ) {
+                                DrawerContent(
+                                    navController, modifier,
+                                    viewModel, allLead
+                                ) { position, s ->
+                                    title = s.toString()
+                                    scope.launch {
+                                        drawerState.close()
+                                    }
+                                    if (title == context.getString(R.string.dashboard)) {
+                                        navController.navigate(Screen.DashboardScreen.route) {
+                                            launchSingleTop = true
                                         }
-                                    }, mainViewModel = mainViewModel
-                                    ) {
-                                        navController.popBackStack()
-                                    }
-                                }
-
-                                Screen.LoginScreen.route -> {
-
-                                }
-
-                                Screen.SimplifyWorkFlowScreen.route -> {
-
-                                }
-
-
-
-                                else -> {
-                                    if (currentRoute(navController) ==
-                                        Screen.LeadDetailsScreen.route
-                                    ) {
-                                        title = stringResource(
-                                            R.string.lead_details
-                                        )
-                                    } else if (currentRoute(navController) ==
-                                        Screen.UserDetailsScreen.route
-                                    ) {
-                                        title = stringResource(R.string.user_details)
-                                    } else if (currentRoute(navController) ==
-                                        Screen.MapScreen.route
-                                    ) {
-                                        title = stringResource(R.string.leads)
-                                    }
-
-                                    else if (currentRoute(navController) ==
-                                        Screen.ProductFilterResultScreen.route.plus("?s={s}")
-                                    ) {
-                                        title = stringResource(R.string.filter_result)
-                                    }
-                                    else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
-                                        R.string.filter
-                                    )
-                                    else if (currentRoute(navController) ==
-                                        Screen.ProductFilterResultScreen.route.plus("?s={s}")
-                                    ) {
-                                        title = stringResource(R.string.filter_result)
-                                    }
-                                    else if (currentRoute(navController) ==
-                                        Screen.InventoryFilterScreen.route
-                                    ) {
-                                        title = stringResource(R.string.filter)
-                                    }
-
-                                    else if (currentRoute(navController) ==
-                                        Screen.JobPostScreen.route
-                                    ) {
-                                        title = stringResource(R.string.jobs_posts)
-                                    }
-                                    else if (currentRoute(navController) ==
-                                        Screen.JobApplicationScreen.route
-                                    ) {
-                                        title = stringResource(R.string.job_applications)
-                                    }
-                                    else if (currentRoute(navController) ==
-                                        Screen.JobApplicationDetailsScreen.route.plus("?s={jobApplicationDetailsScreen}")
-                                    ) {
-                                        title = stringResource(R.string.job_applications)
-                                    }
-                                    mainViewModel.isGesturesEnabled = false
-                                    AppBarWithArrow(
-                                        navigationTitle(navController, title),
-                                        mainViewModel = mainViewModel
-                                    ) {
-                                        navController.popBackStack()
+                                    } else if (s == context.getString(R.string.timeline)) {
+                                        navController.navigate(Screen.Timeline.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.company_timeline)) {
+                                        navController.navigate(Screen.CompanyTimelineScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (title == context.getString(R.string.sales_profile_report)) {
+                                        navController.navigate(
+                                            Screen.SalesProfileReportScreen.route.plus(
+                                                "/${AccountData.userId}"
+                                            )
+                                        ) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.add_lead)) {
+                                        navController.navigate(Screen.AddLeadScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.projects)) {
+                                        navController.navigate(
+                                            Screen.ProjectsScreen.route.plus(
+                                                "/${s}"
+                                            )
+                                        ) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.jobs_posts)) {
+                                        navController.navigate(
+                                            Screen.JobPostScreen.route
+                                        ) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.properties)) {
+                                        navController.navigate(Screen.PropertyScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.meeting_report)) {
+                                        navController.navigate(Screen.ReportsScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.cancellation_report)) {
+                                        navController.navigate(Screen.CancellationsReportScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.project_report)) {
+                                        navController.navigate(Screen.ProjectReport.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.delay_report)) {
+                                        navController.navigate(Screen.DelayReport.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (s == context.getString(R.string.channel_report)) {
+                                        navController.navigate(Screen.ChannelReport.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (title == context.getString(R.string.users)) {
+                                        navController.navigate(Screen.PaymentPlansScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (title == context.getString(R.string.profile)) {
+                                        navController.navigate(Screen.ProfileScreen.route) {
+                                            launchSingleTop = true
+                                        }
+                                    } else if (title == context.getString(R.string.logout)) {
+                                        val lang = AccountData.lang
+                                        AccountData.clear()
+                                        AccountData.lang = lang
+                                        updateLocale(context, Locale(AccountData.lang))
+                                        (context as MainActivity).setContent {
+                                            Start(navController = navController)
+                                        }
+                                    } else {
+                                        navController.navigate(
+                                            Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
+                                        ) {
+                                            launchSingleTop = true
+                                        }
                                     }
                                 }
                             }
                         },
-                    ) { paddingValues ->
-                        Box(
-                            modifier = modifier
-                                .fillMaxWidth()
-                                .padding(paddingValues)
-                        ) {
-                            Navigation(
-                                    navController = navController,
-                                    modifier = modifier,
-                                    Screen.DashboardScreen.route,
-                                    viewModel,
-                                    mainViewModel = mainViewModel
-                                )
+                        content = {
 
-                            CircularIndeterminateProgressBar(
-                                isDisplayed = mainViewModel.showLoader,
-                                0.4f,
-                                Color.Transparent
-                            )
+                            //  SetStatusBarColor(color = Color(0xFF1976D2), darkIcons = false) // Blue background, white icons
+                            Column(
+                                modifier = Modifier.padding(top = insets.calculateTopPadding())
+                            ) {
+                                Scaffold(
+                                    topBar = {
+                                        when (currentRoute(navController)) {
+                                            Screen.DashboardScreen.route,
+                                            Screen.Timeline.route,
+                                            Screen.CompanyTimelineScreen.route,
+                                            Screen.SalesProfileReportScreen.route,
+                                            Screen.PaymentPlansScreen.route,
+                                            Screen.ProfileScreen.route,
+                                            Screen.RoleScreen.route, Screen.AddLeadScreen.route,
+                                            Screen.AllLeadsScreen.route,
+                                            Screen.PropertyScreen.route,
+                                            Screen.ReportsScreen.route,
+                                            Screen.CancellationsReportScreen.route,
+                                            Screen.ChannelReport.route,
+                                            Screen.ProjectReport.route,
+                                            Screen.DelayReport.route,
+                                            Screen.ProjectsScreen.route -> {
+                                                mainViewModel.isGesturesEnabled = true
+
+                                                val appTitle: String =
+                                                    if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
+                                                        R.string.dashboard
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
+                                                        R.string.timeline
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.CompanyTimelineScreen.route) stringResource(
+                                                        R.string.company_timeline
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.AllLeadsScreen.route) Screen.AllLeadsScreen.title
+                                                    else if (currentRoute(navController) == Screen.AddLeadScreen.route) title
+                                                    else if (currentRoute(navController) == Screen.ProjectsScreen.route) stringResource(
+                                                        R.string.projects
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.PropertyScreen.route) stringResource(
+                                                        R.string.properties
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.ReportsScreen.route) title
+                                                    else if (currentRoute(navController) == Screen.CancellationsReportScreen.route) title
+                                                    else if (currentRoute(navController) == Screen.ChannelReport.route) title
+                                                    else if (currentRoute(navController) == Screen.ProjectReport.route) title
+                                                    else if (currentRoute(navController) == Screen.DelayReport.route) title
+                                                    else if (currentRoute(navController) == Screen.ChangePasswordScreen.route) {
+                                                        mainViewModel.isGesturesEnabled = false
+                                                        stringResource(
+                                                            R.string.change_password
+                                                        )
+
+                                                    } else if (currentRoute(navController) == Screen.ForgetPasswordScreen.route) {
+                                                        mainViewModel.isGesturesEnabled = false
+                                                        stringResource(
+                                                            R.string.forgot_password
+                                                        )
+                                                    } else if (currentRoute(navController) == Screen.ResetPasswordScreen.route) {
+                                                        mainViewModel.isGesturesEnabled = false
+                                                        stringResource(
+                                                            R.string.reset_password
+                                                        )
+                                                    } else if (currentRoute(navController) == Screen.CheckCodeScreen.route) {
+                                                        mainViewModel.isGesturesEnabled = false
+                                                        stringResource(
+                                                            R.string.verify_code
+                                                        )
+                                                    } else if (currentRoute(navController) == Screen.FilterResultScreen.route)
+                                                        stringResource(
+                                                            R.string.filter_result
+                                                        )
+                                                    else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
+                                                        R.string.filter
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.SalesProfileReportScreen.route) stringResource(
+                                                        R.string.sales_profile_report
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.ReportsScreen.route) stringResource(
+                                                        R.string.reports
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.PaymentPlansScreen.route) stringResource(
+                                                        R.string.users
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.ProfileScreen.route) stringResource(
+                                                        R.string.profile
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.RoleScreen.route) stringResource(
+                                                        R.string.roles_premmisions
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.ProjectsDetailsScreen.route) stringResource(
+                                                        R.string.project_details
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
+                                                        R.string.filter
+                                                    )
+                                                    else if (currentRoute(navController) == Screen.AllLeadsScreen.route) title
+                                                    else if (currentRoute(navController) == Screen.CRMScreen.route) stringResource(
+                                                        R.string.timeline
+                                                    )
+                                                    else ""
+
+                                                HomeAppBar(
+                                                    title = appTitle, openDrawer = {
+                                                        scope.launch {
+                                                            if (drawerState.isClosed) {
+                                                                drawerState.open()
+                                                            }
+                                                        }
+                                                    }, mainViewModel = mainViewModel
+                                                ) {
+                                                    navController.popBackStack()
+                                                }
+                                            }
+
+                                            Screen.LoginScreen.route -> {
+
+                                            }
+
+                                            Screen.SimplifyWorkFlowScreen.route -> {
+
+                                            }
+
+
+                                            else -> {
+                                                if (currentRoute(navController) ==
+                                                    Screen.LeadDetailsScreen.route
+                                                ) {
+                                                    title = stringResource(
+                                                        R.string.lead_details
+                                                    )
+                                                } else if (currentRoute(navController) ==
+                                                    Screen.UserDetailsScreen.route
+                                                ) {
+                                                    title = stringResource(R.string.user_details)
+                                                } else if (currentRoute(navController) ==
+                                                    Screen.MapScreen.route
+                                                ) {
+                                                    title = stringResource(R.string.leads)
+                                                } else if (currentRoute(navController) ==
+                                                    Screen.ProductFilterResultScreen.route.plus("?s={s}")
+                                                ) {
+                                                    title = stringResource(R.string.filter_result)
+                                                } else if (currentRoute(navController) == Screen.FilterScreen.route) stringResource(
+                                                    R.string.filter
+                                                )
+                                                else if (currentRoute(navController) ==
+                                                    Screen.ProductFilterResultScreen.route.plus("?s={s}")
+                                                ) {
+                                                    title = stringResource(R.string.filter_result)
+                                                } else if (currentRoute(navController) ==
+                                                    Screen.InventoryFilterScreen.route
+                                                ) {
+                                                    title = stringResource(R.string.filter)
+                                                } else if (currentRoute(navController) ==
+                                                    Screen.JobPostScreen.route
+                                                ) {
+                                                    title = stringResource(R.string.jobs_posts)
+                                                } else if (currentRoute(navController) ==
+                                                    Screen.JobApplicationScreen.route
+                                                ) {
+                                                    title =
+                                                        stringResource(R.string.job_applications)
+                                                } else if (currentRoute(navController) ==
+                                                    Screen.JobApplicationDetailsScreen.route.plus("?s={jobApplicationDetailsScreen}")
+                                                ) {
+                                                    title =
+                                                        stringResource(R.string.job_applications)
+                                                }
+                                                mainViewModel.isGesturesEnabled = false
+                                                AppBarWithArrow(
+                                                    navigationTitle(navController, title),
+                                                    mainViewModel = mainViewModel
+                                                ) {
+                                                    navController.popBackStack()
+                                                }
+                                            }
+                                        }
+                                    },
+                                ) { paddingValues ->
+                                    Box(
+                                        modifier = modifier
+                                            .fillMaxWidth()
+                                            .padding(paddingValues)
+                                    ) {
+                                        Navigation(
+                                            navController = navController,
+                                            modifier = modifier,
+                                            Screen.DashboardScreen.route,
+                                            viewModel,
+                                            mainViewModel = mainViewModel
+                                        )
+
+                                        CircularIndeterminateProgressBar(
+                                            isDisplayed = mainViewModel.showLoader,
+                                            0.4f,
+                                            Color.Transparent
+                                        )
+                                    }
+                                }
+                            }
                         }
-                    }
-                })
+                    )
+
+            }
 
         })
 }
@@ -606,7 +582,7 @@ fun DrawerContent(
         Box(
             Modifier
                 .width(260.dp)
-                .background(colorResource(id = R.color.blue))
+                .background(colorResource(id = R.color.blue2))
         ) {
             Column(
                 Modifier
@@ -1078,5 +1054,15 @@ fun SplashScreen(
                 .size(150.dp)
 
         )
+    }
+}
+@Composable
+fun SetStatusBarColor(color: Color, darkIcons: Boolean = false) {
+    val view = LocalView.current
+    val activity = (LocalContext.current as? Activity)
+
+    SideEffect {
+        activity?.window?.statusBarColor = color.toArgb()
+        WindowCompat.getInsetsController(activity?.window!!, view).isAppearanceLightStatusBars = darkIcons
     }
 }

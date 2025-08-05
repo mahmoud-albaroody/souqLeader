@@ -32,15 +32,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.registerReceiver
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.alef.souqleader.R
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
@@ -48,6 +52,7 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.allLeads.AddCallDetailsDialog
 import com.alef.souqleader.ui.presentation.mainScreen.CustomModalDrawer
 import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
+import com.alef.souqleader.ui.presentation.mainScreen.SetStatusBarColor
 import com.alef.souqleader.ui.presentation.mainScreen.SplashScreen
 import com.alef.souqleader.ui.theme.AndroidCookiesTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,8 +80,13 @@ class MainActivity : ComponentActivity() {
         //  handleNotificationIntent(intent)
         deepLinkUri.value = intent?.data
 
+      WindowCompat.setDecorFitsSystemWindows(window, false)
+//        window.statusBarColor = ContextCompat.getColor(this, R.color.red)// Replace with your color
+//
+//        // Optional: Set icon/text color (light or dark)
+//        WindowCompat.getInsetsController(window, window.decorView)
+//            .isAppearanceLightStatusBars = false // false = white icons; true = dark icons
 
-        val startDestinationArgs = intent?.extras
         checkAndRequestPermissions()
         addContactLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -129,8 +139,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         val uri = intent.data
-        Log.e("sssfffff", intent.data.toString())
-        Log.e("DeepLink", "Intent data = $uri")
+
         deepLinkUri.value = intent.data
 
         //handleNotificationIntent(intent)
