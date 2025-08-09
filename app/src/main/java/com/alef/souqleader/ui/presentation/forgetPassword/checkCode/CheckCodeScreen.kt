@@ -73,7 +73,7 @@ fun CheckCodeScreen(navController: NavController) {
 
         ) {
         Image(
-            painter = painterResource(R.drawable.souq_leader_logo_2__1_),
+            painter = painterResource(R.drawable.souq_leader_logo_new_logo_same_size),
             contentDescription = "",
             contentScale = ContentScale.Crop
         )

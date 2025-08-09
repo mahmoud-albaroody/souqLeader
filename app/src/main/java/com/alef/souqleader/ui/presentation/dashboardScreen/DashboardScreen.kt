@@ -24,8 +24,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
@@ -54,6 +58,8 @@ import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
 import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.theme.*
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -63,36 +69,45 @@ fun DashboardScreen(
     mainViewModel: MainViewModel
 ) {
     val viewModel: DashboardViewModel = hiltViewModel()
-    viewModel.updateBaseUrl(AccountData.BASE_URL)
-    val allLead = remember { mutableStateListOf<AllLeadStatus>() }
     val context = LocalContext.current
-    LaunchedEffect(key1 = true) {
+    val coroutineScope = rememberCoroutineScope()
+
+    viewModel.updateBaseUrl(AccountData.BASE_URL)
+
+    val allLead = remember { mutableStateListOf<AllLeadStatus>() }
+    var refreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
         sharedViewModel.updateSalesNameState(AccountData.role_name)
         sharedViewModel.updatePhotoState(AccountData.photo)
         sharedViewModel.updateNameState(AccountData.name)
+
         viewModel.getLeads()
+
         viewModel.viewModelScope.launch {
             viewModel.allLead.collect {
-
                 when (it) {
                     is Resource.Success -> {
-
                         allLead.clear()
                         it.data?.data?.let { it1 -> allLead.addAll(it1) }
+                        refreshing = false
                         mainViewModel.showLoader = false
                     }
-
-
                     is Resource.Loading -> {
                         mainViewModel.showLoader = true
                     }
-
                     is Resource.DataError -> {
-                        if (it.errorCode == 401||it.errorCode==403) {
+                        refreshing = false
+                        if (it.errorCode == 401 || it.errorCode == 403) {
                             AccountData.clear()
                             (context as MainActivity).setContent {
                                 AndroidCookiesTheme {
-                                    MainScreen(Modifier, navController, sharedViewModel, mainViewModel)
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        sharedViewModel,
+                                        mainViewModel
+                                    )
                                 }
                             }
                         }
@@ -103,18 +118,29 @@ fun DashboardScreen(
         }
     }
 
-    LazyVerticalGrid(
-        GridCells.Fixed(2),
-        Modifier
-            .fillMaxSize()
-            .padding(vertical = 16.dp, horizontal = 24.dp)
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = refreshing),
+        onRefresh = {
+            refreshing = true
+            coroutineScope.launch {
+                allLead.clear()
+                viewModel.getLeads()
+            }
+        }
     ) {
-        items(allLead) {
-            MyCardItem(it) {
-                Screen.AllLeadsScreen.title = it.getTitle()
-                navController.navigate(
-                    Screen.AllLeadsScreen.route.plus("/${it.id}")
-                )
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp, horizontal = 24.dp)
+        ) {
+            items(allLead) {
+                MyCardItem(it) {
+                    Screen.AllLeadsScreen.title = it.getTitle()
+                    navController.navigate(
+                        Screen.AllLeadsScreen.route.plus("/${it.id}")
+                    )
+                }
             }
         }
     }

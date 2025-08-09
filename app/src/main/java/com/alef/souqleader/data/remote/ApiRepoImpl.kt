@@ -289,6 +289,14 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+    suspend fun logout(): Resource<StatusResponse> {
+        val response = APIs.logout()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
     suspend fun getuserbytoken(): Resource<LoginResponse> {
         val response = APIs.getuserbytoken()
         return if (response.isSuccessful) {
@@ -316,6 +324,7 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
             Resource.DataError(null, response.code(), response.errorBody())
         }
     }
+
 
     suspend fun comment(comment: String, post_id: String): Resource<StatusResponse> {
         val response = APIs.comment(

@@ -95,6 +95,7 @@ dependencies {
     implementation("androidx.fragment:fragment-compose:1.8.2")
     implementation("androidx.fragment:fragment-ktx:1.8.2")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.30.1") // Or latest version
 
     implementation("com.google.accompanist:accompanist-pager:0.25.1")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.25.1")

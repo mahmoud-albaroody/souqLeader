@@ -214,7 +214,7 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
             Column {
 
                 Image(
-                    modifier = Modifier.clickable {
+                    modifier = Modifier.padding(top = 24.dp).clickable {
                         changeLang = true
 //                        if (AccountData.lang == "en") {
 //                            AccountData.lang = "ar"

@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ import androidx.core.content.ContextCompat.registerReceiver
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -55,7 +57,10 @@ import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.presentation.mainScreen.SetStatusBarColor
 import com.alef.souqleader.ui.presentation.mainScreen.SplashScreen
 import com.alef.souqleader.ui.theme.AndroidCookiesTheme
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.http.Body
@@ -72,14 +77,29 @@ class MainActivity : ComponentActivity() {
 
     var title: String? = null
     var body: String? = null
-    var dataJson: String? = null
     private val deepLinkUri = mutableStateOf<Uri?>(null)
+    var value1 : String? = null
+    var value2 : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //  handleNotificationIntent(intent)
         deepLinkUri.value = intent?.data
 
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+
+                // Get new FCM registration token
+                val token = task.result
+                Log.d("FCM", "Token: $token")
+
+
+                AccountData.firebase_token = token
+            }
       WindowCompat.setDecorFitsSystemWindows(window, false)
 //        window.statusBarColor = ContextCompat.getColor(this, R.color.red)// Replace with your color
 //
@@ -123,15 +143,39 @@ class MainActivity : ComponentActivity() {
         updateLocale(this, Locale(AccountData.lang))
         setContent {
             val navController = rememberNavController()
+            var hasNavigated by rememberSaveable { mutableStateOf(false) }
+
+            // Perform navigation safely after composition
+//            LaunchedEffect(intent.extras) {
+//                if (!hasNavigated &&  intent.extras != null) {
+//
+//
+//                        intent.extras?.let {
+//                            value1 = it.getString("page_name") // e.g., "report"
+//                            value2 = it.getString("page_id")
+//
+//                            Log.e("DeeplinkData", "value1=$value1, value2=$value2")
+//                            navNotification(navController)
+//
+//                    }
+//                    hasNavigated = true
+//                }
+//            }
+
+            Start(navController =  navController)
+
+
+
+
 
             LaunchedEffect(deepLinkUri.value) {
                 deepLinkUri.value?.let { uri ->
-
                     handleDeepLinkUri(navController, uri)
                     deepLinkUri.value = null
                 }
             }
-            Start(navController =  navController)
+
+
         }
     }
 
@@ -141,44 +185,56 @@ class MainActivity : ComponentActivity() {
         val uri = intent.data
 
         deepLinkUri.value = intent.data
-
+        Log.e("mmmmm",intent.data.toString())
+//        deepLinkUri.value?.let { uri ->
+//
+//            handleDeepLinkUri(navController, uri)
+//            deepLinkUri.value = null
+//        }
         //handleNotificationIntent(intent)
 
     }
 
      private fun handleDeepLinkUri(navController: NavController, uri: Uri) {
+
         if (uri.scheme == "myapp" && uri.host == "details") {
             val jsonData = uri.pathSegments.joinToString("/")
             jsonData.let {
                 try {
                     val jsonObject = JSONObject(it)
-                    val value1 = jsonObject.getString("page_name")
-                    val value2 = jsonObject.getString("page_id")
+                     value1 = jsonObject.getString("page_name")
+                     value2 = jsonObject.getString("page_id")
                     Log.e("DeeplinkData", "value1=$value1, value2=$value2")
-                    when (value1) {
-                        "lead-view" -> {
-                            navController.navigate(
-                                Screen.LeadDetailsScreen.route.plus("/$value2")
-                            )
-                        }
-                        "post" -> {
-                            Screen.CRMScreen.title = "Timeline"
-                            navController.navigate(
-                                Screen.CRMScreen.route
-                                    .plus("?" + Screen.CRMScreen.objectName + "=${value2}")
-                            )
-                        }
-                        else -> {
-                            Screen.CRMScreen.title = "companyTimeline"
-                            navController.navigate(
-                                Screen.CRMScreen.route
-                                    .plus("?" + Screen.CRMScreen.objectName + "=${value2}")
-                            )
-                        }
-                    }
+                    navNotification(navController)
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
+            }
+        }
+    }
+
+    private fun navNotification(navController: NavController) {
+        when (value1) {
+            "lead-view" -> {
+                navController.navigate(
+                    Screen.LeadDetailsScreen.route.plus("/$value2")
+                )
+            }
+
+            "post" -> {
+                Screen.CRMScreen.title = "Timeline"
+                navController.navigate(
+                    Screen.CRMScreen.route
+                        .plus("?" + Screen.CRMScreen.objectName + "=${value2}")
+                )
+            }
+
+            else -> {
+                Screen.CRMScreen.title = "companyTimeline"
+                navController.navigate(
+                    Screen.CRMScreen.route
+                        .plus("?" + Screen.CRMScreen.objectName + "=${value2}")
+                )
             }
         }
     }
@@ -278,7 +334,8 @@ fun Start(splash: String? = null,navController: NavHostController) {
                                     isVisible = true
                                 })
 
-                        } else {
+                        }
+                        else {
                             CustomModalDrawer(
                                 modifier, navController, viewModel,
                                 SnapshotStateList(), mainViewModel
@@ -289,8 +346,12 @@ fun Start(splash: String? = null,navController: NavHostController) {
                 }
 
             }
+
         }
+
     }
+
+
 }
 
 //class MyPhoneStateListener(val context: Context) : PhoneStateListener() {

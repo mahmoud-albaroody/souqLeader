@@ -176,7 +176,59 @@ fun CustomModalDrawer(
     allLead.add(AllLeadStatus(title_en = "Cancelled", title_ar = "تم الإلغاء", id = 8))
     allLead.add(AllLeadStatus(title_en = "Done Deal", title_ar = "الصفقات المتجزة", id = 9))
 
+    LaunchedEffect(key1 = true) {
+        viewModel.viewModelScope.launch {
+            viewModel.logoutState.collect {
+                when (it) {
+                    is Resource.Success -> {
+                        if (it.data?.status == true) {
+                            val lang = AccountData.lang
+                            AccountData.clear()
+                            AccountData.lang = lang
+                            updateLocale(context, Locale(AccountData.lang))
+                            (context as MainActivity).setContent {
+                                Start(navController = navController)
+                            }
+                        } else {
+                            Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
+                                .show()
+                        }
+                        mainViewModel.showLoader = false
+                    }
 
+
+                    is Resource.Loading -> {
+                        mainViewModel.showLoader = true
+                    }
+
+                    is Resource.DataError -> {
+                        if (it.errorCode == 401) {
+                            AccountData.clear()
+                            (context as MainActivity).setContent {
+                                AndroidCookiesTheme {
+                                    MainScreen(
+                                        Modifier,
+                                        navController,
+                                        viewModel,
+                                        mainViewModel
+                                    )
+                                }
+                            }
+                        }
+                        if (it.errorCode == 500) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.something_error), Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+                        mainViewModel.showLoader = false
+                    }
+                }
+
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier,
@@ -288,13 +340,8 @@ fun CustomModalDrawer(
                                             launchSingleTop = true
                                         }
                                     } else if (title == context.getString(R.string.logout)) {
-                                        val lang = AccountData.lang
-                                        AccountData.clear()
-                                        AccountData.lang = lang
-                                        updateLocale(context, Locale(AccountData.lang))
-                                        (context as MainActivity).setContent {
-                                            Start(navController = navController)
-                                        }
+                                        viewModel.logout()
+
                                     } else {
                                         navController.navigate(
                                             Screen.AllLeadsScreen.route.plus("/${allLead.find { it.getTitle() == s }?.id}")
@@ -1033,8 +1080,8 @@ fun SplashScreen(
                 }
 
             }
-
         }
+
     }
 
 
@@ -1048,7 +1095,7 @@ fun SplashScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.souq_leader_logo_3),
+            painter = painterResource(id = R.drawable.souq_leader_logo1),
             contentDescription = null,
             modifier = Modifier
                 .size(150.dp)

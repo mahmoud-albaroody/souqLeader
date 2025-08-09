@@ -11,8 +11,10 @@ import com.alef.souqleader.Resource
 import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.LeadsStatusResponse
+import com.alef.souqleader.data.remote.dto.StatusResponse
 import com.alef.souqleader.domain.AddLeadUseCase
 import com.alef.souqleader.domain.GetLeadUseCase
+import com.alef.souqleader.domain.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
@@ -27,7 +29,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
-    private val getLeadUseCase: GetLeadUseCase
+    private val getLeadUseCase: GetLeadUseCase,
+    private val loginUseCase: LoginUseCase
 //    @IODispatcher val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -40,6 +43,11 @@ class SharedViewModel @Inject constructor(
         MutableSharedFlow<Resource<LeadsStatusResponse>>()
     val allLead: MutableSharedFlow<Resource<LeadsStatusResponse>>
         get() = _allLead
+
+    private val _logoutState =
+        MutableSharedFlow<Resource<StatusResponse>>()
+    val logoutState: MutableSharedFlow<Resource<StatusResponse>>
+        get() = _logoutState
 
     private val _nameState = MutableStateFlow(String())
     val nameState: StateFlow<String> get() = _nameState
@@ -73,5 +81,14 @@ class SharedViewModel @Inject constructor(
                 }
         }
     }
-
+    fun logout() {
+        viewModelScope.launch(job) {
+            loginUseCase.logout().catch { }
+                .onStart {
+                    _logoutState.emit(Resource.Loading())
+                }.buffer().collect {
+                    _logoutState.emit(it)
+                }
+        }
+    }
 }

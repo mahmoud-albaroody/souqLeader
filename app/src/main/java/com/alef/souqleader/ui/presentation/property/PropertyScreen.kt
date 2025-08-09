@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -52,6 +53,8 @@ import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.projectFilterResult.ProjectFilterResultViewModel
 import com.alef.souqleader.ui.presentation.projects.Filter
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 
 
@@ -61,12 +64,16 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
     var info by remember { mutableStateOf(Info()) }
     val properties = remember { mutableStateListOf(PropertyObject()) }
     var propertyResponse by remember { mutableStateOf(PropertyResponse()) }
-
+    var isSort by remember { mutableStateOf(false) }
+    var refreshing by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
 
         viewModel.getProperty(viewModel.page)
+
         viewModel.viewModelScope.launch {
             viewModel.stateListOfProperty.collect {
+                refreshing = false
                 if (it is Resource.Success) {
                     it.data?.let {
                         propertyResponse = it
@@ -88,12 +95,49 @@ fun PropertyScreen(navController: NavController, modifier: Modifier, mainViewMod
             }
         }
     }
-
-    Property(
-        propertyResponse, properties, info, viewModel,
-        navController, true,   false, false,onPaging = {}
-    )
-
+    Column {
+        Filter(onMapClick = {
+            val projectJson = propertyResponse.toJson()
+            Screen.MapScreen.title = "pro"
+            navController.navigate(
+                Screen.MapScreen.route.plus(
+                    "?" + Screen.MapScreen.objectName + "=${projectJson}"
+                )
+            )
+        }, onSortClick = {
+            isSort = true
+            viewModel.page = 1
+            viewModel.propertySort(page = viewModel.page)
+        }, onFilterClick = {
+            navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Property"}"))
+        })
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            onRefresh = {
+                refreshing = true
+                coroutineScope.launch {
+                    viewModel.page = 1
+                    properties.clear()
+                    viewModel.getProperty(viewModel.page)
+                }
+            }
+        ) {
+            Property(
+                propertyResponse, properties, info, viewModel,
+                navController, false, false, onPage = {
+                    if (isSort) {
+                        if (properties.isNotEmpty()) {
+                            viewModel.propertySort(++viewModel.page)
+                        }
+                    } else {
+                        if (properties.isNotEmpty()) {
+                            viewModel.getProperty(++viewModel.page)
+                        }
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Composable
@@ -102,89 +146,65 @@ fun Property(
     properties: SnapshotStateList<PropertyObject>,
     info: Info,
     viewModel: PropertyScreenViewModel,
-    navController: NavController, showFilter: Boolean,
-    isFilter:Boolean,
-    loadMore:Boolean,
-    projectFilterResultViewModel: ProjectFilterResultViewModel?=null,
-    onPaging:()->Unit
+    navController: NavController,
+    isFilter: Boolean,
+    loadMore: Boolean,
+    projectFilterResultViewModel: ProjectFilterResultViewModel? = null,
+    onPage: () -> Unit
 ) {
-    var isSort by remember { mutableStateOf(false) }
-    Column {
-        if (showFilter)
-            Filter(onMapClick = {
-                val projectJson = propertyResponse.toJson()
-                Screen.MapScreen.title = "pro"
+
+
+    LazyColumn(Modifier.padding(top = 8.dp)) {
+        items(properties) {
+            PropertyItem(it) { property ->
+
+                val propertyJson = property.toJson()
                 navController.navigate(
-                    Screen.MapScreen.route.plus(
-                        "?" + Screen.MapScreen.objectName + "=${projectJson}"
-                    )
+                    Screen.PropertyDetailsScreen.route
+                        .plus("?" + Screen.PropertyDetailsScreen.objectName + "=${propertyJson}")
                 )
-            }, onSortClick = {
-                isSort = true
                 viewModel.page = 1
-                viewModel.propertySort(page = viewModel.page)
-            }, onFilterClick = {
-                navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Property"}"))
-            })
-        LazyColumn(Modifier.padding(top = 8.dp)) {
-            items(properties) {
-                PropertyItem(it) { property ->
 
-                    val propertyJson = property.toJson()
-                    navController.navigate(
-                        Screen.PropertyDetailsScreen.route
-                            .plus("?" + Screen.PropertyDetailsScreen.objectName + "=${propertyJson}")
-                    )
-                    viewModel.page = 1
-
-                }
-            }
-            if (isFilter) {
-                if (info.pages != null  && loadMore)
-                    if (info.pages >= projectFilterResultViewModel!!.page && properties.size > 10) {
-                        item {
-                            onPaging()
-                            Row(
-                                Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(16.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
-                            }
-                        }
-                    }
-
-            } else {
-                if (info.pages != null)
-                    if (info.pages > viewModel.page && properties.size > 10) {
-                        item {
-                            if (isSort) {
-                                if (properties.isNotEmpty()) {
-                                    viewModel.propertySort(++viewModel.page)
-                                }
-                            } else {
-                                if (properties.isNotEmpty()) {
-                                    viewModel.getProperty(++viewModel.page)
-                                }
-                            }
-                            Row(
-                                Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(16.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
-                            }
-                        }
-                    }
             }
         }
+        if (isFilter) {
+            if (info.pages != null && loadMore)
+                if (info.pages >= projectFilterResultViewModel!!.page && properties.size > 10) {
+                    item {
+                        onPage()
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(16.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+                }
+
+        } else {
+            if (info.pages != null)
+                if (info.pages > viewModel.page && properties.size > 10) {
+                    item {
+                        onPage()
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(16.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+                }
+        }
     }
+
 }
 
 
@@ -229,7 +249,7 @@ fun PropertyItem(property: PropertyObject, onProjectClick: (PropertyObject) -> U
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(percent = 10))
                     )
-                }else{
+                } else {
                     Image(
                         painter = rememberAsyncImagePainter(
                             AccountData.BASE_URL + "images/default.jpg"

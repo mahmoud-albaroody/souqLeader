@@ -61,6 +61,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -103,6 +104,8 @@ import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.openPdfFile
 import com.alef.souqleader.ui.presentation.crmSystem.ImageSlider
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -134,7 +137,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     val context = LocalContext.current
     val listState = rememberLazyListState()
     var isDataLoaded by rememberSaveable { mutableStateOf(false) }
-
+    var refreshing by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     //  val posts = mutableStateListOf<Post>()
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -234,6 +238,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     } else if (it is Resource.DataError) {
                         mainViewModel.showLoader = false
                     }
+                    refreshing = false
                 }
             }
         }
@@ -462,54 +467,69 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     .padding(horizontal = 36.dp),
                 text = vedioPath?.path.toString()
             )
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            onRefresh = {
+                refreshing = true
+                coroutineScope.launch {
+                    posts.clear()
+                    viewModel.page = 1
+                    viewModel.getPosts(viewModel.page)
+                }
+            }
+        ) {
 
-        LazyColumn(state = listState, modifier = Modifier.padding(horizontal = 24.dp)) {
-            items(posts) { post ->
-                TimelineItem(
-                    post, onTimelineCLick = {
-                        Screen.CRMScreen.title = "Timeline"
+            LazyColumn(state = listState, modifier = Modifier.padding(horizontal = 24.dp)) {
+                items(posts) { post ->
+                    TimelineItem(
+                        post, onTimelineCLick = {
+                            Screen.CRMScreen.title = "Timeline"
 //                        post.postType = "timelineCompany"
 //                        val postJson =
 //                            URLEncoder.encode(post.toJson(), StandardCharsets.UTF_8.toString())
-                        navController.navigate(
-                            Screen.CRMScreen.route
-                                .plus("?" + Screen.CRMScreen.objectName + "=${post.id}")
-                        )
-                    },
-                    onLikeClick = {
-                        likedPost = post
-                        if (post.isLiked == 1) {
-                            viewModel.addLike("0", post.id.toString())
-                        } else {
-                            viewModel.addLike("1", post.id.toString())
-                        }
-                    },
-                    onDeletePostClick = {
-                        deletedPost = post
-                        showDialog = true
-                    }, onPDFClick = {
-                        openPdfFile(context,AccountData.BASE_URL+it.image)
-                    })
-            }
-            if (info.pages != null && loadMore)
-                if (info.pages!! > viewModel.page) {
-                    item {
-                        if (posts.isNotEmpty()) {
-                            viewModel.viewModelScope.launch {
-                                delay(1000)
-                                loadMore = false
-                                viewModel.getPosts(++viewModel.page)
+                            navController.navigate(
+                                Screen.CRMScreen.route
+                                    .plus("?" + Screen.CRMScreen.objectName + "=${post.id}")
+                            )
+                        },
+                        onLikeClick = {
+                            likedPost = post
+                            if (post.isLiked == 1) {
+                                viewModel.addLike("0", post.id.toString())
+                            } else {
+                                viewModel.addLike("1", post.id.toString())
+                            }
+                        },
+                        onDeletePostClick = {
+                            deletedPost = post
+                            showDialog = true
+                        }, onPDFClick = {
+                            openPdfFile(context, AccountData.BASE_URL + it.image)
+                        })
+                }
+                if (info.pages != null && loadMore)
+                    if (info.pages!! > viewModel.page) {
+                        item {
+                            if (posts.isNotEmpty()) {
+                                viewModel.viewModelScope.launch {
+                                    delay(1000)
+                                    loadMore = false
+                                    viewModel.getPosts(++viewModel.page)
+                                }
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
                             }
                         }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
                     }
-                }
+            }
         }
     }
     DeletePostDialog(showDialog, onDismiss = {

@@ -245,4 +245,5 @@
     <string name="delayed">متأخر</string>
     <string name="view_pdf">رؤية الملف</string>
     <string name="no_app_found_to_open_pdf">No app found to open PDF</string>
+    <string name="pdf_document">PDF Document</string>
 </resources>

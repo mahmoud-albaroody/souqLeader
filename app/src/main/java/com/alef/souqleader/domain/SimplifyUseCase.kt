@@ -19,4 +19,5 @@ class SimplifyUseCase @Inject constructor(private val repository: ApiRepoImpl) {
             emit(repository.getClient(username))
         }.flowOn(Dispatchers.IO)
     }
+
 }

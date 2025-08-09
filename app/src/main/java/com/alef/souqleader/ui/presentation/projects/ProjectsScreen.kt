@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -51,8 +52,11 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.alef.souqleader.ui.presentation.projectFilterResult.ProjectFilterResultViewModel
 
 import com.alef.souqleader.ui.presentation.salesProfileReport.VerticalDivider
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 import kotlinx.coroutines.launch
 
@@ -63,11 +67,16 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
     val projects = remember { mutableStateListOf<Project>() }
     var projectResponse by remember { mutableStateOf(ProjectResponse()) }
     var isSort by remember { mutableStateOf(false) }
+    var refreshing by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = true) {
         viewModel.getProject(viewModel.page)
 
+
         viewModel.viewModelScope.launch {
             viewModel.stateListOfProjects.collect {
+                refreshing = false
                 if (it is Resource.Success) {
 
                     it.data?.let {
@@ -87,55 +96,12 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
                 } else if (it is Resource.DataError) {
                     mainViewModel.showLoader = false
                 }
-            }
-        }
-        viewModel.viewModelScope.launch {
-            viewModel.stateListOfProjects.collect {
-                if (it is Resource.Success) {
 
-                    it.data?.let {
-                        projectResponse = it
-                        if (it.info != null)
-                            info = it.info
-                        if (viewModel.page == 1) {
-                            projects.clear()
-                        }
-                        it.data?.let { it1 -> projects.addAll(it1) }
-
-                    }
-                    mainViewModel.showLoader = false
-                } else if (it is Resource.Loading) {
-                    if (viewModel.page == 1)
-                        mainViewModel.showLoader = true
-                } else if (it is Resource.DataError) {
-                    mainViewModel.showLoader = false
-                }
             }
         }
     }
-
-
-    Projects(projects, true, info, viewModel.page, onItemClick = {
-        viewModel.page = 1
-        projects.clear()
-        val projectJson = it.toJson()
-        navController.navigate(
-            Screen.ProjectsDetailsScreen
-                .route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "=${projectJson}")
-        )
-    },
-        onPage = {
-            if (isSort) {
-                if (projects.isNotEmpty()) {
-                    viewModel.projectSort(++viewModel.page)
-                }
-            } else {
-                if (projects.isNotEmpty()) {
-                    viewModel.getProject(++viewModel.page)
-                }
-            }
-        }, onMapClick = {
-
+    Column {
+        Filter(onMapClick = {
             val projectJson = projectResponse.toJson()
             navController.navigate(
                 Screen.MapScreen.route.plus(
@@ -149,6 +115,42 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
         }, onFilterClick = {
             navController.navigate(Screen.InventoryFilterScreen.route.plus("/${"Product"}"))
         })
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            onRefresh = {
+                refreshing = true
+                coroutineScope.launch {
+                    viewModel.page = 1
+                    projects.clear()
+                    viewModel.getProject(viewModel.page)
+                }
+            }
+        ) {
+            Projects(
+                projects, info, viewModel.page, false, false,
+                onItemClick = {
+                    viewModel.page = 1
+                    projects.clear()
+                    val projectJson = it.toJson()
+                    navController.navigate(
+                        Screen.ProjectsDetailsScreen
+                            .route.plus("?" + Screen.ProjectsDetailsScreen.objectName + "=${projectJson}")
+                    )
+                },
+                onPage = {
+                    if (isSort) {
+                        if (projects.isNotEmpty()) {
+                            viewModel.projectSort(++viewModel.page)
+                        }
+                    } else {
+                        if (projects.isNotEmpty()) {
+                            viewModel.getProject(++viewModel.page)
+                        }
+                    }
+                },
+            )
+        }
+    }
 //    PopupBox(150f, 150f, viewPopup, onClickOutside = {
 //
 //    }, content = {
@@ -158,28 +160,39 @@ fun ProjectsScreen(navController: NavController, modifier: Modifier, mainViewMod
 
 @Composable
 fun Projects(
-    projects: SnapshotStateList<Project>, showFilter: Boolean,
-    info: Info, page: Int, onPage: () -> Unit,
+    projects: SnapshotStateList<Project>,
+    info: Info, page: Int, isFilter: Boolean,
+    loadMore: Boolean,
+    projectFilterResultViewModel: ProjectFilterResultViewModel? = null, onPage: () -> Unit,
     onItemClick: (Project) -> Unit,
-    onMapClick: () -> Unit,
-    onSortClick: () -> Unit,
-    onFilterClick: () -> Unit
-) {
-    Column {
-        if (showFilter)
-            Filter(onMapClick = {
-                onMapClick()
-            }, onSortClick = {
-                onSortClick()
-            }, onFilterClick = {
-                onFilterClick()
-            })
-        LazyColumn(Modifier.padding(top = 8.dp)) {
-            items(projects) { item ->
-                ProjectsItem(item) { project ->
-                    onItemClick(project)
-                }
+
+    ) {
+
+    LazyColumn(Modifier.padding(top = 8.dp)) {
+        items(projects) { item ->
+            ProjectsItem(item) { project ->
+                onItemClick(project)
             }
+        }
+        if (isFilter) {
+            if (info.pages != null && loadMore)
+                if (info.pages >= projectFilterResultViewModel!!.page && projects.size > 10) {
+                    item {
+                        onPage()
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(16.dp),
+                                color = MaterialTheme.colorScheme.secondary,
+                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            )
+                        }
+                    }
+                }
+
+        } else {
             if (info.pages != null)
                 if (info.pages > page && projects.size > 10) {
                     item {
@@ -195,6 +208,7 @@ fun Projects(
                 }
         }
     }
+
 }
 
 
@@ -335,7 +349,7 @@ fun ProjectsItem(project: Project, onProjectClick: (Project) -> Unit) {
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(percent = 10))
                     )
-                }else{
+                } else {
                     Image(
                         painter = rememberAsyncImagePainter(
                             AccountData.BASE_URL + "images/default.jpg"

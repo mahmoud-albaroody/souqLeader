@@ -242,5 +242,6 @@
     <string name="delayed">Delayed</string>
     <string name="view_pdf">View PDF</string>
     <string name="no_app_found_to_open_pdf">No app found to open PDF</string>
+    <string name="pdf_document">PDF Document</string>
 
 </resources>

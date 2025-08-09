@@ -61,6 +61,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -104,6 +105,8 @@ import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.openPdfFile
 import com.alef.souqleader.ui.presentation.crmSystem.ImageSlider
 import com.alef.souqleader.ui.presentation.timeline.TimeLineViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -133,6 +136,8 @@ fun CompanyTimelineScreen(
     var likedPost by remember { mutableStateOf<Post?>(null) }
     val images = remember { mutableStateListOf<Uri>() }
     var isDataLoaded by rememberSaveable { mutableStateOf(false) }
+    var refreshing by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val listState = rememberLazyListState()
     //  val posts = mutableStateListOf<Post>()
@@ -227,6 +232,7 @@ fun CompanyTimelineScreen(
                         } else if (it is Resource.DataError) {
                             mainViewModel.showLoader = false
                         }
+                        refreshing = false
                     }
                 }
             }
@@ -267,63 +273,67 @@ fun CompanyTimelineScreen(
 
         },
             onPostClick = {
-                if(it.isEmpty()){
-                    Toast.makeText(context,
-                        context.getString(R.string.please_add_a_caption_to_your_post),Toast.LENGTH_LONG).show()
-                }else {
-                val imagesMulti: ArrayList<MultipartBody.Part> = arrayListOf()
+                if (it.isEmpty()) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.please_add_a_caption_to_your_post),
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    val imagesMulti: ArrayList<MultipartBody.Part> = arrayListOf()
 
-                if (images.isEmpty()) {
-                    val name: RequestBody = RequestBody.create(
-                        "text/plain".toMediaType(),
-                        it
-                    )
-                    viewModel.addPost(name, null)
-                }
-                else {
-                    images.forEach {
-                        val parcelFileDescriptor =
-                            context.contentResolver.openFileDescriptor(it, "r", null)
-                        parcelFileDescriptor?.let { pfd ->
-                            val inputStream = FileInputStream(pfd.fileDescriptor)
-                            val file = File(context.cacheDir, "temp_image_file_${System.currentTimeMillis()}")
-                            val outputStream = FileOutputStream(file)
-                            inputStream.copyTo(outputStream)
-
-                            // Close streams
-                            inputStream.close()
-                            outputStream.close()
-                            pfd.close()
-                            val type: String =
-                                if (context.contentResolver.getType(it) == "application/pdf") {
-                                    "application/pdf"
-                                } else {
-                                    "image/*"
-                                }
-
-                            val requestFile: RequestBody =
-                                RequestBody.create(type.toMediaType(), file)
-                            val imagePart =
-                                MultipartBody.Part.createFormData(
-                                    "images[]",
-                                    file.name,
-                                    requestFile
+                    if (images.isEmpty()) {
+                        val name: RequestBody = RequestBody.create(
+                            "text/plain".toMediaType(),
+                            it
+                        )
+                        viewModel.addPost(name, null)
+                    } else {
+                        images.forEach {
+                            val parcelFileDescriptor =
+                                context.contentResolver.openFileDescriptor(it, "r", null)
+                            parcelFileDescriptor?.let { pfd ->
+                                val inputStream = FileInputStream(pfd.fileDescriptor)
+                                val file = File(
+                                    context.cacheDir,
+                                    "temp_image_file_${System.currentTimeMillis()}"
                                 )
+                                val outputStream = FileOutputStream(file)
+                                inputStream.copyTo(outputStream)
 
-                            imagesMulti.add(imagePart)
+                                // Close streams
+                                inputStream.close()
+                                outputStream.close()
+                                pfd.close()
+                                val type: String =
+                                    if (context.contentResolver.getType(it) == "application/pdf") {
+                                        "application/pdf"
+                                    } else {
+                                        "image/*"
+                                    }
 
+                                val requestFile: RequestBody =
+                                    RequestBody.create(type.toMediaType(), file)
+                                val imagePart =
+                                    MultipartBody.Part.createFormData(
+                                        "images[]",
+                                        file.name,
+                                        requestFile
+                                    )
+
+                                imagesMulti.add(imagePart)
+
+                            }
                         }
+
+
+                        val name: RequestBody = RequestBody.create(
+                            "text/plain".toMediaType(),
+                            it
+                        )
+                        // Call the ViewModel's addPost function with the necessary parameters
+                        viewModel.addPost(name, imagesMulti)
                     }
-
-
-
-                    val name: RequestBody = RequestBody.create(
-                        "text/plain".toMediaType(),
-                        it
-                    )
-                    // Call the ViewModel's addPost function with the necessary parameters
-                    viewModel.addPost(name, imagesMulti)
-                }
                     visibleMeda = false
                 }
 //                imageUri?.let { uri ->
@@ -467,55 +477,68 @@ fun CompanyTimelineScreen(
                     .padding(horizontal = 36.dp),
                 text = vedioPath?.path.toString()
             )
-
-        LazyColumn(state = listState, modifier =
-        Modifier.fillMaxHeight().padding(horizontal = 24.dp)) {
-            items(posts) { post ->
-                TimelineItem(
-                    post, onTimelineCLick = {
-                        Screen.CRMScreen.title = "companyTimeline"
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            onRefresh = {
+                refreshing = true
+                coroutineScope.launch {
+                    posts.clear()
+                    viewModel.page = 1
+                    viewModel.getCompanyPost(viewModel.page)
+                }
+            }
+        ) {
+            LazyColumn(
+                state = listState, modifier =
+                Modifier.fillMaxHeight().padding(horizontal = 24.dp)
+            ) {
+                items(posts) { post ->
+                    TimelineItem(
+                        post, onTimelineCLick = {
+                            Screen.CRMScreen.title = "companyTimeline"
 //                        post.postType ="companyType"
 //                        val postJson = URLEncoder.encode(post.toJson(), StandardCharsets.UTF_8.toString())
-                        navController.navigate(
-                            Screen.CRMScreen.route
-                                .plus("?" + Screen.CRMScreen.objectName + "=${post.id}")
-                        )
-                    },
-                    onLikeClick = {
-                        likedPost = post
-                        if (post.isLiked == 1) {
-                            viewModel.addLike("0", post.id.toString())
-                        } else {
-                            viewModel.addLike("1", post.id.toString())
-                        }
-                    }, onPDFClick = {
-                        openPdfFile(context,AccountData.BASE_URL +it.image)
-                    })
-            }
+                            navController.navigate(
+                                Screen.CRMScreen.route
+                                    .plus("?" + Screen.CRMScreen.objectName + "=${post.id}")
+                            )
+                        },
+                        onLikeClick = {
+                            likedPost = post
+                            if (post.isLiked == 1) {
+                                viewModel.addLike("0", post.id.toString())
+                            } else {
+                                viewModel.addLike("1", post.id.toString())
+                            }
+                        }, onPDFClick = {
+                            openPdfFile(context, AccountData.BASE_URL + it.image)
+                        })
+                }
 
-            if (info.pages != null && loadMore)
-                if (info.pages!! > viewModel.page) {
+                if (info.pages != null && loadMore)
+                    if (info.pages!! > viewModel.page) {
 
-                    item {
-                        if (posts.isNotEmpty()) {
-                            viewModel.viewModelScope.launch {
-                                delay(1000)
-                                loadMore = false
-                                viewModel.getCompanyPost(++viewModel.page)
+                        item {
+                            if (posts.isNotEmpty()) {
+                                viewModel.viewModelScope.launch {
+                                    delay(1000)
+                                    loadMore = false
+                                    viewModel.getCompanyPost(++viewModel.page)
+                                }
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
                             }
                         }
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
                     }
-                }
+            }
         }
     }
 }

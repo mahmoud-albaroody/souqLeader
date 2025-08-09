@@ -62,7 +62,7 @@ fun ProductFilterResultScreen(
             viewModel.viewModelScope.launch {
                 viewModel.projectFilter.collect {
                     if (it is Resource.Success) {
-
+                        loadMore = true
                         it.data?.let {
                             projectResponse = it
 
@@ -114,7 +114,7 @@ fun ProductFilterResultScreen(
         }
     }
     if (projectFilterRequest?.type == "Product") {
-        Projects(projects, false, info, viewModel.page, onItemClick = {
+        Projects(projects, info, viewModel.page, true, loadMore, viewModel, onItemClick = {
             viewModel.page = 1
             projects.clear()
             val projectJson = it.toJson()
@@ -125,25 +125,19 @@ fun ProductFilterResultScreen(
         },
             onPage = {
                 viewModel.viewModelScope.launch {
-                    delay(2000)
-                    loadMore = false
+
                     projectFilterRequest.let {
+                        delay(2000)
+                        loadMore = false
                         viewModel.page++
                         viewModel.projectFilter(it)
                     }
                 }
 
-            }, onMapClick = {
-
-            }, onSortClick = {
-
-            }, onFilterClick = {
-
             })
     } else {
         Property(propertyResponse, properties, info,
-            viewPropertyModel, navController,
-            false, true, loadMore, viewModel, onPaging = {
+            viewPropertyModel, navController, true, loadMore, viewModel, onPage = {
                 viewModel.viewModelScope.launch {
                     delay(2000)
                     loadMore = false

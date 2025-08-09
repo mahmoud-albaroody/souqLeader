@@ -108,6 +108,8 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -127,6 +129,7 @@ fun AllLeadsScreen(
     val emailAddresses = remember { mutableStateListOf<Pair<String, String>>() }
     val savedSMSMessages = remember { mutableStateListOf<Pair<String, String>>() }
     val savedWhatsMessages = remember { mutableStateListOf<String>() }
+    var refreshing by remember { mutableStateOf(false) }
     val contactList = rememberSaveable(
         saver = listSaver(
             save = { it.toList() },
@@ -151,26 +154,8 @@ fun AllLeadsScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(key1 = true) {
-//        viewModel.prevMessages()
-//        viewModel.prevMails()
+
         mainViewModel.showMenuContact = true
-//        when (leadId) {
-//            "100" -> {
-//                viewModel.delayLeads()
-//            }
-//
-//            "200" -> {
-//                viewModel.duplicated()
-//            }
-//
-//            else -> {
-//                leadId?.let {
-//                    viewModel.getLeadByStatus(it)
-//                }
-//            }
-//        }
-
-
         viewModel.viewModelScope.launch {
             viewModel.stateListOfLeads.collect {
                 when (it) {
@@ -200,8 +185,10 @@ fun AllLeadsScreen(
 
                     is Resource.DataError -> {
                         mainViewModel.showLoader = false
+
                     }
                 }
+                refreshing = false
             }
         }
         viewModel.viewModelScope.launch {
@@ -308,7 +295,8 @@ fun AllLeadsScreen(
             }
         }
     ) {
-        AllLeadScreen(navController,
+        AllLeadScreen(
+            navController,
             mainViewModel,
             setKeyword = {
                 if (it.isEmpty()) {
@@ -345,6 +333,15 @@ fun AllLeadsScreen(
                     }
                 }
             },
+            onRefresh = {
+                viewModel.page = 1
+                refreshing = true
+                leads.clear()
+                leadId?.let {
+                    viewModel.getLeadByStatus(it)
+                }
+            },
+            refreshing = refreshing
         )
     }
     LaunchedEffect(key1 = Unit) {
@@ -445,8 +442,8 @@ fun AllLeadScreen(
     totalElementsCount: Int,
     isLoadMore: Boolean,
     loadMore: () -> Unit,
-
-
+    onRefresh: () -> Unit,
+    refreshing: Boolean
 ) {
     val selectedIdList = remember { mutableStateListOf<String>() }
     val coroutineScope = rememberCoroutineScope()
@@ -455,6 +452,7 @@ fun AllLeadScreen(
     val ctx = LocalContext.current
     var selectedLead by remember { mutableStateOf<Lead?>(null) }
     val messages = remember { mutableStateListOf<String>() }
+
     val socket = remember {
         WebSocketClient { msg ->
             messages.add(msg)
@@ -463,12 +461,12 @@ fun AllLeadScreen(
     LaunchedEffect(key1 = Unit) {
         coroutineScope.launch {
             mainViewModel.onSelectAllClick.collect { status ->
-                if(status) {
+                if (status) {
                     leads.forEachIndexed { index, lead ->
                         leads[index] = lead.copy(selected = true)
                         selectedIdList.add(lead.id.toString())
                     }
-                }else{
+                } else {
                     leads.forEachIndexed { index, lead ->
                         leads[index] = lead.copy(selected = false)
                     }
@@ -516,58 +514,65 @@ fun AllLeadScreen(
                     launchSingleTop = true
                 }
             })
-
-            LazyColumn(
-                Modifier.fillMaxWidth()
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing = refreshing),
+                onRefresh = {
+                    coroutineScope.launch {
+                        onRefresh()
+                    }
+                }
             ) {
-                items(leads, key = { it.id.toString() }) { leadItem ->
-                    AllLeadsItem(leadItem, onItemClick = { lead ->
-                        navController.navigate(
-                            Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
-                        )
+                LazyColumn(
+                    Modifier.fillMaxWidth()
+                ) {
+                    items(leads, key = { it.id.toString() }) { leadItem ->
+                        AllLeadsItem(leadItem, onItemClick = { lead ->
+                            navController.navigate(
+                                Screen.LeadDetailsScreen.route.plus("/${lead.id.toString()}")
+                            )
 
-                    }, onCheckedChange = { lead ->
-                        if (selectedIdList.find { it.toInt() == lead.id } == null) {
-                            selectedIdList.add(lead.id.toString())
-                            //    selectedPhoneList.add(lead.phone.toString())
-                        } else {
-                            selectedIdList.remove(lead.id.toString())
-                            //selectedPhoneList.remove(lead.phone.toString())
-                        }
-                    }, onCallClick = { lead ->
-                        socket.sendData(
-                            leadItem.id.toString(),
-                            "call",
-                            lead.sales_id.toString()
-                        )
-                        selectedLead = lead
-                        val u = Uri.parse(
-                            "tel:" + selectedLead?.phone.toString()
-                        )
+                        }, onCheckedChange = { lead ->
+                            if (selectedIdList.find { it.toInt() == lead.id } == null) {
+                                selectedIdList.add(lead.id.toString())
+                                //    selectedPhoneList.add(lead.phone.toString())
+                            } else {
+                                selectedIdList.remove(lead.id.toString())
+                                //selectedPhoneList.remove(lead.phone.toString())
+                            }
+                        }, onCallClick = { lead ->
+                            socket.sendData(
+                                leadItem.id.toString(),
+                                "call",
+                                lead.sales_id.toString()
+                            )
+                            selectedLead = lead
+                            val u = Uri.parse(
+                                "tel:" + selectedLead?.phone.toString()
+                            )
 
-                        // Create the intent and set the data for the
-                        // intent as the phone number.
-                        val i = Intent(Intent.ACTION_DIAL, u)
-                        try {
-                            // Launch the Phone app's dialer with a phone
-                            // number to dial a call.
-                            ctx.startActivity(i)
-                            mainViewModel.showDialog = true
-                        } catch (s: SecurityException) {
+                            // Create the intent and set the data for the
+                            // intent as the phone number.
+                            val i = Intent(Intent.ACTION_DIAL, u)
+                            try {
+                                // Launch the Phone app's dialer with a phone
+                                // number to dial a call.
+                                ctx.startActivity(i)
+                                mainViewModel.showDialog = true
+                            } catch (s: SecurityException) {
 
-                            // show() method display the toast with
-                            // exception message.
-                            Toast
-                                .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
-                                .show()
-                        }
+                                // show() method display the toast with
+                                // exception message.
+                                Toast
+                                    .makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                                    .show()
+                            }
 
-                    },
-                        onMailClick = { lead ->
+                        },
+                            onMailClick = { lead ->
 //                                contactList.add("+201012953520")
 //                                contactList.add("+201010079486")
-                            // sendSms(ctx, contactList, messageToSend)
-                            //     sendEmail(ctx, emailAddresses, "subject", "message")
+                                // sendSms(ctx, contactList, messageToSend)
+                                //     sendEmail(ctx, emailAddresses, "subject", "message")
 
 //                                if (contactList.isNotEmpty()) {
 //                                    val firstContact = contactList.first()
@@ -575,46 +580,46 @@ fun AllLeadScreen(
 //                                    isMessageSent = false
 //                                }
 
-                            socket.sendData(
-                                lead.id.toString(),
-                                "email",
-                                lead.sales_id.toString()
-                            )
-                        },
-                        onSmsClick = { lead ->
-                            socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
-                        },
-                        onWhatsClick = { lead ->
-                            socket.sendData(
-                                lead.id.toString(),
-                                "whatsapp",
-                                lead.sales_id.toString()
-                            )
-                        }
-                    )
-                }
-                if (isLoadMore)
-                    if (leads.size in 11..totalElementsCount) {
-                        item {
-                            mainViewModel.viewModelScope.launch {
-                                delay(2000)
-                                loadMore()
-                            }
-
-                            Row(
-                                Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.width(16.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                socket.sendData(
+                                    lead.id.toString(),
+                                    "email",
+                                    lead.sales_id.toString()
+                                )
+                            },
+                            onSmsClick = { lead ->
+                                socket.sendData(lead.id.toString(), "sms", lead.sales_id.toString())
+                            },
+                            onWhatsClick = { lead ->
+                                socket.sendData(
+                                    lead.id.toString(),
+                                    "whatsapp",
+                                    lead.sales_id.toString()
                                 )
                             }
-                        }
+                        )
                     }
-            }
+                    if (isLoadMore)
+                        if (leads.size in 11..totalElementsCount) {
+                            item {
+                                mainViewModel.viewModelScope.launch {
+                                    delay(2000)
+                                    loadMore()
+                                }
 
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.width(16.dp),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    )
+                                }
+                            }
+                        }
+                }
+            }
         }
         if (selectedIdList.isNotEmpty())
             Button(modifier = Modifier

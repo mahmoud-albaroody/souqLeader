@@ -476,7 +476,7 @@ fun CommentItem(comment: Comment, onRemoveComment: (Comment) -> Unit) {
 }
 
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
     val pagerState = rememberPagerState()
@@ -490,19 +490,7 @@ fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
                 .fillMaxWidth()
                 .height(200.dp)
         ) { page ->
-            if ((imageUrls[page].image?.contains("jpg") == true)) {
-                AsyncImage(
-                    model = AccountData.BASE_URL + imageUrls[page].image,
-                    contentDescription = "Slider Image",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            selectedImageUrl = AccountData.BASE_URL + imageUrls[page].image
-                        },
-                    contentScale = ContentScale.Crop
-                )
-            } else {
+            if ((imageUrls[page].image?.contains("pdf") == true)) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -514,7 +502,7 @@ fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
                             .weight(0.5f)
                     )
                     Text(
-                        text = "PDF Document",
+                        text = stringResource(R.string.pdf_document),
                         modifier = Modifier.padding(
                             horizontal = 14.dp,
                             vertical = 8.dp
@@ -532,7 +520,7 @@ fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
                         onClick = {
-                                  onPDFClick?.invoke(imageUrls[0])
+                            onPDFClick?.invoke(imageUrls[0])
                         }) {
                         Text(
                             text = stringResource(R.string.view_pdf), Modifier.padding(vertical = 4.dp),
@@ -542,6 +530,18 @@ fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
 
                 }
 
+            } else {
+                AsyncImage(
+                    model = AccountData.BASE_URL + imageUrls[page].image,
+                    contentDescription = "Slider Image",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            selectedImageUrl = AccountData.BASE_URL + imageUrls[page].image
+                        },
+                    contentScale = ContentScale.Crop
+                )
             }
         }
 

@@ -5,8 +5,8 @@
         <item name="exampleColor">@color/light_blue_400</item>
     </style>
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">#FF0171E3</item>
-        <item name="android:colorAccent">#FF0171E3</item>
+        <item name="colorAccent">#020F3C</item>
+        <item name="android:colorAccent">#020F3C</item>
 
     </style>
 

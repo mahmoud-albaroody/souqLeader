@@ -25,6 +25,12 @@ class LoginUseCase @Inject constructor(
             emit(repository.login(username, password))
         }.flowOn(Dispatchers.IO)
     }
+    suspend fun logout(): Flow<Resource<StatusResponse>> {
+        return flow {
+            emit(repository.logout())
+        }.flowOn(Dispatchers.IO)
+    }
+
     suspend fun getuserbytoken(): Flow<Resource<LoginResponse>> {
         return flow {
             emit(repository.getuserbytoken())
