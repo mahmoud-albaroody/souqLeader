@@ -334,12 +334,25 @@ fun AllLeadsScreen(
                 }
             },
             onRefresh = {
-                viewModel.page = 1
                 refreshing = true
                 leads.clear()
-                leadId?.let {
-                    viewModel.getLeadByStatus(it)
+                viewModel.page = 1
+                when (leadId) {
+                    "100" -> {
+                        viewModel.delayLeads()
+                    }
+
+                    "200" -> {
+                        viewModel.duplicated()
+                    }
+
+                    else -> {
+                        leadId?.let {
+                            viewModel.getLeadByStatus(it)
+                        }
+                    }
                 }
+
             },
             refreshing = refreshing
         )

@@ -97,5 +97,11 @@ class CompanyTimeLineViewModel @Inject constructor(
             _addLike.value = addLikeUseCase.addCompanyLike(like, postId).data!!
         }
     }
-
+    fun deletePost(
+        id: String
+    ) {
+        viewModelScope.launch(job) {
+            _addPosts.value = addPostUseCase.deleteCompanyPost(id).data!!
+        }
+    }
 }

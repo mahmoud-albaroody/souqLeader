@@ -446,6 +446,11 @@ interface APIs {
         @Path("id") id: String,
     ): Response<StatusResponse>
 
+    @DELETE("api/CompanyPost/{id}")
+    suspend fun deleteCompanyPost(
+        @Path("id") id: String,
+    ): Response<StatusResponse>
+
     @DELETE("api/comment/{id}")
     suspend fun deleteComment(
         @Path("id") id: String,

@@ -104,6 +104,7 @@ import com.alef.souqleader.ui.extention.toJson
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.openPdfFile
 import com.alef.souqleader.ui.presentation.crmSystem.ImageSlider
+import com.alef.souqleader.ui.presentation.timeline.DeletePostDialog
 import com.alef.souqleader.ui.presentation.timeline.TimeLineViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -140,6 +141,8 @@ fun CompanyTimelineScreen(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val listState = rememberLazyListState()
+    var deletedPost by remember { mutableStateOf<Post?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
     //  val posts = mutableStateListOf<Post>()
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -512,6 +515,9 @@ fun CompanyTimelineScreen(
                             }
                         }, onPDFClick = {
                             openPdfFile(context, AccountData.BASE_URL + it.image)
+                        }, onDeletePostClick = {
+                            deletedPost = post
+                            showDialog = true
                         })
                 }
 
@@ -541,6 +547,12 @@ fun CompanyTimelineScreen(
             }
         }
     }
+    DeletePostDialog(showDialog, onDismiss = {
+        showDialog = false
+    }, onConfirm = {
+        viewModel.deletePost(deletedPost?.id.toString())
+        showDialog = false
+    })
 }
 
 
@@ -704,6 +716,7 @@ fun MediaPost(
 
 @Composable
 fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Unit,
+                 onDeletePostClick: (Post) -> Unit,
                  onPDFClick:(Image)->Unit) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -731,81 +744,88 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                     .fillMaxWidth()
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box {
-                    Image(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box {
+                        Image(
+                            modifier = Modifier
+                                .size(45.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            painter = rememberAsyncImagePainter(
+                                if (post.user?.photo?.isNotEmpty() == true) {
+                                    AccountData.BASE_URL + post.user.photo
+                                } else {
+                                    R.drawable.user_profile_placehoder
+                                }
+                            ),
+                            contentDescription = ""
+                        )
+                        Image(
+                            modifier = Modifier.align(Alignment.BottomEnd)
+                                .size(10.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            painter = rememberAsyncImagePainter(
+                                if (post.user?.is_online == 1) {
+                                    R.drawable.ellipse_green
+                                } else {
+                                    R.drawable.ellipse_gray
+                                }
+                            ),
+                            contentDescription = ""
+                        )
+                    }
+
+                    Column(
                         modifier = Modifier
-                            .size(45.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                        painter = rememberAsyncImagePainter(
-                            if (post.user?.photo?.isNotEmpty() == true) {
-                                AccountData.BASE_URL + post.user.photo
-                            } else {
-                                R.drawable.user_profile_placehoder
-                            }
-                        ),
-                        contentDescription = ""
-                    )
-                    Image(
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                            .size(10.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                        painter = rememberAsyncImagePainter(
-                            if (post.user?.is_online==1) {
-                                R.drawable.ellipse_green
-                            } else {
-                                R.drawable.ellipse_gray
-                            }
-                        ),
-                        contentDescription = ""
-                    )
+                            .fillMaxWidth().wrapContentHeight()
+                            .padding(horizontal = 8.dp),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        post.user?.name?.let {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = it, fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        post.getDate()?.let {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = it,
+                                fontSize = 11.sp,
+                            )
+                        }
+                    }
                 }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth().wrapContentHeight()
-                        .padding(horizontal = 8.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    post.user?.name?.let {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = it, fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    post.getDate()?.let {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = it,
-                            fontSize = 11.sp,
-                        )
-                    }
-                }
+                if (post.tenant_id == AccountData.tenantId && AccountData.userId == post.user?.id)
+                    Image(
+                        painter = painterResource(R.drawable.icons8_delete),
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .weight(1f)
+                            .size(2.dp, 25.dp)
+                            .clip(RoundedCornerShape(percent = 10))
+                            .clickable {
+                                onDeletePostClick(post)
+                            }
+                    )
             }
 
             if(!post.images.isNullOrEmpty())
                 ImageSlider(post.images,onPDFClick = {
                     onPDFClick(it)
                 })
-//            Image(
-//                painter = rememberAsyncImagePainter(
-//                    if (post.images.isNotEmpty()) {
-//                        AccountData.BASE_URL + post.images[0].image
-//                    } else {
-//                        ""
-//                    }
-//                ),
-//                contentDescription = "",
-//                contentScale = ContentScale.FillWidth,
-//                modifier = Modifier
-//                    .height(screenHeight * 0.22f)
-//                    .fillMaxWidth()
-//                    .clip(RoundedCornerShape(percent = 10))
-//            )
+
             post.post?.let {
                 Text(
                     modifier = Modifier
