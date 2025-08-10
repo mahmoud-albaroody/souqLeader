@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.core.app.ActivityCompat
@@ -43,8 +44,11 @@ fun MyFirebaseMessagingService.sendNotification(messageBody: String?,title: Stri
         intent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
+    val largeIconBitmap = BitmapFactory.decodeResource(resources, R.drawable.souq_leader_logo_new_logo_same_size)
+
     val builder = NotificationCompat.Builder(this, channelId)
-        .setSmallIcon(R.drawable.ic_notification)
+        .setSmallIcon(R.drawable.souq_leader_logo_new_logo_same_size)
+        .setLargeIcon(largeIconBitmap)
         .setContentTitle(title)
         .setContentText(messageBody)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)

@@ -748,6 +748,7 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .weight(9.2f)
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -805,15 +806,15 @@ fun TimelineItem(post: Post, onTimelineCLick: () -> Unit, onLikeClick: () -> Uni
                         }
                     }
                 }
-
-                if (post.tenant_id == AccountData.tenantId && AccountData.userId == post.user?.id)
+                    Log.e("mmmmi",post.user_id.toString())
+                Log.e("mmmm",AccountData.userId.toString())
+                if (AccountData.userId == post.user_id)
                     Image(
                         painter = painterResource(R.drawable.icons8_delete),
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .weight(1f)
-                            .size(2.dp, 25.dp)
                             .clip(RoundedCornerShape(percent = 10))
                             .clickable {
                                 onDeletePostClick(post)

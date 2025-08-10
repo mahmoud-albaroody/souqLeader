@@ -27,6 +27,11 @@ class MainViewModel @Inject constructor() : ViewModel() {
     var showMenuContact by mutableStateOf(false)
     var isCall by mutableStateOf(true)
     var isGesturesEnabled by mutableStateOf(true)
+
+
+    var value1: String? by mutableStateOf(null)
+    var value2: String? by mutableStateOf(null)
+
     private val _onShareClick =
         MutableSharedFlow<Boolean>()
     val onShareClick: MutableSharedFlow<Boolean>

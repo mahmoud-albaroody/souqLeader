@@ -802,7 +802,6 @@ fun TimelineItem(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .weight(1f)
-                            .size(2.dp, 25.dp)
                             .clip(RoundedCornerShape(percent = 10))
                             .clickable {
 

@@ -78,13 +78,23 @@ class MainActivity : ComponentActivity() {
     var title: String? = null
     var body: String? = null
     private val deepLinkUri = mutableStateOf<Uri?>(null)
-    var value1 : String? = null
-    var value2 : String? = null
+    lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //  handleNotificationIntent(intent)
-        deepLinkUri.value = intent?.data
+        Log.e("mmmmm", intent.data.toString())
+        if(intent.extras==null){
+            deepLinkUri.value = intent?.data
+        }else{
+            intent.extras?.let {
+                viewModel.value1 = it.getString("page_name") // e.g., "report"
+                viewModel.value2 = it.getString("page_id")
+            }
+
+        }
+
+
 
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
@@ -100,7 +110,7 @@ class MainActivity : ComponentActivity() {
 
                 AccountData.firebase_token = token
             }
-      WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 //        window.statusBarColor = ContextCompat.getColor(this, R.color.red)// Replace with your color
 //
 //        // Optional: Set icon/text color (light or dark)
@@ -142,31 +152,9 @@ class MainActivity : ComponentActivity() {
         }
         updateLocale(this, Locale(AccountData.lang))
         setContent {
-            val navController = rememberNavController()
-            var hasNavigated by rememberSaveable { mutableStateOf(false) }
+             navController = rememberNavController()
 
-            // Perform navigation safely after composition
-//            LaunchedEffect(intent.extras) {
-//                if (!hasNavigated &&  intent.extras != null) {
-//
-//
-//                        intent.extras?.let {
-//                            value1 = it.getString("page_name") // e.g., "report"
-//                            value2 = it.getString("page_id")
-//
-//                            Log.e("DeeplinkData", "value1=$value1, value2=$value2")
-//                            navNotification(navController)
-//
-//                    }
-//                    hasNavigated = true
-//                }
-//            }
-
-            Start(navController =  navController)
-
-
-
-
+            Start(navController = navController)
 
             LaunchedEffect(deepLinkUri.value) {
                 deepLinkUri.value?.let { uri ->
@@ -182,30 +170,36 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        val uri = intent.data
+        if(intent.extras==null){
+            deepLinkUri.value = intent.data
+        }else{
+            intent.extras?.let {
+                viewModel.value1 = it.getString("page_name") // e.g., "report"
+                viewModel.value2 = it.getString("page_id")
+                if(viewModel.value1!=null) {
+                    navNotification(navController, viewModel.value1!!, viewModel.value2!!)
+                    viewModel.value1 = null
+                    viewModel.value2 = null
+                }
+            }
 
-        deepLinkUri.value = intent.data
-        Log.e("mmmmm",intent.data.toString())
-//        deepLinkUri.value?.let { uri ->
-//
-//            handleDeepLinkUri(navController, uri)
-//            deepLinkUri.value = null
-//        }
-        //handleNotificationIntent(intent)
+        }
+
+
 
     }
 
-     private fun handleDeepLinkUri(navController: NavController, uri: Uri) {
+    private fun handleDeepLinkUri(navController: NavController, uri: Uri) {
 
         if (uri.scheme == "myapp" && uri.host == "details") {
             val jsonData = uri.pathSegments.joinToString("/")
             jsonData.let {
                 try {
                     val jsonObject = JSONObject(it)
-                     value1 = jsonObject.getString("page_name")
-                     value2 = jsonObject.getString("page_id")
+                   val value1 = jsonObject.getString("page_name")
+                   val  value2 = jsonObject.getString("page_id")
                     Log.e("DeeplinkData", "value1=$value1, value2=$value2")
-                    navNotification(navController)
+                    navNotification(navController,value1,value2)
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
@@ -213,38 +207,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun navNotification(navController: NavController) {
-        when (value1) {
-            "lead-view" -> {
-                navController.navigate(
-                    Screen.LeadDetailsScreen.route.plus("/$value2")
-                )
-            }
 
-            "post" -> {
-                Screen.CRMScreen.title = "Timeline"
-                navController.navigate(
-                    Screen.CRMScreen.route
-                        .plus("?" + Screen.CRMScreen.objectName + "=${value2}")
-                )
-            }
 
-            else -> {
-                Screen.CRMScreen.title = "companyTimeline"
-                navController.navigate(
-                    Screen.CRMScreen.route
-                        .plus("?" + Screen.CRMScreen.objectName + "=${value2}")
-                )
-            }
-        }
-    }
-
-    //    private fun handleNotificationIntent(intent: Intent?) {
-//         title = intent?.getStringExtra("notification_title")
-//         body = intent?.getStringExtra("notification_body")
-//         dataJson = intent?.getStringExtra("custom_data")
-//
-//    }
     private val requestPermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val granted = permissions.entries.all { it.value }
@@ -276,7 +240,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Start(splash: String? = null,navController: NavHostController) {
+fun Start(splash: String? = null, navController: NavHostController) {
     val mainViewModel: MainViewModel = hiltViewModel()
     val viewModel: SharedViewModel = hiltViewModel()
     val ctx = LocalContext.current
@@ -334,8 +298,7 @@ fun Start(splash: String? = null,navController: NavHostController) {
                                     isVisible = true
                                 })
 
-                        }
-                        else {
+                        } else {
                             CustomModalDrawer(
                                 modifier, navController, viewModel,
                                 SnapshotStateList(), mainViewModel

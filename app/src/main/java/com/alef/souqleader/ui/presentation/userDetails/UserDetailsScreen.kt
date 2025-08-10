@@ -1,6 +1,7 @@
 package com.alef.souqleader.ui.presentation.userDetails
 
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -466,7 +467,8 @@ fun ActivityItem(actions: SalesReportModel, type: String) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                if (type == "activity") {
+
+                if (type == "Activities") {
                     actions.name?.let {
                         Text(
                             modifier = Modifier.wrapContentWidth(),

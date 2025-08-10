@@ -168,7 +168,9 @@ fun CustomModalDrawer(
     allLead.add(AllLeadStatus(title_en = "Duplicated", title_ar = "مكرر", id = 200))
     allLead.add(AllLeadStatus(title_en = "No Answer", title_ar = "بدون رد", id = 3))
     allLead.add(AllLeadStatus(title_en = "Answer Leads", title_ar = "تم الرد", id = 12))
-    allLead.add(AllLeadStatus(title_en = "Reservation/Requests", title_ar = "الحجز/الطلبات", id = 22))
+    allLead.add(AllLeadStatus(title_en = "Reservation", title_ar = "الحجز", id = 11))
+    allLead.add(AllLeadStatus(title_en = "Requests", title_ar = "الطلبات", id = 13))
+
     allLead.add(AllLeadStatus(title_en = "Arrange Meeting", title_ar = "ترتيب اجتماعات", id = 6))
     allLead.add(AllLeadStatus(title_en = "Current Meetings", title_ar = "اجتماعات حاليه", id = 4))
     allLead.add(AllLeadStatus(title_en = "Following After Meeting", title_ar = "متابعة بعد الاجتماع", id = 5))

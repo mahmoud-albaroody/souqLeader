@@ -32,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -52,6 +53,7 @@ import com.alef.souqleader.data.remote.dto.AllLeadStatus
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
+import com.alef.souqleader.ui.navNotification
 import com.alef.souqleader.ui.navigation.Navigation1
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
@@ -81,8 +83,12 @@ fun DashboardScreen(
         sharedViewModel.updateSalesNameState(AccountData.role_name)
         sharedViewModel.updatePhotoState(AccountData.photo)
         sharedViewModel.updateNameState(AccountData.name)
-
-        viewModel.getLeads()
+        if(mainViewModel.value1!=null) {
+            navNotification(navController, mainViewModel.value1!!, mainViewModel.value2!!)
+            mainViewModel.value1 = null
+            mainViewModel.value2 = null
+        }
+            viewModel.getLeads()
 
         viewModel.viewModelScope.launch {
             viewModel.allLead.collect {
@@ -172,8 +178,9 @@ fun MyCardItem(
         } else {
             Brush.verticalGradient(
                 colors = listOf(
-                    colorResource(id = R.color.blue1),
-                    colorResource(id = R.color.blue2)
+                    colorResource(id = R.color.blue2),
+                    Color(0xFF0526A0)
+
                 ),
                 startY = 0f,
                 endY = 450f

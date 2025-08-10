@@ -55,42 +55,48 @@ fun getCreatedAt1(created_at: String): String {
 
 
 fun getCreatedAt(timestamp: String): String {
-    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
-        .withZone(ZoneOffset.UTC)
+    val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneOffset.UTC)
 
     val timeUtc = ZonedDateTime.parse(timestamp, inputFormatter)
     val nowUtc = ZonedDateTime.now(ZoneOffset.UTC)
+
     val zoneId = ZoneId.of("Africa/Cairo")
     val time = timeUtc.withZoneSameInstant(zoneId)
     val now = nowUtc.withZoneSameInstant(zoneId)
 
-    val minutes = ChronoUnit.MINUTES.between(time, now)
-    val hours = ChronoUnit.HOURS.between(time, now)
-    val days = ChronoUnit.DAYS.between(time, now)
+    val totalMinutes = ChronoUnit.MINUTES.between(time, now)
+    val totalHours = ChronoUnit.HOURS.between(time, now)
+    val totalDays = ChronoUnit.DAYS.between(time, now)
 
     return when {
-        minutes < 1 -> "Just now"
-        minutes < 60 -> "$minutes minutes ago"
-        hours < 24 -> "$hours hours ago"
-        days >= 2 -> {
+        totalMinutes < 1 -> "Just now"
+        totalMinutes < 60 -> "$totalMinutes minutes ago"
+        totalHours < 24 -> "$totalHours hours ago"
+        totalDays >= 2 -> {
+            // If you want "X days ago" instead of a fixed date:
+            // "$totalDays days ago"
             val dateFormat = DateTimeFormatter.ofPattern("dd MMM yyyy 'at' h:mm a", Locale.ENGLISH)
             time.format(dateFormat)
         }
         else -> {
             if (AccountData.lang == "en") {
+                val hours = totalHours % 24
+                val minutes = totalMinutes % 60
                 when {
-                    days == 0L -> "$hours hour${if (hours != 1L) "s" else ""} and $minutes minute${if (minutes != 1L) "s" else ""} ago"
+                    totalDays == 0L -> "$hours hour${if (hours != 1L) "s" else ""} and $minutes minute${if (minutes != 1L) "s" else ""} ago"
                     hours == 0L -> "$minutes minute${if (minutes != 1L) "s" else ""} ago"
-                    else -> "$days day${if (days != 1L) "s" else ""} and $hours hour${if (hours != 1L) "s" else ""} and $minutes minute${if (minutes != 1L) "s" else ""} ago"
+                    else -> "$totalDays day${if (totalDays != 1L) "s" else ""} and $hours hour${if (hours != 1L) "s" else ""} and $minutes minute${if (minutes != 1L) "s" else ""} ago"
                 }
             } else {
-                // Arabic
+                val hours = totalHours % 24
+                val minutes = totalMinutes % 60
                 when {
-                    days == 0L -> "$hours ساعة و $minutes دقيقة مضت"
+                    totalDays == 0L -> "$hours ساعة و $minutes دقيقة مضت"
                     hours == 0L -> "$minutes دقيقة مضت"
-                    else -> "$days يوم و $hours ساعة و $minutes دقيقة مضت"
+                    else -> "$totalDays يوم و $hours ساعة و $minutes دقيقة مضت"
                 }
             }
         }
     }
 }
+

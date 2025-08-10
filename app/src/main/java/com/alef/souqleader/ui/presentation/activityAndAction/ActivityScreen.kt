@@ -67,7 +67,7 @@ fun ActivityScreen(navController: NavController, userId: String?, mainViewModel:
                         userData.activities?.forEach { activity ->
                             activitiesSales.add(
                                 SalesReportModel(
-                                    time = activity.created_at,
+                                    time = activity.getDate(),
                                     image = activity.activity_by?.photo,
                                     name = activity.activity_by?.name,
                                     action = activity.getDescriptions()
