@@ -119,18 +119,18 @@ fun AppBarWithArrow(
                             }
                         }
                 )
-                Image(
-                    painter = painterResource(R.drawable.message_text1),
-                    colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .clickable {
-                            mainViewModel.viewModelScope.launch {
-                                mainViewModel.onSmsMailClick.emit(true)
-                            }
-                        }
-                )
+//                Image(
+//                    painter = painterResource(R.drawable.message_text1),
+//                    colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .align(Alignment.CenterVertically)
+//                        .clickable {
+//                            mainViewModel.viewModelScope.launch {
+//                                mainViewModel.onSmsMailClick.emit(true)
+//                            }
+//                        }
+//                )
                 Image(
                     painter = painterResource(R.drawable.icons8_whatsapp),
                     colorFilter = ColorFilter.tint(colorResource(id = R.color.white)),
