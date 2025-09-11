@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -139,6 +140,9 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     var isDataLoaded by rememberSaveable { mutableStateOf(false) }
     var refreshing by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    var isUploading by remember { mutableStateOf(false) }
+    var uploadResult by remember { mutableStateOf<String?>(null) }
+
     //  val posts = mutableStateListOf<Post>()
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -238,12 +242,14 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     } else if (it is Resource.DataError) {
                         mainViewModel.showLoader = false
                     }
-                    refreshing = false
+
                 }
             }
         }
 
         viewModel.addPosts.observe(context as MainActivity) {
+            isUploading = false
+            uploadResult = "تم رفع الملف بنجاح ✅"
             if (it.status) {
                 viewModel.page = 1
                 viewModel.getPosts(viewModel.page)
@@ -251,7 +257,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
             }
         }
-        viewModel.deletePost.observe(context as MainActivity) {
+        viewModel.deletePost.observe(context) {
             if (it.status) {
             } else {
                 Toast.makeText(context, it.message.toString(), Toast.LENGTH_LONG).show()
@@ -276,23 +282,22 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
     }
 
 
-
-
-
-
     Column {
         WriteTextPost(onSelectImage = {
             launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 
         },
             onPostClick = {
+                isUploading = true
+                uploadResult = null
                 if (it.isEmpty()) {
                     Toast.makeText(
                         context,
                         context.getString(R.string.please_add_a_caption_to_your_post),
                         Toast.LENGTH_LONG
                     ).show()
-                } else {
+                }
+                else {
                     val imagesMultipart: ArrayList<MultipartBody.Part> = arrayListOf()
                     // if(imageUri==null)
                     if (images.isEmpty()) {
@@ -318,19 +323,29 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                                 inputStream.close()
                                 outputStream.close()
                                 pfd.close()
+
+                                val fileExtension: String =
+                                    if (context.contentResolver.getType(it) == "application/pdf") {
+                                        ".pdf"
+
+                                    } else {
+                                        ".jpg"
+                                    }
                                 val type: String =
                                     if (context.contentResolver.getType(it) == "application/pdf") {
                                         "application/pdf"
 
                                     } else {
-                                        "image/*"
+                                        "image/jpeg"
                                     }
+
+
                                 val requestFile: RequestBody =
                                     RequestBody.create(type.toMediaType(), file)
                                 val imagePart =
                                     MultipartBody.Part.createFormData(
                                         "images[]",
-                                        file.name,
+                                        file.name + fileExtension,
                                         requestFile
                                     )
 
@@ -349,6 +364,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
 
                     visibleMeda = false
                 }
+
+
             },
             onOpenCamera = {
                 if (ContextCompat.checkSelfPermission(
@@ -390,7 +407,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                 pickVedioLauncher.launch(
                     PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.VideoOnly)
                 )
-            }, onPDFClick = {
+            },
+            onPDFClick = {
                 pdfLauncher.launch(arrayOf("application/pdf")) // Allow PDF only
             }
         )
@@ -475,10 +493,10 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     posts.clear()
                     viewModel.page = 1
                     viewModel.getPosts(viewModel.page)
+                    refreshing = false
                 }
             }
         ) {
-
             LazyColumn(state = listState, modifier = Modifier.padding(horizontal = 24.dp)) {
                 items(posts) { post ->
                     TimelineItem(
@@ -531,6 +549,37 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     }
             }
         }
+    }
+    if (isUploading) {
+        // Dialog Loader
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {},
+//            title = { Text("جاري رفع الملف...") },
+            text = {
+                Column (Modifier.fillMaxWidth()){
+                    Row(Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(stringResource(R.string.uploading))
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        CircularProgressIndicator()
+//                        Spacer(modifier = Modifier.width(16.dp))
+//                        Text(stringResource(R.string.waiting))
+                    }
+                }
+
+            }
+        )
     }
     DeletePostDialog(showDialog, onDismiss = {
         showDialog = false
@@ -809,6 +858,20 @@ fun TimelineItem(
                             }
                     )
             }
+            post.post?.let {
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .padding(horizontal = 16.dp),
+                    text = it,
+                    style = TextStyle(
+                        color = colorResource(id = R.color.blue),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+
 
             if (!post.images.isNullOrEmpty())
 
@@ -830,19 +893,7 @@ fun TimelineItem(
 //                        .fillMaxWidth()
 //                        .clip(RoundedCornerShape(percent = 10))
 //                )
-            post.post?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .padding(horizontal = 16.dp),
-                    text = it,
-                    style = TextStyle(
-                        color = colorResource(id = R.color.blue),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
+
 
 
             Row(

@@ -246,4 +246,7 @@
     <string name="view_pdf">رؤية الملف</string>
     <string name="no_app_found_to_open_pdf">No app found to open PDF</string>
     <string name="pdf_document">PDF Document</string>
+    <string name="no_results_found">No results found</string>
+    <string name="waiting">انتظر قليلاً</string>
+    <string name="uploading">جاري رفع الملف</string>
 </resources>

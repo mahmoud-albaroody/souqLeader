@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,6 +80,7 @@ import com.alef.souqleader.data.remote.dto.User
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.navigation.currentRoute
+import com.alef.souqleader.ui.openPdfFile
 import com.alef.souqleader.ui.presentation.timeline.DeletePostDialog
 import com.alef.souqleader.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -94,7 +96,6 @@ fun CRMScreen(navController: NavController, modifier: Modifier, postId: String) 
     val commentList = remember { mutableStateListOf<Comment>() }
     var comment by remember { mutableStateOf("") }
     var post by remember { mutableStateOf<Post?>(null) }
-
     var commentObject by remember { mutableStateOf<Comment?>(null) }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -194,6 +195,7 @@ fun CRMScreenItem(
 
     val corroutineScope = rememberCoroutineScope()
     val visibleSlider by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
 
     Box(
@@ -214,7 +216,9 @@ fun CRMScreenItem(
                     .fillMaxWidth()
             ) {
                 if (!post.images.isNullOrEmpty())
-                    ImageSlider(post.images)
+                    ImageSlider(post.images,onPDFClick = {
+                        openPdfFile(context, AccountData.BASE_URL + it.image)
+                    })
 //                Image(
 //                    painter = rememberAsyncImagePainter(
 //                        if (post.images.isNotEmpty()) {
@@ -347,7 +351,9 @@ fun CRMScreenItem(
             }
         }
         if (visibleSlider) {
-            post.images?.let { ImageSlider(it) }
+            post.images?.let { ImageSlider(it,onPDFClick = {
+                openPdfFile(context, AccountData.BASE_URL + it.image)
+            }) }
         }
     }
     SideEffect {
@@ -520,7 +526,7 @@ fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(colorResource(id = R.color.blue2)),
                         onClick = {
-                            onPDFClick?.invoke(imageUrls[0])
+                            onPDFClick?.invoke(imageUrls[page])
                         }) {
                         Text(
                             text = stringResource(R.string.view_pdf), Modifier.padding(vertical = 4.dp),
@@ -530,7 +536,8 @@ fun ImageSlider(imageUrls: List<Image>,onPDFClick: ((Image) -> Unit)? = null) {
 
                 }
 
-            } else {
+            }
+            else {
                 AsyncImage(
                     model = AccountData.BASE_URL + imageUrls[page].image,
                     contentDescription = "Slider Image",

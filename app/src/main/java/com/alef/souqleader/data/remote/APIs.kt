@@ -199,7 +199,7 @@ interface APIs {
     @POST("api/userByToken")
     suspend fun getuserbytoken(): Response<LoginResponse>
 
-    @GET("superadmin/api/getClient/{name}")
+    @GET("api/getClient/{name}")
     suspend fun getClient(@Path("name") name: String): Response<GetClientResponse>
 
     @POST("api/logout")

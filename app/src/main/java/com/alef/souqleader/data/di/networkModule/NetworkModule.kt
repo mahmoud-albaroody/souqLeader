@@ -2,10 +2,14 @@ package com.alef.souqleader.data.di.networkModule
 
 import android.content.Context
 import android.util.Log
+import androidx.multidex.BuildConfig
 import com.alef.souqleader.ui.SouqLeaderApp
 import com.alef.souqleader.data.remote.APIs
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.constants.Constants.BASE_URL
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.chuckerteam.chucker.api.RetentionManager
 
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -99,10 +103,10 @@ class NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        headerInterceptor: HttpLoggingInterceptor, interceptor: Interceptor,
-        cache: Cache,baseUrlInterceptor: BaseUrlInterceptor
+        httpLoggingInterceptor: HttpLoggingInterceptor, interceptor: Interceptor,
+        cache: Cache,baseUrlInterceptor: BaseUrlInterceptor,@ApplicationContext context: Context
     ): OkHttpClient {
-        headerInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         val header = HttpLoggingInterceptor()
         header.apply { header.level = HttpLoggingInterceptor.Level.HEADERS }
         val okHttpClientBuilder = OkHttpClient().newBuilder()
@@ -111,7 +115,7 @@ class NetworkModule {
         okHttpClientBuilder.writeTimeout(WRITE_TIMEOUT.toLong(), TimeUnit.SECONDS)
         okHttpClientBuilder.cache(cache)
         okHttpClientBuilder.addInterceptor(baseUrlInterceptor)
-        okHttpClientBuilder.addInterceptor(headerInterceptor)
+        okHttpClientBuilder.addInterceptor(httpLoggingInterceptor)
         okHttpClientBuilder.addInterceptor(interceptor)
 
         return okHttpClientBuilder.build()

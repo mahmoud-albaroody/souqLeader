@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -152,59 +153,61 @@ fun Property(
     projectFilterResultViewModel: ProjectFilterResultViewModel? = null,
     onPage: () -> Unit
 ) {
+    if(properties.isEmpty() && viewModel.page==1) {
+        Text(text = stringResource(R.string.no_results_found))
+    }
+    else {
+        LazyColumn(Modifier.padding(top = 8.dp)) {
+            items(properties) {
+                PropertyItem(it) { property ->
 
+                    val propertyJson = property.toJson()
+                    navController.navigate(
+                        Screen.PropertyDetailsScreen.route
+                            .plus("?" + Screen.PropertyDetailsScreen.objectName + "=${propertyJson}")
+                    )
+                    viewModel.page = 1
 
-    LazyColumn(Modifier.padding(top = 8.dp)) {
-        items(properties) {
-            PropertyItem(it) { property ->
+                }
+            }
+            if (isFilter) {
+                if (info.pages != null && loadMore)
+                    if (info.pages >= projectFilterResultViewModel!!.page && properties.size > 10) {
+                        item {
+                            onPage()
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
 
-                val propertyJson = property.toJson()
-                navController.navigate(
-                    Screen.PropertyDetailsScreen.route
-                        .plus("?" + Screen.PropertyDetailsScreen.objectName + "=${propertyJson}")
-                )
-                viewModel.page = 1
-
+            } else {
+                if (info.pages != null)
+                    if (info.pages > viewModel.page && properties.size > 10) {
+                        item {
+                            onPage()
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
             }
         }
-        if (isFilter) {
-            if (info.pages != null && loadMore)
-                if (info.pages >= projectFilterResultViewModel!!.page && properties.size > 10) {
-                    item {
-                        onPage()
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
-                    }
-                }
-
-        } else {
-            if (info.pages != null)
-                if (info.pages > viewModel.page && properties.size > 10) {
-                    item {
-                        onPage()
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
-                    }
-                }
-        }
     }
-
 }
 
 

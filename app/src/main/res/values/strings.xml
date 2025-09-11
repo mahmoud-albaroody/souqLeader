@@ -103,14 +103,14 @@
     <string name="communication_way">Communication Way</string>
     <string name="marketer">Marketer</string>
     <string name="sales_rep">Sales Rep</string>
-    <string name="campaign_id">Campaign ID</string>
-    <string name="the_name_is_required">The name is required</string>
-    <string name="the_phone_is_required">The phone is required</string>
-    <string name="the_channel_is_required">The channel is required</string>
+    <string name="campaign_id">Campaign</string>
+    <string name="the_name_is_required">Name is required</string>
+    <string name="the_phone_is_required">Phone is required</string>
+    <string name="the_channel_is_required">Channel is required</string>
     <string name="cancel_reason">Cancel Reason</string>
-    <string name="the_marketer_id_is_required">The marketer id is required</string>
+    <string name="the_marketer_id_is_required">Marketer id is required</string>
     <string name="note">Note</string>
-    <string name="the_sales_id_is_required">The sales id is required</string>
+    <string name="the_sales_id_is_required">Salesperson is required</string>
     <string name="select_image">Select image</string>
     <string name="write_your_post">Write your post</string>
     <string name="sort_by">Sort By: Price ↑</string>
@@ -243,5 +243,8 @@
     <string name="view_pdf">View PDF</string>
     <string name="no_app_found_to_open_pdf">No app found to open PDF</string>
     <string name="pdf_document">PDF Document</string>
+    <string name="no_results_found">No results found</string>
+    <string name="waiting">Waiting</string>
+    <string name="uploading">Uploading</string>
 
 </resources>

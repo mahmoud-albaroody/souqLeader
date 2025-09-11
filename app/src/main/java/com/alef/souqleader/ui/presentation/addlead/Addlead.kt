@@ -160,16 +160,18 @@ fun AddLeadScreen(
                         Toast.makeText(context, it.data?.message.toString(), Toast.LENGTH_LONG)
                             .show()
                         mainViewModel.showLoader = false
-                        if(leadAdded?.is_fresh == 1){
-                            Screen.AllLeadsScreen.title =  context.getString(R.string.fresh)
-                            navController.navigate(
-                                Screen.AllLeadsScreen.route.plus("/${1}")
-                            )
-                        }else {
-                            Screen.AllLeadsScreen.title =  context.getString(R.string.cold)
-                            navController.navigate(
-                                Screen.AllLeadsScreen.route.plus("/${2}")
-                            )
+                        if(it.data?.status==true) {
+                            if (leadAdded?.is_fresh == 1) {
+                                Screen.AllLeadsScreen.title = context.getString(R.string.fresh)
+                                navController.navigate(
+                                    Screen.AllLeadsScreen.route.plus("/${1}")
+                                )
+                            } else {
+                                Screen.AllLeadsScreen.title = context.getString(R.string.cold)
+                                navController.navigate(
+                                    Screen.AllLeadsScreen.route.plus("/${2}")
+                                )
+                            }
                         }
                     }
 

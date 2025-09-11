@@ -126,17 +126,24 @@ fun FilterResultScreen(
             }
         }
     }
-    Screen(navController, lead, page, loadMore = {
-        Log.e("mmmm",budgetFrom.toString())
-        viewModel.leadsFilter(
-            FilterRequest(
-                status = status,
-                project = project, communication_way = communicationWay,
-                channel = channel, budget_from = budgetFrom, budget_to = budgetTo, page = ++page,
-                searchField = name
+    if (lead.data.isNullOrEmpty() && page == 1) {
+        Text(text = stringResource(R.string.no_results_found))
+    }else {
+        Screen(navController, lead, page, loadMore = {
+            viewModel.leadsFilter(
+                FilterRequest(
+                    status = status,
+                    project = project,
+                    communication_way = communicationWay,
+                    channel = channel,
+                    budget_from = budgetFrom,
+                    budget_to = budgetTo,
+                    page = ++page,
+                    searchField = name
+                )
             )
-        )
-    })
+        })
+    }
 
 }
 

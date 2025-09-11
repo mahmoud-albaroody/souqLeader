@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,6 +41,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Delete
@@ -143,6 +145,9 @@ fun CompanyTimelineScreen(
     val listState = rememberLazyListState()
     var deletedPost by remember { mutableStateOf<Post?>(null) }
     var showDialog by remember { mutableStateOf(false) }
+
+    var isUploading by remember { mutableStateOf(false) }
+    var uploadResult by remember { mutableStateOf<String?>(null) }
     //  val posts = mutableStateListOf<Post>()
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -235,12 +240,14 @@ fun CompanyTimelineScreen(
                         } else if (it is Resource.DataError) {
                             mainViewModel.showLoader = false
                         }
-                        refreshing = false
+
                     }
                 }
             }
 
         viewModel.addPosts.observe(context as MainActivity) {
+            isUploading = false
+            uploadResult = "تم رفع الملف بنجاح ✅"
             if (it.status) {
                 viewModel.page = 1
                 viewModel.getCompanyPost(viewModel.page)
@@ -276,13 +283,16 @@ fun CompanyTimelineScreen(
 
         },
             onPostClick = {
+                isUploading = true
+                uploadResult = null
                 if (it.isEmpty()) {
                     Toast.makeText(
                         context,
                         context.getString(R.string.please_add_a_caption_to_your_post),
                         Toast.LENGTH_LONG
                     ).show()
-                } else {
+                }
+                else {
                     val imagesMulti: ArrayList<MultipartBody.Part> = arrayListOf()
 
                     if (images.isEmpty()) {
@@ -308,19 +318,28 @@ fun CompanyTimelineScreen(
                                 inputStream.close()
                                 outputStream.close()
                                 pfd.close()
+                                val fileExtension: String =
+                                    if (context.contentResolver.getType(it) == "application/pdf") {
+                                        ".pdf"
+
+                                    } else {
+                                        ".jpg"
+                                    }
                                 val type: String =
                                     if (context.contentResolver.getType(it) == "application/pdf") {
                                         "application/pdf"
+
                                     } else {
-                                        "image/*"
+                                        "image/jpeg"
                                     }
+
 
                                 val requestFile: RequestBody =
                                     RequestBody.create(type.toMediaType(), file)
                                 val imagePart =
                                     MultipartBody.Part.createFormData(
                                         "images[]",
-                                        file.name,
+                                        file.name + fileExtension,
                                         requestFile
                                     )
 
@@ -488,6 +507,7 @@ fun CompanyTimelineScreen(
                     posts.clear()
                     viewModel.page = 1
                     viewModel.getCompanyPost(viewModel.page)
+                    refreshing = false
                 }
             }
         ) {
@@ -546,6 +566,37 @@ fun CompanyTimelineScreen(
                     }
             }
         }
+    }
+    if (isUploading) {
+        // Dialog Loader
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = {},
+//            title = { Text("جاري رفع الملف...") },
+            text = {
+                Column (Modifier.fillMaxWidth()){
+                    Row(Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(stringResource(R.string.uploading))
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        CircularProgressIndicator()
+//                        Spacer(modifier = Modifier.width(16.dp))
+//                        Text(stringResource(R.string.waiting))
+                    }
+                }
+
+            }
+        )
     }
     DeletePostDialog(showDialog, onDismiss = {
         showDialog = false

@@ -167,48 +167,53 @@ fun Projects(
     onItemClick: (Project) -> Unit,
 
     ) {
+    if (projects.isEmpty() && projectFilterResultViewModel?.page == 1) {
+        Text(text = stringResource(R.string.no_results_found))
+    } else {
+        LazyColumn(Modifier.padding(top = 8.dp)) {
+            items(projects) { item ->
+                ProjectsItem(item) { project ->
+                    onItemClick(project)
+                }
+            }
+            if (isFilter) {
+                if (info.pages != null && loadMore)
+                    if (info.pages >= projectFilterResultViewModel!!.page && projects.size > 10) {
+                        item {
+                            onPage()
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
 
-    LazyColumn(Modifier.padding(top = 8.dp)) {
-        items(projects) { item ->
-            ProjectsItem(item) { project ->
-                onItemClick(project)
+            } else {
+                if (info.pages != null)
+                    if (info.pages > page && projects.size > 10) {
+                        item {
+                            onPage()
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.width(16.dp),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                )
+                            }
+                        }
+                    }
             }
         }
-        if (isFilter) {
-            if (info.pages != null && loadMore)
-                if (info.pages >= projectFilterResultViewModel!!.page && projects.size > 10) {
-                    item {
-                        onPage()
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
-                    }
-                }
-
-        } else {
-            if (info.pages != null)
-                if (info.pages > page && projects.size > 10) {
-                    item {
-                        onPage()
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.width(16.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                        }
-                    }
-                }
-        }
     }
-
 }
 
 

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -135,7 +136,9 @@ fun ProductFilterResultScreen(
                 }
 
             })
-    } else {
+    }
+    else {
+
         Property(propertyResponse, properties, info,
             viewPropertyModel, navController, true, loadMore, viewModel, onPage = {
                 viewModel.viewModelScope.launch {
