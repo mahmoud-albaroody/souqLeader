@@ -288,8 +288,7 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
 
         },
             onPostClick = {
-                isUploading = true
-                uploadResult = null
+
                 if (it.isEmpty()) {
                     Toast.makeText(
                         context,
@@ -298,6 +297,8 @@ fun TimelineScreen(navController: NavController, modifier: Modifier, mainViewMod
                     ).show()
                 }
                 else {
+                    isUploading = true
+                    uploadResult = null
                     val imagesMultipart: ArrayList<MultipartBody.Part> = arrayListOf()
                     // if(imageUri==null)
                     if (images.isEmpty()) {

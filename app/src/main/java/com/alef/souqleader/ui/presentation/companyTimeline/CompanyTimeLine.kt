@@ -283,8 +283,7 @@ fun CompanyTimelineScreen(
 
         },
             onPostClick = {
-                isUploading = true
-                uploadResult = null
+
                 if (it.isEmpty()) {
                     Toast.makeText(
                         context,
@@ -293,6 +292,8 @@ fun CompanyTimelineScreen(
                     ).show()
                 }
                 else {
+                    isUploading = true
+                    uploadResult = null
                     val imagesMulti: ArrayList<MultipartBody.Part> = arrayListOf()
 
                     if (images.isEmpty()) {
