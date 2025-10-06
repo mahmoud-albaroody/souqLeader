@@ -2,7 +2,6 @@ package com.alef.souqleader.ui.presentation.simplifyWorkflow
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -11,10 +10,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -302,7 +299,7 @@ fun SimplifyItem(navController: NavController, onclick: (String) -> Unit) {
                                 )
                             )
                         },
-                        colors = TextFieldDefaults.textFieldColors(
+                        colors = TextFieldDefaults.colors(
                             cursorColor = colorResource(id = R.color.black),
                             disabledLabelColor = colorResource(id = R.color.blue),
                             focusedIndicatorColor = colorResource(id = R.color.transparent),
@@ -539,7 +536,7 @@ fun SimplifyItemP() {
                                 )
                             )
                         },
-                        colors = TextFieldDefaults.textFieldColors(
+                        colors = TextFieldDefaults.colors(
                             cursorColor = colorResource(id = R.color.black),
                             disabledLabelColor = colorResource(id = R.color.blue),
                             focusedIndicatorColor = colorResource(id = R.color.transparent),

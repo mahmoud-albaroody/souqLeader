@@ -148,7 +148,7 @@ fun AddCallLogScreen(
             //  keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
 
             textStyle = TextStyle(fontSize = 13.sp),
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
                 cursorColor = colorResource(id = R.color.black),
                 disabledLabelColor = colorResource(id = R.color.transparent),
                 focusedIndicatorColor = colorResource(id = R.color.transparent),
@@ -191,7 +191,7 @@ fun AddCallLogScreen(
             //  keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
 
             textStyle = TextStyle(fontSize = 13.sp),
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
                 cursorColor = colorResource(id = R.color.black),
                 disabledLabelColor = colorResource(id = R.color.transparent),
                 focusedIndicatorColor = colorResource(id = R.color.transparent),
@@ -236,7 +236,7 @@ fun AddCallLogScreen(
             //keyboardActions = KeyboardActions(onNext = { focusRequester.requestFocus() }),
 
             textStyle = TextStyle(fontSize = 13.sp),
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
                 cursorColor = colorResource(id = R.color.black),
                 disabledLabelColor = colorResource(id = R.color.transparent),
                 focusedIndicatorColor = colorResource(id = R.color.transparent),

@@ -267,7 +267,7 @@ fun LeadUpdate(
                 )
             },
 
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
                 cursorColor = colorResource(id = R.color.black),
                 disabledLabelColor = colorResource(id = R.color.blue),
                 focusedIndicatorColor = colorResource(id = R.color.transparent),

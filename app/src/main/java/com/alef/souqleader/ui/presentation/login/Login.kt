@@ -236,7 +236,7 @@ fun LoginItem(
                         style = TextStyle(color = colorResource(id = R.color.gray))
                     )
                 },
-                colors = TextFieldDefaults.textFieldColors(
+                colors = TextFieldDefaults.colors(
                     cursorColor = colorResource(id = R.color.blue2),
                     disabledLabelColor = colorResource(id = R.color.blue2),
                     focusedIndicatorColor = colorResource(id = R.color.transparent),
@@ -293,7 +293,7 @@ fun LoginItem(
                         style = TextStyle(color = colorResource(id = R.color.gray))
                     )
                 },
-                colors = TextFieldDefaults.textFieldColors(
+                colors = TextFieldDefaults.colors(
                     cursorColor = colorResource(id = R.color.blue2),
                     disabledLabelColor = colorResource(id = R.color.blue2),
                     focusedIndicatorColor = colorResource(id = R.color.transparent),

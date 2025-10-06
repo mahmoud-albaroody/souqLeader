@@ -166,7 +166,7 @@ fun ChangePassItem(text: String, onTextChange: (String, Boolean) -> Unit) {
                 style = TextStyle(color = colorResource(id = R.color.gray))
             )
         },
-        colors = TextFieldDefaults.textFieldColors(
+        colors = TextFieldDefaults.colors(
             cursorColor = colorResource(id = R.color.blue2),
             disabledLabelColor = colorResource(id = R.color.blue2),
             focusedIndicatorColor = colorResource(id = R.color.transparent),

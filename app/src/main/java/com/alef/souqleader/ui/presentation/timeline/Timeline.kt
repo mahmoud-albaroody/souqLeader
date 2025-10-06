@@ -623,7 +623,7 @@ fun WriteTextPost(
                     placeholder = {
                         Text(text = stringResource(R.string.write_your_post))
                     },
-                    colors = TextFieldDefaults.textFieldColors(
+                    colors = TextFieldDefaults.colors(
                         cursorColor = colorResource(id = R.color.black),
                         disabledLabelColor = colorResource(id = R.color.blue),
                         focusedIndicatorColor = colorResource(id = R.color.transparent),
