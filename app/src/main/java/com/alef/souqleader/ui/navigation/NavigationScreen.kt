@@ -20,6 +20,7 @@ sealed class Screen(
     object SimplifyWorkFlowScreen : Screen("simplifyWorkFlowScreen")
     object LoginScreen : Screen("login")
     object DashboardScreen : Screen("dashboard")
+    object DashboardScreen1 : Screen("dashboard1")
     object JobApplicationScreen : Screen("jobApplicationScreen", objectName = "s", objectPath = "/{s}")
     object JobApplicationDetailsScreen : Screen("jobApplicationDetailsScreen", objectName = "jobApplicationDetailsScreen", objectPath = "/{jobApplicationDetailsScreen}")
 

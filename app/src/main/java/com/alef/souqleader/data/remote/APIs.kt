@@ -16,6 +16,7 @@ import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommentsResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
+import com.alef.souqleader.data.remote.dto.DashboardResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
 import com.alef.souqleader.data.remote.dto.GetClientResponse
@@ -262,6 +263,9 @@ interface APIs {
 
     @GET("api/channel")
     suspend fun channel(): Response<ChannelResponse>
+
+    @GET("api/dashboard")
+    suspend fun dashboard(): Response<DashboardResponse>
 
     @FormUrlEncoded
     @POST("api/lead")

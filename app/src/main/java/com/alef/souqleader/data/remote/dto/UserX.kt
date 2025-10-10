@@ -2,9 +2,9 @@ package com.alef.souqleader.data.remote.dto
 
 import com.alef.souqleader.ui.getCreatedAt
 
-data class User(
+data class UserX(
     val image: String? = null,
-    val role: String? = null,
+    val role: Role? = null,
     val created_at: String? = null,
     val deactivate: Int? = null,
     val deleted_at: Any? = null,

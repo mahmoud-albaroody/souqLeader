@@ -364,6 +364,7 @@ fun CustomModalDrawer(
                                     topBar = {
                                         when (currentRoute(navController)) {
                                             Screen.DashboardScreen.route,
+                                            Screen.DashboardScreen1.route,
                                             Screen.Timeline.route,
                                             Screen.CompanyTimelineScreen.route,
                                             Screen.SalesProfileReportScreen.route,
@@ -544,7 +545,7 @@ fun CustomModalDrawer(
                                         Navigation(
                                             navController = navController,
                                             modifier = modifier,
-                                            Screen.DashboardScreen.route,
+                                            Screen.DashboardScreen1.route,
                                             viewModel,
                                             mainViewModel = mainViewModel
                                         )

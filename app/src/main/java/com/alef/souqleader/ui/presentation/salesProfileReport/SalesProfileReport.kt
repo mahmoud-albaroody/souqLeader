@@ -112,7 +112,7 @@ fun SalesProfileReportItem(
                         Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .height(140.dp)
+                            .height(160.dp)
                     ) {
                         Column(Modifier.padding(vertical = 16.dp, horizontal = 16.dp)) {
                             Image(
@@ -161,7 +161,7 @@ fun SalesProfileReportItem(
                         Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .height(140.dp)
+                            .height(160.dp)
                     ) {
                         Column(
                             Modifier.padding(horizontal = 16.dp, vertical = 16.dp),

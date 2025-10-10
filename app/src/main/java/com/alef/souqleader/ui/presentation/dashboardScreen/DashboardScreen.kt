@@ -1,6 +1,5 @@
 package com.alef.souqleader.ui.presentation.dashboardScreen
 
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
@@ -54,7 +52,6 @@ import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
 import com.alef.souqleader.ui.navNotification
-import com.alef.souqleader.ui.navigation.Navigation1
 import com.alef.souqleader.ui.navigation.Screen
 import com.alef.souqleader.ui.presentation.SharedViewModel
 import com.alef.souqleader.ui.presentation.login.SampleNameProvider
@@ -89,7 +86,6 @@ fun DashboardScreen(
             mainViewModel.value2 = null
         }
             viewModel.getLeads()
-
         viewModel.viewModelScope.launch {
             viewModel.allLead.collect {
                 when (it) {

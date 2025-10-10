@@ -2,6 +2,7 @@ package com.alef.souqleader.ui.presentation.meetingReport
 
 import android.content.Intent
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
@@ -13,8 +14,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,9 +29,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -73,6 +81,7 @@ import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -81,9 +90,20 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.core.graphics.toColorInt
+import com.github.mikephil.charting.components.LegendEntry
+import androidx.core.net.toUri
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.HorizontalBarChart
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 
 
 @Composable
@@ -337,6 +357,465 @@ fun MeetingItem(meetingReport: MeetingReport) {
 }
 
 @Composable
+fun MyBarChartDashboard(chart: List<Chart>, title: String) {
+    // Sample data
+
+    val barEntries: ArrayList<BarEntry> = arrayListOf()
+    val labels: ArrayList<String> = arrayListOf()
+    chart.forEachIndexed { index, chart ->
+        if (chart.date.isNullOrEmpty()) {
+            chart.getTitle().let { it?.let { it1 -> labels.add(it1) } }
+        } else {
+            chart.date.let { labels.add(it) }
+        }
+
+        BarEntry(index.toFloat(), chart.getCount()).let { barEntries.add(it) }
+    }
+    Text(
+        text = title,
+        Modifier
+            .padding(top = 16.dp)
+            .fillMaxWidth(),
+        style = TextStyle(
+            fontSize = 18.sp, color = colorResource(id = R.color.black),
+            fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
+        )
+    )
+    // ✅ البيانات (الاسم + القيمة + اللون)
+    val stages = listOf(
+        "Fresh" to Pair(68f, "#22C55E"),
+        "Send Options" to Pair(5f, "#3B82F6"),
+        "Assigned" to Pair(3f, "#F97316"),
+        "Viewing/Meeting" to Pair(9f, "#EAB308"),
+        "Contacted" to Pair(20f, "#EF4444"),
+        "Following up" to Pair(7f, "#A855F7"),
+        "Sign SPA" to Pair(4f, "#06B6D4"),
+        "Commission check" to Pair(1f, "#8B5CF6"),
+        "Commission received" to Pair(1f, "#F59E0B")
+    )
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .padding(vertical = 8.dp),
+        factory = { context ->
+            BarChart(context).apply {
+
+
+
+                // ✅ بيانات الأعمدة
+                val entries = ArrayList<BarEntry>()
+                stages.forEachIndexed { index, (_, pair) ->
+                    entries.add(BarEntry(index.toFloat(), pair.first))
+                }
+
+                val barDataSet = BarDataSet(entries, "").apply {
+                    colors = stages.map { it.second.second.toColorInt() }
+                    valueTextColor = android.graphics.Color.BLACK
+                    valueTextSize = 10f
+                    setDrawValues(true)
+
+                    // ✅ عرض الأرقام فوق الأعمدة (مش الأسماء)
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getBarLabel(barEntry: BarEntry?): String {
+                            return barEntry?.y?.toInt()?.toString() ?: ""
+                        }
+                    }
+                }
+
+                val barData = BarData(barDataSet)
+                barData.barWidth = 0.7f
+                data = barData
+
+                // 🔹 المحور X بدون تسميات
+                xAxis.apply {
+                    position = XAxis.XAxisPosition.BOTTOM
+                    setDrawLabels(false)
+                    setDrawGridLines(false)
+                    granularity = 1f
+                    axisLineColor = android.graphics.Color.DKGRAY
+                }
+
+                // 🔹 إلغاء المحاور الجانبية
+                axisLeft.isEnabled = true
+                axisRight.isEnabled = false
+
+                // 🔹 إعدادات عامة
+                description.isEnabled = false
+                setDrawGridBackground(false)
+                setScaleEnabled(false)
+                setPinchZoom(false)
+                setFitBars(true)
+
+                xAxis.yOffset = 0f                  // 👈 يخلي محور X ملامس تمامًا
+                axisLeft.apply {
+                    axisMinimum = 0f        // ✅ تبدأ من الصفر
+                    spaceBottom = 0f
+
+                    isEnabled = true          // 👈 نسيبه شغال عشان يحتفظ بالمقاس
+                    setDrawLabels(false)      // ❌ يخفي الأرقام اللي على الجنب
+                    setDrawGridLines(true)   // (اختياري) يخفي خطوط الشبكة الأفقية
+                    axisLineColor = android.graphics.Color.TRANSPARENT
+                }
+                // ✅ Legend مخصص بالألوان والأسماء
+//                val legendEntries = mutableListOf<LegendEntry>()
+//                stages.forEach { (label, pair) ->
+//                    legendEntries.add(
+//                        LegendEntry().apply {
+//                            form = Legend.LegendForm.CIRCLE
+//                            formColor = pair.second.toColorInt()
+//                            this.label = label
+//                        }
+//                    )
+//                }
+                legend.isEnabled = false
+//                legend.apply {
+//                    form = Legend.LegendForm.CIRCLE
+//                    formSize = 6f
+//                    textSize = 8f
+//                    textColor = android.graphics.Color.DKGRAY
+//                    horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+//                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+//                    orientation = Legend.LegendOrientation.HORIZONTAL
+//                    setDrawInside(false)
+//                    xEntrySpace = 10f
+//
+//                }
+
+
+
+                // ✅ Animation
+                animateY(1200)
+                animateX(800)
+                invalidate()
+            }
+        }
+
+    )
+    // ✅ Legend مخصص (متعدد الأسطر)
+//    Spacer(Modifier.height(8.dp))
+
+    val grouped = stages.chunked(3) // كل سطر فيه 3 عناصر
+
+    grouped.forEach { row ->
+        Row(
+            modifier = Modifier.padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            row.forEach { (label, pair) ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(
+                                Color(pair.second.toColorInt()),
+                                shape = CircleShape
+                            )
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = label,
+                        fontSize = 10.sp,
+                        color = Color.DarkGray
+                    )
+                }
+            }
+        }
+    }
+}
+@Composable
+fun LeadSourcesLineChart() {
+    val leadSources = listOf(
+        "Facebook" to listOf(60f, 10f),
+        "Instagram" to listOf(15f, 5f),
+        "OLXs" to listOf(12f, 7f),
+        "Property Finder" to listOf(10f, 3f)
+    )
+
+    val months = listOf("Aug 2025", "Sep 2025")
+
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+            .background(Color.White, RoundedCornerShape(16.dp))
+            .padding(8.dp),
+        factory = { context ->
+            LineChart(context).apply {
+
+                // ✅ إعداد البيانات
+                val dataSets = mutableListOf<ILineDataSet>()
+
+                val colors = listOf(
+                    Color(0xFF1877F2), // Facebook
+                    Color(0xFF2ECC71), // Instagram
+                    Color(0xFFFFA500), // OLX
+                    Color(0xFF9B59B6)  // Property Finder
+                )
+
+                leadSources.forEachIndexed { index, (label, values) ->
+                    val entries = values.mapIndexed { i, v ->
+                        Entry(i.toFloat(), v)
+                    }
+                    val set = LineDataSet(entries, label).apply {
+                        color = colors[index].toArgb()
+                        lineWidth = 2f
+                        setCircleColor(colors[index].toArgb())
+                        circleRadius = 4f
+                        setDrawCircleHole(false)
+                        valueTextSize = 10f
+                        valueTextColor = android.graphics.Color.DKGRAY
+                        setDrawValues(false) // لو عايز تخفي الأرقام فوق النقاط
+                        mode = LineDataSet.Mode.LINEAR
+                    }
+                    dataSets.add(set)
+                }
+
+                data = LineData(dataSets)
+
+                // ✅ إعداد محور X (الشهور)
+                xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(months)
+                    position = XAxis.XAxisPosition.BOTTOM
+                    setDrawGridLines(false)
+                    granularity = 1f
+                    textColor = android.graphics.Color.DKGRAY
+                    textSize = 10f
+                    labelRotationAngle = -30f
+                    // ✅ يدخل التسميات شوية لجوه من الطرفين
+                    axisMinimum = -0.2f
+                    axisMaximum = months.size - 1 + 0.2f
+                }
+
+                // ✅ إعداد محور Y
+                axisLeft.apply {
+                    axisMinimum = 0f
+                    textColor = android.graphics.Color.GRAY
+                    textSize = 10f
+                }
+                axisRight.isEnabled = false
+
+                // ✅ Legend بالألوان والأسماء
+                legend.apply {
+                    isEnabled = true
+                    form = Legend.LegendForm.CIRCLE
+                    formSize = 8f
+                    textSize = 10f
+                    textColor = android.graphics.Color.DKGRAY
+                    horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                    orientation = Legend.LegendOrientation.HORIZONTAL
+                    setDrawInside(false)
+                }
+
+                description.isEnabled = false
+                setTouchEnabled(false)
+                setScaleEnabled(false)
+                animateX(1000)
+            }
+        }
+    )
+
+
+}
+@Composable
+fun MonthlyInventoryChartMP() {
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+            .padding(horizontal = 16.dp),
+        factory = { context ->
+            LineChart(context).apply {
+                val entries = listOf(
+                    Entry(0f, 9f),
+                    Entry(1f, 5f),
+                    Entry(2f, 3f)
+                )
+
+                val dataSet = LineDataSet(entries, "").apply {
+                    // لون الخط (android.graphics.Color)
+                    color = android.graphics.Color.parseColor("#0D47A1")
+                    lineWidth = 2.5f
+
+                    // إظهار النقاط الصغيرة
+                    setDrawCircles(true)
+                    setCircleColor(android.graphics.Color.parseColor("#0D47A1"))
+                    circleRadius = 5f
+                    circleHoleRadius = 2.5f
+                    circleHoleColor = android.graphics.Color.WHITE
+
+                    // بدون قيم نصية فوق النقاط
+                    setDrawValues(false)
+
+                    // التدرج تحت الخط
+                    setDrawFilled(true)
+                    val gradient = android.graphics.drawable.GradientDrawable(
+                        android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(
+                            android.graphics.Color.parseColor("#2196F3"),
+                            android.graphics.Color.parseColor("#E3F2FD")
+                        )
+                    )
+                    fillDrawable = gradient
+
+                    // الخط منحني smooth
+                    mode = LineDataSet.Mode.CUBIC_BEZIER
+                }
+
+                val data = LineData(dataSet)
+                this.data = data
+
+                // المحور الأفقي (الشهور)
+                xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(
+                        listOf("Aug 2025", "Sep 2025", "Oct 2025")
+                    )
+                    position = XAxis.XAxisPosition.BOTTOM
+                    textSize = 12f
+                    setDrawGridLines(false)
+                    setDrawAxisLine(false)
+                    granularity = 1f
+                    textColor = android.graphics.Color.DKGRAY
+                    labelRotationAngle = -45f // ← هنا الميل
+                }
+
+                // المحور الرأسي (الأرقام)
+                axisLeft.apply {
+                    axisMinimum = 0f
+                    setDrawGridLines(false)
+                    setDrawAxisLine(false)
+                    textSize = 12f
+                    setTextColor(android.graphics.Color.GRAY)
+                }
+
+                axisRight.isEnabled = false
+                description.isEnabled = false
+                legend.isEnabled = false
+
+                setTouchEnabled(false)
+                setScaleEnabled(false)
+                setPinchZoom(false)
+
+                animateY(1000, com.github.mikephil.charting.animation.Easing.EaseInOutQuad)
+                setExtraOffsets(10f, 10f, 10f, 20f)
+                invalidate()
+            }
+        }
+    )
+}
+
+
+@Composable
+fun CancellationReasonsList() {
+    val reasons = listOf(
+        Triple("Competitor", 6, Color(0xFFE53935)),
+        Triple("Deal already done", 5, Color(0xFFFFA000)),
+        Triple("Don’t call again", 4, Color(0xFF1E88E5)),
+        Triple("Job seeker", 4, Color(0xFF43A047)),
+        Triple("Wrong Number", 4, Color(0xFF8E24AA)),
+        Triple("Other", 3, Color(0xFFF06292)),
+        Triple("Not interested", 2, Color(0xFF5C6BC0)),
+        Triple("Property/requirement changed", 2, Color(0xFF00ACC1)),
+        Triple("Budget", 1, Color(0xFF26C6DA))
+    )
+
+    val total = reasons.sumOf { it.second }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Cancellation Reasons",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Total: $total",
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        reasons.forEach { (label, value, color) ->
+            val percentage = (value.toFloat() / total.toFloat()) * 100
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // دائرة اللون
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(color, CircleShape)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // النص الأساسي (العنوان)
+                Text(
+                    text = label,
+                    modifier = Modifier.weight(1f),
+                    fontSize = 14.sp
+                )
+
+                // شريط النسبة
+                Box(
+                    modifier = Modifier
+                        .weight(2f)
+                        .height(12.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(0xFFEAEAEA))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(percentage / 100)
+                            .clip(RoundedCornerShape(50))
+                            .background(color)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // العدد والنسبة
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = value.toString(),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "${percentage.toInt()}%",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+@Composable
 fun MyBarChart(chart: List<Chart>, title: String) {
     // Sample data
 
@@ -383,17 +862,18 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 animateXY(2000, 2000)
 
                 xAxis.position = XAxis.XAxisPosition.BOTTOM
-                xAxis.setDrawGridLines(false)
+                xAxis.setDrawGridLines(true)
                 xAxis.textColor = android.graphics.Color.BLACK
                 xAxis.textSize = 10f
                 xAxis.axisLineColor = android.graphics.Color.WHITE
                 xAxis.granularity = 1f
 
 
-                //  xAxis.isGranularityEnabled = true
-                //   xAxis.setCenterAxisLabels(true)
+
+                  xAxis.isGranularityEnabled = true
+                   xAxis.setCenterAxisLabels(true)
                 //  xAxis.setAvoidFirstLastClipping(true)
-                xAxis.labelRotationAngle = 80f
+//                xAxis.labelRotationAngle = 80f
                 xAxis.granularity = 1f;
                 // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
@@ -412,8 +892,8 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                     viewPortHandler
                 )
 
-                barChartRender.setRadius(30)
-                //  xAxis.valueFormatter = MultiLineValueFormatter()
+//                barChartRender.setRadius(30)
+              //  xAxis.valueFormatter = MultiLineValueFormatter()
                 renderer = barChartRender
                 // Create bar data set
                 val barDataSet = BarDataSet(barEntries, "Sample Data").apply {
@@ -427,7 +907,7 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 // Set data to the chart
                 val datad = BarData(barDataSet)
                 datad.barWidth = 0.6f
-                datad.isHighlightEnabled = false
+                datad.isHighlightEnabled = true
                 data = datad
                 this.invalidate() // Refresh chart
             }
@@ -680,9 +1160,7 @@ fun MeetingLeads(lead: Lead, mainViewModel: MainViewModel) {
                     modifier = Modifier
                         .padding(end = 4.dp)
                         .clickable {
-                            val u = Uri.parse(
-                                "tel:" + lead.phone.toString()
-                            )
+                            val u = ("tel:" + lead.phone.toString()).toUri()
 
                             // Create the intent and set the data for the
                             // intent as the phone number.

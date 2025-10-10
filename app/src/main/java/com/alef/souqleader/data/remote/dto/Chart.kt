@@ -15,7 +15,7 @@ data class Chart(
     val percentage_leads: String?=null,
     val total: Float=0.0F,
     val total_leads: Float=0.0F,
-    val delay_actions_count: Float?=null
+    val delay_actions_count: Float?=null,
 ) {
     fun getCount(): Float {
         return count ?: actions_count ?: total_leads ?: delay_actions_count ?: 0f

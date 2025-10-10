@@ -34,6 +34,7 @@ import com.alef.souqleader.ui.presentation.changePassword.ChangePasswordScreen
 import com.alef.souqleader.ui.presentation.channelReport.ChannelReport
 import com.alef.souqleader.ui.presentation.companyTimeline.CompanyTimelineScreen
 import com.alef.souqleader.ui.presentation.crmSystem.CRMScreen
+import com.alef.souqleader.ui.presentation.dashboard1.DashboardScreen1
 import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardScreen
 import com.alef.souqleader.ui.presentation.delaysReports.DelaysReports
 import com.alef.souqleader.ui.presentation.filter.FilterScreen
@@ -77,6 +78,14 @@ fun Navigation(
         composable(Screen.DashboardScreen.route) {
             modifier?.let { it1 ->
                 DashboardScreen(
+                    navController = navController, viewModel, mainViewModel = mainViewModel
+                )
+            }
+        }
+
+        composable(Screen.DashboardScreen1.route) {
+            modifier?.let { it1 ->
+                DashboardScreen1(
                     navController = navController, viewModel, mainViewModel = mainViewModel
                 )
             }

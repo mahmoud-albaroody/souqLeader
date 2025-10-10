@@ -80,6 +80,9 @@ data class ChannelResponse(
     var data: ArrayList<Channel>? = null
 ) : StatusResponse()
 
+data class DashboardResponse(
+    var data: Dashboard
+) : StatusResponse()
 data class AddLeadResponse(
     var data: Boolean
 ) : StatusResponse()

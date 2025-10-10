@@ -19,6 +19,7 @@ import com.alef.souqleader.data.remote.dto.ChannelReportResponse
 import com.alef.souqleader.data.remote.dto.ChannelResponse
 import com.alef.souqleader.data.remote.dto.CommentsResponse
 import com.alef.souqleader.data.remote.dto.CommunicationWayResponse
+import com.alef.souqleader.data.remote.dto.DashboardResponse
 import com.alef.souqleader.data.remote.dto.DelayReportResponse
 import com.alef.souqleader.data.remote.dto.FilterRequest
 import com.alef.souqleader.data.remote.dto.ForgetPasswordResponse
@@ -422,6 +423,14 @@ class ApiRepoImpl @Inject constructor(private val APIs: APIs) {
 
     suspend fun channel(): Resource<ChannelResponse> {
         val response = APIs.channel()
+        return if (response.isSuccessful) {
+            Resource.Success(response.body()!!, response.errorBody())
+        } else {
+            Resource.DataError(null, response.code(), response.errorBody())
+        }
+    }
+    suspend fun dashboard(): Resource<DashboardResponse> {
+        val response = APIs.dashboard()
         return if (response.isSuccessful) {
             Resource.Success(response.body()!!, response.errorBody())
         } else {
