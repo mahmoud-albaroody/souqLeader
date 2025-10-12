@@ -117,10 +117,10 @@ fun MeetingScreen(modifier: Modifier, mainViewModel: MainViewModel) {
         viewModel.getMeetingReport()
     }
     viewModel.meetingReports?.let {
-        if(viewModel.page==1){
+        if (viewModel.page == 1) {
             meeting.clear()
             meeting.addAll(it.leads)
-        }else {
+        } else {
             meeting.addAll(it.leads)
         }
         loadMore = true
@@ -160,13 +160,16 @@ fun MeetingScreen(modifier: Modifier, mainViewModel: MainViewModel) {
                                     if (it.pagination.pages != null && loadMore)
                                         if (it.pagination.pages >= viewModel.page && it.leads.size > 10) {
                                             item {
-                                               viewModel.viewModelScope.launch {
-                                                   delay(2000)
-                                                   loadMore = false
-                                                   someKey=!someKey
-                                               }
+                                                viewModel.viewModelScope.launch {
+                                                    delay(2000)
+                                                    loadMore = false
+                                                    someKey = !someKey
+                                                }
 
-                                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                                Row(
+                                                    Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.Center
+                                                ) {
                                                     CircularProgressIndicator(
                                                         modifier = Modifier.width(16.dp),
                                                         color = MaterialTheme.colorScheme.secondary,
@@ -371,17 +374,7 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
 
         BarEntry(index.toFloat(), chart.getCount()).let { barEntries.add(it) }
     }
-    Text(
-        text = title,
-        Modifier
-            .padding(top = 16.dp)
-            .fillMaxWidth(),
-        style = TextStyle(
-            fontSize = 18.sp, color = colorResource(id = R.color.black),
-            fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
-        )
-    )
-    // ✅ البيانات (الاسم + القيمة + اللون)
+
     val stages = listOf(
         "Fresh" to Pair(68f, "#22C55E"),
         "Send Options" to Pair(5f, "#3B82F6"),
@@ -393,71 +386,82 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
         "Commission check" to Pair(1f, "#8B5CF6"),
         "Commission received" to Pair(1f, "#F59E0B")
     )
-    AndroidView(
-        modifier = Modifier
+    Card(
+        Modifier
             .fillMaxWidth()
-            .height(300.dp)
-            .padding(vertical = 8.dp),
-        factory = { context ->
-            BarChart(context).apply {
+            .background(Color(0xFFF5F6FA))
+            .padding(horizontal = 16.dp)
+
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
 
 
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp),
+                factory = { context ->
+                    BarChart(context).apply {
 
-                // ✅ بيانات الأعمدة
-                val entries = ArrayList<BarEntry>()
-                stages.forEachIndexed { index, (_, pair) ->
-                    entries.add(BarEntry(index.toFloat(), pair.first))
-                }
 
-                val barDataSet = BarDataSet(entries, "").apply {
-                    colors = stages.map { it.second.second.toColorInt() }
-                    valueTextColor = android.graphics.Color.BLACK
-                    valueTextSize = 10f
-                    setDrawValues(true)
-
-                    // ✅ عرض الأرقام فوق الأعمدة (مش الأسماء)
-                    valueFormatter = object : ValueFormatter() {
-                        override fun getBarLabel(barEntry: BarEntry?): String {
-                            return barEntry?.y?.toInt()?.toString() ?: ""
+                        val entries = ArrayList<BarEntry>()
+                        stages.forEachIndexed { index, (_, pair) ->
+                            entries.add(BarEntry(index.toFloat(), pair.first))
                         }
-                    }
-                }
 
-                val barData = BarData(barDataSet)
-                barData.barWidth = 0.7f
-                data = barData
+                        val barDataSet = BarDataSet(entries, "").apply {
+                            colors = stages.map { it.second.second.toColorInt() }
+                            valueTextColor = android.graphics.Color.BLACK
+                            valueTextSize = 10f
+                            setDrawValues(true)
 
-                // 🔹 المحور X بدون تسميات
-                xAxis.apply {
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawLabels(false)
-                    setDrawGridLines(false)
-                    granularity = 1f
-                    axisLineColor = android.graphics.Color.DKGRAY
-                }
+                            // ✅ عرض الأرقام فوق الأعمدة (مش الأسماء)
+                            valueFormatter = object : ValueFormatter() {
+                                override fun getBarLabel(barEntry: BarEntry?): String {
+                                    return barEntry?.y?.toInt()?.toString() ?: ""
+                                }
+                            }
+                        }
 
-                // 🔹 إلغاء المحاور الجانبية
-                axisLeft.isEnabled = true
-                axisRight.isEnabled = false
+                        val barData = BarData(barDataSet)
+                        barData.barWidth = 0.7f
+                        data = barData
 
-                // 🔹 إعدادات عامة
-                description.isEnabled = false
-                setDrawGridBackground(false)
-                setScaleEnabled(false)
-                setPinchZoom(false)
-                setFitBars(true)
+                        // 🔹 المحور X بدون تسميات
+                        xAxis.apply {
+                            position = XAxis.XAxisPosition.BOTTOM
+                            setDrawLabels(false)
+                            setDrawGridLines(false)
+                            granularity = 1f
+                            axisLineColor = android.graphics.Color.DKGRAY
+                        }
 
-                xAxis.yOffset = 0f                  // 👈 يخلي محور X ملامس تمامًا
-                axisLeft.apply {
-                    axisMinimum = 0f        // ✅ تبدأ من الصفر
-                    spaceBottom = 0f
+                        // 🔹 إلغاء المحاور الجانبية
+                        axisLeft.isEnabled = true
+                        axisRight.isEnabled = false
 
-                    isEnabled = true          // 👈 نسيبه شغال عشان يحتفظ بالمقاس
-                    setDrawLabels(false)      // ❌ يخفي الأرقام اللي على الجنب
-                    setDrawGridLines(true)   // (اختياري) يخفي خطوط الشبكة الأفقية
-                    axisLineColor = android.graphics.Color.TRANSPARENT
-                }
-                // ✅ Legend مخصص بالألوان والأسماء
+                        // 🔹 إعدادات عامة
+                        description.isEnabled = false
+                        setDrawGridBackground(false)
+                        setScaleEnabled(false)
+                        setPinchZoom(false)
+                        setFitBars(true)
+
+                        xAxis.yOffset = 0f                  // 👈 يخلي محور X ملامس تمامًا
+                        axisLeft.apply {
+                            axisMinimum = 0f        // ✅ تبدأ من الصفر
+                            spaceBottom = 0f
+
+                            isEnabled = true          // 👈 نسيبه شغال عشان يحتفظ بالمقاس
+                            setDrawLabels(false)      // ❌ يخفي الأرقام اللي على الجنب
+                            setDrawGridLines(true)   // (اختياري) يخفي خطوط الشبكة الأفقية
+                            axisLineColor = android.graphics.Color.TRANSPARENT
+                        }
+                        // ✅ Legend مخصص بالألوان والأسماء
 //                val legendEntries = mutableListOf<LegendEntry>()
 //                stages.forEach { (label, pair) ->
 //                    legendEntries.add(
@@ -468,7 +472,7 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
 //                        }
 //                    )
 //                }
-                legend.isEnabled = false
+                        legend.isEnabled = false
 //                legend.apply {
 //                    form = Legend.LegendForm.CIRCLE
 //                    formSize = 6f
@@ -483,52 +487,53 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
 //                }
 
 
+                        // ✅ Animation
+                        animateY(1200)
+                        animateX(800)
+                        invalidate()
+                    }
+                }
 
-                // ✅ Animation
-                animateY(1200)
-                animateX(800)
-                invalidate()
-            }
-        }
+            )
 
-    )
-    // ✅ Legend مخصص (متعدد الأسطر)
-//    Spacer(Modifier.height(8.dp))
 
-    val grouped = stages.chunked(3) // كل سطر فيه 3 عناصر
+            val grouped = stages.chunked(3)
 
-    grouped.forEach { row ->
-        Row(
-            modifier = Modifier.padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            row.forEach { (label, pair) ->
+            grouped.forEach { row ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(
-                                Color(pair.second.toColorInt()),
-                                shape = CircleShape
+                    row.forEach { (label, pair) ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(10.dp)
+                                    .background(
+                                        Color(pair.second.toColorInt()),
+                                        shape = CircleShape
+                                    )
                             )
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = label,
-                        fontSize = 10.sp,
-                        color = Color.DarkGray
-                    )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = label,
+                                fontSize = 9.sp,
+                                color = Color.DarkGray
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
+
 @Composable
-fun LeadSourcesLineChart() {
+fun LeadSourcesLineChart(chart: List<Chart>, title: String) {
     val leadSources = listOf(
         "Facebook" to listOf(60f, 10f),
         "Instagram" to listOf(15f, 5f),
@@ -537,176 +542,215 @@ fun LeadSourcesLineChart() {
     )
 
     val months = listOf("Aug 2025", "Sep 2025")
-
-    AndroidView(
-        modifier = Modifier
+    Card(
+        Modifier
             .fillMaxWidth()
-            .height(250.dp)
-            .background(Color.White, RoundedCornerShape(16.dp))
-            .padding(8.dp),
-        factory = { context ->
-            LineChart(context).apply {
+            .background(Color(0xFFF5F6FA))
+            .padding(horizontal = 16.dp, vertical = 16.dp)
 
-                // ✅ إعداد البيانات
-                val dataSets = mutableListOf<ILineDataSet>()
-
-                val colors = listOf(
-                    Color(0xFF1877F2), // Facebook
-                    Color(0xFF2ECC71), // Instagram
-                    Color(0xFFFFA500), // OLX
-                    Color(0xFF9B59B6)  // Property Finder
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            Text(
+                text = title,
+                Modifier
+                    .padding(top = 16.dp)
+                    .fillMaxWidth(),
+                style = TextStyle(
+                    fontSize = 18.sp, color = colorResource(id = R.color.black),
+                    fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
                 )
+            )
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .height(250.dp)
+                    .background(Color.White, RoundedCornerShape(16.dp))
+                    .padding(8.dp),
+                factory = { context ->
+                    LineChart(context).apply {
 
-                leadSources.forEachIndexed { index, (label, values) ->
-                    val entries = values.mapIndexed { i, v ->
-                        Entry(i.toFloat(), v)
+                        // ✅ إعداد البيانات
+                        val dataSets = mutableListOf<ILineDataSet>()
+
+                        val colors = listOf(
+                            Color(0xFF1877F2), // Facebook
+                            Color(0xFF2ECC71), // Instagram
+                            Color(0xFFFFA500), // OLX
+                            Color(0xFF9B59B6)  // Property Finder
+                        )
+
+                        leadSources.forEachIndexed { index, (label, values) ->
+                            val entries = values.mapIndexed { i, v ->
+                                Entry(i.toFloat(), v)
+                            }
+                            val set = LineDataSet(entries, label).apply {
+                                color = colors[index].toArgb()
+                                lineWidth = 2f
+                                setCircleColor(colors[index].toArgb())
+                                circleRadius = 4f
+                                setDrawCircleHole(false)
+                                valueTextSize = 10f
+                                valueTextColor = android.graphics.Color.DKGRAY
+                                setDrawValues(false) // لو عايز تخفي الأرقام فوق النقاط
+                                mode = LineDataSet.Mode.LINEAR
+                            }
+                            dataSets.add(set)
+                        }
+
+                        data = LineData(dataSets)
+
+                        // ✅ إعداد محور X (الشهور)
+                        xAxis.apply {
+                            valueFormatter = IndexAxisValueFormatter(months)
+                            position = XAxis.XAxisPosition.BOTTOM
+                            setDrawGridLines(false)
+                            granularity = 1f
+                            textColor = android.graphics.Color.DKGRAY
+                            textSize = 10f
+                            labelRotationAngle = -30f
+                            // ✅ يدخل التسميات شوية لجوه من الطرفين
+                            axisMinimum = -0.2f
+                            axisMaximum = months.size - 1 + 0.2f
+                        }
+
+                        // ✅ إعداد محور Y
+                        axisLeft.apply {
+                            axisMinimum = 0f
+                            textColor = android.graphics.Color.GRAY
+                            textSize = 10f
+                        }
+                        axisRight.isEnabled = false
+
+                        // ✅ Legend بالألوان والأسماء
+                        legend.apply {
+                            isEnabled = true
+                            form = Legend.LegendForm.CIRCLE
+                            formSize = 8f
+                            textSize = 10f
+                            textColor = android.graphics.Color.DKGRAY
+                            horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                            verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                            orientation = Legend.LegendOrientation.HORIZONTAL
+                            setDrawInside(false)
+                        }
+
+                        description.isEnabled = false
+                        setTouchEnabled(false)
+                        setScaleEnabled(false)
+                        animateX(1000)
                     }
-                    val set = LineDataSet(entries, label).apply {
-                        color = colors[index].toArgb()
-                        lineWidth = 2f
-                        setCircleColor(colors[index].toArgb())
-                        circleRadius = 4f
-                        setDrawCircleHole(false)
-                        valueTextSize = 10f
-                        valueTextColor = android.graphics.Color.DKGRAY
-                        setDrawValues(false) // لو عايز تخفي الأرقام فوق النقاط
-                        mode = LineDataSet.Mode.LINEAR
-                    }
-                    dataSets.add(set)
                 }
-
-                data = LineData(dataSets)
-
-                // ✅ إعداد محور X (الشهور)
-                xAxis.apply {
-                    valueFormatter = IndexAxisValueFormatter(months)
-                    position = XAxis.XAxisPosition.BOTTOM
-                    setDrawGridLines(false)
-                    granularity = 1f
-                    textColor = android.graphics.Color.DKGRAY
-                    textSize = 10f
-                    labelRotationAngle = -30f
-                    // ✅ يدخل التسميات شوية لجوه من الطرفين
-                    axisMinimum = -0.2f
-                    axisMaximum = months.size - 1 + 0.2f
-                }
-
-                // ✅ إعداد محور Y
-                axisLeft.apply {
-                    axisMinimum = 0f
-                    textColor = android.graphics.Color.GRAY
-                    textSize = 10f
-                }
-                axisRight.isEnabled = false
-
-                // ✅ Legend بالألوان والأسماء
-                legend.apply {
-                    isEnabled = true
-                    form = Legend.LegendForm.CIRCLE
-                    formSize = 8f
-                    textSize = 10f
-                    textColor = android.graphics.Color.DKGRAY
-                    horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    orientation = Legend.LegendOrientation.HORIZONTAL
-                    setDrawInside(false)
-                }
-
-                description.isEnabled = false
-                setTouchEnabled(false)
-                setScaleEnabled(false)
-                animateX(1000)
-            }
+            )
         }
-    )
+    }
 
 
 }
+
 @Composable
 fun MonthlyInventoryChartMP() {
-    AndroidView(
-        modifier = Modifier
+    Card(
+        Modifier
             .fillMaxWidth()
-            .height(250.dp)
-            .padding(horizontal = 16.dp),
-        factory = { context ->
-            LineChart(context).apply {
-                val entries = listOf(
-                    Entry(0f, 9f),
-                    Entry(1f, 5f),
-                    Entry(2f, 3f)
-                )
+            .background(Color(0xFFF5F6FA))
+            .padding(horizontal = 16.dp)
 
-                val dataSet = LineDataSet(entries, "").apply {
-                    // لون الخط (android.graphics.Color)
-                    color = android.graphics.Color.parseColor("#0D47A1")
-                    lineWidth = 2.5f
-
-                    // إظهار النقاط الصغيرة
-                    setDrawCircles(true)
-                    setCircleColor(android.graphics.Color.parseColor("#0D47A1"))
-                    circleRadius = 5f
-                    circleHoleRadius = 2.5f
-                    circleHoleColor = android.graphics.Color.WHITE
-
-                    // بدون قيم نصية فوق النقاط
-                    setDrawValues(false)
-
-                    // التدرج تحت الخط
-                    setDrawFilled(true)
-                    val gradient = android.graphics.drawable.GradientDrawable(
-                        android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-                        intArrayOf(
-                            android.graphics.Color.parseColor("#2196F3"),
-                            android.graphics.Color.parseColor("#E3F2FD")
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .padding(horizontal = 16.dp),
+                factory = { context ->
+                    LineChart(context).apply {
+                        val entries = listOf(
+                            Entry(0f, 9f),
+                            Entry(1f, 5f),
+                            Entry(2f, 3f)
                         )
-                    )
-                    fillDrawable = gradient
 
-                    // الخط منحني smooth
-                    mode = LineDataSet.Mode.CUBIC_BEZIER
+                        val dataSet = LineDataSet(entries, "").apply {
+                            // لون الخط (android.graphics.Color)
+                            color = android.graphics.Color.parseColor("#0D47A1")
+                            lineWidth = 2.5f
+
+                            // إظهار النقاط الصغيرة
+                            setDrawCircles(true)
+                            setCircleColor(android.graphics.Color.parseColor("#0D47A1"))
+                            circleRadius = 5f
+                            circleHoleRadius = 2.5f
+                            circleHoleColor = android.graphics.Color.WHITE
+
+                            // بدون قيم نصية فوق النقاط
+                            setDrawValues(false)
+
+                            // التدرج تحت الخط
+                            setDrawFilled(true)
+                            val gradient = android.graphics.drawable.GradientDrawable(
+                                android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                                intArrayOf(
+                                    android.graphics.Color.parseColor("#2196F3"),
+                                    android.graphics.Color.parseColor("#E3F2FD")
+                                )
+                            )
+                            fillDrawable = gradient
+
+                            // الخط منحني smooth
+                            mode = LineDataSet.Mode.CUBIC_BEZIER
+                        }
+
+                        val data = LineData(dataSet)
+                        this.data = data
+
+                        // المحور الأفقي (الشهور)
+                        xAxis.apply {
+                            valueFormatter = IndexAxisValueFormatter(
+                                listOf("Aug 2025", "Sep 2025", "Oct 2025")
+                            )
+                            position = XAxis.XAxisPosition.BOTTOM
+                            textSize = 12f
+                            setDrawGridLines(false)
+                            setDrawAxisLine(false)
+                            granularity = 1f
+                            textColor = android.graphics.Color.DKGRAY
+                            labelRotationAngle = -45f // ← هنا الميل
+                        }
+
+                        // المحور الرأسي (الأرقام)
+                        axisLeft.apply {
+                            axisMinimum = 0f
+                            setDrawGridLines(false)
+                            setDrawAxisLine(false)
+                            textSize = 12f
+                            setTextColor(android.graphics.Color.GRAY)
+                        }
+
+                        axisRight.isEnabled = false
+                        description.isEnabled = false
+                        legend.isEnabled = false
+
+                        setTouchEnabled(false)
+                        setScaleEnabled(false)
+                        setPinchZoom(false)
+
+                        animateY(1000, com.github.mikephil.charting.animation.Easing.EaseInOutQuad)
+                        setExtraOffsets(10f, 10f, 10f, 20f)
+                        invalidate()
+                    }
                 }
-
-                val data = LineData(dataSet)
-                this.data = data
-
-                // المحور الأفقي (الشهور)
-                xAxis.apply {
-                    valueFormatter = IndexAxisValueFormatter(
-                        listOf("Aug 2025", "Sep 2025", "Oct 2025")
-                    )
-                    position = XAxis.XAxisPosition.BOTTOM
-                    textSize = 12f
-                    setDrawGridLines(false)
-                    setDrawAxisLine(false)
-                    granularity = 1f
-                    textColor = android.graphics.Color.DKGRAY
-                    labelRotationAngle = -45f // ← هنا الميل
-                }
-
-                // المحور الرأسي (الأرقام)
-                axisLeft.apply {
-                    axisMinimum = 0f
-                    setDrawGridLines(false)
-                    setDrawAxisLine(false)
-                    textSize = 12f
-                    setTextColor(android.graphics.Color.GRAY)
-                }
-
-                axisRight.isEnabled = false
-                description.isEnabled = false
-                legend.isEnabled = false
-
-                setTouchEnabled(false)
-                setScaleEnabled(false)
-                setPinchZoom(false)
-
-                animateY(1000, com.github.mikephil.charting.animation.Easing.EaseInOutQuad)
-                setExtraOffsets(10f, 10f, 10f, 20f)
-                invalidate()
-            }
+            )
         }
-    )
+    }
 }
 
 
@@ -726,93 +770,84 @@ fun CancellationReasonsList() {
 
     val total = reasons.sumOf { it.second }
 
-    Column(
-        modifier = Modifier
+    Card(
+        Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .background(Color(0xFFF5F6FA))
+            .padding(horizontal = 16.dp)
+
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
         ) {
-            Text(
-                text = "Cancellation Reasons",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Total: $total",
-                fontSize = 16.sp,
-                color = Color.Gray
-            )
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
 
-        reasons.forEach { (label, value, color) ->
-            val percentage = (value.toFloat() / total.toFloat()) * 100
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // دائرة اللون
-                Box(
+            reasons.forEach { (label, value, color) ->
+                val percentage = (value.toFloat() / total.toFloat()) * 100
+
+                Row(
                     modifier = Modifier
-                        .size(10.dp)
-                        .background(color, CircleShape)
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // النص الأساسي (العنوان)
-                Text(
-                    text = label,
-                    modifier = Modifier.weight(1f),
-                    fontSize = 14.sp
-                )
-
-                // شريط النسبة
-                Box(
-                    modifier = Modifier
-                        .weight(2f)
-                        .height(12.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(Color(0xFFEAEAEA))
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // دائرة اللون
                     Box(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(percentage / 100)
+                            .size(10.dp)
+                            .background(color, CircleShape)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // النص الأساسي (العنوان)
+                    Text(
+                        text = label,
+                        modifier = Modifier.weight(1f),
+                        fontSize = 14.sp
+                    )
+
+                    // شريط النسبة
+                    Box(
+                        modifier = Modifier
+                            .weight(2f)
+                            .height(12.dp)
                             .clip(RoundedCornerShape(50))
-                            .background(color)
-                    )
-                }
+                            .background(Color(0xFFEAEAEA))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(percentage / 100)
+                                .clip(RoundedCornerShape(50))
+                                .background(color)
+                        )
+                    }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                // العدد والنسبة
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = value.toString(),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "${percentage.toInt()}%",
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
+                    // العدد والنسبة
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = value.toString(),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "${percentage.toInt()}%",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         }
     }
 }
-
-
-
 
 
 @Composable
@@ -870,10 +905,10 @@ fun MyBarChart(chart: List<Chart>, title: String) {
 
 
 
-                  xAxis.isGranularityEnabled = true
-                   xAxis.setCenterAxisLabels(true)
+                xAxis.isGranularityEnabled = true
+                xAxis.setCenterAxisLabels(true)
                 //  xAxis.setAvoidFirstLastClipping(true)
-//                xAxis.labelRotationAngle = 80f
+                xAxis.labelRotationAngle = 80f
                 xAxis.granularity = 1f;
                 // xAxis.setDrawGridLines(true)
                 axisRight.isEnabled = false
@@ -893,7 +928,7 @@ fun MyBarChart(chart: List<Chart>, title: String) {
                 )
 
 //                barChartRender.setRadius(30)
-              //  xAxis.valueFormatter = MultiLineValueFormatter()
+                //  xAxis.valueFormatter = MultiLineValueFormatter()
                 renderer = barChartRender
                 // Create bar data set
                 val barDataSet = BarDataSet(barEntries, "Sample Data").apply {
@@ -913,6 +948,110 @@ fun MyBarChart(chart: List<Chart>, title: String) {
             }
         }
     )
+}
+
+@Composable
+fun MyBarChart1(chart: List<Chart>, title: String) {
+    // Sample data
+
+    val barEntries: ArrayList<BarEntry> = arrayListOf()
+    val labels: ArrayList<String> = arrayListOf()
+    chart.forEachIndexed { index, chart ->
+        if (chart.date.isNullOrEmpty()) {
+            chart.getTitle().let { it?.let { it1 -> labels.add(it1) } }
+        } else {
+            chart.date.let { labels.add(it) }
+        }
+
+        BarEntry(index.toFloat(), chart.getCount()).let { barEntries.add(it) }
+    }
+
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .background(Color(0xFFF5F6FA))
+            .padding(horizontal = 16.dp)
+
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(220.dp)
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                factory = { context ->
+                    BarChart(context).apply {
+
+                        axisLeft.granularity = 1f
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                        // Configure bar chart
+                        this.description.isEnabled = false
+                        this.setFitBars(true)
+                        this.setDrawGridBackground(false)
+
+                        animateXY(2000, 2000)
+
+                        xAxis.position = XAxis.XAxisPosition.BOTTOM
+                        xAxis.setDrawGridLines(true)
+                        xAxis.textColor = android.graphics.Color.BLACK
+                        xAxis.textSize = 10f
+                        xAxis.axisLineColor = android.graphics.Color.WHITE
+                        xAxis.granularity = 1f
+
+
+
+                        xAxis.isGranularityEnabled = true
+                        xAxis.setCenterAxisLabels(true)
+                        //  xAxis.setAvoidFirstLastClipping(true)
+                        xAxis.labelRotationAngle = 80f
+                        xAxis.granularity = 1f;
+                        // xAxis.setDrawGridLines(true)
+                        axisRight.isEnabled = false
+                        legend.isEnabled = false
+                        xAxis.valueFormatter = IndexAxisValueFormatter(labels);
+                        xAxis.labelCount = labels.size
+                        //   xAxis.valueFormatter = CustomValueFormatter(labels)
+                        // data.barWidth = 0.5f
+                        //   data.isHighlightEnabled = true
+                        setScaleEnabled(false)
+                        setVisibleXRangeMaximum(4f)
+                        //  extraBottomOffset = 100F
+                        val barChartRender = CustomBarChartRender(
+                            this,
+                            animator,
+                            viewPortHandler
+                        )
+
+//                barChartRender.setRadius(30)
+                        //  xAxis.valueFormatter = MultiLineValueFormatter()
+                        renderer = barChartRender
+                        // Create bar data set
+                        val barDataSet = BarDataSet(barEntries, "Sample Data").apply {
+                            colors = ColorTemplate.MATERIAL_COLORS.asList()
+                            valueTextColor = R.color.black
+                            valueTextSize = 16f
+                        }
+                        barDataSet.setDrawValues(false)
+                        barDataSet.isHighlightEnabled = false
+
+                        // Set data to the chart
+                        val datad = BarData(barDataSet)
+                        datad.barWidth = 0.6f
+                        datad.isHighlightEnabled = true
+                        data = datad
+                        this.invalidate() // Refresh chart
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Composable
@@ -971,52 +1110,53 @@ fun PieChartView(arr: ArrayList<PieChartData>, title: String) {
                 Crossfade(targetState = arr, label = "") { pieChartData ->
                     // on below line we are creating an
                     // android view for pie chart.
-                    AndroidView(factory = { context ->
-                        // on below line we are creating a pie chart
-                        // and specifying layout params.
-                        PieChart(context).apply {
-                            layoutParams = LinearLayout.LayoutParams(
-                                // on below line we are specifying layout
-                                // params as MATCH PARENT for height and width.
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                            )
-                            this.setDrawEntryLabels(false)
-                            this.setDrawSliceText(false); // To remove slice text
-                            this.setDrawMarkers(false); // To remove markers when click
-                            // on below line we are setting description
-                            // enables for our pie chart.
-                            this.description.isEnabled = false
-                            this.setDrawCenterText(false)
+                    AndroidView(
+                        factory = { context ->
+                            // on below line we are creating a pie chart
+                            // and specifying layout params.
+                            PieChart(context).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    // on below line we are specifying layout
+                                    // params as MATCH PARENT for height and width.
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                )
+                                this.setDrawEntryLabels(false)
+                                this.setDrawSliceText(false); // To remove slice text
+                                this.setDrawMarkers(false); // To remove markers when click
+                                // on below line we are setting description
+                                // enables for our pie chart.
+                                this.description.isEnabled = false
+                                this.setDrawCenterText(false)
 
-                            // on below line we are setting draw hole
-                            // to false not to draw hole in pie chart
-                            this.isDrawHoleEnabled = true
+                                // on below line we are setting draw hole
+                                // to false not to draw hole in pie chart
+                                this.isDrawHoleEnabled = true
 
-                            // on below line we are enabling legend.
-                            this.legend.isEnabled = false
+                                // on below line we are enabling legend.
+                                this.legend.isEnabled = false
 
-                            // on below line we are specifying
-                            // text size for our legend.
-                            this.legend.textSize = 9F
-                            // on below line we are specifying
-                            // alignment for our legend.
-                            this.legend.horizontalAlignment =
-                                Legend.LegendHorizontalAlignment.CENTER
-                            // on below line we are specifying entry label color as white.
-                            this.setEntryLabelColor(resources.getColor(R.color.white))
+                                // on below line we are specifying
+                                // text size for our legend.
+                                this.legend.textSize = 9F
+                                // on below line we are specifying
+                                // alignment for our legend.
+                                this.legend.horizontalAlignment =
+                                    Legend.LegendHorizontalAlignment.CENTER
+                                // on below line we are specifying entry label color as white.
+                                this.setEntryLabelColor(resources.getColor(R.color.white))
 
-                            val l: Legend = this.legend
+                                val l: Legend = this.legend
 
 
-                            l.setDrawInside(false);
-                            l.yEntrySpace = 10f
+                                l.setDrawInside(false);
+                                l.yEntrySpace = 10f
 
-                            l.isWordWrapEnabled = true
-                            l.isEnabled = true
+                                l.isWordWrapEnabled = true
+                                l.isEnabled = true
 
-                        }
-                    },
+                            }
+                        },
                         // on below line we are specifying modifier
                         // for it and specifying padding to it.
                         modifier = Modifier
@@ -1135,7 +1275,7 @@ fun MeetingLeads(lead: Lead, mainViewModel: MainViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = lead.name ?: "", style = TextStyle(), modifier = Modifier.weight(1f))
-            if ( lead.phone?.length!! > 3) {
+            if (lead.phone?.length!! > 3) {
                 Text(
                     text = (lead.phone.substring(
                         0,
