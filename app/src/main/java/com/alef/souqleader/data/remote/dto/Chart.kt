@@ -14,11 +14,13 @@ data class Chart(
     val fresh_leads: Float=0.0F,
     val percentage_leads: String?=null,
     val total: Float=0.0F,
-    val total_leads: Float=0.0F,
+    val total_leads: Float?=null,
     val delay_actions_count: Float?=null,
+    val active_leads_count: Float?=null,
+
 ) {
     fun getCount(): Float {
-        return count ?: actions_count ?: total_leads ?: delay_actions_count ?: 0f
+        return count ?: actions_count ?: total_leads ?: delay_actions_count ?:active_leads_count?: 0f
     }
 
     fun getTitle(): String? {

@@ -3,8 +3,8 @@ package com.alef.souqleader.data.remote.dto
 import androidx.compose.runtime.MutableState
 
 data class Dashboard(
-    val activeInventory: Int,
-    val active_delayed_leads: Int,
+    val activeInventory: String,
+    val active_delayed_leads: String,
     val active_lead_chart: ActiveLeadChart,
     val conversion_rate: Double,
     val fresh_leads: String,

@@ -1,10 +1,8 @@
 package com.alef.souqleader.ui.presentation.meetingReport
 
+import GradientBarChartRenderer
 import android.content.Intent
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.net.Uri
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -29,13 +27,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,9 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,48 +55,46 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.rememberAsyncImagePainter
 import com.alef.souqleader.R
 import com.alef.souqleader.data.remote.dto.Chart
 import com.alef.souqleader.data.remote.dto.Lead
+import com.alef.souqleader.data.remote.dto.LeadSource
 import com.alef.souqleader.data.remote.dto.MeetingReport
-import com.alef.souqleader.data.remote.dto.Post
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.domain.model.CustomBarChartRender
 import com.alef.souqleader.ui.MainViewModel
-import com.alef.souqleader.ui.presentation.allLeads.AllLeadViewModel
+import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.model.GradientColor
+import com.github.mikephil.charting.renderer.BarChartRenderer
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.github.mikephil.charting.utils.ViewPortHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.core.graphics.toColorInt
-import com.github.mikephil.charting.components.LegendEntry
-import androidx.core.net.toUri
-import com.github.mikephil.charting.animation.Easing
-import com.github.mikephil.charting.charts.HorizontalBarChart
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 
 
 @Composable
@@ -360,11 +351,12 @@ fun MeetingItem(meetingReport: MeetingReport) {
 }
 
 @Composable
-fun MyBarChartDashboard(chart: List<Chart>, title: String) {
+fun MyBarChartDashboard(chart: List<Chart>) {
     // Sample data
 
     val barEntries: ArrayList<BarEntry> = arrayListOf()
     val labels: ArrayList<String> = arrayListOf()
+
     chart.forEachIndexed { index, chart ->
         if (chart.date.isNullOrEmpty()) {
             chart.getTitle().let { it?.let { it1 -> labels.add(it1) } }
@@ -374,18 +366,24 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
 
         BarEntry(index.toFloat(), chart.getCount()).let { barEntries.add(it) }
     }
-
-    val stages = listOf(
-        "Fresh" to Pair(68f, "#22C55E"),
-        "Send Options" to Pair(5f, "#3B82F6"),
-        "Assigned" to Pair(3f, "#F97316"),
-        "Viewing/Meeting" to Pair(9f, "#EAB308"),
-        "Contacted" to Pair(20f, "#EF4444"),
-        "Following up" to Pair(7f, "#A855F7"),
-        "Sign SPA" to Pair(4f, "#06B6D4"),
-        "Commission check" to Pair(1f, "#8B5CF6"),
-        "Commission received" to Pair(1f, "#F59E0B")
+    val colors1 = listOf(
+        greenColor.toArgb(),
+        blueColor.toArgb(),
+        redColor.toArgb(),
+        yellowColor.toArgb(),
+        broundColor.toArgb(),
+        greenColor1.toArgb(),
+        blueColor2.toArgb(),
+        yellowColor3.toArgb(),
+        redColor4.toArgb(),
+        broundColor5.toArgb(),
     )
+    val stages = chart.mapIndexed { index, item ->
+        val colorInt = colors1[index % colors1.size]
+        item.getTitle() to Pair(item.getCount(), colorInt)
+    }
+
+
     Card(
         Modifier
             .fillMaxWidth()
@@ -414,7 +412,7 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
                         }
 
                         val barDataSet = BarDataSet(entries, "").apply {
-                            colors = stages.map { it.second.second.toColorInt() }
+                            colors = stages.map { it.second.second }
                             valueTextColor = android.graphics.Color.BLACK
                             valueTextSize = 10f
                             setDrawValues(true)
@@ -461,30 +459,8 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
                             setDrawGridLines(true)   // (اختياري) يخفي خطوط الشبكة الأفقية
                             axisLineColor = android.graphics.Color.TRANSPARENT
                         }
-                        // ✅ Legend مخصص بالألوان والأسماء
-//                val legendEntries = mutableListOf<LegendEntry>()
-//                stages.forEach { (label, pair) ->
-//                    legendEntries.add(
-//                        LegendEntry().apply {
-//                            form = Legend.LegendForm.CIRCLE
-//                            formColor = pair.second.toColorInt()
-//                            this.label = label
-//                        }
-//                    )
-//                }
+
                         legend.isEnabled = false
-//                legend.apply {
-//                    form = Legend.LegendForm.CIRCLE
-//                    formSize = 6f
-//                    textSize = 8f
-//                    textColor = android.graphics.Color.DKGRAY
-//                    horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-//                    verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-//                    orientation = Legend.LegendOrientation.HORIZONTAL
-//                    setDrawInside(false)
-//                    xEntrySpace = 10f
-//
-//                }
 
 
                         // ✅ Animation
@@ -501,7 +477,7 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
 
             grouped.forEach { row ->
                 Row(
-                    modifier = Modifier.padding(vertical = 4.dp),
+                    modifier = Modifier.padding(vertical = 1.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -514,15 +490,17 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
                                 modifier = Modifier
                                     .size(10.dp)
                                     .background(
-                                        Color(pair.second.toColorInt()),
+                                        Color(pair.second),
                                         shape = CircleShape
                                     )
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = label,
+                                text = label ?: "",
                                 fontSize = 9.sp,
-                                color = Color.DarkGray
+                                color = Color.DarkGray,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
@@ -533,15 +511,14 @@ fun MyBarChartDashboard(chart: List<Chart>, title: String) {
 }
 
 @Composable
-fun LeadSourcesLineChart(chart: List<Chart>, title: String) {
-    val leadSources = listOf(
-        "Facebook" to listOf(60f, 10f),
-        "Instagram" to listOf(15f, 5f),
-        "OLXs" to listOf(12f, 7f),
-        "Property Finder" to listOf(10f, 3f)
-    )
+fun LeadSourcesLineChart(lead: List<LeadSource>) {
+    val months: ArrayList<String> = arrayListOf()
 
-    val months = listOf("Aug 2025", "Sep 2025")
+    lead.mapIndexed { index, item ->
+        months.add(item.date)
+    }
+
+    val leadSources = combineAllLeadSources(lead)
     Card(
         Modifier
             .fillMaxWidth()
@@ -554,16 +531,7 @@ fun LeadSourcesLineChart(chart: List<Chart>, title: String) {
                 .fillMaxWidth()
                 .background(Color.White)
         ) {
-            Text(
-                text = title,
-                Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-                style = TextStyle(
-                    fontSize = 18.sp, color = colorResource(id = R.color.black),
-                    fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
-                )
-            )
+
             AndroidView(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -652,8 +620,32 @@ fun LeadSourcesLineChart(chart: List<Chart>, title: String) {
 
 }
 
+fun combineAllLeadSources(months: List<LeadSource>): List<Pair<String, List<Float>>> {
+    // جمع كل أسماء المصادر بدون تكرار
+    val allNames = months
+        .flatMap { it.source.map { src -> src.title_en.orEmpty() } }
+        .distinct()
+        .filter { it.isNotEmpty() }
+
+    // لكل مصدر، اجمع قيمه من كل الشهور
+    return allNames.map { name ->
+        val monthValues = months.map { month ->
+            month.source.find { it.title_en == name }?.total_leads ?: 0f
+        }
+        name to monthValues
+    }
+}
+
 @Composable
-fun MonthlyInventoryChartMP() {
+fun MonthlyInventoryChartMP(chart: List<Chart>) {
+    val dates = chart.mapIndexed { index, chart ->
+        chart.date
+    }
+    val valu = chart.mapIndexed { index, chart ->
+        chart.getCount()
+    }
+
+
     Card(
         Modifier
             .fillMaxWidth()
@@ -673,11 +665,11 @@ fun MonthlyInventoryChartMP() {
                     .padding(horizontal = 16.dp),
                 factory = { context ->
                     LineChart(context).apply {
-                        val entries = listOf(
-                            Entry(0f, 9f),
-                            Entry(1f, 5f),
-                            Entry(2f, 3f)
-                        )
+                        val entries = valu.mapIndexed { index, it ->
+                            Entry(index.toFloat(), it)
+
+                        }
+
 
                         val dataSet = LineDataSet(entries, "").apply {
                             // لون الخط (android.graphics.Color)
@@ -715,7 +707,7 @@ fun MonthlyInventoryChartMP() {
                         // المحور الأفقي (الشهور)
                         xAxis.apply {
                             valueFormatter = IndexAxisValueFormatter(
-                                listOf("Aug 2025", "Sep 2025", "Oct 2025")
+                                dates
                             )
                             position = XAxis.XAxisPosition.BOTTOM
                             textSize = 12f
@@ -755,20 +747,26 @@ fun MonthlyInventoryChartMP() {
 
 
 @Composable
-fun CancellationReasonsList() {
-    val reasons = listOf(
-        Triple("Competitor", 6, Color(0xFFE53935)),
-        Triple("Deal already done", 5, Color(0xFFFFA000)),
-        Triple("Don’t call again", 4, Color(0xFF1E88E5)),
-        Triple("Job seeker", 4, Color(0xFF43A047)),
-        Triple("Wrong Number", 4, Color(0xFF8E24AA)),
-        Triple("Other", 3, Color(0xFFF06292)),
-        Triple("Not interested", 2, Color(0xFF5C6BC0)),
-        Triple("Property/requirement changed", 2, Color(0xFF00ACC1)),
-        Triple("Budget", 1, Color(0xFF26C6DA))
+fun CancellationReasonsList(chart: List<Chart>) {
+    val colors1 = listOf(
+        greenColor.toArgb(),
+        blueColor.toArgb(),
+        redColor.toArgb(),
+        yellowColor.toArgb(),
+        broundColor.toArgb(),
+        greenColor1.toArgb(),
+        blueColor2.toArgb(),
+        yellowColor3.toArgb(),
+        redColor4.toArgb(),
+        broundColor5.toArgb(),
     )
 
-    val total = reasons.sumOf { it.second }
+    val reasons = chart.mapIndexed { index, chart ->
+        val colorInt = colors1[index % colors1.size]
+        Triple(chart.getTitle(), chart.getCount(), colorInt)
+    }
+
+    val total = reasons.sumOf { it.second.toInt() }
 
     Card(
         Modifier
@@ -780,42 +778,43 @@ fun CancellationReasonsList() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(Color.White).padding(horizontal = 8.dp)
         ) {
 
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             reasons.forEach { (label, value, color) ->
-                val percentage = (value.toFloat() / total.toFloat()) * 100
+                val percentage = (value / total.toFloat()) * 100
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp),
+                        .padding(vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // دائرة اللون
                     Box(
                         modifier = Modifier
                             .size(10.dp)
-                            .background(color, CircleShape)
+                            .background(Color(color), CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     // النص الأساسي (العنوان)
                     Text(
-                        text = label,
+                        text = label ?: "",
                         modifier = Modifier.weight(1f),
-                        fontSize = 14.sp
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+
                     )
 
                     // شريط النسبة
                     Box(
                         modifier = Modifier
                             .weight(2f)
-                            .height(12.dp)
+                            .height(13.dp)
+                            .padding(horizontal = 8.dp)
                             .clip(RoundedCornerShape(50))
                             .background(Color(0xFFEAEAEA))
                     ) {
@@ -824,7 +823,7 @@ fun CancellationReasonsList() {
                                 .fillMaxHeight()
                                 .fillMaxWidth(percentage / 100)
                                 .clip(RoundedCornerShape(50))
-                                .background(color)
+                                .background(Color(color))
                         )
                     }
 
@@ -834,12 +833,12 @@ fun CancellationReasonsList() {
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = value.toString(),
-                            fontSize = 14.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "${percentage.toInt()}%",
-                            fontSize = 12.sp,
+                            fontSize = 10.sp,
                             color = Color.Gray
                         )
                     }
@@ -951,7 +950,7 @@ fun MyBarChart(chart: List<Chart>, title: String) {
 }
 
 @Composable
-fun MyBarChart1(chart: List<Chart>, title: String) {
+fun MyBarChart1(chart: List<Chart>) {
     // Sample data
 
     val barEntries: ArrayList<BarEntry> = arrayListOf()
@@ -965,7 +964,8 @@ fun MyBarChart1(chart: List<Chart>, title: String) {
 
         BarEntry(index.toFloat(), chart.getCount()).let { barEntries.add(it) }
     }
-
+    val startColor = android.graphics.Color.parseColor("#020F3C")
+    val endColor = android.graphics.Color.parseColor("#3B82F6")
     Card(
         Modifier
             .fillMaxWidth()
@@ -1006,12 +1006,12 @@ fun MyBarChart1(chart: List<Chart>, title: String) {
                         xAxis.granularity = 1f
 
 
-
+                        xAxis.yOffset = 5f
+                        xAxis.xOffset = 0f
                         xAxis.isGranularityEnabled = true
-                        xAxis.setCenterAxisLabels(true)
+                        xAxis.setCenterAxisLabels(false)
                         //  xAxis.setAvoidFirstLastClipping(true)
                         xAxis.labelRotationAngle = 80f
-                        xAxis.granularity = 1f;
                         // xAxis.setDrawGridLines(true)
                         axisRight.isEnabled = false
                         legend.isEnabled = false
@@ -1023,10 +1023,12 @@ fun MyBarChart1(chart: List<Chart>, title: String) {
                         setScaleEnabled(false)
                         setVisibleXRangeMaximum(4f)
                         //  extraBottomOffset = 100F
-                        val barChartRender = CustomBarChartRender(
+                        val barChartRender = GradientBarChartRenderer(
                             this,
                             animator,
-                            viewPortHandler
+                            viewPortHandler,
+                            startColor = startColor,
+                            endColor = endColor
                         )
 
 //                barChartRender.setRadius(30)
@@ -1034,7 +1036,8 @@ fun MyBarChart1(chart: List<Chart>, title: String) {
                         renderer = barChartRender
                         // Create bar data set
                         val barDataSet = BarDataSet(barEntries, "Sample Data").apply {
-                            colors = ColorTemplate.MATERIAL_COLORS.asList()
+                            //  colors = ColorTemplate.MATERIAL_COLORS.asList()
+
                             valueTextColor = R.color.black
                             valueTextSize = 16f
                         }
@@ -1353,9 +1356,10 @@ class MultiLineValueFormatter : ValueFormatter() {
     override fun getFormattedValue(value: Float): String {
         val label = "Your label here" // Replace with your label logic
         // Split the label into two lines
-        return if (label.length > 10) """
+        return """
      ${label.substring(0, 10)}
      ${label.substring(10)}
-     """.trimIndent() else label
+     """.trimIndent()
     }
 }
+

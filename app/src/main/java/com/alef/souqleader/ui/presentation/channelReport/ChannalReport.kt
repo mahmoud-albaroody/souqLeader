@@ -113,7 +113,7 @@ fun ChannelTotal(channelReportList: ArrayList<Chart>) {
     var totalFresh = 0.0
     channelReportList.forEach {
         totalCancel += it.total
-        totalLead += it.total_leads
+        totalLead += it.total_leads?:0f
         totalFresh += it.fresh_leads
     }
     Card(
@@ -201,7 +201,7 @@ fun ChannelLead(channelLeadChart: Chart) {
         )
         androidx.compose.material3.Text(
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-            text = channelLeadChart.total_leads.toInt().toString() ?: "",
+            text = channelLeadChart.total_leads?.toInt().toString(),
             fontSize = 12.sp, color = colorResource(id = R.color.black),
             textAlign = TextAlign.Center
         )

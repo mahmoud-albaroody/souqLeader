@@ -8,54 +8,33 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Fireplace
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.LocalShipping
-import androidx.compose.material.icons.filled.Pending
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Timelapse
-import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,12 +42,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,23 +58,16 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.alef.souqleader.R
 import com.alef.souqleader.Resource
-import com.alef.souqleader.data.remote.dto.AllLeadStatus
-import com.alef.souqleader.data.remote.dto.Chart
 import com.alef.souqleader.data.remote.dto.Dashboard
-import com.alef.souqleader.data.remote.dto.LeadDetailsResponse
+import com.alef.souqleader.data.remote.dto.TopAgent
 import com.alef.souqleader.domain.model.AccountData
 import com.alef.souqleader.ui.MainActivity
 import com.alef.souqleader.ui.MainViewModel
-import com.alef.souqleader.ui.navNotification
 import com.alef.souqleader.ui.presentation.SharedViewModel
-import com.alef.souqleader.ui.presentation.channelReport.ChannelLead
-import com.alef.souqleader.ui.presentation.channelReport.ChannelTotal
-import com.alef.souqleader.ui.presentation.dashboardScreen.DashboardViewModel
 import com.alef.souqleader.ui.presentation.mainScreen.MainScreen
 import com.alef.souqleader.ui.presentation.meetingReport.CancellationReasonsList
 import com.alef.souqleader.ui.presentation.meetingReport.LeadSourcesLineChart
 import com.alef.souqleader.ui.presentation.meetingReport.MonthlyInventoryChartMP
-import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChart1
 import com.alef.souqleader.ui.presentation.meetingReport.MyBarChartDashboard
 
@@ -173,6 +144,60 @@ fun DashboardScreen1(
 @Composable
 fun DashBoardView(dashboard: Dashboard?) {
     var selectedOption by remember { mutableStateOf("Primary") }
+    var selectedOption2 by remember { mutableStateOf("Primary") }
+    val items: ArrayList<StatItem> = arrayListOf()
+    dashboard?.let {
+        items.add(
+            StatItem(
+                it.totalHotActiveLead,
+                "Hot Leads", Icons.Default.Bolt, Color(0xFFFD184A)
+            ),
+        )
+        items.add(
+            StatItem(
+                it.total_active_lead,
+                "Active Leads", Icons.Default.Group, Color(0xFF1F5AF8)
+            ),
+        )
+        items.add(
+            StatItem(
+                it.fresh_leads,
+                "Fresh Leads", Icons.Default.Phone, Color(0xFF00C59D)
+            ),
+        )
+        items.add(
+            StatItem(
+                it.activeInventory,
+                "Active Inventory",
+                Icons.Default.Inventory2,
+                Color(0xFFB000EF)
+            ),
+        )
+        items.add(
+            StatItem(
+                it.active_delayed_leads,
+                "Delayed Leads",
+                Icons.Default.Timelapse,
+                Color(0xFFFDC73D)
+            ),
+        )
+        items.add(
+            StatItem(
+                it.online_users,
+                "Active Users",
+                Icons.Default.AccountCircle,
+                Color(0xFF8A00EA)
+            ),
+        )
+        items.add(
+            StatItem(
+                it.conversion_rate.toString() + "%",
+                "Conversion Rate",
+                Icons.Default.Assessment,
+                Color(0xFF00B663)
+            )
+        )
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -180,21 +205,14 @@ fun DashBoardView(dashboard: Dashboard?) {
         content = {
 
             item {
-                DashboardScreen()
+                DashboardScreen(items)
             }
             item {
-                dashboard?.inventoryChart?.let {
-                    MyBarChartDashboard(it, "")
-                }
-            }
-            item {
-                dashboard?.inventoryChart?.let {
-                    LeadSourcesLineChart(it, "Lead Sources Over Time")
-                }
-
-            }
-            item {
-                Column (Modifier.padding(horizontal = 16.dp)){
+                Column(
+                    Modifier
+                        .padding(horizontal = 18.dp)
+                        .padding(bottom = 16.dp)
+                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -202,81 +220,201 @@ fun DashBoardView(dashboard: Dashboard?) {
                         Text(
                             text = "Active Leads",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 12.sp,
+                            modifier = Modifier
+                                .padding(vertical = 0.dp)
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
                                 selected = selectedOption == "Primary",
                                 onClick = { selectedOption = "Primary" },
-                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF3B82F6))
+                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
                             )
-                            Text("Primary", fontSize = 10.sp, modifier = Modifier.padding(end = 8.dp))
+                            Text(
+                                "Primary", fontSize = 10.sp,
+                                lineHeight = 10.sp,
+                                modifier = Modifier
+                                    .padding(vertical = 0.dp)
+                                    .padding(end = 8.dp)
+                            )
                             RadioButton(
                                 selected = selectedOption == "Secondary",
                                 onClick = { selectedOption = "Secondary" },
-                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF3B82F6))
+                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
                             )
-                            Text("Secondary", fontSize = 10.sp)
+                            Text(
+                                "Secondary", fontSize = 10.sp,
+                                lineHeight = 10.sp,
+                                modifier = Modifier
+                                    .padding(vertical = 0.dp)
+                            )
                         }
                     }
                     Text(
                         text = "Distribution across different stages",
                         color = Color.Gray,
-                        fontSize = 8.sp
+                        fontSize = 9.sp,
+                        lineHeight = 9.sp,
+                        modifier = Modifier
+                            .padding(vertical = 0.dp)
                     )
                 }
             }
             item {
-
-                    dashboard?.inventoryChart?.let {
-                        MyBarChart1(it, "")
+                if(selectedOption=="Secondary"){
+                    dashboard?.active_lead_chart?.secondary?.let {
+                        MyBarChartDashboard(it)
+                    }
+                }else {
+                    dashboard?.active_lead_chart?.primary?.let {
+                        MyBarChartDashboard(it)
                     }
                 }
+            }
+            item {
+                Column {
+                    Text(
+                        text = "Lead Sources Over Time",
+                        Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth(),
+                        style = TextStyle(
+                            fontSize = 18.sp, color = colorResource(id = R.color.black),
+                            fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center
+                        )
+                    )
+                    dashboard?.lead_source?.let {
+                        LeadSourcesLineChart(it)
+                    }
+                }
+
+            }
+            item {
+                Column(
+                    Modifier
+                        .padding(horizontal = 18.dp)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Active Leads",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 12.sp,
+                            modifier = Modifier
+                                .padding(vertical = 0.dp)
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = selectedOption2 == "Primary",
+                                onClick = { selectedOption2 = "Primary" },
+                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
+                            )
+                            Text(
+                                "Primary", fontSize = 10.sp,
+                                lineHeight = 10.sp,
+                                modifier = Modifier
+                                    .padding(vertical = 0.dp)
+                                    .padding(end = 8.dp)
+                            )
+                            RadioButton(
+                                selected = selectedOption2 == "Secondary",
+                                onClick = { selectedOption2 = "Secondary" },
+                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
+                            )
+                            Text(
+                                "Secondary", fontSize = 10.sp,
+                                lineHeight = 10.sp,
+                                modifier = Modifier
+                                    .padding(vertical = 0.dp)
+                            )
+                        }
+                    }
+                    Text(
+                        text = "Distribution across different stages",
+                        color = Color.Gray,
+                        fontSize = 9.sp,
+                        lineHeight = 9.sp,
+                        modifier = Modifier
+                            .padding(vertical = 0.dp)
+                    )
+                }
+            }
+
+            item {
+
+                if(selectedOption2=="Secondary"){
+                    dashboard?.stage_delay?.secondary?.let {
+                        MyBarChart1(it)
+                    }
+                }else {
+                    dashboard?.stage_delay?.primary?.let {
+                        MyBarChart1(it)
+                    }
+                }
+            }
 
 
             item {
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {   Text(
-                    text = "Active Leads",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                        .padding(horizontal = 18.dp, vertical = 16.dp)
+                ) {
+                    Text(
+                        text = "Active Leads",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Text(
                         text = "Distribution across different stages",
                         color = Color.Gray,
-                        fontSize = 8.sp
-                    ) }
-
-                    MonthlyInventoryChartMP()
-
+                        fontSize = 9.sp
+                    )
+                }
+                dashboard?.inventoryChart?.let {
+                    MonthlyInventoryChartMP(it)
+                }
             }
             item {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Cancellation Reasons",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Total: 12",
-                            fontSize = 16.sp,
-                            color = Color.Gray
-                        )
+
+                    dashboard?.reasons_chart?.let {
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Cancellation Reasons",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                val total = it.sumOf { chart -> chart.getCount().toDouble() }.toFloat()
+                                Text(
+                                    text = "Total: $total",
+                                    fontSize = 14.sp,
+                                    color = Color.Gray
+                                )
+                            }
+                        CancellationReasonsList(it)
                     }
-                    CancellationReasonsList()
+
                 }
 
             }
 
 
-            item { TopAgentsSection() }
+            item {
+                dashboard?.top_agents?.let {
+                    TopAgentsSection(it)
+                }
+            }
 
 
         })
@@ -290,122 +428,84 @@ data class StatItem(
 )
 
 @Composable
-fun DashboardScreen() {
-    val items = listOf(
-        StatItem("193", "Hot Leads", Icons.Default.Bolt, Color(0xFFFF4B4B)),
-        StatItem("376", "Active Leads", Icons.Default.Group, Color(0xFF3B82F6)),
-        StatItem("133", "Fresh Leads", Icons.Default.Phone, Color(0xFF22C55E)),
-        StatItem("65", "Active Inventory", Icons.Default.Inventory2, Color(0xFFA855F7)),
-        StatItem("193", "Delayed Leads", Icons.Default.Timelapse, Color(0xFFFACC15)),
-        StatItem("4", "Active Users", Icons.Default.AccountCircle, Color(0xFF8B5CF6)),
-        StatItem("3.76%", "Conversion Rate", Icons.Default.Assessment, Color(0xFF10B981))
-    )
-
-    var selectedOption by remember { mutableStateOf("Primary") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF5F6FA))
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-
-        ) {
+fun DashboardScreen(items: ArrayList<StatItem>) {
 
 
-        Row(Modifier.fillMaxWidth()) {
-            Box(
-                Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp)
+    if (items.isNotEmpty())
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFF5F6FA))
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+
             ) {
-                StatCard(items[0])
+            Row(Modifier.fillMaxWidth()) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp)
+                ) {
+                    StatCard(items[0])
+                }
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp)
+                ) {
+                    StatCard(items[1])
+                }
             }
-            Box(
+            Row(
                 Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp)
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
             ) {
-                StatCard(items[0])
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp)
+                ) {
+                    StatCard1(items[2])
+                }
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp)
+                ) {
+                    StatCard1(items[3])
+                }
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp)
+                ) {
+                    StatCard1(items[4])
+                }
             }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp)
+                ) {
+                    StatCard(items[5])
+                }
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp)
+                ) {
+                    StatCard(items[6])
+                }
+            }
+
+
         }
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Box(
-                Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp)
-            ) {
-                StatCard1(items[0])
-            }
-            Box(
-                Modifier
-                    .weight(1f)
-                    .padding(horizontal = 4.dp)
-            ) {
-                StatCard1(items[0])
-            }
-            Box(
-                Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp)
-            ) {
-                StatCard1(items[0])
-            }
-        }
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Box(
-                Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp)
-            ) {
-                StatCard(items[0])
-            }
-            Box(
-                Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp)
-            ) {
-                StatCard(items[0])
-            }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Active Leads",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = selectedOption == "Primary",
-                    onClick = { selectedOption = "Primary" },
-                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF3B82F6))
-                )
-                Text("Primary", fontSize = 10.sp, modifier = Modifier.padding(end = 8.dp))
-                RadioButton(
-                    selected = selectedOption == "Secondary",
-                    onClick = { selectedOption = "Secondary" },
-                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF3B82F6))
-                )
-                Text("Secondary", fontSize = 10.sp)
-            }
-        }
-        Text(
-            text = "Distribution across different stages",
-            color = Color.Gray,
-            fontSize = 8.sp
-        )
-    }
-
 }
 
 
@@ -413,7 +513,7 @@ fun DashboardScreen() {
 fun StatCard(item: StatItem) {
     Card(
         modifier = Modifier
-            .height(70.dp)
+            .height(65.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -429,32 +529,45 @@ fun StatCard(item: StatItem) {
                 modifier = Modifier
                     .size(32.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF3B82F6)),
+                    .background(item.color),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = item.icon,
                     contentDescription = "Hot Leads",
-                    tint = item.color,
-                    modifier = Modifier.size(24.dp)
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = item.value,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.Black,
+                    lineHeight = 15.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 0.dp)
                 )
 
                 Text(
                     text = item.title,
                     fontSize = 10.sp,
                     color = Color.Gray,
-                    overflow = TextOverflow.Ellipsis
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 10.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 0.dp)
                 )
             }
         }
@@ -465,7 +578,7 @@ fun StatCard(item: StatItem) {
 fun StatCard1(item: StatItem) {
     Card(
         modifier = Modifier
-            .height(110.dp),
+            .height(100.dp),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(2.dp)
@@ -486,8 +599,8 @@ fun StatCard1(item: StatItem) {
                 Icon(
                     imageVector = item.icon,
                     contentDescription = "Hot Leads",
-                    tint = Color(0xFFFF4B4B),
-                    modifier = Modifier.size(24.dp)
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
                 )
             }
 
@@ -498,7 +611,11 @@ fun StatCard1(item: StatItem) {
                     text = item.value,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = Color.Black,
+                    lineHeight = 15.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 0.dp)
                 )
 
                 Text(
@@ -506,7 +623,11 @@ fun StatCard1(item: StatItem) {
                     fontSize = 10.sp,
                     color = Color.Gray,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 10.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 0.dp)
                 )
             }
         }
@@ -518,13 +639,17 @@ data class AgentCard(
     val deals: String
 )
 
-@Preview
+
 @Composable
-fun TopAgentsSection() {
-    val agents = listOf(
-        AgentCard("Company admin", "8 deals closed"),
-        AgentCard("a5", "3 deals closed")
-    )
+fun TopAgentsSection(topAgent: List<TopAgent>) {
+
+    val agents = topAgent.mapIndexed { index, agent ->
+        AgentCard(
+            agent.user.name.toString(),
+            agent.action_count.toString() + " deals closed"
+        )
+    }
+
 
     Column(
         modifier = Modifier

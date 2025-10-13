@@ -68,6 +68,7 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:6.12.0")
     implementation("com.google.maps.android:maps-compose-utils:6.12.0")
     implementation("com.google.maps.android:maps-compose-widgets:6.12.0")
+    implementation("androidx.compose.ui:ui-graphics:1.9.3")
 
     val cameraVersion = "1.5.0"
     implementation("androidx.camera:camera-lifecycle:$cameraVersion")
