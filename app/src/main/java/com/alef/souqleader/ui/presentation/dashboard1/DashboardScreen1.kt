@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -143,32 +144,36 @@ fun DashboardScreen1(
 
 @Composable
 fun DashBoardView(dashboard: Dashboard?) {
-    var selectedOption by remember { mutableStateOf("Primary") }
-    var selectedOption2 by remember { mutableStateOf("Primary") }
+
+    val context = LocalContext.current
+    val defaultOption = context.getString(R.string.primary)
+
+    var selectedOption by remember { mutableStateOf(defaultOption) }
+    var selectedOption2 by remember { mutableStateOf(defaultOption) }
     val items: ArrayList<StatItem> = arrayListOf()
     dashboard?.let {
         items.add(
             StatItem(
                 it.totalHotActiveLead,
-                "Hot Leads", Icons.Default.Bolt, Color(0xFFFD184A)
+                stringResource(R.string.hot_leads), Icons.Default.Bolt, Color(0xFFFD184A)
             ),
         )
         items.add(
             StatItem(
                 it.total_active_lead,
-                "Active Leads", Icons.Default.Group, Color(0xFF1F5AF8)
+                stringResource(R.string.active_leads), Icons.Default.Group, Color(0xFF1F5AF8)
             ),
         )
         items.add(
             StatItem(
                 it.fresh_leads,
-                "Fresh Leads", Icons.Default.Phone, Color(0xFF00C59D)
+                stringResource(R.string.fresh_leads), Icons.Default.Phone, Color(0xFF00C59D)
             ),
         )
         items.add(
             StatItem(
                 it.activeInventory,
-                "Active Inventory",
+                stringResource(R.string.active_inventory),
                 Icons.Default.Inventory2,
                 Color(0xFFB000EF)
             ),
@@ -176,7 +181,7 @@ fun DashBoardView(dashboard: Dashboard?) {
         items.add(
             StatItem(
                 it.active_delayed_leads,
-                "Delayed Leads",
+                stringResource(R.string.delayed_leads),
                 Icons.Default.Timelapse,
                 Color(0xFFFDC73D)
             ),
@@ -184,7 +189,7 @@ fun DashBoardView(dashboard: Dashboard?) {
         items.add(
             StatItem(
                 it.online_users,
-                "Active Users",
+                stringResource(R.string.active_users),
                 Icons.Default.AccountCircle,
                 Color(0xFF8A00EA)
             ),
@@ -192,7 +197,7 @@ fun DashBoardView(dashboard: Dashboard?) {
         items.add(
             StatItem(
                 it.conversion_rate.toString() + "%",
-                "Conversion Rate",
+                stringResource(R.string.conversion_rate),
                 Icons.Default.Assessment,
                 Color(0xFF00B663)
             )
@@ -218,7 +223,7 @@ fun DashBoardView(dashboard: Dashboard?) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Active Leads",
+                            text =context.getString(R.string.active_leads),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             lineHeight = 12.sp,
@@ -227,24 +232,24 @@ fun DashBoardView(dashboard: Dashboard?) {
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
-                                selected = selectedOption == "Primary",
-                                onClick = { selectedOption = "Primary" },
+                                selected = selectedOption == context.getString(R.string.primary),
+                                onClick = { selectedOption = context.getString(R.string.primary) },
                                 colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
                             )
                             Text(
-                                "Primary", fontSize = 10.sp,
+                                context.getString(R.string.primary), fontSize = 10.sp,
                                 lineHeight = 10.sp,
                                 modifier = Modifier
                                     .padding(vertical = 0.dp)
                                     .padding(end = 8.dp)
                             )
                             RadioButton(
-                                selected = selectedOption == "Secondary",
-                                onClick = { selectedOption = "Secondary" },
+                                selected = selectedOption == context.getString(R.string.secondary),
+                                onClick = { selectedOption = context.getString(R.string.secondary) },
                                 colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
                             )
                             Text(
-                                "Secondary", fontSize = 10.sp,
+                                stringResource(R.string.secondary), fontSize = 10.sp,
                                 lineHeight = 10.sp,
                                 modifier = Modifier
                                     .padding(vertical = 0.dp)
@@ -252,7 +257,7 @@ fun DashBoardView(dashboard: Dashboard?) {
                         }
                     }
                     Text(
-                        text = "Distribution across different stages",
+                        text = stringResource(R.string.distribution_across_different_stages),
                         color = Color.Gray,
                         fontSize = 9.sp,
                         lineHeight = 9.sp,
@@ -262,7 +267,7 @@ fun DashBoardView(dashboard: Dashboard?) {
                 }
             }
             item {
-                if(selectedOption=="Secondary"){
+                if(selectedOption==stringResource(R.string.secondary)){
                     dashboard?.active_lead_chart?.secondary?.let {
                         MyBarChartDashboard(it)
                     }
@@ -275,7 +280,7 @@ fun DashBoardView(dashboard: Dashboard?) {
             item {
                 Column {
                     Text(
-                        text = "Lead Sources Over Time",
+                        text = stringResource(R.string.lead_sources_over_time),
                         Modifier
                             .padding(top = 16.dp)
                             .fillMaxWidth(),
@@ -301,7 +306,7 @@ fun DashBoardView(dashboard: Dashboard?) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Active Leads",
+                            text =context.getString(R.string.active_leads),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             lineHeight = 12.sp,
@@ -310,24 +315,24 @@ fun DashBoardView(dashboard: Dashboard?) {
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
-                                selected = selectedOption2 == "Primary",
-                                onClick = { selectedOption2 = "Primary" },
+                                selected = selectedOption2 == context.getString(R.string.primary),
+                                onClick = { selectedOption2 = context.getString(R.string.primary) },
                                 colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
                             )
-                            Text(
-                                "Primary", fontSize = 10.sp,
+                            Text(context.getString(R.string.primary)
+                                , fontSize = 10.sp,
                                 lineHeight = 10.sp,
                                 modifier = Modifier
                                     .padding(vertical = 0.dp)
                                     .padding(end = 8.dp)
                             )
                             RadioButton(
-                                selected = selectedOption2 == "Secondary",
-                                onClick = { selectedOption2 = "Secondary" },
+                                selected = selectedOption2 ==context.getString(R.string.secondary),
+                                onClick = { selectedOption2 = context.getString(R.string.secondary) },
                                 colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF020F3C))
                             )
                             Text(
-                                "Secondary", fontSize = 10.sp,
+                                stringResource(R.string.secondary), fontSize = 10.sp,
                                 lineHeight = 10.sp,
                                 modifier = Modifier
                                     .padding(vertical = 0.dp)
@@ -335,7 +340,7 @@ fun DashBoardView(dashboard: Dashboard?) {
                         }
                     }
                     Text(
-                        text = "Distribution across different stages",
+                        text = context.getString(R.string.distribution_across_different_stages),
                         color = Color.Gray,
                         fontSize = 9.sp,
                         lineHeight = 9.sp,
@@ -347,7 +352,7 @@ fun DashBoardView(dashboard: Dashboard?) {
 
             item {
 
-                if(selectedOption2=="Secondary"){
+                if(selectedOption2==stringResource(R.string.secondary)){
                     dashboard?.stage_delay?.secondary?.let {
                         MyBarChart1(it)
                     }
@@ -366,12 +371,12 @@ fun DashBoardView(dashboard: Dashboard?) {
                         .padding(horizontal = 18.dp, vertical = 16.dp)
                 ) {
                     Text(
-                        text = "Active Leads",
+                        text =context.getString(R.string.active_leads),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Distribution across different stages",
+                        text = context.getString(R.string.distribution_across_different_stages),
                         color = Color.Gray,
                         fontSize = 9.sp
                     )
@@ -391,13 +396,13 @@ fun DashBoardView(dashboard: Dashboard?) {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "Cancellation Reasons",
+                                    text = stringResource(R.string.cancellation_reasons),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 val total = it.sumOf { chart -> chart.getCount().toDouble() }.toFloat()
                                 Text(
-                                    text = "Total: $total",
+                                    text = stringResource(R.string.total, total),
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )
@@ -646,7 +651,7 @@ fun TopAgentsSection(topAgent: List<TopAgent>) {
     val agents = topAgent.mapIndexed { index, agent ->
         AgentCard(
             agent.user.name.toString(),
-            agent.action_count.toString() + " deals closed"
+            agent.action_count.toString() + stringResource(R.string.deals_closed)
         )
     }
 
@@ -661,7 +666,7 @@ fun TopAgentsSection(topAgent: List<TopAgent>) {
         // ---- Header ----
 
         Text(
-            text = "Top Performing Agents",
+            text = stringResource(R.string.top_performing_agents),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -742,7 +747,7 @@ fun AgentCardItem(agent: AgentCard) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "🏆 Target Achieved",
+                    text = stringResource(R.string.target_achieved),
                     color = Color(0xFF16A34A),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium

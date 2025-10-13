@@ -249,4 +249,20 @@
     <string name="no_results_found">No results found</string>
     <string name="waiting">انتظر قليلاً</string>
     <string name="uploading">جاري رفع الملف</string>
+    <string name="secondary">Secondary</string>
+    <string name="hot_leads">Hot Leads</string>
+    <string name="active_leads">Active Leads</string>
+    <string name="fresh_leads">Fresh Leads</string>
+    <string name="active_inventory">Active Inventory</string>
+    <string name="delayed_leads">Delayed Leads</string>
+    <string name="active_users">Active Users</string>
+    <string name="conversion_rate">Conversion Rate</string>
+    <string name="distribution_across_different_stages">Distribution across different stages</string>
+    <string name="lead_sources_over_time">Lead Sources Over Time</string>
+    <string name="primary">Primary</string>
+    <string name="cancellation_reasons">Cancellation Reasons</string>
+    <string name="total">Total: %1$s</string>
+    <string name="deals_closed">" deals closed"</string>
+    <string name="top_performing_agents">Top Performing Agents</string>
+    <string name="target_achieved">🏆 Target Achieved</string>
 </resources>

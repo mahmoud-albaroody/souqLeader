@@ -95,6 +95,8 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.mikephil.charting.utils.ViewPortHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.collections.chunked
+import kotlin.collections.forEach
 
 
 @Composable
@@ -352,20 +354,18 @@ fun MeetingItem(meetingReport: MeetingReport) {
 
 @Composable
 fun MyBarChartDashboard(chart: List<Chart>) {
-    // Sample data
-
     val barEntries: ArrayList<BarEntry> = arrayListOf()
     val labels: ArrayList<String> = arrayListOf()
 
-    chart.forEachIndexed { index, chart ->
-        if (chart.date.isNullOrEmpty()) {
-            chart.getTitle().let { it?.let { it1 -> labels.add(it1) } }
+    chart.forEachIndexed { index, chartItem ->
+        if (chartItem.date.isNullOrEmpty()) {
+            chartItem.getTitle()?.let { labels.add(it) }
         } else {
-            chart.date.let { labels.add(it) }
+            labels.add(chartItem.date)
         }
-
-        BarEntry(index.toFloat(), chart.getCount()).let { barEntries.add(it) }
+        barEntries.add(BarEntry(index.toFloat(), chartItem.getCount()))
     }
+
     val colors1 = listOf(
         greenColor.toArgb(),
         blueColor.toArgb(),
@@ -378,18 +378,19 @@ fun MyBarChartDashboard(chart: List<Chart>) {
         redColor4.toArgb(),
         broundColor5.toArgb(),
     )
+
     val stages = chart.mapIndexed { index, item ->
         val colorInt = colors1[index % colors1.size]
         item.getTitle() to Pair(item.getCount(), colorInt)
     }
 
+    var selectedLabel by remember { mutableStateOf<String?>(null) }
 
     Card(
         Modifier
             .fillMaxWidth()
             .background(Color(0xFFF5F6FA))
             .padding(horizontal = 16.dp)
-
     ) {
         Column(
             modifier = Modifier
@@ -397,39 +398,19 @@ fun MyBarChartDashboard(chart: List<Chart>) {
                 .background(Color.White)
         ) {
 
-
+            // ---- Bar Chart ----
             AndroidView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp),
                 factory = { context ->
                     BarChart(context).apply {
+                        setTouchEnabled(false)
+                        setScaleEnabled(false)
+                        legend.isEnabled = false
+                        description.isEnabled = false
+                        axisRight.isEnabled = false
 
-
-                        val entries = ArrayList<BarEntry>()
-                        stages.forEachIndexed { index, (_, pair) ->
-                            entries.add(BarEntry(index.toFloat(), pair.first))
-                        }
-
-                        val barDataSet = BarDataSet(entries, "").apply {
-                            colors = stages.map { it.second.second }
-                            valueTextColor = android.graphics.Color.BLACK
-                            valueTextSize = 10f
-                            setDrawValues(true)
-
-                            // ✅ عرض الأرقام فوق الأعمدة (مش الأسماء)
-                            valueFormatter = object : ValueFormatter() {
-                                override fun getBarLabel(barEntry: BarEntry?): String {
-                                    return barEntry?.y?.toInt()?.toString() ?: ""
-                                }
-                            }
-                        }
-
-                        val barData = BarData(barDataSet)
-                        barData.barWidth = 0.7f
-                        data = barData
-
-                        // 🔹 المحور X بدون تسميات
                         xAxis.apply {
                             position = XAxis.XAxisPosition.BOTTOM
                             setDrawLabels(false)
@@ -438,69 +419,115 @@ fun MyBarChartDashboard(chart: List<Chart>) {
                             axisLineColor = android.graphics.Color.DKGRAY
                         }
 
-                        // 🔹 إلغاء المحاور الجانبية
-                        axisLeft.isEnabled = true
-                        axisRight.isEnabled = false
-
-                        // 🔹 إعدادات عامة
-                        description.isEnabled = false
-                        setDrawGridBackground(false)
-                        setScaleEnabled(false)
-                        setPinchZoom(false)
-                        setFitBars(true)
-
-                        xAxis.yOffset = 0f                  // 👈 يخلي محور X ملامس تمامًا
                         axisLeft.apply {
-                            axisMinimum = 0f        // ✅ تبدأ من الصفر
-                            spaceBottom = 0f
-
-                            isEnabled = true          // 👈 نسيبه شغال عشان يحتفظ بالمقاس
-                            setDrawLabels(false)      // ❌ يخفي الأرقام اللي على الجنب
-                            setDrawGridLines(true)   // (اختياري) يخفي خطوط الشبكة الأفقية
+                            axisMinimum = 0f
+                            setDrawLabels(false)
+                            setDrawGridLines(true)
                             axisLineColor = android.graphics.Color.TRANSPARENT
                         }
 
-                        legend.isEnabled = false
-
-
-                        // ✅ Animation
                         animateY(1200)
                         animateX(800)
-                        invalidate()
                     }
-                }
+                },
+                update = { chartView ->
+                    val entries = ArrayList<BarEntry>()
+                    stages.forEachIndexed { index, (_, pair) ->
+                        // لو العنصر هو المختار، نزود ارتفاعه بسيط (فوكس بصري)
+                        val value =
+                            if (stages[index].first == selectedLabel) pair.first * 1.1f else pair.first
+                        entries.add(BarEntry(index.toFloat(), value))
+                    }
 
+                    val dataSet = BarDataSet(entries, "").apply {
+                        colors = stages.map { (label, pair) ->
+                            val baseColor = pair.second
+                            if (label == selectedLabel) {
+                                // العنصر المختار يكون بلون أوضح (أقل شفافية)
+                                android.graphics.Color.argb(
+                                    255,
+                                    android.graphics.Color.red(baseColor),
+                                    android.graphics.Color.green(baseColor),
+                                    android.graphics.Color.blue(baseColor)
+                                )
+                            } else {
+                                // باقي الأعمدة تفضل عادية
+                                android.graphics.Color.argb(
+                                    180,
+                                    android.graphics.Color.red(baseColor),
+                                    android.graphics.Color.green(baseColor),
+                                    android.graphics.Color.blue(baseColor)
+                                )
+                            }
+                        }
+
+                        valueTextColor = android.graphics.Color.DKGRAY
+                        valueTextSize = 10f
+                        setDrawValues(true)
+                        valueFormatter = object : ValueFormatter() {
+                            override fun getBarLabel(barEntry: BarEntry?): String {
+                                return barEntry?.y?.toInt()?.toString() ?: ""
+                            }
+                        }
+                        barBorderWidth = 0f
+                    }
+
+                    chartView.data = BarData(dataSet).apply { barWidth = 0.7f }
+                    chartView.invalidate()
+                }
             )
 
-
+            // ---- Legend ----
             val grouped = stages.chunked(3)
-
             grouped.forEach { row ->
                 Row(
-                    modifier = Modifier.padding(vertical = 1.dp),
+                    modifier = Modifier.padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     row.forEach { (label, pair) ->
+                        val color = Color(pair.second)
+                        val isSelected = selectedLabel == label
+
+                        val backgroundModifier = if (isSelected) {
+                            Modifier
+                                .clip(CircleShape)
+                                .background(color.copy(alpha = 0.6f))
+                                .border(
+                                    width = 1.5.dp,
+                                    color = color.copy(alpha = 0.5f),
+                                    shape = CircleShape
+                                )
+                        } else {
+                            Modifier
+                        }
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .then(backgroundModifier)
+                                .clickable {
+                                    selectedLabel = if (selectedLabel == label) null else label
+                                }
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(10.dp)
+                                    .size(if (isSelected) 10.dp else 8.dp)
                                     .background(
-                                        Color(pair.second),
+                                        if (isSelected) Color.White else color,
                                         shape = CircleShape
                                     )
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = label ?: "",
                                 fontSize = 9.sp,
-                                color = Color.DarkGray,
+                                color = if (isSelected) Color.White else Color.DarkGray,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
@@ -510,21 +537,33 @@ fun MyBarChartDashboard(chart: List<Chart>) {
     }
 }
 
+
 @Composable
 fun LeadSourcesLineChart(lead: List<LeadSource>) {
-    val months: ArrayList<String> = arrayListOf()
+    val months = remember { arrayListOf<String>() }
+    val colors1 = listOf(
+        greenColor.toArgb(),
+        blueColor.toArgb(),
+        redColor.toArgb(),
+        yellowColor.toArgb(),
+        broundColor.toArgb(),
+        greenColor1.toArgb(),
+        blueColor2.toArgb(),
+        yellowColor3.toArgb(),
+        redColor4.toArgb(),
+        broundColor5.toArgb(),
+    )
 
-    lead.mapIndexed { index, item ->
-        months.add(item.date)
-    }
+    lead.forEach { months.add(it.date) }
 
     val leadSources = combineAllLeadSources(lead)
+    var selectedLabel by remember { mutableStateOf<String?>(null) }
+
     Card(
         Modifier
             .fillMaxWidth()
             .background(Color(0xFFF5F6FA))
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-
+            .padding(16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -535,44 +574,31 @@ fun LeadSourcesLineChart(lead: List<LeadSource>) {
             AndroidView(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
                     .height(250.dp)
-                    .background(Color.White, RoundedCornerShape(16.dp))
-                    .padding(8.dp),
+                    .padding(16.dp)
+                    .background(Color.White, RoundedCornerShape(16.dp)),
                 factory = { context ->
                     LineChart(context).apply {
-
-                        // ✅ إعداد البيانات
                         val dataSets = mutableListOf<ILineDataSet>()
 
-                        val colors = listOf(
-                            Color(0xFF1877F2), // Facebook
-                            Color(0xFF2ECC71), // Instagram
-                            Color(0xFFFFA500), // OLX
-                            Color(0xFF9B59B6)  // Property Finder
-                        )
-
                         leadSources.forEachIndexed { index, (label, values) ->
-                            val entries = values.mapIndexed { i, v ->
-                                Entry(i.toFloat(), v)
-                            }
+                            val entries = values.mapIndexed { i, v -> Entry(i.toFloat(), v) }
                             val set = LineDataSet(entries, label).apply {
-                                color = colors[index].toArgb()
-                                lineWidth = 2f
-                                setCircleColor(colors[index].toArgb())
-                                circleRadius = 4f
+                                color = colors1[index]
+                                lineWidth = if (label == selectedLabel) 4f else 2f
+                                setCircleColor(colors1[index])
+                                circleRadius = if (label == selectedLabel) 6f else 4f
                                 setDrawCircleHole(false)
                                 valueTextSize = 10f
                                 valueTextColor = android.graphics.Color.DKGRAY
-                                setDrawValues(false) // لو عايز تخفي الأرقام فوق النقاط
-                                mode = LineDataSet.Mode.LINEAR
+                                setDrawValues(false)
+                                mode = LineDataSet.Mode.CUBIC_BEZIER
                             }
                             dataSets.add(set)
                         }
 
                         data = LineData(dataSets)
 
-                        // ✅ إعداد محور X (الشهور)
                         xAxis.apply {
                             valueFormatter = IndexAxisValueFormatter(months)
                             position = XAxis.XAxisPosition.BOTTOM
@@ -581,44 +607,109 @@ fun LeadSourcesLineChart(lead: List<LeadSource>) {
                             textColor = android.graphics.Color.DKGRAY
                             textSize = 10f
                             labelRotationAngle = -30f
-                            // ✅ يدخل التسميات شوية لجوه من الطرفين
                             axisMinimum = -0.2f
                             axisMaximum = months.size - 1 + 0.2f
                         }
 
-                        // ✅ إعداد محور Y
                         axisLeft.apply {
                             axisMinimum = 0f
                             textColor = android.graphics.Color.GRAY
                             textSize = 10f
                         }
                         axisRight.isEnabled = false
-
-                        // ✅ Legend بالألوان والأسماء
-                        legend.apply {
-                            isEnabled = true
-                            form = Legend.LegendForm.CIRCLE
-                            formSize = 8f
-                            textSize = 10f
-                            textColor = android.graphics.Color.DKGRAY
-                            horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-                            verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                            orientation = Legend.LegendOrientation.HORIZONTAL
-                            setDrawInside(false)
-                        }
-
+                        legend.isEnabled = false
                         description.isEnabled = false
                         setTouchEnabled(false)
                         setScaleEnabled(false)
                         animateX(1000)
                     }
+                },
+                update = { chart ->
+                    val newDataSets = mutableListOf<ILineDataSet>()
+                    leadSources.forEachIndexed { index, (label, values) ->
+                        val entries = values.mapIndexed { i, v -> Entry(i.toFloat(), v) }
+                        val set = LineDataSet(entries, label).apply {
+                            color = colors1[index]
+                            lineWidth = if (label == selectedLabel) 4f else 2f
+                            setCircleColor(colors1[index])
+                            circleRadius = if (label == selectedLabel) 6f else 4f
+                            setDrawCircleHole(false)
+                            setDrawValues(false)
+                            mode = LineDataSet.Mode.CUBIC_BEZIER
+                        }
+                        newDataSets.add(set)
+                    }
+                    chart.data = LineData(newDataSets)
+                    chart.invalidate()
                 }
             )
+
+            val grouped = leadSources.chunked(leadSources.size)
+            grouped.forEach { row ->
+                Row(
+
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    row.forEachIndexed { index, (label, _) ->
+                        val color = Color(colors1[index])
+                        val isSelected = selectedLabel == label
+
+                        val backgroundModifier = if (isSelected) {
+                            Modifier
+                                .clip(CircleShape)
+                                .background(color.copy(alpha = 0.6f))
+                                .border(
+                                    width = 1.5.dp,
+                                    color = color.copy(alpha = 0.5f),
+                                    shape = CircleShape
+                                )
+                        } else {
+                            Modifier // no round background when unselected
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+
+                                .then(backgroundModifier)
+                                .clickable { selectedLabel = label }
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            if (isSelected) {
+                                // show white circle inside when selected
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .background(Color.White, shape = CircleShape)
+                                )
+                            } else {
+                                // show just a small colored dot when unselected
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(color, shape = CircleShape)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            Text(
+                                text = label,
+                                fontSize = 10.sp,
+                                color = if (isSelected) Color.White else Color.DarkGray,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
-
-
 }
+
 
 fun combineAllLeadSources(months: List<LeadSource>): List<Pair<String, List<Float>>> {
     // جمع كل أسماء المصادر بدون تكرار
@@ -638,6 +729,7 @@ fun combineAllLeadSources(months: List<LeadSource>): List<Pair<String, List<Floa
 
 @Composable
 fun MonthlyInventoryChartMP(chart: List<Chart>) {
+
     val dates = chart.mapIndexed { index, chart ->
         chart.date
     }
@@ -664,7 +756,7 @@ fun MonthlyInventoryChartMP(chart: List<Chart>) {
                     .height(250.dp)
                     .padding(horizontal = 16.dp),
                 factory = { context ->
-                    LineChart(context).apply {
+                    LineChart(context).apply    {
                         val entries = valu.mapIndexed { index, it ->
                             Entry(index.toFloat(), it)
 
