@@ -271,7 +271,12 @@ fun CustomModalDrawer(
                                     scope.launch {
                                         drawerState.close()
                                     }
-                                    if (title == context.getString(R.string.dashboard)) {
+                                    if (title == "Home") {
+                                        navController.navigate(Screen.DashboardScreen1.route) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    else if (title == context.getString(R.string.dashboard)) {
                                         navController.navigate(Screen.DashboardScreen.route) {
                                             launchSingleTop = true
                                         }
@@ -385,6 +390,9 @@ fun CustomModalDrawer(
                                                     if (currentRoute(navController) == Screen.DashboardScreen.route) stringResource(
                                                         R.string.dashboard
                                                     )
+                                                    else if (currentRoute(navController) == Screen.DashboardScreen1.route) stringResource(
+                                                    R.string.dashboard
+                                                )
                                                     else if (currentRoute(navController) == Screen.Timeline.route) stringResource(
                                                         R.string.timeline
                                                     )
@@ -580,7 +588,10 @@ fun DrawerContent(
 
 
     val sideMenuItem: ArrayList<SideMenuItem> = arrayListOf()
+    sideMenuItem.add(SideMenuItem(R.drawable.element_1, "Home"))
+
     sideMenuItem.add(SideMenuItem(R.drawable.element_1, stringResource(R.string.dashboard)))
+
     sideMenuItem.add(SideMenuItem(R.drawable.timeline_menu_icon, stringResource(R.string.timeline)))
 
 

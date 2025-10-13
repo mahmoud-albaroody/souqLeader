@@ -244,25 +244,25 @@
     <string name="normal">عادي</string>
     <string name="delayed">متأخر</string>
     <string name="view_pdf">رؤية الملف</string>
-    <string name="no_app_found_to_open_pdf">No app found to open PDF</string>
-    <string name="pdf_document">PDF Document</string>
-    <string name="no_results_found">No results found</string>
+    <string name="no_app_found_to_open_pdf">لم يتم العثور على تطبيق لفتح ملف PDF</string>
+    <string name="pdf_document">مستند PDF</string>
+    <string name="no_results_found">لم يتم العثور على نتائج</string>
     <string name="waiting">انتظر قليلاً</string>
     <string name="uploading">جاري رفع الملف</string>
-    <string name="secondary">Secondary</string>
-    <string name="hot_leads">Hot Leads</string>
-    <string name="active_leads">Active Leads</string>
-    <string name="fresh_leads">Fresh Leads</string>
-    <string name="active_inventory">Active Inventory</string>
-    <string name="delayed_leads">Delayed Leads</string>
-    <string name="active_users">Active Users</string>
-    <string name="conversion_rate">Conversion Rate</string>
-    <string name="distribution_across_different_stages">Distribution across different stages</string>
-    <string name="lead_sources_over_time">Lead Sources Over Time</string>
-    <string name="primary">Primary</string>
-    <string name="cancellation_reasons">Cancellation Reasons</string>
-    <string name="total">Total: %1$s</string>
-    <string name="deals_closed">" deals closed"</string>
-    <string name="top_performing_agents">Top Performing Agents</string>
-    <string name="target_achieved">🏆 Target Achieved</string>
+    <string name="secondary">ثانوي</string>
+    <string name="hot_leads">العملاء المهتمون بشدة</string>
+    <string name="active_leads">العملاء النشطون</string>
+    <string name="fresh_leads">العملاء الجدد</string>
+    <string name="active_inventory">المخزون النشط</string>
+    <string name="delayed_leads">العملاء المتأخرون</string>
+    <string name="active_users">المستخدمون النشطون</string>
+    <string name="conversion_rate">معدل التحويل</string>
+    <string name="distribution_across_different_stages">التوزيع عبر المراحل المختلفة</string>
+    <string name="lead_sources_over_time">مصادر العملاء عبر الزمن</string>
+    <string name="primary">أساسي</string>
+    <string name="cancellation_reasons">أسباب الإلغاء</string>
+    <string name="total">الإجمالي: %1$s</string>
+    <string name="deals_closed">تم إغلاق الصفقات</string>
+    <string name="top_performing_agents">أفضل الوكلاء أداءً</string>
+    <string name="target_achieved">🏆 الهدف المُحقق</string>
 </resources>
